@@ -145,15 +145,11 @@ export const harnessSelfTest: Check = {
 
     if (failures.length > 0) return failed(failures);
 
-    return passed({
-      notMeasurable: [
-        {
-          property: "chemistry correctness",
-          reason:
-            "no chemistry check is registered, so this run verifies the harness only. Any fixture " +
-            "files present were counted and not read. See src/checks/index.ts",
-        },
-      ],
-    });
+    // This check verifies the registry mechanism, not chemistry. It deliberately says
+    // nothing about whether chemistry checks are registered: it used to assert that none
+    // were, and that claim silently went false the moment the conservation family landed.
+    // A self test that narrates other checks goes stale without failing, which is the one
+    // thing a self test must never do.
+    return passed({});
   },
 };

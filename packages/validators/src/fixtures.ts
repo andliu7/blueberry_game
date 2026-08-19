@@ -27,6 +27,21 @@ function isHidden(name: string): boolean {
   return name.startsWith(".");
 }
 
+/**
+ * Documentation that lives beside the fixtures and is not one.
+ *
+ * This is the single source of truth for the exclusion. Every consumer imports it from
+ * here rather than keeping its own copy, because counting fixtures in two places is how
+ * the two counts end up disagreeing, and a corpus count that reads high is exactly how a
+ * silent drop hides. This list was added after README.md inflated the reported count
+ * from 12 to 13.
+ */
+export const NON_FIXTURE_FILES: readonly string[] = ["README.md"];
+
+function isNonFixture(name: string): boolean {
+  return NON_FIXTURE_FILES.includes(name);
+}
+
 async function walk(dir: string, collected: string[]): Promise<void> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -35,6 +50,7 @@ async function walk(dir: string, collected: string[]): Promise<void> {
     if (entry.isDirectory()) {
       await walk(absolute, collected);
     } else if (entry.isFile()) {
+      if (isNonFixture(entry.name)) continue;
       collected.push(absolute);
     }
   }

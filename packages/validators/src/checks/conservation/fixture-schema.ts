@@ -72,7 +72,8 @@ export const FIXTURE_SUFFIX = ".fixture.json";
  * is a loud failure, because a fixture saved as ".json" instead of ".fixture.json" would
  * otherwise sit in the corpus verifying nothing while inflating the count.
  */
-export const NON_FIXTURE_FILES: readonly string[] = ["README.md"];
+import { NON_FIXTURE_FILES } from "../../fixtures.ts";
+export { NON_FIXTURE_FILES };
 
 /**
  * The names of the six checks in this family.

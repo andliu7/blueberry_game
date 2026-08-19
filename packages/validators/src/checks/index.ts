@@ -2,6 +2,7 @@ import type { Check } from "../check.ts";
 import { harnessSelfTest } from "./harness-self-test.ts";
 import { conservationChecks } from "./conservation/index.ts";
 import { budgetChecks } from "./budgets/index.ts";
+import { oracleChecks } from "./oracle/index.ts";
 
 /**
  * The check registry.
@@ -19,4 +20,5 @@ export const checks: readonly Check[] = [
   harnessSelfTest,
   ...conservationChecks,
   ...budgetChecks,
+  ...oracleChecks,
 ];
