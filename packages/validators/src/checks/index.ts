@@ -1,5 +1,7 @@
 import type { Check } from "../check.ts";
 import { harnessSelfTest } from "./harness-self-test.ts";
+import { conservationChecks } from "./conservation/index.ts";
+import { budgetChecks } from "./budgets/index.ts";
 
 /**
  * The check registry.
@@ -13,4 +15,8 @@ import { harnessSelfTest } from "./harness-self-test.ts";
  * check count in the report while verifying nothing, which is the exact false confidence
  * the suite exists to prevent.
  */
-export const checks: readonly Check[] = [harnessSelfTest];
+export const checks: readonly Check[] = [
+  harnessSelfTest,
+  ...conservationChecks,
+  ...budgetChecks,
+];
