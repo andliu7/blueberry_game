@@ -1,0 +1,70 @@
+# Build output. Never committed, from the first commit.
+# The sibling repo commits its build output and its .git is 34 MB against a
+# packed size of 862 KiB, because Vite content-hashes filenames so every build
+# writes new blobs that never delta-compress. Only fixable by rewriting history.
+dist/
+build/
+out/
+docs-build/
+.vite/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Expo
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Environment. VITE_ values are public by design, but the file itself is not.
+.env
+.env.local
+.env.*.local
+
+# Supabase local
+supabase/.branches
+supabase/.temp
+.branches
+.temp
+
+# Test and coverage output
+coverage/
+.nyc_output/
+packages/validators/results/*.json
+!packages/validators/results/.gitkeep
+
+# Python sidecar
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor and OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Scratch from scaffold delivery. Safe to delete.
+_scaffold.zip
+
+# Raw capture staging. Triaged copies live in docs/reference/, which is committed.
+# Keeping both would double roughly 27 MB of PNGs in .git. See D1.
+reference images/
+
+# Local CLI tool deps
+tools/blueberry-ai/node_modules/
+tools/blueberry-ai/dist/
+tools/blueberry-ai/fixtures/.work.css

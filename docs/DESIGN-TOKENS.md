@@ -1,0 +1,120 @@
+# Design tokens, inherited from Blueberry
+
+Extracted from `andliu7/blueberry`, chiefly `src/index.css` and `src/components/ui/*`. This app is
+a sibling, not a fork, so it re-declares these rather than importing them. Keep them in sync by
+hand and note any divergence here with a reason.
+
+The point is that a student who uses Blueberry and then opens Mechanisms should not feel they
+changed products.
+
+## Color
+
+Class-based dark mode, not `prefers-color-scheme`. Tailwind v4 variant is repointed with
+`@custom-variant dark (&:where(.dark, .dark *));`. An inline script in `index.html` runs pre-paint,
+reads `localStorage['theme']`, and toggles `.dark` on `<html>`, defaulting to dark unless the
+stored value is explicitly `"light"`. Copy that script or you will ship a flash of wrong theme.
+
+| Token | Light | Dark |
+|---|---|---|
+| `--background` | `#f6f4ef` cream | `#0c0a09` stone-950 |
+| `--foreground` | `#1e293b` slate-800 | `#e7e5e4` stone-200 |
+| `--card`, `--popover` | `#ffffff` | `#1c1917` stone-900 |
+| `--card-foreground` | `#0f172a` | `#f5f5f4` |
+| `--primary` | `#0f172a` | `#f5f5f4` |
+| `--primary-foreground` | `#ffffff` | `#1c1917` |
+| `--secondary`, `--muted`, `--accent` | `#f1f5f9` slate-100 | `#292524` stone-800 |
+| `--muted-foreground` | `#64748b` slate-500 | `#a8a29e` stone-400 |
+| `--destructive` | `#e11d48` rose-600 | `#f43f5e` rose-500 |
+| `--border`, `--input` | `#e2e8f0` slate-200 | `#44403c` stone-700 |
+| `--ring` | `#818cf8` indigo-400 | `#818cf8` |
+
+Accent gradient, used for sheen borders and glow: `#6366f1` indigo-500 to `#d946ef` fuchsia-500.
+Blueberry mark gradient: `#bdefff` to `#3fa9ff` to `#3d63f5` to `#2b2fb0`.
+
+Body carries a 28 by 28 px hairline grid, `rgba(15,23,42,0.025)` light and
+`rgba(255,255,255,0.035)` dark. That 28 px is the app's soft spatial unit.
+
+**Gap to close.** There is no success or warning token, only `--destructive`. This app needs
+both, because the four-way result taxonomy in `CLAUDE.md` has four outcomes and two of them are
+neither correct nor destructive. Define `--valid-not-requested` and `--alternative-route` in
+Phase 0, run them through the contrast gate, and add them here. Do not reach for raw amber.
+
+**Do not use red for a wrong answer.** Per the game shell rules, an incorrect arrow snaps back and
+a leaving group that will not leave wobbles. `--destructive` is for destructive actions, such as
+deleting saved work, not for a student learning.
+
+## Typography
+
+- Body and UI: `"Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif`
+- Display, class `.title-face`: `"Fraunces Variable", "Iowan Old Style", Palatino, Georgia, serif`,
+  `letter-spacing: 0.02em`
+- Handwritten accent, class `.playful-face`: `"Caveat Variable"` and fallbacks. Short labels only,
+  never body copy
+- `.playful-body` keeps Inter at `letter-spacing: 0.01em; line-height: 1.7` for warm long copy
+
+There is no numeric type scale token set. Sizes are per-component Tailwind utilities. If this app
+defines a scale, define it once and say so here.
+
+## Shape, depth, glass
+
+- House radius is `rounded-xl`, 12 px. Deliberately not mapped onto Tailwind's `--radius-md`, so
+  unrelated `rounded-md` usage is not reshaped
+- Glass card: `rounded-[2rem]` outer with a `rounded-[1.75rem]` inner inset
+- Pressable buttons: `rounded-[9px]`
+- Glass surfaces: `backdrop-blur-sm` or `-md`, `bg-white/40 dark:bg-white/[0.06]`, plus layered
+  inset box-shadows for the bevel. An SVG `feTurbulence` and `feDisplacementMap` filter adds
+  refraction as progressive enhancement, never as a requirement
+- Buttons are `h-11`, 44 px, one step taller than stock shadcn, explicitly for the touch target
+  floor. That is the same 44 pt floor this app's accessibility budget names, so it is already
+  consistent
+
+## Motion
+
+Two libraries, with a division of labour worth keeping.
+
+- `motion` (the Framer successor) drives interaction: springs on buttons, toggles, toasts, nav.
+  Typical spring `{ stiffness: 300 to 520, damping: 22 to 34, mass: 0.45 to 0.7 }`. Simple fades
+  use `duration: 0.25 to 0.35s` with cubic-bezier `[0.4, 0, 0.2, 1]`
+- `gsap` drives timeline-heavy sequences, such as the card fan carousel
+- Plain CSS keyframes handle passive loops: shine borders at 2.6s linear, spotlight pulse at 1.8s
+- Theme swap forces a 220 ms ease transition on color properties for 260 ms around the toggle
+
+`prefers-reduced-motion` is respected pervasively, and correctly: animations drop to 1 ms or
+freeze to a representative static frame, never simply vanish leaving no state. Match that
+standard. A stereocenter inversion with reduced motion still has to show that inversion happened.
+
+## The mascot
+
+Both 2D and 3D, progressively enhanced, and already built. Do not rebuild any of it.
+
+- `blueberry-mark.tsx`: flat inline SVG, viewBox `0 0 64 64`, radial-gradient sphere with a five
+  lobed calyx crown. Animated eyes, blush, and smile driven by CSS classes and a `data-mood`
+  attribute. Thirteen moods including curious, focused, thinking, shy, cheer, happy, proud, sleepy
+- `blueberry.tsx`: renders the flat mark first for cheap first paint, then lazy loads the WebGL
+  version only when the element is near viewport, WebGL is confirmed, and reduced motion is off.
+  Cross-fades in over a 600 ms `berry-arrive` keyframe
+- `berry-geometry.ts`: pure THREE geometry, an oblate spheroid at `OBLATE = 1.12` with a sculpted
+  five lobed calyx depression. No mood or behaviour logic
+- `berryBehaviour.ts`: the behaviour machine. See `docs/INHERITED-DECISIONS.md` D4
+
+Mood and behaviour compose. Wire game events to behaviours, not to moods: correct resolves to
+`bounce`, wrong to `squash`, streak milestones to `celebrate`. A student can be `stressed` during
+exam week and still bounce on a correct answer, and that combination is the whole reason the two
+axes are separate.
+
+## Layout
+
+- Practical breakpoints, from existing media queries: 480, 640, 768, 1024
+- Radius ladder in practice: `rounded-xl` default, `rounded-2xl` for tiles and toasts, `rounded-full`
+  for pills and avatars
+- No global container convention. Widths are set per component, for example
+  `w-[min(24rem,calc(100vw-2.5rem))]` on the toast stack
+
+## Duolingo, as a second reference
+
+Named as inspiration for the game shell only, not for the chemistry. What is worth taking is the
+shape of the reward moment: a large single number for the session result, a full-bleed celebration
+state that is visually distinct from the working state, and a tiered badge that means something
+because it was scarce. What is not worth taking is the streak-loss anxiety loop. This is a study
+tool used before exams by people who are already stressed, and a mechanic built on fear of losing
+a number is the wrong tool for that audience. Reward returning. Do not punish leaving.

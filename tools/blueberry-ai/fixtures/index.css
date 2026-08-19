@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: #f6f4ef;
+  --color-foreground: #1e293b;
+  --color-destructive: #e11d48;
+  --radius-house: 12px;
+}
+
+:root {
+  --background: #f6f4ef;
+  --foreground: #1e293b;
+}
+
+.dark {
+  --background: #0c0a09;
+  --foreground: #e7e5e4;
+  --card: #1c1917;
+  --muted-foreground: #a8a29e;
+  --border: #44403c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0c0a09;
+    --foreground: #e7e5e4;
+  }
+}
