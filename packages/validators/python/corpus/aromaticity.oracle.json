@@ -142,7 +142,17 @@
             {
               "id": "sp-arenium",
               "label": "bromobenzenium, the Wheland intermediate",
-              "expect": { "meso": false },
+              "expect": {
+                "meso": false,
+                "unspecifiedStereoDeclared": [
+                  {
+                    "kind": "atom",
+                    "ref": "c1",
+                    "justification": "c1 is not a stereocentre. It looks like one to RDKit only because this state writes a single localised resonance structure of the sigma complex, which makes the two ring branches leaving c1 different from each other: going one way you meet the double bond at r2 first, going the other way you meet the positive charge at c6. The real ion is a delocalised pentadienyl cation with the positive charge shared over c2, c4 and c6 and a mirror plane through c1 and c4, so the two branches are equivalent and c1 has two identical substituents. Confirmed against RDKit's own CIP ranking, which ranks the ring atoms 5,4,3,2,1,0 purely by where this file happens to put the charge; rewriting the same ion with the charge on c2 moves the ranking with it. Pinning R or S here would invent a configuration the molecule does not have, and every product of this mechanism is achiral at c1 whichever resonance structure is drawn.",
+                    "declaredBy": "benzene-bromination-sigma-complex"
+                  }
+                ]
+              },
               "atoms": [
                 { "id": "c1", "element": "C", "isotope": null, "formalCharge": 0, "lonePairs": 0, "unpairedElectrons": 0, "implicitHydrogens": 1, "stereo": null },
                 { "id": "c2", "element": "C", "isotope": null, "formalCharge": 0, "lonePairs": 0, "unpairedElectrons": 0, "implicitHydrogens": 1, "stereo": null },

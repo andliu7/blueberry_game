@@ -31,6 +31,8 @@ npm run validate           # expect SUITE: pass
 | `wrong-meso-expectation.oracle.json` | `oracle-meso-detection` | `expect.meso` true on the (2R,3R) diastereomer |
 | `stereo-slot-not-a-neighbour.oracle.json` | `oracle-sanitization` | a stereo slot naming an atom the centre is not bonded to |
 | `broken-aromaticity-invariant.oracle.json` | `oracle-aromaticity-stability` | ring carbons declared invariant across the step that dearomatises them |
+| `undeclared-unspecified-stereo.oracle.json` | `oracle-stereo-descriptors` | the arenium's sp3 carbon reported unconfigured by RDKit with nothing declared about it |
+| `stale-unspecified-stereo-declaration.oracle.json` | `oracle-stereo-descriptors` | an `expect.unspecifiedStereoDeclared` entry on a benzene carbon RDKit says nothing about |
 
 `declared-sanitization-failure.oracle.json` is the one file here that must NOT fail the
 suite. It carries a `sanitizationMayFail` declaration whose `expectedError` matches what

@@ -294,3 +294,53 @@ The bridge strips `expect` before sending and keeps it for the meso check to com
 against. `expect.meso` is required to be present on every species in a sequence that any
 meso expectation appears in, so that a species silently losing its expectation is
 visible.
+
+### Declaring an unspecified stereo element an artifact
+
+A `Species` may also carry `expect.unspecifiedStereoDeclared`, a list. The key is
+optional; absent and `[]` are the same statement, which is that nothing is declared.
+
+```json
+"expect": {
+  "meso": false,
+  "unspecifiedStereoDeclared": [
+    {
+      "kind": "atom",
+      "ref": "c1",
+      "justification": "...",
+      "declaredBy": "problem-id or author"
+    }
+  ]
+}
+```
+
+`kind` and `ref` name one entry of the species' `unspecifiedPotentialStereo` result, so a
+declaration is only meaningful after RDKit has answered. That is why it rides in `expect`
+and is stripped by the bridge rather than travelling on the wire: the sidecar must not be
+able to read a claim it is being used to grade.
+
+An element RDKit reports with no configuration on it is normally a check FAILURE, because
+CLAUDE.md's one exception is written narrowly around aromaticity perception and says
+nothing about unlabelled stereocentres. Some elements are nonetheless artifacts of how a
+state is written rather than centres anybody could pin. The benzenonium sigma complex is
+the case this was built for: the corpus writes one localised resonance structure, so the
+two ring branches leaving the sp3 carbon are inequivalent to RDKit's CIP ranking, while
+the real delocalised cation has a mirror plane through that carbon. This declaration is
+the recorded, attackable act that says so, and it follows `sanitizationMayFail` case for
+case:
+
+- Unspecified element, nothing declared, is a check FAILURE. Unchanged.
+- Unspecified element, declared, with a non empty `justification`, is an ADJUDICATION item
+  for a human, not a pass and not a failure.
+- Declared with an empty `justification` is a check FAILURE. An unsigned skip is not a
+  declaration. The corpus loader also refuses to read the file, and the rule is asserted
+  again in the evaluator so it belongs to the check rather than to whichever reader ran
+  first.
+- Declared, and the element is no longer unspecified, is a check FAILURE. A stale escape
+  hatch is how an escape hatch becomes a blanket one.
+- Declared, and `ref` names no atom or bond in the species, is a check FAILURE.
+
+`declaredBy` and `justification` are printed verbatim in the adjudication line, so an
+adversary reads the reasoning and argues with it. The declaration never suppresses a
+descriptor comparison: an authored `R` that RDKit calls `S` still fails, declaration or
+no.

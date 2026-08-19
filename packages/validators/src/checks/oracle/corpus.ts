@@ -60,7 +60,35 @@ const ALLOWED_SEQUENCE_KEYS = [
   "aromaticityInvariantAtomIds",
   "states",
 ];
-const ALLOWED_EXPECT_KEYS = ["meso"];
+const REQUIRED_EXPECT_KEYS = ["meso"];
+const OPTIONAL_EXPECT_KEYS = ["unspecifiedStereoDeclared"];
+const REQUIRED_DECLARATION_KEYS = ["kind", "ref", "justification", "declaredBy"];
+const DECLARATION_KINDS = ["atom", "bond"];
+
+/**
+ * An author's recorded, attackable claim that one potential stereo element RDKit reports
+ * as unconfigured is an artifact of how the state is written, not an unlabelled centre.
+ *
+ * This is the same shape and the same discipline as `sanitizationMayFail` in payload.ts,
+ * and it exists for the same reason: an escape hatch nobody signed is a blanket one. The
+ * cases the stereo check draws from it are listed in stereo-descriptors.ts and in
+ * CONTRACT.md, and two of the four are failures.
+ *
+ * IT DOES NOT TRAVEL ON THE WIRE. `kind` and `ref` name an element in the sidecar's
+ * `unspecifiedPotentialStereo` output, so the declaration is only meaningful after RDKit
+ * has answered. Sending it would let the sidecar read a claim it is being used to grade.
+ * It rides in `expect`, the one corpus key the bridge strips, next to `expect.meso`.
+ */
+export interface UnspecifiedStereoDeclaration {
+  /** Matches the `kind` of a sidecar unspecifiedPotentialStereo entry: atom or bond. */
+  readonly kind: string;
+  /** The corpus atom or bond id the element is centred on. */
+  readonly ref: string;
+  /** Why this element is not an unlabelled stereocentre. Required, non empty. */
+  readonly justification: string;
+  /** Problem id or author. Who signed it. */
+  readonly declaredBy: string;
+}
 
 export interface CorpusSpecies {
   readonly id: string;
@@ -70,6 +98,13 @@ export interface CorpusSpecies {
    * species that lost its expectation must be visible, not read as "expected false".
    */
   readonly expectMeso: boolean | null;
+  /**
+   * Declared artifact stereo elements. Empty when nothing is declared, which is the same
+   * statement as no `expect` block at all: an undeclared unspecified element fails.
+   * Unlike expectMeso there is no null case, because there is nothing an author can lose
+   * here without the stale-declaration rule in stereo-descriptors.ts firing.
+   */
+  readonly unspecifiedStereoDeclared: readonly UnspecifiedStereoDeclaration[];
 }
 
 export interface CorpusState {
@@ -118,13 +153,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * CONTRACT.md gives the reason for the same rule in the sidecar: a typo in a field name
  * read as "the author did not state this" is how a check quietly stops checking. An
  * `expct` block would otherwise silently remove a meso expectation.
+ *
+ * `optional` keys may be absent but may not be misspelled. There is exactly one of them,
+ * `expect.unspecifiedStereoDeclared`, and it is optional because absent and empty are the
+ * same statement there: nothing is declared, so an unspecified element fails. A misspelled
+ * one still has to be loud, because `unspecifiedStereoDeclaired` read as "nothing
+ * declared" would turn a real declaration into a silent hard failure and, worse, the
+ * matching stale-declaration rule would never see it.
  */
 function keyProblems(
   value: Record<string, unknown>,
-  allowed: readonly string[],
+  required: readonly string[],
   where: string,
+  optional: readonly string[] = [],
 ): string[] {
   const problems: string[] = [];
+  const allowed = [...required, ...optional];
   const unknown = Object.keys(value)
     .filter((key) => !allowed.includes(key))
     .sort();
@@ -133,11 +177,100 @@ function keyProblems(
       `${where}: unknown key(s) ${unknown.join(", ")}. Allowed: ${[...allowed].sort().join(", ")}`,
     );
   }
-  const missing = allowed.filter((key) => !(key in value)).sort();
+  const missing = required.filter((key) => !(key in value)).sort();
   if (missing.length > 0) {
     problems.push(`${where}: missing required key(s) ${missing.join(", ")}`);
   }
   return problems;
+}
+
+/**
+ * Read `expect.unspecifiedStereoDeclared`.
+ *
+ * Everything structural about a declaration is rejected here rather than downstream,
+ * because a half formed declaration must never reach the point where it could be read as
+ * covering an element. The empty justification is checked in BOTH places: here, so a
+ * corpus file carrying one cannot be loaded at all, and again in stereo-descriptors.ts, so
+ * the rule "a declaration without a justification covers nothing" is a property of the
+ * evaluator rather than a property of one file reader that happens to run first. The
+ * evaluator copy is the one the gate self test drives.
+ *
+ * Returns null when the block is unusable, which makes the whole state unusable, which
+ * makes the run unusable. A dropped state would be a smaller corpus reported as a green
+ * one.
+ */
+function parseUnspecifiedStereoDeclarations(
+  raw: unknown,
+  where: string,
+  errors: string[],
+): UnspecifiedStereoDeclaration[] | null {
+  if (!Array.isArray(raw)) {
+    errors.push(
+      `${where}: unspecifiedStereoDeclared must be an array. Omit the key entirely to ` +
+        `declare nothing`,
+    );
+    return null;
+  }
+
+  const declarations: UnspecifiedStereoDeclaration[] = [];
+  let usable = true;
+
+  for (const [slot, entry] of raw.entries()) {
+    const at = `${where}.unspecifiedStereoDeclared[${slot}]`;
+    if (!isRecord(entry)) {
+      errors.push(`${at}: must be an object`);
+      usable = false;
+      continue;
+    }
+    const problems = keyProblems(entry, REQUIRED_DECLARATION_KEYS, at);
+    if (problems.length > 0) {
+      errors.push(...problems);
+      usable = false;
+      continue;
+    }
+
+    const kind = entry["kind"];
+    if (typeof kind !== "string" || !DECLARATION_KINDS.includes(kind)) {
+      errors.push(`${at}: kind must be one of ${DECLARATION_KINDS.join(", ")}`);
+      usable = false;
+      continue;
+    }
+    const ref = entry["ref"];
+    if (typeof ref !== "string" || ref.trim() === "") {
+      errors.push(`${at}: ref must be a non empty atom or bond id`);
+      usable = false;
+      continue;
+    }
+    const justification = entry["justification"];
+    if (typeof justification !== "string" || justification.trim() === "") {
+      errors.push(
+        `${at}: justification must be a non empty string. A declaration is a recorded ` +
+          `act an adversary can read and argue with; one with nothing written on it is ` +
+          `an unsigned skip`,
+      );
+      usable = false;
+      continue;
+    }
+    const declaredBy = entry["declaredBy"];
+    if (typeof declaredBy !== "string" || declaredBy.trim() === "") {
+      errors.push(`${at}: declaredBy must be a non empty problem id or author`);
+      usable = false;
+      continue;
+    }
+
+    if (declarations.some((one) => one.kind === kind && one.ref === ref)) {
+      errors.push(
+        `${at}: ${kind} ${ref} is declared twice. One element takes one declaration, so ` +
+          `the second can never be matched and is stale the moment it is written`,
+      );
+      usable = false;
+      continue;
+    }
+
+    declarations.push({ kind, ref, justification, declaredBy });
+  }
+
+  return usable ? declarations : null;
 }
 
 interface FileLoad {
@@ -294,19 +427,36 @@ function loadOneFile(relativePath: string, raw: string): FileLoad {
         }
 
         let expectMeso: boolean | null = null;
+        let declared: readonly UnspecifiedStereoDeclaration[] = [];
         if ("expect" in rawOne) {
           const expect = rawOne["expect"];
           if (!isRecord(expect)) {
             errors.push(`${speciesWhere}: expect must be an object`);
             stateUsable = false;
           } else {
-            errors.push(...keyProblems(expect, ALLOWED_EXPECT_KEYS, `${speciesWhere} expect`));
+            errors.push(
+              ...keyProblems(
+                expect,
+                REQUIRED_EXPECT_KEYS,
+                `${speciesWhere} expect`,
+                OPTIONAL_EXPECT_KEYS,
+              ),
+            );
             const meso = expect["meso"];
             if (typeof meso === "boolean") {
               expectMeso = meso;
             } else {
               errors.push(`${speciesWhere}: expect.meso must be true or false`);
               stateUsable = false;
+            }
+            if ("unspecifiedStereoDeclared" in expect) {
+              const parsed = parseUnspecifiedStereoDeclarations(
+                expect["unspecifiedStereoDeclared"],
+                `${speciesWhere} expect`,
+                errors,
+              );
+              if (parsed === null) stateUsable = false;
+              else declared = parsed;
             }
           }
         }
@@ -317,7 +467,7 @@ function loadOneFile(relativePath: string, raw: string): FileLoad {
         const { expect: _dropped, ...wire } = rawOne;
         void _dropped;
         wireSpecies.push(wire as unknown as SpeciesPayload);
-        species.push({ id: speciesId, expectMeso });
+        species.push({ id: speciesId, expectMeso, unspecifiedStereoDeclared: declared });
 
         const rawAtoms = rawOne["atoms"];
         if (Array.isArray(rawAtoms)) {

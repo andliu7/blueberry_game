@@ -2,7 +2,7 @@ import type { Check, CheckFailure, CheckResult } from "../../check.ts";
 import { failed, passed } from "../../check.ts";
 import type { Adjudication, Evaluation } from "./adjudication.ts";
 import { toNotMeasurable } from "./adjudication.ts";
-import type { CorpusState } from "./corpus.ts";
+import type { CorpusState, UnspecifiedStereoDeclaration } from "./corpus.ts";
 import type { SpeciesPayload, SpeciesResult } from "./payload.ts";
 import { oracleRun, unusableFailure, type ResultByRef } from "./run.ts";
 
@@ -36,12 +36,10 @@ import { oracleRun, unusableFailure, type ResultByRef } from "./run.ts";
  *      an authored R on a centre that is not one is exactly the kind of thing that ends
  *      up drawn on a problem card.
  *
- *   4. A centre RDKit calls stereogenic that the author left unconfigured is an
- *      ADJUDICATION item, not a failure. Two entries in the current corpus are legitimate
- *      cases of this: the bridged bromonium's two carbons and the arenium ion's sp3
- *      carbon. Both are real chemistry where the configuration is either undefined or not
- *      the point, and failing them would make the suite red on correct chemistry. A human
- *      decides whether the corpus should pin them.
+ *   4. A centre RDKit calls stereogenic that the author left unconfigured is a FAILURE,
+ *      unless the corpus carries an `expect.unspecifiedStereoDeclared` entry naming that
+ *      exact element. See the block above the loop at the bottom of evaluateSpecies for
+ *      the five cases and why the declaration is not an opt out.
  *
  * A species carrying authored descriptors that did not sanitise is an adjudication item
  * rather than a pass or a failure: CONTRACT.md has the sidecar report nothing downstream
@@ -82,6 +80,7 @@ function evaluateSpecies(
   state: CorpusState,
   payload: SpeciesPayload,
   result: SpeciesResult,
+  declarations: readonly UnspecifiedStereoDeclaration[],
   failures: CheckFailure[],
   adjudications: Adjudication[],
 ): void {
@@ -91,16 +90,20 @@ function evaluateSpecies(
   if (!result.sanitization.ok) {
     const authoredAtoms = payload.atoms.filter((atom) => atom.stereo?.authoredDescriptor != null);
     const authoredBonds = payload.bonds.filter((bond) => bond.stereo?.authoredDescriptor != null);
-    if (authoredAtoms.length > 0 || authoredBonds.length > 0) {
+    if (authoredAtoms.length > 0 || authoredBonds.length > 0 || declarations.length > 0) {
       adjudications.push({
         category: "not-comparable",
         where,
         finding:
-          `${authoredAtoms.length} authored atom descriptor(s) and ` +
-          `${authoredBonds.length} authored bond descriptor(s) could not be compared ` +
+          `${authoredAtoms.length} authored atom descriptor(s), ` +
+          `${authoredBonds.length} authored bond descriptor(s) and ` +
+          `${declarations.length} unspecified stereo declaration(s) could not be compared ` +
           `against RDKit, because this species did not sanitise ` +
           `(${result.sanitization.errorKind ?? "unknown"}). The sanitisation check owns ` +
-          `the verdict on the state. These labels remain unverified.`,
+          `the verdict on the state. These claims remain unverified. The declarations are ` +
+          `not treated as stale here: CONTRACT.md has the sidecar report nothing downstream ` +
+          `of a failed sanitisation, so there is no list of unspecified elements to be ` +
+          `absent from.`,
       });
     }
     return;
@@ -212,15 +215,124 @@ function evaluateSpecies(
     }
   }
 
+  // An unlabelled stereo element is a HARD FAILURE unless it is declared.
+  //
+  // It became a hard failure when a validator pass noticed the blanket adjudication
+  // claimed its authority from python/CONTRACT.md, a file written by the same builder the
+  // oracle grades. CLAUDE.md grants exactly one exception, narrowly: RDKit aromaticity
+  // perception is a model rather than ground truth, so aromaticity disagreements go to
+  // human adjudication. It says nothing about unlabelled stereocentres, and a suite does
+  // not get to widen its own exceptions.
+  //
+  // The chemistry agrees with the letter. CLAUDE.md names Br2 addition to cis and trans
+  // 2-butene as reference fixtures, racemic against meso, and says an implementation that
+  // swaps them has a sign error in the addition geometry. The carbons RDKit flags on a
+  // bridged bromonium are the ones that decide which you get. Leaving them unpinned is how
+  // that sign error survives a green run. Both are pinned in the corpus.
+  //
+  // WHY A DECLARATION EXISTS AT ALL. Some potential stereo elements are artifacts of how
+  // the state is written rather than centres anybody could pin. The benzenonium sigma
+  // complex is the case in hand: the corpus writes one localised resonance structure, so
+  // the two ring branches leaving the sp3 carbon are inequivalent to RDKit's CIP ranking,
+  // while the real delocalised pentadienyl cation has a mirror plane through that carbon.
+  // Pinning R or S there would be inventing chemistry, and so would deleting the check.
+  //
+  // THE FIVE CASES. Three are failures, one is an adjudication, one never arises.
+  //
+  //   unspecified, nothing declared          FAILURE, unchanged
+  //   unspecified, declared with a reason    ADJUDICATION, for a human
+  //   unspecified, declared with no reason   FAILURE, an unsigned skip is not a declaration
+  //   declared, element is not unspecified   FAILURE, the declaration is stale
+  //   declared, element is not in the state  FAILURE, the declaration names nothing
+  //
+  // This is the shape of sanitizationMayFail in sanitization.ts, deliberately, down to
+  // the stale rule. The stale rule is the load bearing one: without it, a declaration
+  // written once outlives the chemistry it was written about and quietly covers whatever
+  // shows up at that id later.
+  //
+  // ADJUDICATION RATHER THAN PASS is chosen for the same reason it is chosen there. A
+  // declared artifact is a claim a human should read once and either accept or argue with,
+  // and the queue size line in adjudication.ts is what makes a growing pile of them
+  // visible. A silent pass would make the count of declarations invisible, and the number
+  // of places the suite has stopped asserting is exactly the number a reviewer needs.
+  const declaredByElement = new Map<string, UnspecifiedStereoDeclaration>();
+  for (const declaration of declarations) {
+    declaredByElement.set(`${declaration.kind}:${declaration.ref}`, declaration);
+  }
+  const covered = new Set<string>();
+
   for (const element of result.unspecifiedPotentialStereo) {
+    // A null ref is an element centred on something with no corpus id, a hydrogen this
+    // sidecar materialised for instance. Nothing can name it, so nothing can declare it.
+    const key = element.ref === null ? null : `${element.kind}:${element.ref}`;
+    const declaration = key === null ? undefined : declaredByElement.get(key);
+
+    if (declaration === undefined) {
+      failures.push({
+        expected: `an authored configuration on the ${element.kind} stereo element at ${where}`,
+        actual:
+          `RDKit sees a potential ${element.kind} stereo element with no configuration on it. ` +
+          `Species SMILES ${result.canonicalSmiles ?? "unavailable"}. Pin the configuration in ` +
+          `the corpus. If it is not a real stereocentre, say why in an ` +
+          `expect.unspecifiedStereoDeclared entry naming ${element.kind} ` +
+          `${element.ref ?? "(unnameable, no corpus id)"}, which is a recorded claim a human ` +
+          `reads, not something this check may assume`,
+        fixture: `${fixture} ${element.kind}:${element.ref ?? "unmapped"}`,
+      });
+      continue;
+    }
+
+    // Marked covered either way. The declaration does name this element, so the stale
+    // rule below has nothing to say about it, and one problem should report once.
+    covered.add(key as string);
+
+    if (declaration.justification.trim() === "") {
+      failures.push({
+        expected: `a justification on the declaration for ${element.kind} ${element.ref} at ${where}`,
+        actual:
+          `the declaration by ${declaration.declaredBy} carries an empty justification, so ` +
+          `it covers nothing. A declaration is a recorded act an adversary can read and ` +
+          `argue with. Without one written down it is an unsigned skip`,
+        fixture: `${fixture} ${element.kind}:${element.ref}`,
+      });
+      continue;
+    }
+
     adjudications.push({
       category: "stereo-unspecified",
-      where: `${where} ${element.kind}:${element.ref ?? "unmapped"}`,
+      where: `${where} ${element.kind}:${element.ref}`,
       finding:
-        `RDKit sees a potential ${element.kind} stereo element here with no configuration ` +
-        `on it. Species SMILES ${result.canonicalSmiles ?? "unavailable"}. A human decides ` +
-        `whether the corpus should pin a configuration or whether it is genuinely ` +
-        `undefined at this step.`,
+        `RDKit reports a potential ${element.kind} stereo element with no configuration ` +
+        `on it, and ${declaration.declaredBy} declared it an artifact of how this state is ` +
+        `written rather than an unlabelled centre. Species SMILES ` +
+        `${result.canonicalSmiles ?? "unavailable"}. Justification on file: ` +
+        `${declaration.justification} A human decides whether that reasoning holds, or ` +
+        `whether the element should be pinned after all.`,
+    });
+  }
+
+  const speciesAtomIds = new Set(payload.atoms.map((atom) => atom.id));
+  const speciesBondIds = new Set(payload.bonds.map((bond) => bond.id));
+
+  for (const declaration of declarations) {
+    const key = `${declaration.kind}:${declaration.ref}`;
+    if (covered.has(key)) continue;
+
+    const known =
+      declaration.kind === "atom"
+        ? speciesAtomIds.has(declaration.ref)
+        : speciesBondIds.has(declaration.ref);
+
+    failures.push({
+      expected: `the declared ${declaration.kind} ${declaration.ref} at ${where} is still an unspecified potential stereo element`,
+      actual: known
+        ? `RDKit reports ${result.unspecifiedPotentialStereo.length} unspecified element(s) ` +
+          `here and this is not one of them, so the declaration by ${declaration.declaredBy} ` +
+          `is stale. Withdraw it. A declaration left behind stops describing the chemistry ` +
+          `it was written about and starts covering whatever appears at that id next`
+        : `no ${declaration.kind} ${declaration.ref} exists in this species at all, so the ` +
+          `declaration by ${declaration.declaredBy} names nothing and can never be matched`,
+      fixture: `${fixture} ${key}`,
     });
   }
 }
@@ -245,19 +357,23 @@ export function evaluateStereoDescriptors(
 
     const payloads = speciesPayloads(state);
     const analysed = new Set(result.species.map((one) => one.id));
+    const declarationsBySpecies = new Map(
+      state.species.map((one) => [one.id, one.unspecifiedStereoDeclared]),
+    );
 
     for (const [speciesId, payload] of payloads) {
       if (analysed.has(speciesId)) continue;
       const authored =
         payload.atoms.filter((atom) => atom.stereo?.authoredDescriptor != null).length +
         payload.bonds.filter((bond) => bond.stereo?.authoredDescriptor != null).length;
-      if (authored === 0) continue;
+      const declared = (declarationsBySpecies.get(speciesId) ?? []).length;
+      if (authored === 0 && declared === 0) continue;
       failures.push({
-        expected: `${authored} authored descriptor(s) on species ${speciesId} verified against RDKit`,
+        expected: `${authored} authored descriptor(s) and ${declared} unspecified stereo declaration(s) on species ${speciesId} verified against RDKit`,
         actual:
           "the species produced no result at all, so nothing was verified. A build error " +
           "is a data error in the corpus and is never covered by a sanitizationMayFail " +
-          "declaration",
+          "declaration, and a declaration on a species RDKit never saw covers nothing",
         fixture: state.stateRef,
       });
     }
@@ -265,7 +381,8 @@ export function evaluateStereoDescriptors(
     for (const species of result.species) {
       const payload = payloads.get(species.id);
       if (payload === undefined) continue; // Reported by oracle-sanitization.
-      evaluateSpecies(state, payload, species, failures, adjudications);
+      const declarations = declarationsBySpecies.get(species.id) ?? [];
+      evaluateSpecies(state, payload, species, declarations, failures, adjudications);
     }
   }
 
@@ -275,7 +392,7 @@ export function evaluateStereoDescriptors(
 export const oracleStereoDescriptors: Check = {
   name: CHECK_NAME,
   description:
-    "every authored R/S and E/Z label equals the descriptor rdCIPLabeler assigns to the same atom or bond",
+    "every authored R/S and E/Z label equals the descriptor rdCIPLabeler assigns to the same atom or bond, and every stereo element RDKit reports unconfigured is either pinned or declared an artifact with a reason",
 
   async run(context): Promise<CheckResult> {
     const run = await oracleRun(context);

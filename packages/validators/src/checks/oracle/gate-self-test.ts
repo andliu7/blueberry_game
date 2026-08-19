@@ -2,7 +2,11 @@ import type { Check, CheckFailure, CheckResult } from "../../check.ts";
 import { failed, passed } from "../../check.ts";
 import type { Evaluation } from "./adjudication.ts";
 import { evaluateAromaticity } from "./aromaticity.ts";
-import type { CorpusSequence, CorpusState } from "./corpus.ts";
+import type {
+  CorpusSequence,
+  CorpusState,
+  UnspecifiedStereoDeclaration,
+} from "./corpus.ts";
 import { evaluateMeso } from "./meso.ts";
 import type {
   AtomDescriptorResult,
@@ -100,6 +104,7 @@ function makeCorpusState(
   species: readonly SpeciesPayload[],
   expectMeso: readonly (boolean | null)[],
   mayFail: SanitizationMayFail | null,
+  declaredBySpecies: ReadonlyMap<string, readonly UnspecifiedStereoDeclaration[]> = new Map(),
 ): CorpusState {
   const stateRef = `self-test#seq:synthetic/state:${index}`;
   const atomIds = new Set<string>();
@@ -119,6 +124,7 @@ function makeCorpusState(
     species: species.map((one, slot) => ({
       id: one.id,
       expectMeso: expectMeso[slot] ?? null,
+      unspecifiedStereoDeclared: declaredBySpecies.get(one.id) ?? [],
     })),
     atomIds,
     speciesByAtomId,
@@ -346,16 +352,64 @@ function droppedDescriptor(): Evaluation {
   return evaluateStereoDescriptors([state], refs([[state, result]]));
 }
 
-function unspecifiedStereoIsAdjudicated(): Evaluation {
+/* ---- unspecified potential stereo, and the declaration that covers it ---- */
+
+const STEREO_DECLARATION: UnspecifiedStereoDeclaration = {
+  kind: "atom",
+  ref: "a1",
+  justification:
+    "synthetic declaration built in gate-self-test.ts, standing in for the arenium's " +
+    "resonance artifact",
+  declaredBy: "oracle-gate-self-test",
+};
+
+/** One species, one atom, and whatever declarations the case wants on it. */
+function stereoDeclarationCase(
+  declarations: readonly UnspecifiedStereoDeclaration[],
+  unspecified: readonly { readonly kind: string; readonly ref: string | null }[],
+): Evaluation {
   const species = makeSpeciesPayload("sp-1", [makeAtom("a1", null)], []);
-  const state = makeCorpusState(0, [species], [false], null);
+  const state = makeCorpusState(
+    0,
+    [species],
+    [false],
+    null,
+    new Map([["sp-1", declarations]]),
+  );
   const result = makeStateResult(state, [
-    makeSpeciesResult({
-      ...cleanSpecies("sp-1"),
-      unspecified: [{ kind: "atom", ref: "a1" }],
-    }),
+    makeSpeciesResult({ ...cleanSpecies("sp-1"), unspecified }),
   ]);
   return evaluateStereoDescriptors([state], refs([[state, result]]));
+}
+
+function undeclaredUnspecifiedStereo(): Evaluation {
+  return stereoDeclarationCase([], [{ kind: "atom", ref: "a1" }]);
+}
+
+function declaredUnspecifiedStereo(): Evaluation {
+  return stereoDeclarationCase([STEREO_DECLARATION], [{ kind: "atom", ref: "a1" }]);
+}
+
+function declarationWithoutJustification(): Evaluation {
+  // Blank rather than absent, because absent is rejected by the corpus loader before an
+  // evaluator ever sees it. The rule being asserted is the evaluator's own: a declaration
+  // with nothing written on it covers nothing, whatever built it.
+  return stereoDeclarationCase(
+    [{ ...STEREO_DECLARATION, justification: "   " }],
+    [{ kind: "atom", ref: "a1" }],
+  );
+}
+
+function staleStereoDeclaration(): Evaluation {
+  // The atom is still there and is no longer unspecified: either it was pinned, or the
+  // chemistry moved. Either way the declaration has outlived what it was written about.
+  return stereoDeclarationCase([STEREO_DECLARATION], []);
+}
+
+function stereoDeclarationNamesNothing(): Evaluation {
+  // No atom a9 exists in the species at all. Nothing else is wrong with this state, so
+  // the only failure it can produce is the one being asserted.
+  return stereoDeclarationCase([{ ...STEREO_DECLARATION, ref: "a9" }], []);
 }
 
 function wrongMesoExpectation(): Evaluation {
@@ -467,7 +521,17 @@ const ASSERTIONS: readonly Assertion[] = [
   { name: "stereo fires on an authored R where RDKit says S", want: "fails", evaluate: wrongCipDescriptor },
   { name: "stereo fires on an authored E where RDKit says Z", want: "fails", evaluate: wrongEzDescriptor },
   { name: "stereo fires when an authored descriptor came back unverified", want: "fails", evaluate: droppedDescriptor },
-  { name: "stereo adjudicates an unspecified potential stereocentre", want: "adjudicates", evaluate: unspecifiedStereoIsAdjudicated },
+  // Was "adjudicates" until the scope of the CLAUDE.md exception was checked. That
+  // exception covers aromaticity perception only. An unlabelled stereocentre now fails,
+  // so this assertion demands the stricter verdict, not the looser one.
+  { name: "stereo fires on an undeclared unspecified potential stereocentre", want: "fails", evaluate: undeclaredUnspecifiedStereo },
+  // The next four are the whole of the declaration mechanism. The first says it works at
+  // all; the other three are what stop it being a way to silence the check. Delete any
+  // one of them and a declaration becomes an opt out.
+  { name: "stereo adjudicates a declared artifact stereo element rather than failing it", want: "adjudicates", evaluate: declaredUnspecifiedStereo },
+  { name: "stereo fires on a declaration carrying no justification", want: "fails", evaluate: declarationWithoutJustification },
+  { name: "stereo fires on a stale declaration whose element is no longer unspecified", want: "fails", evaluate: staleStereoDeclaration },
+  { name: "stereo fires on a declaration naming an atom that is not in the species", want: "fails", evaluate: stereoDeclarationNamesNothing },
   { name: "meso fires on expect.meso true for a chiral diastereomer", want: "fails", evaluate: wrongMesoExpectation },
   { name: "meso fires on a species that lost its expectation", want: "fails", evaluate: missingMesoExpectation },
   { name: "meso fires when isMeso contradicts the values reported beside it", want: "fails", evaluate: mesoFlagContradictsItsOwnEvidence },
