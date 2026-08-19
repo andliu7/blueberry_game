@@ -68,3 +68,6 @@ reference images/
 tools/blueberry-ai/node_modules/
 tools/blueberry-ai/dist/
 tools/blueberry-ai/fixtures/.work.css
+
+# TypeScript incremental build state. Churns every build, never useful in history.
+*.tsbuildinfo

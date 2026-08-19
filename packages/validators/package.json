@@ -1,0 +1,19 @@
+{
+  "name": "@blueberry/validators",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run",
+    "validate": "node --experimental-strip-types src/cli.ts",
+    "lock:check": "node --experimental-strip-types src/lock.ts check",
+    "lock:regen": "node --experimental-strip-types src/lock.ts regen"
+  },
+  "dependencies": {
+    "@blueberry/chem-core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1"
+  }
+}
