@@ -28,6 +28,7 @@ in the sibling repository. Reopening one costs time and, in two cases, costs a r
 
 ```
 packages/chem-core     Mechanism engine. No React, no DOM, no rendering, no RDKit. Pure TS.
+packages/interaction   Pointer state machine and hit geometry. No React, no DOM. Pure TS.
 packages/curriculum    Authored problems, answer checking, placement, mastery. Pure TS.
 packages/feedback      Authored student facing copy for the named causes in chem-core. Pure TS.
 packages/validators    Executable checks. Headless, exits nonzero on failure. Dev only.

@@ -522,8 +522,18 @@ function ambiguityNotices(hit: HitTestOutcome, seq: CommandSeq): readonly Intera
   ];
 }
 
+/**
+ * Put the command's sequence number on a notice.
+ *
+ * Unconditional, and it used to guard on `value.commandSeq === undefined` first.
+ * That guard was dead. Every notice reaching here is minted inside this package
+ * by `notice()`, either in this file or in a shape reducer, and a shape reducer
+ * is never told the sequence number, so it structurally cannot set one. The guard
+ * was not an unexercised case, it was an unreachable one, and an unreachable
+ * branch is a claim the suite can never check.
+ */
 function stamp(value: InteractionNotice, seq: CommandSeq): InteractionNotice {
-  return value.commandSeq === undefined ? { ...value, commandSeq: seq } : value;
+  return { ...value, commandSeq: seq };
 }
 
 function unknownPointer(pointerId: number, phase: string): InteractionNotice {

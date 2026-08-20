@@ -181,6 +181,14 @@ export class Driver {
   state: InteractionState;
   notices: InteractionNotice[] = [];
   effects: InteractionEffect[] = [];
+  /**
+   * Every event kind this driver was asked to send, in order.
+   *
+   * The tap only corpus harness reads this to prove no drag was involved, rather
+   * than trusting the helper that made the gesture. A claim checked against the
+   * thing that made it is not a check.
+   */
+  events: InteractionEvent["kind"][] = [];
   private clock = 0;
   private readonly hitTester: HitTester;
 
@@ -190,6 +198,7 @@ export class Driver {
   }
 
   send(event: InteractionEvent): Transition {
+    this.events.push(event.kind);
     const transition = reduce(this.state, event, { hitTester: this.hitTester });
     this.state = transition.state;
     this.notices.push(...transition.notices);
@@ -256,5 +265,6 @@ export class Driver {
   clearLog(): void {
     this.notices = [];
     this.effects = [];
+    this.events = [];
   }
 }

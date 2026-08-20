@@ -31,7 +31,6 @@
  */
 
 import {
-  atomsAreBonded,
   createAtom,
   createBond,
   createSpecies,
@@ -240,29 +239,32 @@ function bondAtoms(
 
   // Already bonded: raise the order instead of adding a second bond between the
   // same pair, which is not a thing that exists.
-  if (atomsAreBonded(draft.state, fromAtomId, toAtomId)) {
-    const existing = findBondBetween(from.species, fromAtomId, toAtomId);
-    if (existing !== undefined) {
-      const raised = nextOrder(existing.order);
-      return changed(
-        Object.freeze({
-          ...draft,
-          state: withReplacedSpecies(
-            draft.state,
-            withBondOrder(from.species, existing.id, raised),
-          ),
-          pendingBondFrom: null,
-        }),
-        [haptic("commit")],
-        [
-          notice(
-            "bond_order_cycled_instead_of_added",
-            "info",
-            `${fromAtomId} and ${toAtomId} were already bonded, so the order became ${raised}`,
-          ),
-        ],
-      );
-    }
+  //
+  // The question is asked of `from.species` alone, and it used to be asked twice:
+  // `atomsAreBonded(draft.state, ...)` over the WHOLE state first, then
+  // `findBondBetween(from.species, ...)` inside it. Two questions, two scopes, and
+  // the inner miss was a branch nothing could reach in practice. chem-core allows
+  // the same atom id to appear in two species, so the two scopes are genuinely
+  // different, and the species the atoms were RESOLVED in is the only one this
+  // reducer may edit. One question, asked once, of the species being edited.
+  const existing = findBondBetween(from.species, fromAtomId, toAtomId);
+  if (existing !== undefined) {
+    const raised = nextOrder(existing.order);
+    return changed(
+      Object.freeze({
+        ...draft,
+        state: withReplacedSpecies(draft.state, withBondOrder(from.species, existing.id, raised)),
+        pendingBondFrom: null,
+      }),
+      [haptic("commit")],
+      [
+        notice(
+          "bond_order_cycled_instead_of_added",
+          "info",
+          `${fromAtomId} and ${toAtomId} were already bonded, so the order became ${raised}`,
+        ),
+      ],
+    );
   }
 
   const bond = createBond({ id: `sb${draft.nextNumber}`, a: fromAtomId, b: toAtomId, order: 1 });
