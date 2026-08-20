@@ -22,11 +22,13 @@ import { gzippedByteLength } from "./gzip.ts";
  *                     the purity walk honest: a module that reaches React must not be
  *                     able to vanish from the graph because nothing imported its symbol.
  *
- * The bundler is esbuild. It is not declared in this package's package.json, which is a
- * real gap reported to the orchestrator rather than papered over here: it currently
- * resolves from the root node_modules as a transitive dependency of vitest. If it cannot
- * be resolved, this module says so and the calling check fails. It never falls back to an
- * estimate.
+ * The bundler is esbuild. It IS now declared, in EXTERNAL_DATA in src/integrity.ts, with
+ * the role `no-data` and the argument for that role written out there. It is still not in
+ * this package's package.json dependencies, which is a separate and real gap: it resolves
+ * from the root node_modules as a transitive dependency of vitest. That gap is reported to
+ * the orchestrator rather than papered over here, because package.json is outside this
+ * work's scope and adding a dependency changes the lockfile. If esbuild cannot be resolved,
+ * this module says so and the calling check fails. It never falls back to an estimate.
  */
 
 /** The subset of esbuild's metafile this repository reads. */
@@ -125,11 +127,19 @@ async function loadEsbuild(): Promise<EsbuildModule | { readonly error: string }
   if (cachedEsbuild !== null) return cachedEsbuild;
   if (cachedEsbuildError !== null) return { error: cachedEsbuildError };
   try {
-    // Non literal specifier: this is a runtime dependency resolved from node_modules,
-    // and typing it against esbuild's own declarations would make typecheck fail on a
-    // machine where it is not installed. The shape actually used is EsbuildModule above.
-    const specifier = "esbuild";
-    const loaded = (await import(specifier)) as unknown as EsbuildModule;
+    // LITERAL SPECIFIER, ON PURPOSE. This line used to read `const specifier = "esbuild"`
+    // followed by `import(specifier)`, to keep typecheck working on a machine where
+    // esbuild is absent. The cost of that was invisibility: `scanImports` in integrity.ts
+    // cannot read a specifier that is not in the text, so esbuild appeared in no census,
+    // and the shape hid ANY package pulled in that way, not only this one. The fourth pass
+    // adversary filed it. The scanner now refuses a non literal specifier outright, so the
+    // honest fix is at the call site rather than a bigger regex.
+    //
+    // What that trades: typecheck now needs esbuild's own declarations to resolve. It
+    // arrives with vitest, a root devDependency, so `npm install` always brings it. The
+    // cast through `unknown` is unchanged and the shape actually used is EsbuildModule
+    // above, so nothing here depends on esbuild's types being right.
+    const loaded = (await import("esbuild")) as unknown as EsbuildModule;
     if (typeof loaded.build !== "function") {
       cachedEsbuildError = "esbuild resolved but has no build() function";
       return { error: cachedEsbuildError };

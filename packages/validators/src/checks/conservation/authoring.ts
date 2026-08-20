@@ -113,6 +113,25 @@ import type { Violation } from "./family.ts";
  * because the alternative readings, first id wins or last id wins, are position heuristics
  * that would silently pick a subject rather than reporting that the file does not say which.
  *
+ * THE PRECONDITION THIS BINDING RESTS ON, AND WHERE IT IS ENFORCED.
+ *
+ * STEP IDS ARE UNIQUE WITHIN A PATHWAY. Every map and every filter below is keyed by
+ * `occurrence.stepId`, a plain string copied from `step.id`, so two steps sharing an id
+ * collapse into one key and the binding has no correct reading at all: an annotation naming
+ * the shared id names both occurrences, is exclusive to neither, and two honestly written
+ * annotations, one per cation, both fail. The fourth pass adversary filed exactly that
+ * pathway and the suite went red on correct chemistry.
+ *
+ * It was an unstated assumption of this file and nothing anywhere enforced it. It is now
+ * enforced in `parsePathway` in fixture-schema.ts, which refuses such a pathway before any
+ * check reads it, and the long note there argues why the parser rather than a violation
+ * finder: a duplicated step id corrupts no arithmetic, has no chem-core `CauseId`, and is a
+ * defect in the FILE rather than in the chemistry the file describes. Nothing in THIS file
+ * defends against it, deliberately: a second, silent stand down here would hide the case
+ * from the place that reports it well. If a caller ever arrives from outside the fixture
+ * corpus, Phase 2's student attempts for instance, that caller owes the same guarantee, and
+ * this paragraph is where it is written down.
+ *
  * THE STRUCTURAL ALTERNATIVE, WHICH IS NOT TAKEN HERE AND SHOULD BE LATER.
  *
  * The boring fix is a field: `AuthoredAnnotation.appliesTo?: StepId` in chem-core, a

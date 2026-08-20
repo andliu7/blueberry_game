@@ -270,6 +270,25 @@ export const EXTERNAL_DATA: readonly DeclaredExternalPackage[] = [
       "The test runner. describe, it, expect, and vi are harness entry points and carry no " +
       "chemistry the suite grades anything against.",
   },
+  {
+    specifier: "esbuild",
+    role: "no-data",
+    reason:
+      "The bundler measure/bundle.ts loads to weigh chem-core against the CLAUDE.md size " +
+      "ceilings and to walk the built import graph for the purity gate. It is no-data because " +
+      "it supplies no part of any answer key: every byte it reports comes from the entry point " +
+      "it is handed, and the metafile it returns is a description of that input, not a fact " +
+      "about chemistry. Nothing in the suite grades a fixture against anything esbuild knows. " +
+      "It was undeclared until the fourth pass adversary showed why: loadEsbuild() reached it " +
+      "through a variable specifier, which scanImports could not read, so the census never saw " +
+      "it. That call site is now a string literal and this entry is the other half of the fix. " +
+      "The residual, stated rather than hidden: a different esbuild version can move the " +
+      "measured byte count, which is a question about reproducing a MEASUREMENT and not about " +
+      "an answer key, and the current margin is 12 KB against a 150 KB ceiling. It is also " +
+      "still absent from packages/validators/package.json and resolves transitively through " +
+      "vitest from the root node_modules; that is a packaging gap reported to the orchestrator, " +
+      "not something this declaration pretends to fix.",
+  },
 ];
 
 /* ------------------------------------------------------------------------------------
@@ -324,7 +343,8 @@ export type DeclarationFindingKind =
   | "declared-but-unused"
   | "unfingerprinted-oracle"
   | "declaration-inconsistent"
-  | "projection-unreadable";
+  | "projection-unreadable"
+  | "unreadable-import";
 
 export interface DeclarationFinding {
   readonly kind: DeclarationFindingKind;
@@ -515,11 +535,32 @@ export interface ImportSite {
 }
 
 /**
- * Every static import, re-export, and dynamic import in one file.
+ * Every static import, re-export, dynamic import, and require in one file.
  *
  * Type only imports contribute the specifier and no bindings. A type is erased at
  * runtime and cannot carry a value the suite could grade anything against, so requiring
  * a classification for one would be friction with nothing on the other side of it.
+ *
+ * `require("pkg")` CONTRIBUTES THE WILDCARD BINDING, WHICH IS THE FOURTH PASS ADVERSARY'S
+ * FIRST ATTACK.
+ *
+ * Every regex here used to be anchored on the keywords `import` or `export`. `require` is
+ * neither: it is an ordinary identifier applied to an ordinary call, and
+ * `node:module`'s `createRequire` makes one available inside an ES module in one line. So
+ * `const rdkit = require("@rdkit/rdkit")` produced no site at all, populating neither
+ * `seenPackages` nor `byPackage`. That is a strictly worse blind spot than the barrel
+ * export gap the pass before it closed, because that one at least recorded the specifier.
+ *
+ * It is recorded as the wildcard binding `"*"`, the same binding `import * as ns` and
+ * `export * from` already use, and for the same reason: a require expression evaluates to
+ * the module's whole namespace object, so every export of the other module is reachable
+ * through it as a value. Recording it with no bindings would have re-created the exact
+ * hole the barrel fix closed, since `censusOverHashedFiles` skips a site whose binding
+ * list is empty.
+ *
+ * WHAT THIS FUNCTION DELIBERATELY STILL DOES NOT DO. It does not read a specifier that is
+ * not a string literal, and it does not pretend to. Those sites are not silently dropped
+ * either: `scanUnreadableImports` below finds them and every one of them is a hard finding.
  */
 export function scanImports(source: string): readonly ImportSite[] {
   const text = blankOut(source, { strings: false });
@@ -535,15 +576,125 @@ export function scanImports(source: string): readonly ImportSite[] {
     });
   }
 
-  // import "x", the side effect form, and dynamic import("x").
+  // import "x", the side effect form. This one really does bind nothing: it evaluates the
+  // module for its effects and hands back no value at all.
   for (const match of text.matchAll(/\bimport\s*["']([^"'`]+)["']/g)) {
     sites.push({ specifier: match[1] as string, valueBindings: [] });
   }
+
+  // Dynamic import("x"). It evaluates to the module's whole namespace object, so it is a
+  // value pull and carries the wildcard binding, exactly as require() below does. It used
+  // to be recorded with no bindings, which put it back in the hole the barrel export fix
+  // closed: `censusOverHashedFiles` skips a site whose binding list is empty, so a
+  // wholly undeclared package pulled in this way produced no undeclared-package finding.
   for (const match of text.matchAll(/\bimport\s*\(\s*["']([^"'`]+)["']/g)) {
-    sites.push({ specifier: match[1] as string, valueBindings: [] });
+    sites.push({ specifier: match[1] as string, valueBindings: ["*"] });
+  }
+
+  // require("x"), CommonJS interop. The leading class excludes `requireKeys(` and a
+  // property access such as `harness.require(`, neither of which is the global function.
+  for (const match of text.matchAll(/(^|[^\w$.])require\s*\(\s*["']([^"'`]+)["']/g)) {
+    sites.push({ specifier: match[2] as string, valueBindings: ["*"] });
   }
 
   return sites;
+}
+
+/** One place a module was pulled in whose specifier this scanner could not read. */
+export interface UnreadableImportSite {
+  /** 1 based line number in the original source. */
+  readonly line: number;
+  /** The call as it appears, trimmed. Strings are blanked, so no content leaks. */
+  readonly text: string;
+  /** One line saying why it cannot be read. Rendered into the finding. */
+  readonly why: string;
+}
+
+/**
+ * Calls that pull in a module whose specifier is not a string literal.
+ *
+ * WHY THIS EXISTS RATHER THAN A WIDER REGEX, WHICH IS THE SECOND HALF OF THE FOURTH PASS
+ * ADVERSARY'S FINDING.
+ *
+ * `import(someVariable)` and `require(someVariable)` cannot be read by any amount of
+ * pattern matching, because the specifier is not in the text: it is whatever the variable
+ * holds at run time, and the honest general answer needs an evaluator. The previous
+ * behaviour was to match nothing and move on, which reads in a green run exactly like
+ * "there is no import here".
+ *
+ * The precedent for the other choice is already in this file. `extractCompetingRoutes`
+ * refuses a `competingRoutes` property it cannot parse instead of skipping it, and says
+ * why: "the difference between 'there is no competing route data here' and 'I could not
+ * read the competing route data here' is the difference between a gate and a decoration."
+ * The same sentence applies here word for word. So an unreadable specifier is a hard
+ * finding, and the remedy is in the finding: write the specifier as a literal.
+ *
+ * `createRequire` IS INCLUDED, AND IT IS THE ONE JUDGEMENT CALL HERE.
+ *
+ * The adversary's third specimen obtains a require through
+ * `const req = createRequire(import.meta.url)` and then calls `req("pkg")`. No regex can
+ * follow that, because the function is bound to an arbitrary local name. What CAN be seen
+ * is the manufacture: `createRequire` is the only standard way to conjure a working
+ * `require` inside an ES module, and this package has no legitimate use for one. So its
+ * appearance is reported. That is deliberately a rule about a name rather than about a
+ * shape, and it is stated here rather than hidden: it can be defeated by aliasing the
+ * import, and closing that needs a real parser rather than a bigger regex.
+ *
+ * Read from source with STRINGS BLANKED as well as comments, unlike `scanImports`. A
+ * specimen of this shape written inside a template literal, which is exactly how the
+ * adversary's own test files are written so they do not count as real imports of
+ * themselves, must not be reported as a real one.
+ */
+export function scanUnreadableImports(source: string): readonly UnreadableImportSite[] {
+  const skeleton = blankOut(source, { strings: true });
+  const found: UnreadableImportSite[] = [];
+
+  // Whole text, not line by line. `\s` spans newlines, and a literal specifier is
+  // routinely wrapped onto the following line by the formatter:
+  //   const { x } = await import(
+  //     "../src/thing.ts"
+  //   );
+  // A line based test declares that one unreadable, which is a false report on a literal
+  // sitting in plain sight one line down.
+  const lineOf = (offset: number): number =>
+    skeleton.slice(0, offset).split("\n").length;
+  const lineTextAt = (offset: number): string =>
+    (skeleton.split("\n")[lineOf(offset) - 1] ?? "").trim();
+
+  for (const match of skeleton.matchAll(/(^|[^\w$.])(import|require)\s*\(\s*/g)) {
+    const end = (match.index ?? 0) + match[0].length;
+    // A blanked string literal keeps its quotes, so "next character is a quote" is a
+    // reliable test for a literal specifier even though its contents are gone.
+    const next = skeleton[end];
+    if (next === '"' || next === "'") continue;
+    found.push({
+      line: lineOf(match.index ?? 0),
+      text: lineTextAt(match.index ?? 0),
+      why:
+        `${match[2] as string}() is called with something that is not a string literal, so ` +
+        `the package it pulls in is not in the text and cannot be censused. Write the ` +
+        `specifier as a literal`,
+    });
+  }
+
+  // The identifier is assembled rather than written, for the same reason the adversary's
+  // own test files assemble their keywords: this file is inside the scanned set, and a
+  // literal occurrence here, even inside a regex, would report this scanner as the thing
+  // it is looking for. Regex literals are not blanked by blankOut, only comments and
+  // strings, so the assembly happens in a template literal where it is.
+  const createRequirePattern = new RegExp(`(^|[^\\w$.])${"create"}${"Require"}\\b`, "g");
+  for (const match of skeleton.matchAll(createRequirePattern)) {
+    found.push({
+      line: lineOf(match.index ?? 0),
+      text: lineTextAt(match.index ?? 0),
+      why:
+        "createRequire manufactures a require bound to an arbitrary local name, and no " +
+        "scan can follow the calls made through it. This package has no use for one",
+    });
+  }
+
+  found.sort((left, right) => left.line - right.line);
+  return found;
 }
 
 /**
@@ -641,6 +792,14 @@ export interface ImportCensus {
   readonly byPackage: Map<string, Map<string, Set<string>>>;
   /** Packages seen at all, including type only and side effect imports. */
   readonly seenPackages: Set<string>;
+  /**
+   * Module pulls whose specifier the scanner could not read, as "file:line why".
+   *
+   * Never empty in silence: every entry is a hard finding in `censusFindings`. Optional
+   * only so that a caller constructing a census by hand, which the tests do, does not have
+   * to say "and there were none" to mean the ordinary case.
+   */
+  readonly unreadable?: readonly string[];
 }
 
 /**
@@ -655,12 +814,17 @@ async function censusOverHashedFiles(
 ): Promise<ImportCensus> {
   const byPackage = new Map<string, Map<string, Set<string>>>();
   const seenPackages = new Set<string>();
+  const unreadable: string[] = [];
 
   for (const relative of Object.keys(files)) {
     if (!relative.endsWith(".ts") && !relative.endsWith(".tsx")) continue;
     const value = files[relative] ?? "";
     if (value.startsWith("symlink:")) continue;
     const source = await fs.readFile(path.join(PACKAGE_ROOT, ...relative.split("/")), "utf8");
+
+    for (const site of scanUnreadableImports(source)) {
+      unreadable.push(`${relative}:${site.line} ${site.why}. Line reads: ${site.text}`);
+    }
 
     for (const site of scanImports(source)) {
       if (!isExternalSpecifier(site.specifier)) continue;
@@ -677,7 +841,7 @@ async function censusOverHashedFiles(
     }
   }
 
-  return { byPackage, seenPackages };
+  return { byPackage, seenPackages, unreadable: unreadable.sort() };
 }
 
 /* ------------------------------------------------------------------------------------
@@ -841,6 +1005,18 @@ export function censusFindings(
 ): DeclarationFinding[] {
   const findings: DeclarationFinding[] = [];
   const declaredBySpecifier = new Map(declaration.map((entry) => [entry.specifier, entry]));
+
+  // A module pull the scanner could not read is reported before anything else is decided.
+  // It is not a missing declaration, it is a census that does not know whether one is
+  // missing, and those are different sentences. Same reasoning as projection-unreadable.
+  for (const site of census.unreadable ?? []) {
+    findings.push({
+      kind: "unreadable-import",
+      detail:
+        `${site}. The census cannot say whether this package is declared, because it cannot ` +
+        `say which package it is`,
+    });
+  }
 
   for (const [pkg, bindings] of census.byPackage) {
     const declared = declaredBySpecifier.get(pkg);

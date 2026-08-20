@@ -146,8 +146,18 @@ export { NON_FIXTURE_FILES };
  * as one step, and had to file it good because no name here could be declared as the check
  * that ought to catch it, even though chem-core has carried `step_not_elementary` since
  * Phase 1 with nothing able to emit it. This line is that name.
+ *
+ * `conservation-fixture-schema` is the thirteenth and is the odd one out, because it is the
+ * only name here that is not a violation finder. It is the LOADER: the assertion that every
+ * file in fixtures/ turns into a pathway at all. That assertion has always run, inside every
+ * other check, and it has never had a name, so a fixture that ought to be refused had no way
+ * to say so and a refusal was unconditionally a failure. The fourth pass adversary filed a
+ * pathway with two steps carrying the same id, and the honest place to catch that is the
+ * loader rather than a chemistry check; see the long note in `parsePathway`. This line is
+ * the name that lets such a fixture be a negative control instead of a red run.
  */
 export const CONSERVATION_CHECK_NAMES = [
+  "conservation-fixture-schema",
   "conservation-valence",
   "conservation-mass",
   "conservation-charge",
@@ -258,6 +268,18 @@ export interface LoadedFixture {
 export interface FixtureLoadError {
   readonly relativePath: string;
   readonly message: string;
+  /**
+   * The fixture's own expectation, when it was readable before the refusal.
+   *
+   * Present only when `<root>.expect` parsed and something AFTER it did not, which is
+   * every structural refusal below. Absent when the file is not JSON at all, when the
+   * header keys are wrong, or when the expectation itself is malformed, because then
+   * there is nothing on file that could declare anything.
+   *
+   * This is what lets a fixture be a negative control for the loader itself. See
+   * `LOADER_CHECK_NAME` in family.ts.
+   */
+  readonly expect?: FixtureExpectation;
 }
 
 export interface FixtureCorpus {
@@ -268,6 +290,9 @@ export interface FixtureCorpus {
 }
 
 class FixtureError extends Error {
+  /** Set by parseFixture when the expectation was read before the refusal. */
+  expect?: FixtureExpectation;
+
   constructor(at: string, message: string) {
     super(`${at}: ${message}`);
     this.name = "FixtureError";
@@ -712,6 +737,80 @@ function parsePathway(raw: unknown, at: string): MechanismPathway {
     throw new FixtureError(`${at}.steps`, "a pathway with no steps verifies nothing");
   }
 
+  /*
+   * STEP IDS ARE UNIQUE WITHIN A PATHWAY. THE FOURTH PASS ADVERSARY'S FINDING.
+   *
+   * WHAT DEPENDS ON THIS, WHICH IS MORE THAN THE ONE CHECK THAT NOTICED.
+   *
+   * `authoring.ts` binds an authored annotation to the step it is a claim about by NAME:
+   * chem-core's `AuthoredAnnotation` carries no step pointer, so the step id written in the
+   * annotation's prose is the whole binding. Every map and every filter in
+   * `requiredAnnotationViolations` is keyed by that string. Two steps sharing one id make
+   * the binding undecidable in a way that has no correct answer: an annotation naming the
+   * shared id names both occurrences, so it is exclusive to neither, and two honestly
+   * written annotations, each about exactly one cation, both fail. That is a check
+   * rejecting correct chemistry, which CLAUDE.md treats exactly as seriously as a check
+   * accepting wrong chemistry.
+   *
+   * The annotation binding is the loudest consumer and it is not the only one. EVERY check
+   * in this family renders `step.id` into the `where` of a violation. With two steps called
+   * `step-1`, every failure line in the family names a step the reader cannot identify. So
+   * this is not one check's precondition. It is a property of the file, and the file is
+   * what this module owns.
+   *
+   * WHY THIS IS ENFORCED IN THE PARSER AND NOT AS A VIOLATION IN A CHECK.
+   *
+   * The precedent one level down went the other way, and the difference is worth stating
+   * rather than glossing. Species id uniqueness within a state is enforced by
+   * `conservation-valence` as a structural precondition, because a duplicated species id
+   * corrupts the ARITHMETIC that check performs and because chem-core defines a real
+   * `CauseId` for it, `duplicate_species_id_in_state`, so the finding can be handed to a
+   * student in the vocabulary every other finding uses.
+   *
+   * A duplicated step id has neither property. It corrupts no arithmetic, and there is no
+   * CauseId for it, because it is not something a student can do: a student never writes a
+   * step id. `Violation` requires a `cause`, and the only honest values available all name
+   * something else. Borrowing `duplicate_species_id_in_state` would put a sentence about
+   * species in front of a reader looking at steps, which is the generic-failure behaviour
+   * this repository's feedback axis exists to beat. A load refusal carries no cause, and
+   * that is correct here: this is a defect in the FILE, not in the chemistry the file
+   * describes.
+   *
+   * Refusing also makes the message arrive first and once. The alternative, a violation in
+   * each of the twelve checks that render a step id, would report one mistake twelve times;
+   * a violation in only the annotation checks would leave the class open for every pathway
+   * that happens to carry no annotations.
+   *
+   * WHAT THIS COSTS. A fixture refused here is checked for nothing else: no mass, no
+   * charge, no valence. That is deliberate, and it is the same judgement the refusal is
+   * built on. Nothing downstream can name which of two identical steps a finding is about,
+   * so a report about this file would be a report a human cannot act on.
+   *
+   * HOW A FIXTURE DECLARES THAT IT MUST BE REFUSED. `expect.mustFail` may name
+   * `conservation-fixture-schema`, exactly as it names any other check. See the note on
+   * `LOADER_CHECK_NAME` in family.ts for how a refusal is then read as a fired negative
+   * control rather than as a failure.
+   */
+  const seenStepIds = new Map<string, number>();
+  for (const [index, step] of steps.entries()) {
+    const first = seenStepIds.get(step.id);
+    if (first !== undefined) {
+      throw new FixtureError(
+        `${at}.steps[${index}].id`,
+        `"${step.id}" is already the id of steps[${first}]. Step ids are unique within a ` +
+          `pathway. An authored annotation binds to the step it is a claim about by naming ` +
+          `that step's id in its prose, because chem-core's AuthoredAnnotation carries no ` +
+          `step pointer, and every violation this family reports names its step by id too. ` +
+          `Two steps sharing one id make both of those ambiguous with no correct reading: an ` +
+          `annotation naming "${step.id}" is a claim about both steps at once, so it is the ` +
+          `claim for neither, and two correctly written annotations, one per step, both fail. ` +
+          `This is normally a copy pasted step whose id was not renamed. Rename it. Nothing ` +
+          `else about this fixture was examined`,
+      );
+    }
+    seenStepIds.set(step.id, index);
+  }
+
   const annotationsPresent = Object.prototype.hasOwnProperty.call(object, "annotations");
 
   return createPathway({
@@ -804,14 +903,24 @@ export function parseFixture(text: string, absolutePath: string, relativePath: s
     );
   }
 
-  return {
-    absolutePath,
-    relativePath,
-    id,
-    title: asNonEmptyString(object, "title", "<root>"),
-    expect: parseExpectation(object["expect"], "<root>.expect"),
-    pathway: parsePathway(object["pathway"], "<root>.pathway"),
-  };
+  const title = asNonEmptyString(object, "title", "<root>");
+
+  // The expectation is read BEFORE the pathway, and a refusal of the pathway carries it
+  // out with the error. A fixture that declares itself unloadable has to be able to say so
+  // from inside a file the loader is about to refuse, and `expect` is the only part of the
+  // file that could still be trusted at that point: it has already parsed. See the step id
+  // uniqueness note in parsePathway and `LOADER_CHECK_NAME` in family.ts.
+  const expect = parseExpectation(object["expect"], "<root>.expect");
+
+  let pathway: MechanismPathway;
+  try {
+    pathway = parsePathway(object["pathway"], "<root>.pathway");
+  } catch (error) {
+    if (error instanceof FixtureError) error.expect = expect;
+    throw error;
+  }
+
+  return { absolutePath, relativePath, id, title, expect, pathway };
 }
 
 function toPosix(value: string): string {
@@ -873,9 +982,11 @@ export async function loadCorpus(
     try {
       fixtures.push(parseFixture(text, absolutePath, relativePath));
     } catch (error) {
+      const expect = error instanceof FixtureError ? error.expect : undefined;
       loadErrors.push({
         relativePath,
         message: error instanceof Error ? error.message : String(error),
+        ...(expect === undefined ? {} : { expect }),
       });
     }
   }

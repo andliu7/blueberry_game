@@ -3,6 +3,7 @@ import { conservationArrowLegality } from "./arrow-legality.ts";
 import { conservationCharge } from "./charge.ts";
 import { conservationDisfavouredRateComparison } from "./rate-comparison.ts";
 import { conservationElectronFlow } from "./electron-flow.ts";
+import { conservationFixtureSchema } from "./fixture-loading.ts";
 import { CONSERVATION_CHECK_NAMES } from "./fixture-schema.ts";
 import { conservationMass } from "./mass.ts";
 import { conservationPeriplanarityDeclaration } from "./periplanarity.ts";
@@ -16,7 +17,7 @@ import { conservationValence } from "./valence.ts";
 /**
  * The conservation check family.
  *
- * Twelve checks, one export. src/checks/index.ts spreads this array into the registry, so
+ * Thirteen checks, one export. src/checks/index.ts spreads this array into the registry, so
  * adding a check to this family is a change in this directory and nowhere else.
  * That was the point of the arrangement and it is what let the seventh be added without
  * touching the registry: the Phase 0 adversary had to file arrow legality as a report
@@ -26,7 +27,9 @@ import { conservationValence } from "./valence.ts";
  *
  * ORDER IS THE ORDER A FAILURE IS EASIEST TO READ IN.
  *
- * Valence first, because an atom whose declared charge disagrees with its structure makes
+ * The loader first, because a file that never became a pathway is not a fixture any other
+ * check has an opinion about, and because it is the only member of the family that is not a
+ * violation finder. Then valence, because an atom whose declared charge disagrees with its structure makes
  * every total downstream wrong in a way that reads as a conservation error. Then the
  * three conservation laws in the order CLAUDE.md states them. Then arrow legality, which
  * is about the arrows one at a time and reads best straight after the check that is about
@@ -47,6 +50,7 @@ import { conservationValence } from "./valence.ts";
  * here, carry every annotation CLAUDE.md asks for, and still be chemically wrong.
  */
 export const conservationChecks: readonly Check[] = [
+  conservationFixtureSchema,
   conservationValence,
   conservationMass,
   conservationCharge,

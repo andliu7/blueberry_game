@@ -43,12 +43,16 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * step sequence drawn as one" under what it cannot discriminate. Nothing anywhere asked
  * whether the arrows BELONG TOGETHER.
  *
- * THERE ARE TWO INDEPENDENT RULES IN THIS FILE. RULE A IS THE ORIGINAL ONE AND IS ABOUT
+ * THERE ARE THREE INDEPENDENT RULES IN THIS FILE. RULE A IS THE ORIGINAL ONE AND IS ABOUT
  * ARROWS THAT DO NOT REACH EACH OTHER. RULE B IS ABOUT ARROWS THAT ALL TOUCH ONE ATOM.
+ * RULE C IS ABOUT ONE NAMED COLLAPSE THAT NEITHER OF THE OTHER TWO CAN SEE.
  *
- * They are independent: a step can fail either without failing the other, and neither is a
- * special case of the other. Rule A asks whether the arrows are in the same place. Rule B
- * asks whether the arrows move in one direction while they are there.
+ * They are independent: a step can fail any one without failing the others, and none is a
+ * special case of another. Rule A asks whether the arrows are in the same place. Rule B
+ * asks whether the arrows move in one direction while they are there. Rule C asks whether
+ * an anion is made and then eaten before the step is over, and it asks that of one shape
+ * only, spelled out at `collapsedProtonations` below. None of the three is a barrier model
+ * and the general question is still open; each closes one decidable signature.
  *
  * RULE A, THE CRITERION, AND EVERY REASON IT IS THIS CAUTIOUS.
  *
@@ -142,11 +146,13 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * WHAT THIS DELIBERATELY DOES NOT ASSERT. Stated plainly, because a green run here is worth
  * exactly what these exclusions leave.
  *
- *   It does not assert that a step with one arrow group and no round tripped bond is
- *   elementary. Rule B closes the shape the second pass adversary predicted and the third
- *   pass adversary filed, and it closes it by naming one decidable signature rather than by
- *   deciding the general question. The general question is still open and still needs a
- *   model of how many barriers a given array of arrows crosses.
+ *   It does not assert that a step with one arrow group, no round tripped bond, and no
+ *   localise-then-protonate pair is elementary. Rules B and C each close one shape an
+ *   adversary filed, by naming one decidable signature apiece rather than by deciding the
+ *   general question. The general question is still open and still needs a model of how many
+ *   barriers a given array of arrows crosses. Specifically still missed after rule C: a
+ *   collapse whose second half is not a protonation, a protonation by an acid inside the
+ *   same species, and any collapse that localises nothing.
  *
  *   It does not assert that a step with two distant groups is impossible. It asserts that
  *   nothing in the drawing connects them, so the file is claiming one barrier where it has
@@ -371,12 +377,176 @@ function roundTripViolations(
   }));
 }
 
+/**
+ * RULE C. ONE SHAPE, NAMED EXACTLY: A PAIR IS LOCALISED ONTO AN ATOM AND THAT ATOM THEN
+ * TAKES A PROTON FROM A DIFFERENT SPECIES, IN THE SAME STEP.
+ *
+ * WHAT THIS IS AND, MORE IMPORTANTLY, WHAT IT IS NOT.
+ *
+ * It is not a barrier model and it is not a general answer to "how many transition states
+ * do these arrows cross". chem-core has no such model, this package is not the place to
+ * invent one, and the fourth pass adversary's own filing said so. It is one decidable
+ * signature of one collapse, the nucleophilic addition followed by a protonation, which is
+ * the most common two step sequence in the corpus and the one the fourth pass adversary
+ * filed as `broken-known-limit-cyanohydrin-addition-and-a-separate-acids-protonation-collapsed-into-one-connected-step`.
+ *
+ * WHY RULES A AND B ARE BOTH CORRECTLY SILENT ON IT, WHICH IS WHY A THIRD RULE IS NEEDED.
+ *
+ * Rule B looks for a pair of atoms both pulled apart and pushed together. There is no such
+ * pair here: the four arrows touch four distinct pairs, once each. Rule A looks for arrow
+ * groups that do not reach each other. There is no such gap either: an addition and the
+ * protonation that follows it chain through the reacting atom exactly as a genuinely
+ * concerted array does, so all four arrows merge into one cluster before the proximity test
+ * is reached. Widening either rule to catch this would break the thing that rule is for, and
+ * widening rule A specifically would start rejecting concerted chemistry, since connectivity
+ * is what a concerted step LOOKS LIKE.
+ *
+ * THE SIGNATURE, WITH EVERY CONDITION LOAD BEARING.
+ *
+ *   1. An arrow draws a pair OUT OF A BOND and its sink is `atom` X. A sink of kind `atom`
+ *      means the pair stops there, localised as a lone pair on X. That is an anion being
+ *      made: the alkoxide of a tetrahedral intermediate, in the worked example.
+ *   2. A DIFFERENT arrow draws a `lonePair` off that same X into a new bond. The anion is
+ *      being consumed.
+ *   3. The atom X bonds to is a HYDROGEN. That makes the consumption a protonation rather
+ *      than any other thing an anion might do.
+ *   4. That hydrogen is in a DIFFERENT species from X in the `from` state. A separate acid,
+ *      arriving from outside, which is a second molecular encounter and therefore a second
+ *      barrier.
+ *
+ * Condition 1's insistence on a bond source is what keeps this about an intermediate being
+ * MADE. Conditions 3 and 4 together are the sentence "a proton transfer from a separate
+ * species", and they are the whole reason this is narrow enough to ship.
+ *
+ * WHY IT DOES NOT FIRE ON CONCERTED CHEMISTRY, HAND TRACED RATHER THAN ASSUMED.
+ *
+ * The structural reason first, because it is the one that generalises. An `atom` sink says
+ * the electrons STOP. A drawing in which the pair stops on an atom and a second arrow then
+ * pushes a lone pair off that atom to capture a proton from another molecule has drawn the
+ * anion into existence and then drawn it being consumed, and the structure between those two
+ * arrows is an intermediate that the file declines to write down. In a genuinely concerted
+ * general acid catalysed addition the pair never stops: it flows straight into the bond being
+ * made, and the notation shows that as `bond(C=O) -> betweenAtoms(O, H)`, one arrow, no
+ * localisation, no rule C.
+ *
+ * Then the traces, over every single transition state mechanism this corpus contains.
+ * Anti periplanar E2: the leaving group receives a localised pair and donates nothing.
+ * SN2: the same. Four centre hydroboration and every pericyclic step: no `atom` sink at all,
+ * because nothing localises anywhere. Bromonium formation: the bromine that donates a lone
+ * pair to the second carbon is not the bromine the pair localises on, and it donates to a
+ * carbon rather than to a proton. Radical propagation: the sinks are atoms but the sources
+ * are single electrons, not lone pairs, and nothing is protonated. A concerted proton relay
+ * through water: the water oxygen donates a lone pair and breaks its own O-H bond, and is
+ * never an `atom` sink. Anchimerically assisted ionisation: the leaving group receives and
+ * donates nothing.
+ *
+ * Measured as well as traced: across the whole committed corpus this signature matches
+ * exactly one step, the collapsed cyanohydrin fixture it was written for, and zero others.
+ *
+ * WHAT IS STILL OPEN AFTER THIS, SAID PLAINLY SO A GREEN RUN IS NOT READ AS MORE.
+ *
+ * The general case. A collapse whose second half is not a protonation, a protonation by an
+ * acid that is part of the same species, an addition whose intermediate is consumed by
+ * something other than a proton, and any collapse that touches no pair twice and localises
+ * nothing, are all still missed. Answering those needs the barrier model this file does not
+ * have. What is closed is the one shape that was filed, named to its four conditions, and no
+ * more than that.
+ */
+interface CollapsedProtonation {
+  readonly localisedOn: AtomId;
+  readonly localisingArrowId: string;
+  readonly brokenPair: string;
+  readonly protonatingArrowId: string;
+  readonly hydrogenId: AtomId;
+  readonly hostSpeciesId: string;
+  readonly acidSpeciesId: string;
+}
+
+function collapsedProtonations(
+  step: MechanismStep,
+  facts: StepArrowFacts,
+): readonly CollapsedProtonation[] {
+  const found: CollapsedProtonation[] = [];
+
+  for (const localising of facts.arrows) {
+    if (!localising.resolves) continue;
+    if (localising.arrow.sink.kind !== "atom") continue;
+    const bond = localising.sourceBond;
+    if (bond === undefined) continue;
+
+    const localisedOn = localising.arrow.sink.atomId;
+    const host = findAtomInState(step.from, localisedOn);
+    if (host === undefined) continue;
+
+    for (const protonating of facts.arrows) {
+      if (!protonating.resolves) continue;
+      if (protonating.arrow.id === localising.arrow.id) continue;
+      if (protonating.arrow.source.kind !== "lonePair") continue;
+      if (protonating.arrow.source.atomId !== localisedOn) continue;
+      if (protonating.arrow.sink.kind !== "betweenAtoms") continue;
+
+      const ends = protonating.arrow.sink.atomIds;
+      if (ends[0] !== localisedOn && ends[1] !== localisedOn) continue;
+      const hydrogenId = ends[0] === localisedOn ? ends[1] : ends[0];
+
+      const acid = findAtomInState(step.from, hydrogenId);
+      if (acid === undefined || acid.atom.element !== "H") continue;
+      // Same species, and this is an intramolecular shift that may genuinely share one
+      // cyclic transition state. Not this rule's business, and saying so is cheaper than
+      // being wrong about it.
+      if (acid.species.id === host.species.id) continue;
+
+      found.push({
+        localisedOn,
+        localisingArrowId: localising.arrow.id,
+        brokenPair: pairLabel(pairKey(bond.a, bond.b)),
+        protonatingArrowId: protonating.arrow.id,
+        hydrogenId,
+        hostSpeciesId: host.species.id,
+        acidSpeciesId: acid.species.id,
+      });
+    }
+  }
+
+  found.sort((left, right) => left.localisedOn.localeCompare(right.localisedOn));
+  return found;
+}
+
+function collapsedProtonationViolations(
+  step: MechanismStep,
+  facts: StepArrowFacts,
+): readonly Violation[] {
+  return collapsedProtonations(step, facts).map((collapse) => ({
+    where: `${step.id} / ${collapse.localisedOn} is given a localised pair and then protonated`,
+    expected:
+      "one step to make an intermediate or consume one, not both. A pair that stops on an " +
+      "atom has made an anion, and the structure holding that anion is a state between two " +
+      "barriers",
+    actual:
+      `arrow ${collapse.localisingArrowId} pulls the pair out of the ${collapse.brokenPair} bond ` +
+      `and localises it on ${collapse.localisedOn}, and arrow ${collapse.protonatingArrowId} then ` +
+      `pushes a lone pair off ${collapse.localisedOn} onto ${collapse.hydrogenId}, a hydrogen ` +
+      `belonging to ${collapse.acidSpeciesId} rather than to ${collapse.hostSpeciesId}. That is an ` +
+      `addition and a protonation by a separate acid drawn as one step. The anion between them, ` +
+      `the alkoxide of a tetrahedral intermediate in the ordinary case, is a real species with a ` +
+      `real lifetime and this drawing never writes it down. Draw the two barriers in sequence ` +
+      `with the intermediate between them. Nothing here objects to the arrows sharing atoms, ` +
+      `which is what a concerted step looks like: a genuinely concerted general acid catalysed ` +
+      `addition puts the proton on as the pi bond moves, which is drawn bond(C=O) -> ` +
+      `betweenAtoms(O, H), one arrow, with nothing localising anywhere`,
+    cause: CAUSE,
+  }));
+}
+
 function stepViolations(step: MechanismStep): readonly Violation[] {
   if (step.arrows.length < 2) return [];
   const facts = stepArrowFacts(step);
   if (!facts.allReferencesResolve) return [];
 
-  const violations: Violation[] = [...roundTripViolations(step, facts)];
+  const violations: Violation[] = [
+    ...roundTripViolations(step, facts),
+    ...collapsedProtonationViolations(step, facts),
+  ];
 
   const clusters = arrowClusters(facts);
   if (clusters.length < 2) return violations;
@@ -443,6 +613,6 @@ const find: ViolationFinder = (fixture) => {
 export const conservationStepElementarity: Check = conservationCheck({
   name: "conservation-step-elementarity",
   description:
-    "no step draws two independent events as one: its arrows form one connected push of electrons, or groups of arrows that at least come within three bonds of each other in the state the step starts from",
+    "no step draws two independent events as one: its arrows form one connected push of electrons or groups that come within three bonds of each other, no pair of atoms is both pulled apart and pushed back together, and no atom is handed a localised pair and then protonated by a separate species in the same step",
   find,
 });

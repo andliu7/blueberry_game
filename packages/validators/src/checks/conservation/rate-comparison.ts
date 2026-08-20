@@ -11,7 +11,7 @@ import {
 import { competingRoutesFor } from "@blueberry/feedback";
 
 import type { Check } from "../../check.ts";
-import { heavySigmaDepartures, stepArrowFacts } from "./arrow-facts.ts";
+import { bondFormations, heavySigmaDepartures, stepArrowFacts } from "./arrow-facts.ts";
 import {
   annotationsOfKind,
   requiredAnnotationViolations,
@@ -112,13 +112,16 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * that either: its reaction centre rule is one directional, every declared centre must be
  * touched by an arrow, and Br1 genuinely is touched.
  *
- * So the candidates are now DERIVED as well as read. In a substitution the electrophilic
- * carbon is the atom the leaving group left, and `heavySigmaDepartures` in arrow-facts.ts
- * already computes exactly that from the arrows: a full sigma bond between two heavy atoms
- * breaking with the pair localising on one end. The retained end is the carbon under
- * attack. This is the same move `periplanarity.ts` rule 1b made for the E2 torsion quartet,
- * for the same reason: both halves of a comparison must not come from the same authored
- * field.
+ * So the candidates are now DERIVED as well as read, from two arrow facts rather than one:
+ * the acceptor end of every bond the arrows FORM (`bondFormations`), and the retained end of
+ * every heavy sigma bond that BREAKS with its pair localising on the other end
+ * (`heavySigmaDepartures`). The forming arrow is the primary one, because the atom under
+ * attack is the atom a bond is being made to; the departure is kept because it is a second,
+ * independent record of the same centre in an ordinary substitution. This is the same move
+ * `periplanarity.ts` rule 1b made for the E2 torsion quartet, for the same reason: both
+ * halves of a comparison must not come from the same authored field. See
+ * `arrowDerivedCentres` for why the departure alone was wrong, which is the fourth pass
+ * adversary's SN2 prime finding.
  *
  * The two sources are UNIONED rather than swapped. A declared centre that the arrows do not
  * name is still tested, so the check is strictly stronger than it was and a fixture whose
@@ -173,20 +176,70 @@ function carbonNeighbours(species: Species, atomId: string): readonly string[] {
 }
 
 /**
- * The carbons this step's arrows say are under attack.
+ * The atoms this step's arrows say are under attack.
  *
- * The retained end of every full heavy atom sigma bond that breaks with its pair localising
- * on the other end. In a substitution that is the carbon the leaving group left, which is
- * the carbon a nucleophile has to reach. Nothing here reads `identity`.
+ * TWO DERIVATIONS, AND THE SECOND ONE IS THE FOURTH PASS ADVERSARY'S FINDING.
  *
- * Empty when any arrow reference does not resolve. A set of touched atoms assembled from
- * arrows pointing at nothing is smaller than the truth, and `conservation-arrow-legality`
- * reports the dangling reference with a better message.
+ *   The ACCEPTOR end of every bond the arrows form. `bondFormations` in arrow-facts.ts:
+ *   the end of a `betweenAtoms` sink that the arrow is not pivoting on, which is the atom
+ *   the electrons are being pushed at. This is the primary derivation, because "the atom
+ *   under attack" is a statement about the bond being MADE and this is the arrow that
+ *   makes it.
+ *
+ *   The RETAINED end of every full heavy atom sigma bond that breaks with its pair
+ *   localising on the other end. `heavySigmaDepartures`: the atom the leaving group left.
+ *
+ * THIS USED TO BE THE DEPARTURE ALONE, AND THAT WAS AN ASSUMPTION STATED AS A FACT.
+ *
+ * The sentence that used to be here read "In a substitution that is the carbon the leaving
+ * group left, which is the carbon a nucleophile has to reach". True for every ordinary SN2
+ * and false for SN2 prime, the allylic shift, where the nucleophile bonds to the far end of
+ * the alkene and the leaving group departs from the near end three atoms away.
+ * `broken-known-limit-sn2-prime-allylic-attack-at-a-quaternary-flanked-carbon-not-recognised-as-hindered`
+ * is that file: hydroxide attacks a carbon with a tert-butyl group directly behind it,
+ * exactly the neopentyl wall, and this check tested the unhindered carbon at the other end
+ * of the molecule and said nothing. chem-core gives SN2 prime no route of its own, so a
+ * real one is correctly authored as `concerted_substitution` on route `sn2` and arrives
+ * here like any other.
+ *
+ * IT ALSO IMPROVES ORDINARY SN2, WHICH IS THE HALF WORTH CHECKING RATHER THAN ASSUMING.
+ *
+ * Measured over the corpus, the two derivations name the same atom in every ordinary SN2
+ * fixture, so no fixture changes verdict on that account. What changes is what happens when
+ * the departure cannot be read. `broken-electron-flow-sn2-drawn-without-the-leaving-group-arrow`
+ * draws no arrow for the leaving group at all, so `heavySigmaDepartures` returns nothing and
+ * the derived candidate set used to be EMPTY: on that drawing the steric test fell back
+ * entirely to `identity.reactionCenters`, the authored field whose evasion this derivation
+ * was added to close. The forming arrow still names the attacked carbon there, and it names
+ * it in every drawing where a bond is formed to it, which is every substitution. So the
+ * derivation no longer depends on the leaving group's arrow being present and readable.
+ *
+ * WHY WIDENING TO EVERY FORMED BOND IS SAFE HERE, WHICH IT WOULD NOT BE EVERYWHERE.
+ *
+ * The known limit note on the SN2 prime fixture predicted the cost as "also testing atoms
+ * new bonds form to in ordinary addition chemistry where that carbon is never a
+ * backside-attack trajectory question at all". That cost is not paid, because the caller
+ * has already filtered: `find` only reaches steps that `isSn2Substitution` accepts, which is
+ * `concerted_substitution` on route `sn2` and nothing else. No addition, no carbonyl attack,
+ * and no proton transfer is ever handed to this function. Widening it inside that gate adds
+ * candidate atoms only in substitutions.
+ *
+ * Measured over the corpus a second time: the only non carbon atoms this widening adds are
+ * a bromide in an arrow legality negative control and a hydrogen in an elementarity negative
+ * control, and `hinderedCentres` drops both at its element test before any steric question
+ * is asked.
+ *
+ * Empty when any arrow reference does not resolve. A set of atoms assembled from arrows
+ * pointing at nothing is smaller than the truth, and `conservation-arrow-legality` reports
+ * the dangling reference with a better message.
  */
 function arrowDerivedCentres(step: MechanismStep): readonly string[] {
   const facts = stepArrowFacts(step);
   if (!facts.allReferencesResolve) return [];
-  return heavySigmaDepartures(step, facts).map((departure) => departure.retainedId);
+  return [
+    ...bondFormations(facts).map((formation) => formation.acceptorId),
+    ...heavySigmaDepartures(step, facts).map((departure) => departure.retainedId),
+  ];
 }
 
 /**
@@ -243,7 +296,7 @@ function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
       derived.has(atomId) && declared.has(atomId)
         ? "named by the arrows and declared a reaction centre"
         : derived.has(atomId)
-          ? "named by the arrows as the carbon the leaving group left, whatever identity.reactionCenters says"
+          ? "named by the arrows as the atom a bond is being formed to, or the atom the leaving group left, whatever identity.reactionCenters says"
           : "declared a reaction centre";
     const species = speciesContaining(step.from, atomId);
     if (species === undefined) continue;

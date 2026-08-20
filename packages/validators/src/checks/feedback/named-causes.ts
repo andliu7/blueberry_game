@@ -8,7 +8,12 @@ import {
 import type { Check, CheckContext, CheckFailure, CheckResult } from "../../check.ts";
 import { failed, passed } from "../../check.ts";
 import { conservationChecks } from "../conservation/index.ts";
-import { isConservationFamilyCheck, type Violation } from "../conservation/family.ts";
+import {
+  declaresLoaderRefusal,
+  isConservationFamilyCheck,
+  LOADER_CHECK_NAME,
+  type Violation,
+} from "../conservation/family.ts";
 import { loadCorpus, type LoadedFixture } from "../conservation/fixture-schema.ts";
 
 /**
@@ -125,8 +130,14 @@ export const feedbackNamedCauses: Check = {
     // every fixture failed to parse and a run where the directory is empty produce the
     // same count and are completely different problems.
     for (const error of corpus.loadErrors) {
+      // A fixture the loader is DECLARED to refuse is not a wrong attempt whose cause went
+      // unnamed. It never became a pathway, so no finder ever saw it and it contributes to
+      // neither the reachable set nor the rate. conservation-fixture-schema owns the verdict
+      // on it and prints the refusal on every run. See LOADER_CHECK_NAME in
+      // conservation/family.ts.
+      if (declaresLoaderRefusal(error)) continue;
       failures.push({
-        expected: "the fixture parses against the v1 fixture schema, so its causes can be counted",
+        expected: "the fixture parses against the fixture schema, so its causes can be counted",
         actual: error.message,
         fixture: error.relativePath,
       });
@@ -137,7 +148,7 @@ export const feedbackNamedCauses: Check = {
         expected: "at least one fixture to resolve to a named cause",
         actual:
           corpus.loadErrors.length > 0
-            ? `no fixture parsed, so no feedback number was measured. ${corpus.loadErrors.length} load error(s) above.`
+            ? `no fixture parsed, so no feedback number was measured. ${corpus.loadErrors.filter((error) => !declaresLoaderRefusal(error)).length} unexpected load error(s) above, and ${corpus.loadErrors.filter(declaresLoaderRefusal).length} refusal(s) ${LOADER_CHECK_NAME} accounts for.`
             : "the corpus is empty, so no feedback number was measured",
         fixture: "packages/validators/fixtures/",
       });

@@ -357,6 +357,83 @@ export function heavySigmaDepartures(
 }
 
 /**
+ * A new bond this step's arrows say is forming, with its two ends told apart.
+ *
+ * WHY THE TWO ENDS HAVE TO BE TOLD APART, WHICH IS THE FOURTH PASS ADVERSARY'S FINDING.
+ *
+ * `heavySigmaDepartures` above answers "which atom did the leaving group leave". Until
+ * this function existed, `rate-comparison.ts` used that answer as though it were also the
+ * answer to "which atom is under attack", and its own docstring said so as settled fact.
+ * The two are the same atom in an ordinary SN2 and they are NOT the same atom in an SN2
+ * prime, the allylic shift, where the nucleophile bonds to the far end of the alkene and
+ * the leaving group departs from the near end, three atoms away. chem-core has no separate
+ * route for SN2 prime, so a real one is legitimately authored as `concerted_substitution`
+ * on route `sn2`, and every steric test then ran on the wrong carbon.
+ *
+ * So the attacked atom is derived from the arrow that FORMS THE BOND TO IT rather than
+ * from the departure. That is the arrow whose sink is a `betweenAtoms` pair, and the pair
+ * has a near end and a far end:
+ *
+ *   `donorId`     the end the electrons are already on. It is in the arrow's own source,
+ *                 which is what makes it the pivot: a lone pair arrow pivots on the atom
+ *                 carrying the lone pair, and a bond arrow pivots on the shared end of the
+ *                 bond it came out of.
+ *   `acceptorId`  the other end. The atom the electrons are being pushed AT, which is what
+ *                 "the atom under attack" means and is the only end a backside trajectory
+ *                 question can be asked about.
+ *
+ * TWO SHAPES ARE DELIBERATELY NOT REPORTED, AND BOTH ARE ALREADY OWNED ELSEWHERE.
+ *
+ * Neither end of the sink pair appears in the arrow's source. The arrow does not touch the
+ * bond it claims to make, so there is no pivot to read and naming either end would be a
+ * guess. `conservation-arrow-legality` owns that with a better message.
+ *
+ * BOTH ends appear in the source, which happens when a bond source and a `betweenAtoms`
+ * sink name the same two atoms. That is an arrow declaring no change, and
+ * `conservation-arrow-legality` owns that too, under `arrow_declares_no_change`.
+ *
+ * WHAT THIS IS NOT. It is not a claim that the acceptor is an electrophile, that the donor
+ * is a nucleophile, or that the bond survives into the `to` state. It reads the drawing.
+ * Every chemical judgement on top of it belongs to the caller, and `rate-comparison.ts`
+ * makes exactly one: a carbon under attack with a quaternary carbon beside it is hindered.
+ */
+export interface BondFormation {
+  readonly arrowId: string;
+  /** The end the electrons come from: the arrow's pivot. */
+  readonly donorId: AtomId;
+  /** The end the electrons are pushed at: the atom under attack. */
+  readonly acceptorId: AtomId;
+}
+
+export function bondFormations(facts: StepArrowFacts): readonly BondFormation[] {
+  const formations: BondFormation[] = [];
+
+  for (const resolved of facts.arrows) {
+    if (!resolved.resolves) continue;
+    if (resolved.arrow.sink.kind !== "betweenAtoms") continue;
+
+    const left = resolved.arrow.sink.atomIds[0];
+    const right = resolved.arrow.sink.atomIds[1];
+    if (left === right) continue;
+
+    const source = new Set<AtomId>(resolved.sourceAtomIds);
+    const pivots = [left, right].filter((atomId) => source.has(atomId));
+    // Not one pivot: either the arrow does not touch the bond it makes, or it declares no
+    // change at all. Both are arrow-legality's findings and both are named better there.
+    if (pivots.length !== 1) continue;
+
+    const donorId = pivots[0] as AtomId;
+    formations.push({
+      arrowId: resolved.arrow.id,
+      donorId,
+      acceptorId: donorId === left ? right : left,
+    });
+  }
+
+  return formations;
+}
+
+/**
  * The four atoms an E2 dihedral is measured over, derived from the arrows alone.
  *
  * H-Cbeta-Calpha-LG. The hydrogen the base takes, the carbon it came off, the carbon the

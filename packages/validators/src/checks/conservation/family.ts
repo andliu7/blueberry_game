@@ -1,4 +1,10 @@
-import type { Check, CheckContext, CheckFailure, CheckResult } from "../../check.ts";
+import type {
+  Check,
+  CheckContext,
+  CheckFailure,
+  CheckResult,
+  NotMeasurable,
+} from "../../check.ts";
 import { failed, passed } from "../../check.ts";
 import {
   CONSERVATION_CHECK_NAMES,
@@ -6,8 +12,53 @@ import {
   loadCorpus,
   NON_FIXTURE_FILES,
   type ConservationCheckName,
+  type FixtureLoadError,
   type LoadedFixture,
 } from "./fixture-schema.ts";
+
+/**
+ * The one check in this family that is the loader rather than a violation finder.
+ *
+ * WHY THE LOADER NEEDS A NAME AT ALL.
+ *
+ * Every check here begins by loading the corpus, and every check reports every load error
+ * as its own failure. That is right for a fixture nobody meant to be unloadable, and it
+ * leaves no way to express the other case: a fixture whose whole point is that the loader
+ * MUST refuse it. The fourth pass adversary filed one, a pathway with two steps carrying
+ * the same id, and the honest place to catch that is the loader; the long note in
+ * `parsePathway` argues why it is not a chemistry violation and carries no CauseId.
+ *
+ * So a refusal is read exactly the way a violation is read, through `expect.mustFail`:
+ *
+ *   fixture refused, and it named this check in mustFail    the negative control fired.
+ *                                                           No failure, in this check or
+ *                                                           in any other.
+ *   fixture refused, and it did not                         every check fails on it, as
+ *                                                           before. Nothing is loosened.
+ *   fixture named this check and loaded fine                this check fails: the negative
+ *                                                           control did not fire. Handled
+ *                                                           by the ordinary rule below,
+ *                                                           because a loaded fixture
+ *                                                           produces no violation here.
+ *
+ * THE ONE THING THIS DOES LOOSEN, SAID OUT LOUD.
+ *
+ * A fixture that declares this check is accepted as a fired control for ANY refusal, not
+ * only the refusal its note describes. If such a fixture later rots into a different schema
+ * error, it still reads as the control firing. Two things hold that down and neither is a
+ * promise: the declaration is only readable when `<root>.expect` itself parsed, so a file
+ * that is not JSON, or whose header or expectation is malformed, cannot claim the exemption
+ * and fails hard; and every accepted refusal is printed in this check's NOT MEASURABLE
+ * section on every run, with the exact refusal message, so a changed reason is visible in
+ * the output rather than only in a diff. Narrowing it further would mean matching the
+ * message text, and a check that greps its own error strings breaks on rewording.
+ */
+export const LOADER_CHECK_NAME: ConservationCheckName = "conservation-fixture-schema";
+
+/** Did this fixture declare, in its own file, that the loader must refuse it? */
+export function declaresLoaderRefusal(error: FixtureLoadError): boolean {
+  return error.expect?.mustFail.includes(LOADER_CHECK_NAME) === true;
+}
 
 /**
  * The shared body every check in this family runs, and the rule that makes the corpus
@@ -112,8 +163,27 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
     async run(context: CheckContext): Promise<CheckResult> {
       const failures: CheckFailure[] = [];
       const corpus = await loadCorpus(context.fixtures, context.packageRoot);
+      const isLoaderCheck = input.name === LOADER_CHECK_NAME;
+      let negativeControls = 0;
+      const acceptedRefusals: NotMeasurable[] = [];
 
       for (const error of corpus.loadErrors) {
+        if (declaresLoaderRefusal(error)) {
+          // A fixture that declared the loader must refuse it, and it did. The control
+          // fired. Not a failure here and not a failure in any other check in the family,
+          // because there is exactly one fixture and exactly one verdict on it.
+          if (isLoaderCheck) {
+            negativeControls += 1;
+            acceptedRefusals.push({
+              property: `${error.relativePath} was refused by the loader, as it declares it must be`,
+              reason:
+                `${error.message}  ---  the declaration is in the file's own expect.mustFail, ` +
+                `and it is printed here every run so that a refusal for a DIFFERENT reason than ` +
+                `the fixture was written for is visible in the output rather than only in a diff.`,
+            });
+          }
+          continue;
+        }
         failures.push({
           expected: `the fixture parses against the v${FIXTURE_SCHEMA_VERSION} fixture schema`,
           actual: error.message,
@@ -140,8 +210,6 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
         return failed(failures);
       }
 
-      let negativeControls = 0;
-
       for (const fixture of corpus.fixtures) {
         const declaredToFailHere = fixture.expect.mustFail.includes(input.name);
         if (declaredToFailHere) negativeControls += 1;
@@ -159,6 +227,20 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
         }
 
         if (declaredToFailHere) {
+          if (isLoaderCheck) {
+            // The loader check has no violations to report: a fixture that reached this
+            // loop is one the loader ACCEPTED, which is precisely the failure.
+            failures.push({
+              expected: `the loader refuses this fixture, which is what it declares in expect.mustFail`,
+              actual:
+                `it parsed cleanly and became a pathway, so ${LOADER_CHECK_NAME} is not proven ` +
+                `to fire on it. Either the schema rule this fixture was written against was ` +
+                `removed, or the fixture was edited into something the schema accepts. ` +
+                `The fixture says: ${fixture.expect.note}`,
+              fixture: fixture.relativePath,
+            });
+            continue;
+          }
           if (violations.length === 0) {
             failures.push({
               expected: `${input.name} reports at least one violation on this negative control`,
@@ -195,8 +277,9 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
         });
       }
 
-      if (failures.length > 0) return failed(failures);
-      return passed();
+      const extra = acceptedRefusals.length === 0 ? undefined : { notMeasurable: acceptedRefusals };
+      if (failures.length > 0) return failed(failures, extra);
+      return passed(extra);
     },
   };
 }
