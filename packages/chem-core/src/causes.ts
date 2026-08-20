@@ -112,6 +112,8 @@ export type CauseId =
   // route
   | "step_out_of_order"
   | "step_not_elementary"
+  | "step_kind_disagrees_with_arrows"
+  | "reaction_center_not_touched_by_any_arrow"
   | "route_requires_conditions_not_present";
 
 export interface CauseDefinition {
@@ -547,6 +549,22 @@ export const CAUSES: Readonly<Record<CauseId, CauseDefinition>> = Object.freeze(
     BLOCKING,
     "Several separate steps are drawn as one.",
     "One elementary step is one transition state. Bond formation and an unrelated proton transfer are two barriers, so they are two steps, even when both are inevitable.",
+  ),
+  step_kind_disagrees_with_arrows: define(
+    "step_kind_disagrees_with_arrows",
+    "route",
+    "blocking",
+    BLOCKING,
+    "The kind this step is declared to be is not the kind its arrows describe.",
+    "A step's kind is a claim about which electrons moved and where they came from, so the arrows settle it and the label only records it. A hydrogen that carries its own bonding pair is a hydride whatever the step is called, a bond whose pair leaves together is heterolysis whatever the step is called, and a step that expels a leaving group alongside the proton is an elimination rather than a proton transfer.",
+  ),
+  reaction_center_not_touched_by_any_arrow: define(
+    "reaction_center_not_touched_by_any_arrow",
+    "route",
+    "blocking",
+    BLOCKING,
+    "An atom is declared a reaction centre of this step and no arrow touches it.",
+    "The reaction centres of a step are the atoms its arrows start on, land on, or bond. An atom no arrow reaches took no part in the step, so every later claim resting on that declaration, a periplanar geometry above all, is being made about the wrong part of the molecule.",
   ),
   route_requires_conditions_not_present: define(
     "route_requires_conditions_not_present",

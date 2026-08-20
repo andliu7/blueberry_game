@@ -1,9 +1,16 @@
 /**
- * Category: route. Three causes, two blocking and one advisory.
+ * Category: route. Five causes, four blocking and one advisory.
  *
  * These are about the shape of the whole mechanism rather than about any single
- * arrow, so every `lookAt` sends the student back to the sequence or to the
- * reagent line rather than to an atom.
+ * arrow, so every `lookAt` sends the student back to the sequence, to the
+ * reagent line, or to the arrows read as a set, rather than to one atom.
+ *
+ * Two of the five are about a declaration disagreeing with a drawing rather than
+ * about the drawing being wrong, and their copy has one extra job because of it.
+ * A student whose arrows are correct and whose label is not must not be told
+ * their chemistry is broken, so `whatYouDid` says the naming is what went wrong
+ * and `lookAt` teaches them to read their own arrows and let those pick the
+ * name.
  */
 
 import type { CauseId } from "@blueberry/chem-core";
@@ -11,7 +18,11 @@ import type { CauseCopy } from "../types.ts";
 
 type RouteCauseId = Extract<
   CauseId,
-  "step_out_of_order" | "step_not_elementary" | "route_requires_conditions_not_present"
+  | "step_out_of_order"
+  | "step_not_elementary"
+  | "step_kind_disagrees_with_arrows"
+  | "reaction_center_not_touched_by_any_arrow"
+  | "route_requires_conditions_not_present"
 >;
 
 export const ROUTE_COPY: Readonly<Record<RouteCauseId, CauseCopy>> = Object.freeze({
@@ -24,6 +35,16 @@ export const ROUTE_COPY: Readonly<Record<RouteCauseId, CauseCopy>> = Object.free
     whatYouDid: "You drew several separate steps as one.",
     why: "One elementary step is one transition state and one energy barrier. Forming a bond and moving a proton somewhere unrelated are two barriers, so they are two steps, even when both are certain to happen.",
     lookAt: "Split wherever an intermediate exists, even a short lived one. Addition to a carbonyl under acid is three steps: protonate the carbonyl oxygen, attack the carbon, then deprotonate, with the tetrahedral intermediate drawn in between.",
+  },
+  step_kind_disagrees_with_arrows: {
+    whatYouDid: "You called this step one kind of step and drew a different one.",
+    why: "The name of a step is a claim about which electrons moved and where they came from, so the arrows decide what it is and the label only records it. Your arrows may well be right. What they draw is a different kind of step from the one you named, and the two cannot both be true at once.",
+    lookAt: "Let the arrows name the step rather than the other way round. If a hydrogen moved, look at which atom the bond forming arrow pivots on: pivoting on the hydrogen means it brought its own bonding pair and travelled as a hydride, pivoting on the acceptor means the acceptor paid for the new bond and it travelled as a bare proton. If a bond broke, one full arrow carrying the pair to one end is heterolysis, and two fishhooks going opposite ways is homolysis. Then count the bonds that fully break: a proton leaving and a leaving group departing in the same step is an elimination, not a proton transfer.",
+  },
+  reaction_center_not_touched_by_any_arrow: {
+    whatYouDid: "You marked an atom as a reaction centre of this step and drew no arrow that reaches it.",
+    why: "The reaction centres are wherever electrons actually arrive or leave, which means the atoms your arrows start on, end on, or bond together. An atom none of them reaches sat this step out, so anything you go on to claim about it, a periplanar arrangement most of all, is a claim about the wrong part of the molecule even when the number is right.",
+    lookAt: "Write down the atoms at both ends of every arrow you drew, then compare that list with the centres you marked. Anything marked and not on the arrow list is either missing the arrow that would justify it or should not be marked at all. In an E2 the four atoms that matter are the hydrogen the base takes, the carbon it comes off, the carbon holding the leaving group, and the leaving group, not the chain of carbons running past them.",
   },
   route_requires_conditions_not_present: {
     whatYouDid: "Your route needs conditions the question did not give you.",

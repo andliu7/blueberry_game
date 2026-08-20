@@ -83,26 +83,40 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * pointing at nothing is smaller than the truth, and asserting against it would report a
  * grounding failure that is really a dangling reference.
  *
- * THE CAUSE ID, WHICH IS A KNOWN IMPRECISION AND IS REPORTED AS ONE.
+ * THE CAUSE IDS, WHICH WERE A KNOWN IMPRECISION AND ARE NOT ONE ANY MORE.
  *
- * chem-core's registry has no cause for "the declared step kind contradicts the electron
- * flow". The nearest member is `step_not_elementary`, whose category is `route` and which
- * is about step identity, and it is what these violations carry. Its student facing copy
- * says "several separate steps are drawn as one", which is the right family of complaint
- * and the wrong sentence for a mislabelled step. chem-core is outside this package's
- * ownership, so the id is not invented here. A cause along the lines of
- * `step_kind_disagrees_with_electron_flow` belongs in causes.ts, and when it exists the
- * constant below is the only line that changes. The fishhook rule is the exception: a
- * radical arrow in a polar step already has an exact cause and uses it.
+ * This file previously pointed every violation it raised at `step_not_elementary`, because
+ * chem-core's registry had no cause for "the declared step kind contradicts the electron
+ * flow" and that was the nearest member. It was the wrong sentence: its student copy says
+ * several separate steps are drawn as one, which tells a student who drew one correct step
+ * and named it wrong that their drawing has too many steps in it. chem-core now carries
+ * two causes for what this file actually finds, and they are used below.
+ *
+ * Three of the four conditions here are the same complaint, "the kind you declared is not
+ * the kind your arrows describe", so they share `step_kind_disagrees_with_arrows`. The
+ * reaction centre rule is not about the step's kind at all, it is about the other field of
+ * `identity`, so it carries `reaction_center_not_touched_by_any_arrow` instead. Filing it
+ * under a kind mismatch would repeat, one size smaller, exactly the mistake being fixed.
+ * The fishhook rule keeps its own exact cause: a radical arrow in a polar step is an
+ * arrow level defect and `radical_arrow_used_in_polar_step` already names it.
  */
 
 /**
- * The nearest registered cause for a declared kind that the arrows contradict.
+ * The cause for a declared kind the arrows contradict.
  *
- * Not the right cause. See the paragraph above. Every violation in this file except the
- * fishhook one carries it, so repointing is one edit.
+ * Carried by the hydrogen rules, the departure rule, and the polar arrows in a radical
+ * step rule. Not by the reaction centre rule, which is a different claim, and not by the
+ * fishhook rule, which has an exact cause of its own.
  */
-const MISLABELLED = "step_not_elementary";
+const MISLABELLED = "step_kind_disagrees_with_arrows";
+
+/**
+ * The cause for a declared reaction centre no arrow touches.
+ *
+ * `identity.reactionCenters` is authored rather than derived, which is what makes this
+ * disagreement possible and what makes it worth naming separately from the kind.
+ */
+const UNGROUNDED_CENTRE = "reaction_center_not_touched_by_any_arrow";
 
 /**
  * Kinds that are radical by definition. Every one of them moves single electrons.
@@ -163,7 +177,7 @@ function reactionCentreViolations(step: MechanismStep, facts: StepArrowFacts): V
         `{${[...facts.touchedAtomIds].sort().join(", ")}}. reactionCenters is authored rather ` +
         `than derived, and anything that reads it, the E2 torsion declaration above all, is ` +
         `then reasoning about atoms this step never acted on`,
-      cause: MISLABELLED,
+      cause: UNGROUNDED_CENTRE,
     },
   ];
 }
