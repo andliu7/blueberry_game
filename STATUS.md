@@ -32,17 +32,58 @@ repo carries 7 migrations including the D6 column GRANT at
 
 ## Phases
 
+Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is authoritative.
+
 | Phase | Mode | State |
 |---|---|---|
-| 0 Contracts and validators | Gauntlet loop | IN PROGRESS, branch `phase-0`, wave 1 running |
-| 1 Chemistry core | Gauntlet loop | Not started |
+| 0 Contracts and validators | Gauntlet loop | DONE, merged into `phase-1` history |
+| 1 Mechanism core | Gauntlet loop | IN PROGRESS, branch `phase-1`, adversary iteration 4 of 5 |
 | 2 Interaction layer | Gauntlet loop | Not started |
-| 3 Rendering | Single pass, human gate | Not started |
-| 4 Game shell | Single pass, human gate | Not started |
-| 5 Auth, data, free tier | Gauntlet loop | Not started |
-| 6 AI chat | Gauntlet loop | Not started |
-| 7 Onboarding | Single pass, human gate | Not started |
-| 8 Scale hardening | Single pass | Not started |
+| 3 Curriculum engine and placement quiz | Gauntlet loop | Not started |
+| 4 Rendering | Single pass, human gate | Not started |
+| 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | Not started |
+| 6 Auth, data, free tier | Gauntlet loop | Not started |
+| 7 AI chat as the Tier 3 tail | Gauntlet loop | Not started |
+| 8 Tutor messaging | Gauntlet loop | Not started |
+| 9 Scale hardening | Single pass | Not started |
+
+## Phase 1 numbers
+
+```
+SUITE: pass   checks run: 27   passed: 27   failed: 0
+FIXTURE COUNT: 94   (48 of them negative controls)
+```
+
+| Measure | Value | Floor |
+|---|---|---|
+| chem-core mutation score | 98.21 percent killed, 1472 of 1507 | 80 percent |
+| Distinct named causes reachable | 30 of 51 defined | 12 |
+| Wrong attempts resolving to a named cause | 100 percent, 48 of 48 | 90 percent |
+| Named causes with authored copy | 51 of 51 | all |
+| chem-core gzipped | 12259 bytes | 153600 |
+
+### Adversary record for Phase 1
+
+Fifteen findings across three passes, all fixed. Pass four running.
+
+| Pass | Findings | Notable |
+|---|---|---|
+| One | 7 | Eleven arrow legality rules had no negative control. The annotation checks verified shape and not substance |
+| Two | 4 | A false positive: the suite rejected two correctly annotated SN1 captures. Also the lock did not cover the answer key it grades against |
+| Three | 4 | A bare `export *` was invisible to the census. Acyl substitution collapsed into one step passed clean |
+
+Two findings are open on purpose, both needing reactivity modelling rather than
+geometry, each with a fixture recording the limit: an arrow shaped
+`bond(A,B) to between(A,C)` cannot be ranked without knowing which end is the
+electrophile, and a spectator whose prose contradicts its own declared reason is
+a human review problem rather than a mechanical one.
+
+### Remaining Phase 1 exit conditions
+
+1. An adversary pass that produces no new findings. Iteration 4 of 5 running.
+2. **Your gate.** Read the 51 causes and judge whether the wording teaches.
+   `npm run review -w packages/feedback` prints all of it. No agent can do this,
+   and it is the axis where the bar shows a yellow triangle and nothing else.
 
 ## Phase 0 detail
 
