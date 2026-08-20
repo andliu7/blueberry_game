@@ -8,7 +8,18 @@ import {
 } from "@blueberry/chem-core";
 
 import type { Check } from "../../check.ts";
-import { requiredAnnotationViolations } from "./authoring.ts";
+import {
+  deriveE2Quartet,
+  quartetAtomIds,
+  stepArrowFacts,
+  type E2Quartet,
+} from "./arrow-facts.ts";
+import {
+  annotationGroundingViolations,
+  annotationVocabulary,
+  annotationsOfKind,
+  requiredAnnotationViolations,
+} from "./authoring.ts";
 import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
 
 /**
@@ -40,6 +51,9 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  *   1. Every E2 concerted elimination step has exactly one declared torsion, in its `from`
  *      state, whose four atoms are all reaction centres of that step. Exactly one, because
  *      two torsions over the same four centres are two claims about one angle.
+ *   1b. AND that a torsion is declared over the four atoms the ARROWS say this elimination
+ *      happens at: the hydrogen the base takes, the carbon it came off, the carbon holding
+ *      the leaving group, and the leaving group. See below.
  *   2. That torsion is a real dihedral: four distinct atoms, all in one species, bonded in
  *      a chain A-B-C-D. A dihedral is the angle between the A-B-C and B-C-D planes, so four
  *      atoms that are not a bonded chain do not define one, whatever number is written next
@@ -53,6 +67,25 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  *   6. If it is syn, the pathway carries exactly one `conformational_justification`
  *      annotation, with a value and a justification. Present, and the fixture passes. This
  *      check never decides whether the stated conformational reason is a good one.
+ *
+ * WHY RULE 1 ALONE WAS NOT ENOUGH, WHICH IS THE PHASE 1 ADVERSARY'S SECOND FINDING.
+ *
+ * Rule 1 asks whether a torsion's atoms are all in `identity.reactionCenters`. That field
+ * is AUTHORED. The adversary filed a real anti periplanar E2 on 2-bromobutane whose
+ * reactionCenters were written as the plain carbon backbone [C1, C2, C3, C4] and whose
+ * declared torsion was that same backbone at 180 degrees. Every requirement in this file
+ * was met by a claim about the ordinary conformation of butane, which says nothing about
+ * whether the hydrogen and the bromide are anti to each other. The check could not tell,
+ * because both halves of the comparison came from the same authored field.
+ *
+ * Rule 1b breaks that circle by deriving the four atoms from the arrows instead. In a
+ * correctly drawn E2 all four are named by arrows: the base to hydrogen arrow names the
+ * hydrogen, the pi forming arrow names both carbons, and the leaving group arrow names the
+ * leaving group and the carbon it sits on. `deriveE2Quartet` in arrow-facts.ts does that
+ * and returns undefined when the drawing is not one it can read, in which case rule 1b
+ * stands down rather than guessing. `conservation-step-identity` attacks the same circle
+ * from the other side by asking that every declared reaction centre be an atom some arrow
+ * touches, which is what the backbone fixture violates first.
  *
  * WHAT IT DOES NOT ASSERT.
  *
@@ -72,6 +105,33 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * different hat. Loosening this number to make a fixture pass is a weakening, and the
  * fixture that would need it is a fixture whose geometry is not periplanar.
  */
+
+/**
+ * The quartet an E2 dihedral has to be measured over, if the arrows can name it.
+ *
+ * Returned as a sorted, printable list as well as a set, because the failure line has to
+ * say which four atoms were expected before a reader can see what the declared four were
+ * instead.
+ */
+interface DerivedQuartet {
+  readonly quartet: E2Quartet;
+  readonly ids: ReadonlySet<string>;
+  readonly description: string;
+}
+
+function derivedQuartet(step: MechanismStep): DerivedQuartet | undefined {
+  const facts = stepArrowFacts(step);
+  const quartet = deriveE2Quartet(step, facts);
+  if (quartet === undefined) return undefined;
+  return {
+    quartet,
+    ids: quartetAtomIds(quartet),
+    description:
+      `${quartet.hydrogenId} (the hydrogen the base takes), ${quartet.betaId} (the carbon it ` +
+      `leaves), ${quartet.alphaId} (the carbon holding the leaving group), and ` +
+      `${quartet.leavingGroupId} (the leaving group)`,
+  };
+}
 
 /** Degrees either side of 0 or 180 that still count as periplanar. Fixed. */
 const PERIPLANAR_TOLERANCE_DEGREES = 30;
@@ -162,8 +222,47 @@ function shapeViolations(site: DeclaredTorsionSite, where: string): Violation[] 
   return violations;
 }
 
+/**
+ * The conformational justification has to be about this molecule.
+ *
+ * The Phase 1 adversary filed the norbornane syn E2 again with its justification replaced
+ * by the single character "z", which satisfied every rule this file had: present, exactly
+ * one, value non empty, justification non empty. A length threshold would be answered by
+ * typing two words. So the rule added instead is that the annotation must name an atom id
+ * or a species id from the state, which is a requirement about what the claim REFERS TO
+ * rather than about what it says. The honestly authored one in
+ * good-e2-syn-periplanar-in-a-conformationally-locked-norbornane already names C1, C2, C3,
+ * C4 and C7 while explaining what the bridge fixes.
+ *
+ * Whether a bicyclo[2.2.1] cage genuinely cannot reach 180 degrees remains a human review
+ * gate, as the docstring at the top of this file has always said. This is a floor under it.
+ */
+function conformationalGroundingViolations(
+  pathway: MechanismPathway,
+  step: MechanismStep,
+  where: string,
+): Violation[] {
+  const vocabulary = annotationVocabulary([step.from]);
+  const violations: Violation[] = [];
+  for (const [index, annotation] of annotationsOfKind(
+    pathway,
+    "conformational_justification",
+  ).entries()) {
+    violations.push(
+      ...annotationGroundingViolations(
+        annotation,
+        vocabulary,
+        `${where} / annotation[${index}] kind conformational_justification`,
+        "e2_syn_periplanar_unjustified",
+      ),
+    );
+  }
+  return violations;
+}
+
 function angleViolations(
   pathway: MechanismPathway,
+  step: MechanismStep,
   site: DeclaredTorsionSite,
   where: string,
 ): Violation[] {
@@ -198,6 +297,7 @@ function angleViolations(
           `Say what locks the conformation, and the fixture passes`,
       }),
     );
+    violations.push(...conformationalGroundingViolations(pathway, step, where));
     return violations;
   }
 
@@ -219,43 +319,68 @@ function angleViolations(
   return violations;
 }
 
-function stepViolations(pathway: MechanismPathway, step: MechanismStep): Violation[] {
-  const centers = new Set<string>(step.identity.reactionCenters);
-  const sites = declaredTorsionSites(step);
-  const covering = sites.filter((site) => coversTheStep(site.torsion, centers));
+/** Do these four ids name the same set of atoms as the derived quartet? */
+function isTheQuartet(site: DeclaredTorsionSite, ids: ReadonlySet<string>): boolean {
+  const declared = new Set<string>(site.torsion.atoms);
+  return declared.size === ids.size && [...declared].every((atomId) => ids.has(atomId));
+}
 
-  if (covering.length === 0) {
+/**
+ * Rule 1b. A torsion is declared over the four atoms the arrows say this elimination
+ * happens at.
+ *
+ * Additive. It does not replace the reaction centre selection below and does not relax it:
+ * a fixture that satisfies one and not the other now fails, where before it passed on the
+ * authored half alone.
+ */
+function quartetViolations(
+  step: MechanismStep,
+  sites: readonly DeclaredTorsionSite[],
+  derived: DerivedQuartet,
+): Violation[] {
+  const matching = sites.filter((site) => isTheQuartet(site, derived.ids));
+
+  if (matching.length === 0) {
     return [
       {
-        where: `${step.id}.from / E2 elimination at ${[...centers].join(", ")}`,
+        where: `${step.id}.from / E2 elimination drawn at ${derived.description}`,
         expected:
-          "one declared torsion whose four atoms are all reaction centres of this step, " +
-          "normally the beta hydrogen, the two carbons, and the leaving group",
+          `a declared torsion over exactly {${[...derived.ids].sort().join(", ")}}, the four atoms ` +
+          `this step's own arrows act on`,
         actual:
           sites.length === 0
-            ? "no species in this state declares any torsion, so the dihedral E2 turns on is " +
-              "unstated and nothing here can tell an anti elimination from an unjustified syn one"
-            : `${sites.length} torsion(s) are declared here and none is drawn over this step's ` +
-              `reaction centres: ${sites.map((site) => `[${site.torsion.atoms.join(", ")}]`).join(" ")}`,
+            ? "no torsion is declared here at all, so the alignment E2 turns on is unstated"
+            : `the torsion(s) declared here are ${sites.map((site) => `[${site.torsion.atoms.join(", ")}]`).join(" ")}, ` +
+              `and none of them is that set. A dihedral over other atoms of the same molecule is ` +
+              `a real number about a real rotatable bond and says nothing about whether the ` +
+              `hydrogen and the leaving group are aligned, which is the only geometry this ` +
+              `elimination depends on`,
         cause: GEOMETRY_NOT_DECLARED,
       },
     ];
   }
 
-  if (covering.length > 1) {
+  if (matching.length > 1) {
     return [
       {
-        where: `${step.id}.from / E2 elimination at ${[...centers].join(", ")}`,
-        expected: "exactly one declared torsion over this step's reaction centres",
+        where: `${step.id}.from / E2 elimination drawn at ${derived.description}`,
+        expected: "exactly one declared torsion over those four atoms",
         actual:
-          `${covering.length}: ${covering.map((site) => `[${site.torsion.atoms.join(", ")}] at ${site.torsion.degrees} degrees`).join(", ")}. ` +
-          `Two angles claimed for one elimination cannot both be the geometry it happens in`,
+          `${matching.length}: ${matching.map((site) => `[${site.torsion.atoms.join(", ")}] at ${site.torsion.degrees} degrees`).join(", ")}. ` +
+          `Two angles claimed for one alignment cannot both be the geometry it happens in`,
         cause: GEOMETRY_NOT_DECLARED,
       },
     ];
   }
 
-  const site = covering[0] as DeclaredTorsionSite;
+  return [];
+}
+
+function siteViolations(
+  pathway: MechanismPathway,
+  step: MechanismStep,
+  site: DeclaredTorsionSite,
+): Violation[] {
   const where =
     `${step.id}.from / species ${site.species.id} / torsion [${site.torsion.atoms.join(", ")}]`;
 
@@ -278,8 +403,63 @@ function stepViolations(pathway: MechanismPathway, step: MechanismStep): Violati
   // the periplanarity arm is not run on it. Reporting "this is not periplanar" about a
   // torsion that does not exist would be a second failure line about the first failure.
   if (shape.length === 0) {
-    violations.push(...angleViolations(pathway, site, where));
+    violations.push(...angleViolations(pathway, step, site, where));
   }
+
+  return violations;
+}
+
+function stepViolations(pathway: MechanismPathway, step: MechanismStep): Violation[] {
+  const violations: Violation[] = [];
+  const centers = new Set<string>(step.identity.reactionCenters);
+  const sites = declaredTorsionSites(step);
+  const covering = sites.filter((site) => coversTheStep(site.torsion, centers));
+
+  // Rule 1b first, because when the two disagree it is the one whose two halves were not
+  // both written by the same hand.
+  const derived = derivedQuartet(step);
+  if (derived !== undefined) {
+    violations.push(...quartetViolations(step, sites, derived));
+  }
+
+  if (covering.length === 0) {
+    violations.push({
+      where: `${step.id}.from / E2 elimination at ${[...centers].join(", ")}`,
+      expected:
+        "one declared torsion whose four atoms are all reaction centres of this step, " +
+        "normally the beta hydrogen, the two carbons, and the leaving group",
+      actual:
+        sites.length === 0
+          ? "no species in this state declares any torsion, so the dihedral E2 turns on is " +
+            "unstated and nothing here can tell an anti elimination from an unjustified syn one"
+          : `${sites.length} torsion(s) are declared here and none is drawn over this step's ` +
+            `reaction centres: ${sites.map((site) => `[${site.torsion.atoms.join(", ")}]`).join(" ")}`,
+      cause: GEOMETRY_NOT_DECLARED,
+    });
+  } else if (covering.length > 1) {
+    violations.push({
+      where: `${step.id}.from / E2 elimination at ${[...centers].join(", ")}`,
+      expected: "exactly one declared torsion over this step's reaction centres",
+      actual:
+        `${covering.length}: ${covering.map((site) => `[${site.torsion.atoms.join(", ")}] at ${site.torsion.degrees} degrees`).join(", ")}. ` +
+        `Two angles claimed for one elimination cannot both be the geometry it happens in`,
+      cause: GEOMETRY_NOT_DECLARED,
+    });
+  }
+
+  // Shape, justification, and angle are run on the torsion the reaction centres select and,
+  // when it is a different one, on the torsion the arrows select as well. Both are claims
+  // this fixture makes about this elimination, and neither gets to be the one nobody read.
+  const judged: DeclaredTorsionSite[] = [];
+  if (covering.length === 1) judged.push(covering[0] as DeclaredTorsionSite);
+  if (derived !== undefined) {
+    const matching = sites.filter((site) => isTheQuartet(site, derived.ids));
+    if (matching.length === 1 && !judged.includes(matching[0] as DeclaredTorsionSite)) {
+      judged.push(matching[0] as DeclaredTorsionSite);
+    }
+  }
+
+  for (const site of judged) violations.push(...siteViolations(pathway, step, site));
 
   return violations;
 }
@@ -297,6 +477,6 @@ const find: ViolationFinder = (fixture) => {
 export const conservationPeriplanarityDeclaration: Check = conservationCheck({
   name: "conservation-periplanarity-declaration",
   description:
-    "every E2 elimination declares the dihedral it turns on as a well formed torsion over its reaction centres, that dihedral is periplanar, and a syn periplanar one carries an authored conformational justification rather than being rejected",
+    "every E2 elimination declares the dihedral it turns on as a well formed torsion over the four atoms its arrows act on and over its reaction centres, that dihedral is periplanar, and a syn periplanar one carries an authored conformational justification that names something in the state rather than being rejected",
   find,
 });

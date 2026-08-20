@@ -114,7 +114,7 @@ import { NON_FIXTURE_FILES } from "../../fixtures.ts";
 export { NON_FIXTURE_FILES };
 
 /**
- * The names of the ten checks in this family.
+ * The names of the eleven checks in this family.
  *
  * A fixture's `expect.mustFail` names checks from this list. Naming anything else is a
  * failure rather than a no-op, so a renamed check cannot silently orphan its own negative
@@ -134,6 +134,12 @@ export { NON_FIXTURE_FILES };
  * names. They are annotation checks rather than arithmetic checks, and they sit in this
  * family because they run over the same corpus, use the same two sided good and broken
  * declaration, and would otherwise need a second copy of family.ts to say the same things.
+ *
+ * `conservation-step-identity` is the eleventh and is the same story a third time. The
+ * Phase 1 adversary filed a fixture whose note recorded that nothing in the package cross
+ * validates `identity.elementaryStep` against the electron flow, and it had to be filed
+ * good because no name here could be declared as the check that ought to catch it. This
+ * line is that name, and that fixture is now broken.
  */
 export const CONSERVATION_CHECK_NAMES = [
   "conservation-valence",
@@ -146,6 +152,7 @@ export const CONSERVATION_CHECK_NAMES = [
   "conservation-stereorandom-annotation",
   "conservation-periplanarity-declaration",
   "conservation-disfavoured-rate-comparison",
+  "conservation-step-identity",
 ] as const;
 
 export type ConservationCheckName = (typeof CONSERVATION_CHECK_NAMES)[number];

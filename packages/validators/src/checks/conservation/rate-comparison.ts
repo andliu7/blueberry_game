@@ -3,9 +3,12 @@ import {
   findAtom,
   neighborIds,
   type MechanismPathway,
+  type MechanismRoute,
   type MechanismStep,
   type Species,
 } from "@blueberry/chem-core";
+
+import { competingRoutesFor } from "@blueberry/feedback";
 
 import type { Check } from "../../check.ts";
 import { annotationsOfKind, requiredAnnotationViolations, speciesContaining } from "./authoring.ts";
@@ -34,6 +37,41 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  *   3. That annotation names a competing MechanismRoute, by its chem-core route id, and
  *      that route is not the disfavoured one itself. "Strongly disfavoured" with nothing
  *      said about what wins instead is the half answer CLAUDE.md warns about.
+ *   4. Every route it names that way is one the engine itself names as a competing pathway
+ *      for this cause, in `competingRoutesFor(sn2_center_strongly_hindered)`. See below.
+ *
+ * WHY RULE 4 EXISTS, WHICH IS THE PHASE 1 ADVERSARY'S THIRD FINDING.
+ *
+ * Rule 3 asks only that SOME route id other than sn2 appears. The adversary filed the
+ * neopentyl fixture again with `radical_halogenation` named as the competing pathway: a
+ * real id in the closed union, not sn2, and chemically unreachable from a hydroxide and an
+ * alkyl bromide in solution with no initiator, no light, and no halogen molecule anywhere
+ * in the state. The checkbox was ticked and the student would be taught the wrong lesson.
+ *
+ * The fix is to make the two halves of this repository agree with each other rather than
+ * to build a second model of reactivity inside the validator.
+ * `packages/feedback/src/copy/sterics.ts` already carries, in structured form, the route
+ * that beats a strongly hindered SN2: `competingRoutes: ["carbocation_rearrangement"]`,
+ * the anchimerically assisted methyl shift, which is the lesson CLAUDE.md says the
+ * neopentyl paragraph exists to teach. A fixture naming a different route is disagreeing
+ * with the engine's own answer to the same question, and one of the two is wrong.
+ *
+ * That is a real assertion with a real widening path, and the failure line says what it
+ * is: if a named route genuinely is a competing pathway for this cause, it belongs in the
+ * cause's `competingRoutes` in packages/feedback, and then both halves say so. Editing the
+ * annotation to name a route nobody believes in, or deleting this rule, are the two things
+ * that are not the widening path.
+ *
+ * WHAT RULE 4 IS NOT, AND WHAT IS THEREFORE STILL NOT CHECKED.
+ *
+ * It is not a test of whether the named route is AVAILABLE FROM THIS SUBSTRATE. That
+ * question needs a model of what each route requires of a state, which is the reactivity
+ * family's job and not this one's. Some of it is decidable from structure: a radical chain
+ * needs an unpaired electron or a homolysable bond to start from, an aromatic substitution
+ * needs a ring. Most of it is not, and none of the conditions half of it is in the fixture
+ * schema at all: whether the solvent favours ionisation, whether the base is bulky enough,
+ * what the temperature was. Rule 4 is agreement between two authored records, and it is
+ * worth exactly that much and no more.
  *
  * WHAT IT DOES NOT ASSERT, AND THIS IS THE HALF THAT MATTERS MOST.
  *
@@ -69,8 +107,8 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * are arbitrary strings". So the convention is that the annotation writes the competing
  * route's chem-core id, `carbocation_rearrangement` for the neopentyl case, somewhere in
  * its value or justification. The check looks for one of those ids as a whole word. That
- * is not grading prose, it is requiring a name from a known list to be present, and it is
- * the only content assertion any of the three annotation checks makes.
+ * is not grading prose, it is requiring a name from a known list to be present, and rule 4
+ * then requires that the name be the one the engine gives for the same cause.
  */
 
 /** Cause id for the detected geometry. Advisory in chem-core, and advisory here. */
@@ -140,7 +178,7 @@ function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
  * closed union; a label such as "carbocation rearrangement" is prose for a reader, and the
  * id is what another tool can look up.
  */
-function routesNamedIn(text: string): readonly string[] {
+function routesNamedIn(text: string): readonly MechanismRoute[] {
   const haystack = text.toLowerCase();
   return allMechanismRoutes().filter((route) =>
     new RegExp(`(^|[^a-z0-9_])${route}([^a-z0-9_]|$)`).test(haystack),
@@ -158,19 +196,40 @@ function competingRouteViolations(
     const named = routesNamedIn(`${annotation.value} ${annotation.justification}`).filter(
       (route) => route !== disfavouredRoute,
     );
-    if (named.length > 0) continue;
+
+    if (named.length === 0) {
+      violations.push({
+        where: `${where} / annotation[${index}] kind rate_comparison`,
+        expected:
+          "the competing pathway named by its chem-core MechanismRoute id, so it can be looked " +
+          "up rather than only read",
+        actual:
+          `neither the value nor the justification names a route other than ${disfavouredRoute}. ` +
+          `CLAUDE.md: the engine "says strongly disfavored, competing pathway likely AND NAMES ` +
+          `THE COMPETING PATHWAY, because the methyl shift to a tertiary cation is the actual ` +
+          `lesson". Saying only that this is slow leaves out the half that teaches`,
+        cause: CAUSE,
+      });
+      continue;
+    }
+
+    // Rule 4. Every route named has to be one the engine names for this same cause.
+    const believed = competingRoutesFor(CAUSE);
+    const unbelieved = named.filter((route) => !believed.includes(route));
+    if (unbelieved.length === 0) continue;
 
     violations.push({
       where: `${where} / annotation[${index}] kind rate_comparison`,
       expected:
-        "the competing pathway named by its chem-core MechanismRoute id, so it can be looked " +
-        "up rather than only read",
+        `the competing pathway to be one of [${believed.join(", ")}], which is what the engine's ` +
+        `own copy for ${CAUSE} names as the route that outruns this one`,
       actual:
-        `neither the value nor the justification names a route other than ${disfavouredRoute}. ` +
-        `CLAUDE.md: the engine "says strongly disfavored, competing pathway likely AND NAMES ` +
-        `THE COMPETING PATHWAY, because the methyl shift to a tertiary cation is the actual ` +
-        `lesson". Saying only that this is slow leaves out the half that teaches`,
-      cause: CAUSE,
+        `it names ${unbelieved.join(", ")}. That is a real MechanismRoute id, which is all rule 3 ` +
+        `asked for, and it is not the route this repository says wins here. The two records ` +
+        `disagree and one of them teaches the wrong lesson. If ${unbelieved.join(", ")} really ` +
+        `is a competing pathway for a strongly hindered SN2 centre, add it to competingRoutes ` +
+        `on ${CAUSE} in packages/feedback so both halves say so`,
+      cause: "route_requires_conditions_not_present",
     });
   }
 
@@ -216,6 +275,6 @@ const find: ViolationFinder = (fixture) => {
 export const conservationDisfavouredRateComparison: Check = conservationCheck({
   name: "conservation-disfavoured-rate-comparison",
   description:
-    "a strongly hindered SN2 centre detected from the structure is permitted, never blocked, and carries exactly one authored rate_comparison annotation that names the competing MechanismRoute by id",
+    "a strongly hindered SN2 centre detected from the structure is permitted, never blocked, and carries exactly one authored rate_comparison annotation naming a competing MechanismRoute by id that the engine own copy for this cause also names",
   find,
 });

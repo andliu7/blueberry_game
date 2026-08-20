@@ -15,10 +15,18 @@ import type { Violation } from "./family.ts";
  * whether `value` and `justification` are empty, and they count how many annotations of a
  * kind there are. They do not parse a ratio, compare a number, or grade prose.
  *
- * The one exception is narrow and stated where it happens: `rate-comparison.ts` scans a
- * justification for the name of a `MechanismRoute`, because "names the competing pathway"
- * is a requirement about naming and the set of route names is closed and finite. That is
- * still not grading the claim, it is checking that a name from a known list is present.
+ * The exceptions are narrow, and each is stated where it happens. `rate-comparison.ts`
+ * scans a justification for the name of a `MechanismRoute`, because "names the competing
+ * pathway" is a requirement about naming and the set of route names is closed and finite.
+ * `annotationGroundingViolations` below asks that a claim about a site names the site, by
+ * atom id or species id. Neither grades the claim. Both check that a name from a known,
+ * finite list is present, which is a requirement about reference rather than about
+ * content, and the difference is the whole reason they are allowed here.
+ *
+ * The Phase 1 adversary showed why presence alone was not enough: an annotation of "z"
+ * and "z" satisfied every rule in this file while saying nothing. The answer is not a
+ * character count, which two words defeat. See the long note on
+ * `annotationGroundingViolations`.
  *
  * WHY MORE THAN ONE ANNOTATION OF A REQUIRED KIND IS A FAILURE.
  *
@@ -112,6 +120,99 @@ export function requiredAnnotationViolations(
   }
 
   return violations;
+}
+
+/**
+ * The names an annotation can be about: every atom id and species id in these states.
+ *
+ * Used by the grounding rule below. Ids rather than labels, because an id is what another
+ * tool can look up and a label is prose that may be rewritten without changing anything.
+ */
+export function annotationVocabulary(
+  states: readonly MechanismState[],
+): ReadonlySet<string> {
+  const vocabulary = new Set<string>();
+  for (const state of states) {
+    for (const member of state.members) {
+      vocabulary.add(member.species.id);
+      for (const atom of member.species.atoms) vocabulary.add(atom.id);
+    }
+  }
+  return vocabulary;
+}
+
+function escapeForRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Names from the vocabulary that appear in this text as whole words. */
+export function namesIn(text: string, vocabulary: ReadonlySet<string>): readonly string[] {
+  const found: string[] = [];
+  for (const name of vocabulary) {
+    if (name.trim() === "") continue;
+    const pattern = new RegExp(
+      `(^|[^A-Za-z0-9_])${escapeForRegExp(name)}([^A-Za-z0-9_]|$)`,
+      "i",
+    );
+    if (pattern.test(text)) found.push(name);
+  }
+  return found.sort();
+}
+
+/**
+ * An authored claim about a specific site has to name the site.
+ *
+ * WHAT THIS ASSERTS, AND EXACTLY HOW FAR IT GOES.
+ *
+ * The value and justification, read together, name at least one atom id or species id that
+ * is present in the state the claim is about. Nothing else. It does not read the sentence,
+ * does not judge whether the reasoning is sound, and above all does not count characters.
+ *
+ * WHY NOT A LENGTH THRESHOLD, WHICH IS THE OBVIOUS FIX AND THE WRONG ONE.
+ *
+ * The Phase 1 adversary filed two fixtures whose annotations are the single character "z"
+ * and the pair "x" and "y". A minimum length would catch both and would be satisfied by
+ * typing two words, so it would trade a hole for a slightly narrower hole while reading in
+ * a report as though content were being checked. A grounding requirement is not a grade
+ * either, but it is a different KIND of requirement: it forces the claim to be about
+ * something that exists in the fixture, and a claim about nothing cannot be about
+ * something by accident.
+ *
+ * WHAT REMAINS HUMAN, STATED PLAINLY RATHER THAN IMPLIED.
+ *
+ * Whether the sentence is true. Whether a bicyclo[2.2.1] cage really cannot reach 180
+ * degrees, whether 50 to 80 percent racemisation is the right range for this substrate in
+ * this solvent, whether the reasoning teaches. None of that is machine checkable and no
+ * amount of structural requirement makes it so. It is a human review gate, and
+ * BUILD-PROMPT.md already stops for one. This rule is a floor under the gate, not the gate.
+ *
+ * It is gameable by writing an atom id and nothing else. That is worth saying out loud and
+ * is still strictly more than the old rule, which was gameable by writing anything at all.
+ */
+export function annotationGroundingViolations(
+  annotation: AuthoredAnnotation,
+  vocabulary: ReadonlySet<string>,
+  where: string,
+  cause: string,
+): readonly Violation[] {
+  const text = `${annotation.value} ${annotation.justification}`;
+  if (text.trim() === "") return [];
+  if (namesIn(text, vocabulary).length > 0) return [];
+
+  return [
+    {
+      where,
+      expected:
+        "the value or the justification to name at least one atom id or species id from " +
+        "the state this claim is about, so the claim is anchored to something that exists",
+      actual:
+        `neither names any of them. The state holds ${vocabulary.size} name(s) and the ` +
+        `annotation mentions none, so nothing connects what was written to the chemistry it ` +
+        `is supposed to be about. This is a floor and not a grade: whether the claim is TRUE ` +
+        `is a human review gate, and no check here reads for sense`,
+      cause,
+    },
+  ];
 }
 
 /** The species in a state that contains this atom id, if any. */

@@ -1,18 +1,21 @@
 {
   "schemaVersion": 2,
-  "id": "good-known-limit-periplanarity-declaration-accepts-a-torsion-unrelated-to-the-actual-elimination",
-  "title": "A real anti periplanar E2 on 2-bromobutane, declaring a torsion over the C1-C2-C3-C4 backbone instead of the H-C-C-Br chain that actually leaves",
+  "id": "broken-step-identity-anti-periplanar-e2-declared-a-proton-transfer",
+  "title": "The reference anti periplanar E2, unchanged except that its step is declared proton_transfer while a bromide still departs in the same barrier",
   "expect": {
-    "kind": "good",
-    "note": "Adversary pass, Phase 1, attack surface 2. This fixture reuses the exact substrate, exact arrows, and exact real anti periplanar chemistry of good-e2-anti-periplanar-ethoxide-and-2-bromobutane, correct mass, charge, electron flow, and valence throughout. The only change is what the periplanarity declaration claims to be about. identity.reactionCenters is authored as [C1, C2, C3, C4], the plain carbon backbone, rather than [C2, C3, H1, Br1], the atoms that actually break a bond and form a pi bond in this step. The declared torsion is authored over those same four backbone atoms, [C1, C2, C3, C4], at 180 degrees with a real bonded chain, C1-C2, C2-C3, C3-C4 are all real bonds in the substrate. WHY THE CHECK CANNOT TELL THE DIFFERENCE. periplanarity.ts's own stepViolations function reads coversTheStep, which asks only whether every atom of a declared torsion is a member of step.identity.reactionCenters, a field the author writes. It never asks whether reactionCenters names the atoms that are actually the reaction centres of the drawn arrows, and no check anywhere in this family cross validates reactionCenters against the arrows at all. shapeViolations then confirms the four backbone atoms really are a bonded chain, which they are, just not the chain E2 periplanarity is about. angleViolations reads 180 degrees, periplanar, no conformational_justification required. Every requirement in the docstring, 'exactly one declared torsion whose four atoms are all reaction centres of this step... a real dihedral... periplanar,' is satisfied by a claim about an entirely different rotatable bond in the same molecule, the ordinary C2-C3 backbone conformation of butane, which has nothing to do with whether H1 and Br1 are anti to each other. THE LESSON. A green conservation-periplanarity-declaration run proves a torsion was declared, that it is a real bonded chain, and that its angle is periplanar. It does not and structurally cannot prove that the declared torsion is the one E2 actually turns on, because the field naming which atoms count as the reaction centres is authored, not derived from the arrows, and nothing checks the two against each other."
+    "kind": "broken",
+    "mustFail": [
+      "conservation-step-identity"
+    ],
+    "note": "The negative control for the departure arm of conservation-step-identity, and the fixture that answers the adversary's own example of an E2 mislabelled proton_transfer. THE CHEMISTRY IS good-e2-anti-periplanar-ethoxide-and-2-bromobutane, ATOM FOR ATOM AND ARROW FOR ARROW. Ethoxide takes the C3 hydrogen, the C3 to H1 bonding pair becomes the C2 to C3 pi bond, and the C2 to Br1 pair leaves with bromide. Three arrows, one barrier, anti periplanar at 180 degrees with the torsion declared and justified. Mass, charge, valence, electron flow, arrow legality, proton budget and spectator declarations are all exactly as green as they are on the source fixture. The single edited field is identity.elementaryStep, which reads proton_transfer instead of concerted_elimination. WHY THE HYDRIDE RULE DOES NOT CATCH THIS, WHICH IS THE WHOLE REASON THE DEPARTURE RULE EXISTS. The hydrogen here really does move as a proton: ethoxide's own lone pair forms the O1 to H1 bond and the hydrogen arrives with nothing, so hydrogenMigrations reports mode donated and the proton against hydride arm is silent and correct to be. What gives the label away is arrow a3. The C2 to Br1 bond is a single bond between two heavy atoms, it breaks completely, and both of its electrons localise on Br1 as a lone pair. That is a leaving group departing in the same transition state as the deprotonation, and a step where a proton moves AND a leaving group departs is an elimination. A plain proton transfer breaks exactly one bond, the one to the hydrogen. WHAT THE RULE DELIBERATELY DOES NOT CATCH. An E1 beta deprotonation, good-e1-acid-catalysed-dehydration-of-tert-butanol step 3, also forms a pi bond while a proton leaves, and is correctly called a proton transfer, because nothing departs in that step: the leaving group went in the step before. The rule turns on the departure and not on the pi bond, which is why it stays silent there. WHAT SEPARATES THIS FROM A CONCERTED SUBSTITUTION IS NOT CHECKED EITHER: both have a departure, and telling an E2 from an SN2 by arrows alone is one of the discriminations step-identity.ts records that it does not attempt. THE CAUSE ID ON THE FAILURE IS step_not_elementary, WHICH IS THE NEAREST REGISTERED ONE AND NOT THE RIGHT ONE. See the docstring of step-identity.ts."
   },
   "pathway": {
-    "id": "known-limit-periplanarity-unrelated-torsion",
+    "id": "broken-e2-declared-proton-transfer",
     "route": "e2",
     "steps": [
       {
         "id": "step-1",
-        "identity": { "elementaryStep": "concerted_elimination", "route": "e2", "reactionCenters": ["C1", "C2", "C3", "C4"] },
+        "identity": { "elementaryStep": "proton_transfer", "route": "e2", "reactionCenters": ["C2", "C3", "H1", "Br1"] },
         "arrows": [
           { "id": "a1", "electrons": 2, "source": { "kind": "lonePair", "atomId": "O1" }, "sink": { "kind": "betweenAtoms", "atomIds": ["O1", "H1"] } },
           { "id": "a2", "electrons": 2, "source": { "kind": "bond", "bondId": "b5" }, "sink": { "kind": "betweenAtoms", "atomIds": ["C3", "C2"] } },
@@ -25,7 +28,7 @@
               "role": "substrate",
               "species": {
                 "id": "2-bromobutane",
-                "label": "2-bromobutane, C3 proton drawn explicitly, the real reaction is anti periplanar at H1-C3-C2-Br1",
+                "label": "2-bromobutane, C3 proton drawn explicitly",
                 "atoms": [
                   { "id": "C1", "element": "C", "implicitHydrogens": 3 },
                   { "id": "C2", "element": "C", "implicitHydrogens": 1 },
@@ -43,9 +46,9 @@
                 ],
                 "declaredTorsions": [
                   {
-                    "atoms": ["C1", "C2", "C3", "C4"],
+                    "atoms": ["H1", "C3", "C2", "Br1"],
                     "degrees": 180,
-                    "justification": "Adversary pass stand-in, attack surface 2: this is the ordinary carbon backbone dihedral of 2-bromobutane, C1-C2-C3-C4, authored anti purely so it passes the periplanarity arithmetic. It says nothing about whether H1 and Br1, the atoms that actually leave, are anti to each other. That claim is never declared anywhere in this fixture."
+                    "justification": "The reacting conformer, not the only one. 2-bromobutane rotates freely about C2 to C3, and this fixture authors the rotamer the elimination happens in: H1 anti periplanar to bromide at 180 degrees, so the C to H sigma bond and the C to Br sigma star are aligned in one plane on opposite sides. That alignment is why anti is strongly preferred, and the rotation barrier is small enough that the substrate reaches this rotamer freely. Stated rather than computed, because this schema carries no coordinates and a conformer population is not something a fixture can derive."
                   }
                 ]
               }

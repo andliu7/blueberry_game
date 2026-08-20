@@ -1,7 +1,12 @@
-import type { MechanismPathway, MechanismStep } from "@blueberry/chem-core";
+import type { MechanismPathway, MechanismState, MechanismStep } from "@blueberry/chem-core";
 
 import type { Check } from "../../check.ts";
-import { requiredAnnotationViolations } from "./authoring.ts";
+import {
+  annotationGroundingViolations,
+  annotationVocabulary,
+  annotationsOfKind,
+  requiredAnnotationViolations,
+} from "./authoring.ts";
 import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
 
 /**
@@ -30,15 +35,28 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  *   2. There is exactly one of them.
  *   3. Its `value` is not empty.
  *   4. Its `justification` is not empty.
+ *   5. Value and justification together name at least one atom id or species id from the
+ *      capture step, so the claim is anchored to the centre it is about.
  *
  * THIS CHECK DOES NOT ASSERT, AND MUST NEVER BE MADE TO:
  *
  *   any particular ratio, any range of ratios, that the ratio is 50:50, that it is not
  *   50:50, that the two configurations are present in equal amounts, or anything at all
- *   about the words in `value`. The string is read for emptiness and for nothing else. A
- *   future edit that parses a number out of `value` and compares it against anything is the
- *   failure mode S1 was written to prevent, and it would be a weakening dressed as a
- *   strengthening.
+ *   about what the words in `value` MEAN. A future edit that parses a number out of
+ *   `value` and compares it against anything is the failure mode S1 was written to prevent,
+ *   and it would be a weakening dressed as a strengthening.
+ *
+ * WHY RULE 5 IS NOT THAT EDIT.
+ *
+ * The Phase 1 adversary filed a capture whose ratio is the single character "x", justified
+ * "y", and observed correctly that rules 1 to 4 are content blind and always were. Rule 5
+ * does not read the ratio. It asks that the annotation NAME the site it is a claim about,
+ * an atom id or a species id that is really in the step, which is a requirement about
+ * reference and not about the number. Every honestly authored ratio in the corpus already
+ * satisfies it, including the two that say "not applicable" and then name the carbon they
+ * are not applicable at. Whether the stated range is right for this substrate, this
+ * solvent, and this leaving group is exactly the judgement S1 says no check may make, and
+ * it stays a human review gate.
  *
  * WHAT COUNTS AS AN SN1 CAPTURE, AND WHY THE TRIGGER IS THE CAPTURE RATHER THAN THE ROUTE.
  *
@@ -77,6 +95,10 @@ const find: ViolationFinder = (fixture) => {
   if (captures.length === 0) return [];
 
   const violations: Violation[] = [];
+  const captureStates: MechanismState[] = [];
+  for (const step of captures) captureStates.push(step.from, step.to);
+  const vocabulary = annotationVocabulary(captureStates);
+
   violations.push(
     ...requiredAnnotationViolations(pathway, {
       kind: "racemisation_ratio",
@@ -90,12 +112,23 @@ const find: ViolationFinder = (fixture) => {
     }),
   );
 
+  for (const [index, annotation] of annotationsOfKind(pathway, "racemisation_ratio").entries()) {
+    violations.push(
+      ...annotationGroundingViolations(
+        annotation,
+        vocabulary,
+        `pathway ${pathway.id} / annotation[${index}] kind racemisation_ratio`,
+        CAUSE,
+      ),
+    );
+  }
+
   return violations;
 };
 
 export const conservationStereorandomAnnotation: Check = conservationCheck({
   name: "conservation-stereorandom-annotation",
   description:
-    "every SN1 capture step carries exactly one authored racemisation_ratio annotation with a value and a justification, and no check asserts any particular ratio",
+    "every SN1 capture step carries exactly one authored racemisation_ratio annotation with a value, a justification, and a named atom or species from the step it is about, and no check asserts any particular ratio",
   find,
 });

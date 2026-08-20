@@ -1,7 +1,7 @@
 # Conservation fixture corpus
 
 Every file here ending in `.fixture.json` is one mechanism pathway plus a declaration of what
-the ten conservation checks are supposed to say about it. This README is the only file in this
+the eleven conservation checks are supposed to say about it. This README is the only file in this
 directory that is not a fixture, and it is on the allowlist in
 `src/checks/conservation/fixture-schema.ts` (`NON_FIXTURE_FILES`). Anything else that is neither
 a fixture nor on that list is reported as a stray file and fails the run, because a fixture saved
@@ -89,6 +89,13 @@ particular situation, and none of them reads what it says beyond checking it is 
 `condition_note` is required by nothing and may repeat; it is there so a fixture can record the
 conditions a reader needs without pretending a check is watching.
 
+Since the Phase 1 builder pass two, three of those checks also require an annotation to NAME the
+site it is a claim about: the value and justification together must mention at least one atom id
+or species id that is in the state. That is a rule about reference and not about content. It is
+deliberately not a minimum length, which two arbitrary words would satisfy, and it is not a grade:
+whether the sentence is true stays a human review gate. See `annotationGroundingViolations` in
+`src/checks/conservation/authoring.ts`.
+
 `value` and `justification` may be empty strings at the parser level, for the same reason a
 spectator's justification may be: the negative controls for the empty case have to exist on
 disk. The checks, not the parser, are what reject an empty one.
@@ -108,7 +115,7 @@ check, not the parser, is what rejects an empty one.
 
 Set in `src/checks/conservation/family.ts`:
 
-- A **good** fixture must produce no violation from any of the ten checks.
+- A **good** fixture must produce no violation from any of the eleven checks.
 - A **broken** fixture must produce at least one violation from every check it names in
   `mustFail`, and **no** violation from any check it does not name. A negative control that
   does not fire is a check that is not proven to work. A violation that was not declared means
@@ -157,17 +164,54 @@ broken fixtures below name more than one check.
 
 ## The corpus
 
-Thirty seven good fixtures, twenty one broken, plus three `.oracle.json` files, sixty one in
-total. Every one of the ten checks has at least one negative control. Seven checks have a
-control that fires on that check and nothing else: `conservation-valence`,
-`conservation-electron-flow`, `conservation-spectator-declaration`,
-`conservation-arrow-legality`, and all three of the schema v2 annotation checks.
+Eighty `.fixture.json` files, thirty nine good and forty one broken, plus three `.oracle.json`
+files and this README. That is eighty four files, which is the FIXTURE COUNT the suite prints,
+since that number counts everything in this directory rather than only the conservation fixtures.
+Every one of the eleven checks has at least one negative control.
 
-The thirty one good fixtures added in the Phase 1 corpus pass are listed in their own section
-below, after the two tables of Phase 0 fixtures.
+Counts in the section headings below are from the pass that wrote them and were already stale
+before the Phase 1 builder pass two: the two tables that follow are Phase 0's fixtures, the
+mechanism corpus section is Phase 1's, and neither was rewritten when the adversary and builder
+passes added files. The authoritative count is the FIXTURE COUNT line the suite prints on every
+run. What is accurate below is which fixture proves what.
 
-The tables below were stale before this pass: the four fixtures the Phase 0 adversary added were
-never listed here. They are listed now.
+### Changed by the Phase 1 builder pass two
+
+Five fixtures the Phase 1 adversary had to file as `good` because no check could be named as the
+one that ought to catch them are now `broken`. Each keeps `known-limit` in its name so the
+lineage is readable, and each carries, appended to its original note, a paragraph saying what
+closes it and what is still open.
+
+| Now | `mustFail` | What now catches it |
+|---|---|---|
+| `broken-known-limit-hydride-shift-mislabelled-a-proton-transfer` | step-identity | The hydrogen carries its own bonding pair, so the arrow pivots on the hydrogen. That is a hydride, and a step declared `proton_transfer` needs the acceptor to supply the pair. |
+| `broken-known-limit-e2-torsion-and-reaction-centres-over-an-unrelated-backbone` | periplanarity, step-identity | Two authored fields drifting from the drawing at once. C1 and C4 are declared reaction centres that no arrow touches, and the declared torsion is not the H-C-C-LG quartet the arrows name. |
+| `broken-known-limit-conformational-justification-that-names-nothing-in-the-state` | periplanarity | The justification `z` names no atom and no species, so it is not a claim about this molecule. Not a length rule. |
+| `broken-known-limit-racemisation-ratio-that-names-nothing-in-the-state` | stereorandom | The same grounding rule on the SN1 ratio. Still nothing anywhere reads the ratio itself, which `docs/VERIFICATION.md` S1 forbids. |
+| `broken-known-limit-rate-comparison-naming-a-route-the-engine-does-not-name` | rate-comparison | The competing route named has to be one `competingRoutesFor(sn2_center_strongly_hindered)` names, which is `carbocation_rearrangement`. `radical_halogenation` is not. |
+
+Four fixtures were added as isolated negative controls, each differing from a green fixture in
+one field so that exactly one rule fires:
+
+| Fixture | Differs from | Rule it proves |
+|---|---|---|
+| `broken-step-identity-bromine-heterolysis-declared-a-bond-homolysis` | `good-br2-homolysis-with-single-electron-fishhook-arrows` | A kind that is radical by definition drawn with no fishhook anywhere. |
+| `broken-step-identity-radical-abstraction-declared-a-proton-transfer` | `good-radical-chlorination-of-methane-propagation` step 1 | The mirror: fishhooks in a kind that is polar by definition. The one rule here with an exact chem-core cause, `radical_arrow_used_in_polar_step`. |
+| `broken-step-identity-anti-periplanar-e2-declared-a-proton-transfer` | `good-e2-anti-periplanar-ethoxide-and-2-bromobutane` | A proton moves and a leaving group departs in the same barrier, which is an elimination. The adversary's own example of the wider gap. |
+| `broken-step-identity-proton-transfer-declared-a-hydride-shift` | `good-deprotonation-of-methanol-by-hydroxide` | The hydride rule in the other direction: the acceptor supplied the pair, so the hydrogen moved as a proton. |
+
+Two existing broken fixtures gained `conservation-step-identity` in `mustFail`, with a paragraph
+on each saying why it is a second defect rather than a duplicate report:
+`broken-arrow-legality-bond-overdrawn-by-two-arrows` and
+`broken-arrow-legality-sink-bonds-an-atom-to-itself`. Both declare `bond_homolysis` and draw only
+pair arrows.
+
+Two `good-known-limit-` fixtures are unchanged and still green on purpose,
+`good-known-limit-arrow-legality-departing-bond-pair-handed-directly-to-a-non-donating-nucleophile`
+and `good-known-limit-spectator-role-and-reason-drift-across-three-spectators`. Neither is closed
+by this pass and each note now says why. The first needs to know which end of a bond is the
+electrophile, which is reactivity modelling; the second needs a rule about agreement between a
+spectator's role, reason, and justification.
 
 ### Good
 
@@ -301,6 +345,13 @@ read them. Schema v2 carries them as data and three registered checks grade them
 | Racemisation ratio on an SN1 | `racemisation_ratio` | `conservation-stereorandom-annotation` |
 | Conformational justification on a syn periplanar E2 | `conformational_justification` | `conservation-periplanarity-declaration` |
 | Rate comparison naming the competing pathway on neopentyl SN2 | `rate_comparison` | `conservation-disfavoured-rate-comparison` |
+| The declared step kind and reaction centres agreeing with the arrows | none, `identity` is not an annotation | `conservation-step-identity` |
+
+The eleventh check is not an annotation check and is listed here because it closes the same kind
+of hole: a field the parser checked for shape and no check ever compared against the chemistry.
+It reads what the arrows and the two states describe and fails when the declared
+`elementaryStep` contradicts it. It classifies nothing. Its docstring lists both the kinds it can
+tell apart and the kinds it cannot, and the second list is the longer one on purpose.
 
 The stereorandom check asserts that a ratio is PRESENT and never what its value is. Asserting
 50:50 fails on correct chemistry, because ion pairing gives net inversion excess. See
