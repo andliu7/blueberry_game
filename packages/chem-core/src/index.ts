@@ -15,6 +15,8 @@
  *   state.ts        A multiset of species, and spectator declarations.
  *                   This is the system boundary rule.
  *   arrows.ts       Declared electron flow: source, sink, count.
+ *   legality.ts     Whether one arrow is drawable at all, judged against the
+ *                   `from` state alone. The per arrow half of the arrow check.
  *   routes.ts       The names of routes, elementary steps, transformations.
  *   step.ts         AXIS ONE. What a step is.
  *   causes.ts       The named cause registry. Countable by construction.
@@ -87,6 +89,7 @@ export type {
   SpectatorDeclaration,
   SpectatorReason,
   AtomLocation,
+  BondLocation,
 } from "./state.js";
 export {
   createState,
@@ -98,7 +101,11 @@ export {
   findSpecies,
   findMember,
   findAtomInState,
+  findBondInState,
+  atomsAreBonded,
   duplicateAtomIds,
+  duplicateSpeciesIds,
+  speciesIdOccurrences,
   allAtoms,
   membersWithRole,
 } from "./state.js";
@@ -120,6 +127,14 @@ export {
   referencedAtomIds,
   referencedBondIds,
 } from "./arrows.js";
+
+export type { ArrowLegalityRuleId, ArrowLegalityFinding } from "./legality.js";
+export {
+  arrowLegalityFindings,
+  arrowEndpointsShareAnAtom,
+  sourceAtomIds,
+  sinkAtomIds,
+} from "./legality.js";
 
 export type { MechanismRoute, ElementaryStepKind, TransformationKind } from "./routes.js";
 export { routeLabel, allMechanismRoutes } from "./routes.js";

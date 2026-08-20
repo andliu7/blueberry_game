@@ -4,8 +4,10 @@ import {
   danglingBondIds,
   derivedFormalCharge,
   duplicateAtomIds,
+  duplicateSpeciesIds,
   elementProperties,
   nonbondingElectrons,
+  speciesIdOccurrences,
   valenceElectronsAround,
   type MechanismState,
 } from "@blueberry/chem-core";
@@ -40,13 +42,36 @@ import { labelledStates } from "./shared.ts";
  *
  *    An atom with -1 implicit hydrogens is a missing atom rather than a shorthand.
  *
- * Plus three structural preconditions, in this check because every one of them silently
+ * Plus four structural preconditions, in this check because every one of them silently
  * corrupts the arithmetic above rather than announcing itself: a bond naming an atom the
  * species does not contain still contributes its order to `bondOrderSumAt`, an atom id
- * appearing in two species makes state wide lookup return whichever came first, and a
- * Species holding two disconnected fragments cannot be given separate roles or declared a
- * spectator separately, which breaks the multiset accounting the other five checks stand
- * on.
+ * appearing in two species makes state wide lookup return whichever came first, a species
+ * id appearing on two members does the same thing one level up, and a Species holding two
+ * disconnected fragments cannot be given separate roles or declared a spectator
+ * separately, which breaks the multiset accounting the other six checks stand on.
+ *
+ * THE FOURTH ONE, SPECIES ID UNIQUENESS, AND WHY IT LIVES HERE.
+ *
+ * state.ts states the invariant in prose at the top of the file: "Two equivalents of
+ * methanol are two members with two different SpeciesIds, not one member with count: 2...
+ * A count field makes the two indistinguishable." Until the Phase 0 adversary went looking,
+ * nothing enforced that sentence, and
+ * good-adversarial-sn2-with-a-duplicated-species-id-silently-double-counted is the fixture
+ * that demonstrated it. Its own note says where the assertion belongs: "It belongs next to
+ * duplicateAtomIds in valence.ts."
+ *
+ * It belongs next to `duplicateAtomIds` because it is the same failure one level up and it
+ * has the same two sided shape. `findSpecies` and `findMember` resolve to whichever member
+ * `Array.find` reaches first, so the second copy is invisible to every lookup in the
+ * engine, including the structural identity comparison inside
+ * conservation-spectator-declaration. `conservedTotals` walks `state.members` directly, so
+ * the second copy is fully counted in mass, charge, and electrons. Half the engine can see
+ * it and half cannot.
+ *
+ * It survived the corpus because the adversary's fixture kept both copies unchanged across
+ * the step, so the double counted contribution was identical on both sides and cancelled.
+ * Nothing noticed the duplication, and mass and charge passed by coincidence rather than
+ * by inspection. That is the shape of a check that is not checking.
  *
  * NON MAIN GROUP ELEMENTS ARE REJECTED, NOT SKIPPED.
  *
@@ -66,6 +91,20 @@ function violationsInState(label: string, state: MechanismState): Violation[] {
       expected: "each atom id appears in exactly one species in a state",
       actual: "it appears in more than one, so state wide atom lookup is ambiguous",
       cause: "arrow_endpoint_not_in_state",
+    });
+  }
+
+  for (const speciesId of duplicateSpeciesIds(state)) {
+    const copies = speciesIdOccurrences(state, speciesId);
+    violations.push({
+      where: `${label} / species ${speciesId}`,
+      expected: "each species id names exactly one member of a state",
+      actual:
+        `${copies} members carry it. Multiplicity is repetition with distinct ids, not one id ` +
+        `written ${copies} times. findSpecies and findMember resolve to the first member only, ` +
+        `so ${copies - 1} of them are invisible to every lookup while conservedTotals counts ` +
+        `all ${copies}`,
+      cause: "duplicate_species_id_in_state",
     });
   }
 

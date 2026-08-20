@@ -25,9 +25,10 @@
  */
 
 import type { Species } from "./species.js";
-import { findAtom } from "./species.js";
+import { findAtom, findBond, findBondBetween } from "./species.js";
 import type { Atom } from "./atom.js";
-import type { AtomId, SpeciesId, StateId } from "./ids.js";
+import type { Bond } from "./bond.js";
+import type { AtomId, BondId, SpeciesId, StateId } from "./ids.js";
 
 export type SpeciesRole =
   | "substrate"
@@ -189,6 +190,77 @@ export function duplicateAtomIds(state: MechanismState): readonly AtomId[] {
     }
   }
   return [...duplicates];
+}
+
+/**
+ * Species ids used by more than one member of this state.
+ *
+ * Should always be empty, and the sentence it enforces is the one at the top of
+ * this file: multiplicity is repetition with distinct ids, never one id written
+ * twice. Nothing used to enforce it, and the consequences are worse than a
+ * cosmetic duplicate.
+ *
+ * `findSpecies` and `findMember` both resolve to whichever member `Array.find`
+ * reaches first, so the second copy is permanently invisible to every lookup,
+ * including the structural identity comparison in the spectator check. Meanwhile
+ * `conservedTotals` walks `members` directly, so the second copy is fully counted
+ * in mass, charge, and electrons. One half of the engine can see it and the other
+ * half cannot, which is the shape of a bug that reads as chemistry going wrong.
+ *
+ * Returned sorted so a failure report is stable between runs.
+ */
+export function duplicateSpeciesIds(state: MechanismState): readonly SpeciesId[] {
+  const seen = new Set<SpeciesId>();
+  const duplicates = new Set<SpeciesId>();
+  for (const member of state.members) {
+    if (seen.has(member.species.id)) {
+      duplicates.add(member.species.id);
+    }
+    seen.add(member.species.id);
+  }
+  return [...duplicates].sort();
+}
+
+/** How many members of this state carry a given species id. Normally 0 or 1. */
+export function speciesIdOccurrences(state: MechanismState, speciesId: SpeciesId): number {
+  return state.members.filter((member) => member.species.id === speciesId).length;
+}
+
+export interface BondLocation {
+  readonly species: Species;
+  readonly bond: Bond;
+}
+
+/**
+ * Locate a bond anywhere in the state, by id.
+ *
+ * Bond ids are only unique within a species by construction, so this returns the
+ * first match. A state carrying the same bond id in two species is a data error
+ * the valence check reports; this function does not silently arbitrate it.
+ */
+export function findBondInState(state: MechanismState, bondId: BondId): BondLocation | undefined {
+  for (const member of state.members) {
+    const bond = findBond(member.species, bondId);
+    if (bond !== undefined) {
+      return { species: member.species, bond };
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Whether two atoms are joined by a bond anywhere in this state.
+ *
+ * Atoms in two different species are never bonded, which is what makes this the
+ * right adjacency test for arrow legality: an arrow reaching from one molecule
+ * into another has to form a bond, it cannot travel along one that is not there.
+ */
+export function atomsAreBonded(state: MechanismState, a: AtomId, b: AtomId): boolean {
+  if (a === b) return false;
+  for (const member of state.members) {
+    if (findBondBetween(member.species, a, b) !== undefined) return true;
+  }
+  return false;
 }
 
 export function allAtoms(state: MechanismState): readonly Atom[] {

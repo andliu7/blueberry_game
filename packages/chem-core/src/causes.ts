@@ -77,6 +77,7 @@ export type CauseId =
   | "spectator_changed_during_step"
   | "spectator_declared_without_justification"
   | "implicit_hydrogen_changed_without_arrow"
+  | "duplicate_species_id_in_state"
   // electron flow
   | "arrow_source_has_no_electrons"
   | "arrow_sink_cannot_accept_electrons"
@@ -86,6 +87,8 @@ export type CauseId =
   | "bond_change_without_arrow"
   | "too_many_arrows_at_one_center"
   | "radical_arrow_used_in_polar_step"
+  | "arrow_endpoints_not_adjacent"
+  | "arrow_declares_no_change"
   // stereochemistry
   | "sn2_did_not_invert"
   | "addition_face_wrong"
@@ -300,6 +303,14 @@ export const CAUSES: Readonly<Record<CauseId, CauseDefinition>> = Object.freeze(
     "An undrawn hydrogen count changed and no arrow accounts for it.",
     "Implicit hydrogens are a drawing convenience, not an exemption. A proton that moves has to be moved by an arrow like every other atom.",
   ),
+  duplicate_species_id_in_state: define(
+    "duplicate_species_id_in_state",
+    "conservation",
+    "blocking",
+    BLOCKING,
+    "Two different molecules in this state carry the same name.",
+    "Two equivalents of the same reagent are two separate species with two separate names, not one name written twice. Sharing a name makes the second copy invisible to anything that looks a molecule up, while it still counts toward every total.",
+  ),
 
   arrow_source_has_no_electrons: define(
     "arrow_source_has_no_electrons",
@@ -364,6 +375,22 @@ export const CAUSES: Readonly<Record<CauseId, CauseDefinition>> = Object.freeze(
     BLOCKING,
     "A single electron arrow appears in a step with no radicals.",
     "Fishhooks move one electron at a time and belong to radical chemistry. In a polar step the electrons travel as pairs.",
+  ),
+  arrow_endpoints_not_adjacent: define(
+    "arrow_endpoints_not_adjacent",
+    "electron_flow",
+    "blocking",
+    BLOCKING,
+    "This arrow moves electrons between two places that never touch.",
+    "Electrons do not jump across a drawing. An arrow starts on a lone pair or a bond and ends on the very atom that pair is already attached to, or on a bond being made to it. If the start and the finish share no atom, the arrow is describing a teleport rather than a reaction.",
+  ),
+  arrow_declares_no_change: define(
+    "arrow_declares_no_change",
+    "electron_flow",
+    "blocking",
+    BLOCKING,
+    "This arrow starts and finishes in the same place, so it changes nothing.",
+    "An arrow is a claim that electron density moved. One that takes a lone pair off an atom and puts the same pair back on that atom, or that empties a bond into the same bond, makes that claim about nothing at all.",
   ),
 
   sn2_did_not_invert: define(

@@ -42,10 +42,47 @@ import { formatSignedNuclides, labelledStates } from "./shared.ts";
  *    included, then the exclusion is load bearing: the declaration is not describing a
  *    molecule that sits out, it is hiding the difference. That is reported in full, with
  *    the quantity and the size of the difference, because it is the one way a correct
- *    looking corpus can be built on a lie and the other five checks will all pass.
+ *    looking corpus can be built on a lie and the other six checks will all pass.
+ *
+ * 6. THE SECOND ATTACK, added after the Phase 0 adversary walked through the gap between
+ *    assertions 4 and 5. The whole declared spectator POPULATION is compared across the
+ *    step as a multiset of structures, not id by id.
  *
  * This check reads `conservedTotals(..., { includeSpectators: true })`, which is the
  * option bookkeeping.ts says exists for exactly this caller.
+ *
+ * WHY ASSERTION 6 IS NOT COVERED BY 4 OR BY 5, WHICH IS THE WHOLE POINT OF IT.
+ *
+ * broken-spectator-declaration-laundering-a-redox-transfer-through-two-swapped-counterions
+ * moves one electron from a sodium to a fluorine, with no arrow anywhere, and hides it by
+ * giving the before and after form of each atom a DIFFERENT species id: `donor-before` and
+ * `acceptor-before` are declared spectators in the from state, `donor-after` and
+ * `acceptor-after` in the to state.
+ *
+ *   Assertion 4 never sees it. It loops over species ids and compares each id against
+ *   itself in the two states. `donor-before` has no counterpart named `donor-before` in
+ *   the to state, so the comparison it would have made does not happen. An id that appears
+ *   on one side only is not compared with anything.
+ *
+ *   Assertion 5 never sees it either, and this is the sharper half. It totals every
+ *   declared spectator into one aggregate per side. Sodium's charge rises by one as it
+ *   loses its radical electron and fluorine's charge falls by one as it gains one, so the
+ *   two moves cancel inside the aggregate and the totals with spectators included are
+ *   identical on both sides. A sum over a set cannot see a transfer within the set. That
+ *   is a property of summation, not a bug in the arithmetic, so the fix cannot be a better
+ *   sum. It has to be a comparison that keeps the species apart.
+ *
+ * Assertion 6 is that comparison. Each declared spectator is canonicalised on its own and
+ * the two sides are compared as multisets, so a species appearing on one side only is a
+ * finding whatever some other species did to compensate for it. Atom ids are part of the
+ * canonical form, which is what makes the id swap visible: ids.ts guarantees atom ids are
+ * stable across a step, so a genuine spectator carries the same atom ids on both sides and
+ * a relabelled one does not.
+ *
+ * This is strictly stronger than assertion 4 for anything it can see, and assertion 4 is
+ * kept anyway because when the id IS the same on both sides it names the species and prints
+ * the two structures side by side, which is a better failure line than "one of these was on
+ * one side only".
  */
 
 /**
@@ -68,6 +105,28 @@ function canonicalise(species: Species): string {
     .map((bond) => (bond.a < bond.b ? `${bond.a}|${bond.b}#${bond.order}` : `${bond.b}|${bond.a}#${bond.order}`))
     .sort();
   return `atoms[${atoms.join(",")}] bonds[${bonds.join(",")}]`;
+}
+
+/**
+ * The declared spectators of one state, as a multiset of canonical structures.
+ *
+ * Keyed by structure rather than by species id, which is the entire mechanism of
+ * assertion 6: a laundering attack keeps the structures and changes the ids, so a
+ * comparison keyed by id is exactly the comparison it was built to slip past.
+ *
+ * A declaration naming a species that is not a member is skipped rather than counted as a
+ * missing structure. It is already reported by assertion 1 as an orphan, and counting it
+ * here as well would print the same typo twice under two different explanations.
+ */
+function spectatorStructures(state: MechanismState): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const declaration of state.spectators) {
+    const species = findSpecies(state, declaration.speciesId);
+    if (species === undefined) continue;
+    const key = canonicalise(species);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
 }
 
 function hygieneViolations(label: string, state: MechanismState): Violation[] {
@@ -160,6 +219,46 @@ function stepViolations(step: MechanismStep): Violation[] {
     }
   }
 
+  // ASSERTION 6. THE SECOND ATTACK. Compare the whole declared spectator population
+  // across the step as a multiset of structures, so that a transfer between two spectators
+  // cannot cancel inside an aggregate and an id swap cannot dodge the id keyed comparison
+  // above. See the long note at the top of this file for why neither 4 nor 5 reaches this.
+  const structuresBefore = spectatorStructures(step.from);
+  const structuresAfter = spectatorStructures(step.to);
+  const structureKeys = [
+    ...new Set<string>([...structuresBefore.keys(), ...structuresAfter.keys()]),
+  ].sort();
+
+  for (const key of structureKeys) {
+    const countBefore = structuresBefore.get(key) ?? 0;
+    const countAfter = structuresAfter.get(key) ?? 0;
+    if (countBefore === countAfter) continue;
+
+    const onlySide = countBefore > countAfter ? step.from : step.to;
+    const namesOnThatSide = onlySide.spectators
+      .filter((declaration) => {
+        const species = findSpecies(onlySide, declaration.speciesId);
+        return species !== undefined && canonicalise(species) === key;
+      })
+      .map((declaration) => declaration.speciesId)
+      .sort()
+      .join(", ");
+
+    violations.push({
+      where: `${where} / declared spectator structure ${key}`,
+      expected:
+        `the same count on both sides, since a spectator by definition is the same molecule ` +
+        `before and after: ${countBefore} in ${step.from.id}`,
+      actual:
+        `${countAfter} in ${step.to.id}. It is declared as ${namesOnThatSide || "(no id)"} on the ` +
+        `${countBefore > countAfter ? step.from.id : step.to.id} side only. A spectator that is ` +
+        `present on one side of a step and gone from the other took part in the step, whatever ` +
+        `id it was given. Comparing ids alone misses this, and so does any total over the ` +
+        `spectator set, because a transfer inside that set cancels within the sum`,
+      cause: "spectator_changed_during_step",
+    });
+  }
+
   if (declaredSpeciesIds.size === 0) return violations;
 
   // THE ATTACK. Is excluding the spectators what makes this step balance?
@@ -220,6 +319,6 @@ const find: ViolationFinder = (fixture) => {
 export const conservationSpectatorDeclaration: Check = conservationCheck({
   name: "conservation-spectator-declaration",
   description:
-    "every declared spectator is present, justified, owned, unchanged across the step, and not the reason the step balances",
+    "every declared spectator is present, justified, owned, unchanged across the step, matched one for one by structure on both sides, and not the reason the step balances",
   find,
 });

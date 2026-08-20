@@ -83,17 +83,26 @@ import { NON_FIXTURE_FILES } from "../../fixtures.ts";
 export { NON_FIXTURE_FILES };
 
 /**
- * The names of the six checks in this family.
+ * The names of the seven checks in this family.
  *
  * A fixture's `expect.mustFail` names checks from this list. Naming anything else is a
  * failure rather than a no-op, so a renamed check cannot silently orphan its own negative
  * control.
+ *
+ * `conservation-arrow-legality` is the seventh and was added after the Phase 0 adversary
+ * showed that nothing in the package asked whether a single arrow was drawable, only
+ * whether all of them summed to the right total. The fixture that proved it,
+ * good-adversarial-sn2-with-swapped-arrows-producing-identical-declared-deltas, recorded
+ * in its own note that it could not be declared broken because "there is no check name in
+ * CONSERVATION_CHECK_NAMES this package could declare as the one that is supposed to catch
+ * it". This line is that name.
  */
 export const CONSERVATION_CHECK_NAMES = [
   "conservation-valence",
   "conservation-mass",
   "conservation-charge",
   "conservation-electron-flow",
+  "conservation-arrow-legality",
   "conservation-proton-transfer",
   "conservation-spectator-declaration",
 ] as const;
