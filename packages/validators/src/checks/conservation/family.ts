@@ -61,6 +61,32 @@ export interface Violation {
 
 export type ViolationFinder = (fixture: LoadedFixture) => readonly Violation[];
 
+/**
+ * A check from this family, with its violation finder still reachable.
+ *
+ * WHY THE FINDER IS EXPOSED AT ALL.
+ *
+ * `run` deliberately swallows violations on a fixture that declared this check in
+ * `mustFail`: a negative control that fires is the check working, not a failure. That is
+ * correct for reporting a verdict and useless for measuring, because the fixtures whose
+ * causes the feedback axis needs to count are exactly the ones whose violations `run`
+ * consumes. So `checks/feedback/named-causes.ts` calls the finder directly and reads the
+ * `cause` off each violation.
+ *
+ * This is additive. `run` is unchanged, the registry is unchanged, and nothing in this
+ * file behaves differently. The alternative was for the feedback check to recompute the
+ * chemistry itself, which would make the number it reports a statement about a second
+ * implementation rather than about the one the suite runs.
+ */
+export interface ConservationFamilyCheck extends Check {
+  readonly find: ViolationFinder;
+}
+
+/** Whether a registered check carries a violation finder. Narrowing, not a cast. */
+export function isConservationFamilyCheck(check: Check): check is ConservationFamilyCheck {
+  return typeof (check as Partial<ConservationFamilyCheck>).find === "function";
+}
+
 function render(fixture: LoadedFixture, violation: Violation): CheckFailure {
   return {
     expected: `${violation.where}: ${violation.expected}`,
@@ -76,10 +102,11 @@ interface FamilyCheckInput {
 }
 
 /** Build one Check from a violation finder. Every check in this family is made here. */
-export function conservationCheck(input: FamilyCheckInput): Check {
+export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCheck {
   return {
     name: input.name,
     description: input.description,
+    find: input.find,
 
     async run(context: CheckContext): Promise<CheckResult> {
       const failures: CheckFailure[] = [];

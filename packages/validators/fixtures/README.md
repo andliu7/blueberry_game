@@ -119,10 +119,13 @@ broken fixtures below name more than one check.
 
 ## The corpus
 
-Six good fixtures, thirteen broken. Every one of the seven checks has at least one negative
-control. Four checks have a control that fires on that check and nothing else:
-`conservation-valence`, `conservation-electron-flow`, `conservation-spectator-declaration`, and
-`conservation-arrow-legality`.
+Thirty seven good fixtures, thirteen broken, plus three `.oracle.json` files. Every one of the
+seven checks has at least one negative control. Four checks have a control that fires on that
+check and nothing else: `conservation-valence`, `conservation-electron-flow`,
+`conservation-spectator-declaration`, and `conservation-arrow-legality`.
+
+The thirty one good fixtures added in the Phase 1 corpus pass are listed in their own section
+below, after the two tables of Phase 0 fixtures.
 
 The tables below were stale before this pass: the four fixtures the Phase 0 adversary added were
 never listed here. They are listed now.
@@ -164,6 +167,105 @@ say about it, and what now catches it.
 | `broken-arrow-legality-sn2-with-swapped-arrows-producing-identical-declared-deltas` | arrow-legality | The negative control for check 7, and the fixture that argued it into existence. Correct SN2 structures, two individually impossible arrows chosen so their combined declared deltas are bit for bit identical to the correct pair's. Summation destroys per arrow information before `deltaMismatches` runs, so the aggregate check cannot see it and no work inside `deltas.ts` could have closed it. Arrow legality never looks at the `to` state and catches arrow `a2` on adjacency. It still does not catch `a1`, which the note explains. |
 | `broken-valence-sn2-with-a-duplicated-species-id-silently-double-counted` | valence | Two physically distinct sodium cations sharing one species id. `findSpecies` and `findMember` see only the first, `conservedTotals` counts both, and the extra contribution cancels across the step so mass and charge pass by coincidence. The negative control for the species id uniqueness precondition, which sits next to `duplicateAtomIds` because it is the same failure one level up. |
 | `broken-spectator-declaration-laundering-a-redox-transfer-through-two-swapped-counterions` | electron-flow, spectator-declaration | A one electron transfer between two declared spectators, hidden by giving the before and after form of each a different species id. Assertion 4 compares an id against itself and finds no counterpart to compare with; assertion 5 sums the spectator set and a transfer inside a set cancels within its own sum. Closed by assertion 6, which compares the spectator population as a multiset of canonical structures. |
+
+## The Phase 1 mechanism corpus
+
+`BUILD-PROMPT.md` Phase 1 requires "at least 30 authored mechanisms spanning substitution,
+elimination, addition, and carbonyl chemistry". Thirty one were authored in one pass. All of
+them are `kind: "good"`: the negative controls above are Phase 0's job and this pass added none,
+so the count of fixtures naming each check in `mustFail` is unchanged.
+
+Every one is real chemistry drawn the way a mechanism is drawn, with reagents, counterions, and
+any participating solvent as members of the multiset rather than written over an arrow. Multi
+step mechanisms are authored as multi step pathways: the longest is five steps.
+
+Two conventions are worth knowing before reading any of them.
+
+**Any hydrogen that moves is explicit.** `observedDeltas` compares implicit hydrogen counts per
+atom id and no arrow can declare a change in one, so a proton drawn as part of an implicit count
+appears to `conservation-electron-flow` as an unexplained change. Hydrogens that never move stay
+implicit, which keeps the files readable.
+
+**A proton always has a drawn donor and a drawn acceptor in the same state.** That is the
+CLAUDE.md system boundary rule, and it is why several fixtures carry two water molecules with
+different species ids: one attacks and one takes a proton later.
+
+### Substitution, 8
+
+| Fixture | What it covers |
+|---|---|
+| `good-sn2-hydroxide-displaces-bromide-from-bromoethane` | The reference primary SN2. Two arrows, one barrier, no intermediate. |
+| `good-sn2-cyanide-displaces-iodide-from-iodomethane` | An ambident nucleophile attacking through carbon, with the nitrogen lone pair present and untouched. |
+| `good-sn2-inversion-at-the-secondary-carbon-of-2-bromobutane` | SN2 on the secondary substrate where SN1 competes. Half of the competing pair. |
+| `good-sn1-solvolysis-of-2-bromobutane-the-competing-route` | The other half, same molecule, three steps through the planar cation. |
+| `good-sn1-solvolysis-of-tert-butyl-bromide-in-water` | The canonical SN1: heterolysis, capture, deprotonation. |
+| `good-sn1-with-a-1-2-hydride-shift-from-2-bromo-3-methylbutane` | Rearrangement, with the migrating hydride explicit so the shift is visible to the arrow check. |
+| `good-sn2-on-neopentyl-bromide-strongly-disfavoured-not-forbidden` | The graded chemistry case. Strongly disfavoured, roughly 10^-5 relative to ethyl, and not blocked. |
+| `good-anchimerically-assisted-methyl-shift-ionisation-of-neopentyl-bromide` | The competing pathway the fixture above names, drawn as one concerted barrier rather than through a primary cation. |
+
+### Elimination, 6
+
+| Fixture | What it covers |
+|---|---|
+| `good-e2-anti-periplanar-ethoxide-and-2-bromobutane` | The reference E2, three arrows, anti periplanar. |
+| `good-e2-syn-periplanar-in-a-conformationally-locked-norbornane` | Syn periplanar E2 in a cage that cannot reach the anti geometry. Flagged with an authored conformational justification, not rejected. |
+| `good-e2-hofmann-orientation-with-tert-butoxide-on-2-bromobutane` | Same substrate, bulky base, less substituted alkene. Two correct products from one molecule. |
+| `good-e1-dehydrohalogenation-of-tert-butyl-bromide-in-water` | E1 sharing its first step with SN1, arrow for arrow. |
+| `good-e1-acid-catalysed-dehydration-of-tert-butanol` | Three steps, two proton transfers, and the reverse of the hydration fixture. |
+| `good-e1cb-elimination-of-a-beta-hydroxy-ketone-to-an-enone` | The third elimination route: conjugate base first, leaving group second. |
+
+### Addition, 8
+
+| Fixture | What it covers |
+|---|---|
+| `good-bromine-addition-to-cis-2-butene-via-a-bromonium-ion` | CLAUDE.md reference fixture, electron bookkeeping half. |
+| `good-bromine-addition-to-trans-2-butene-via-a-bromonium-ion` | The other reference fixture. Identical at this level of description, which is itself the finding. |
+| `good-markovnikov-addition-of-hydrogen-chloride-to-2-methylpropene` | Markovnikov as a mechanism rather than as a rule. |
+| `good-acid-catalysed-hydration-of-2-methylpropene` | Three steps and a catalytic cycle that closes. |
+| `good-anti-markovnikov-radical-addition-of-hydrogen-bromide-to-propene` | Six fishhooks, and the capacity rule allowing two out of one bond. |
+| `good-hydroboration-of-propene-in-one-concerted-four-centre-step` | One barrier, no intermediate, no charge, and an electron deficient boron that is not a valence failure. |
+| `good-halohydrin-formation-from-propene-water-opening-a-bromonium` | The same bromonium opened by a different nucleophile. |
+| `good-radical-chlorination-of-methane-propagation` | A chain that closes, with the chlorine radical regenerated. |
+
+### Carbonyl, 9
+
+| Fixture | What it covers |
+|---|---|
+| `good-cyanohydrin-formation-from-acetaldehyde` | Nucleophilic addition in its plainest form: attack, then protonation. |
+| `good-hydride-transfer-from-borohydride-to-acetone` | Reduction, with the arrow starting on a bond rather than a lone pair. |
+| `good-acid-catalysed-hydration-of-acetaldehyde-to-its-hydrate` | The same carbonyl under acid, with the order of events reversed. |
+| `good-nucleophilic-acyl-substitution-of-acetyl-chloride-by-hydroxide` | Addition then elimination, with a real tetrahedral intermediate. |
+| `good-enolate-formation-from-acetone-by-hydroxide` | Three arrows for what students draw as one. |
+| `good-aldol-addition-of-the-acetone-enolate-to-acetaldehyde` | Carbon to carbon bond formation from the enolate's alpha carbon. |
+| `good-acid-catalysed-keto-enol-tautomerisation-of-acetone` | Two steps, both proton transfers, and the acid route contrasted with the base route. |
+| `good-acetal-formation-from-a-hemiacetal-via-an-oxocarbenium` | Four steps, three proton transfers. The proton transfer heavy fixture. |
+| `good-imine-formation-from-acetaldehyde-and-methylamine` | Five steps, four proton transfers. The longest pathway in the corpus. |
+
+### Oracle corpus files added in the same pass
+
+These are `.oracle.json` rather than `.fixture.json`. They carry stereochemistry, which the v1
+conservation fixture schema deliberately does not, and they are graded by RDKit through the
+Python sidecar rather than by the seven conservation checks.
+
+| File | What it covers |
+|---|---|
+| `bromine-addition-to-2-butene-racemic-against-meso.oracle.json` | The mechanism connecting each alkene to its product set, bromonium configuration included. cis gives an achiral meso bromonium and the racemic pair; trans gives a chiral bromonium and the single meso product. |
+| `sn2-inversion-and-sn1-stereorandomness.oracle.json` | SN2 inversion as a pinned pair of CIP labels, and SN1 as the same planar cation running to both configurations with no ratio asserted anywhere. |
+
+### What this corpus cannot say, and where it is said instead
+
+Three things `CLAUDE.md` asks for have no field in the v1 fixture schema. They are recorded as
+prose in `expect.note` on the fixtures that need them and are checked by nothing:
+
+- the racemisation ratio annotation on an SN1,
+- the conformational justification on a syn periplanar E2,
+- the rate comparison and named competing pathway on neopentyl SN2.
+
+`chem-core`'s `MechanismPathway` already carries an optional `annotations` field of exactly the
+right shape, with `racemisation_ratio`, `conformational_justification`, and `rate_comparison`
+among its kinds, and `Species` carries `DeclaredTorsion`. `parsePathway` in `fixture-schema.ts`
+does not accept either. Closing that is a schema change and a version bump, which is not a
+fixture author's edit to make.
 
 ## Adding a fixture
 

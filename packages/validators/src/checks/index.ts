@@ -3,6 +3,8 @@ import { harnessSelfTest } from "./harness-self-test.ts";
 import { conservationChecks } from "./conservation/index.ts";
 import { budgetChecks } from "./budgets/index.ts";
 import { oracleChecks } from "./oracle/index.ts";
+import { feedbackChecks } from "./feedback/index.ts";
+import { mutationChecks } from "./mutation/index.ts";
 
 /**
  * The check registry.
@@ -21,4 +23,6 @@ export const checks: readonly Check[] = [
   ...conservationChecks,
   ...budgetChecks,
   ...oracleChecks,
+  ...feedbackChecks,
+  ...mutationChecks,
 ];

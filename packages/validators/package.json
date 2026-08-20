@@ -8,10 +8,12 @@
     "test": "vitest run",
     "validate": "node --experimental-strip-types src/cli.ts",
     "lock:check": "node --experimental-strip-types src/lock.ts check",
-    "lock:regen": "node --experimental-strip-types src/lock.ts regen"
+    "lock:regen": "node --experimental-strip-types src/lock.ts regen",
+    "mutate": "node --experimental-strip-types src/mutation/run.ts"
   },
   "dependencies": {
-    "@blueberry/chem-core": "*"
+    "@blueberry/chem-core": "*",
+    "@blueberry/feedback": "*"
   },
   "devDependencies": {
     "@types/node": "^22.20.1"

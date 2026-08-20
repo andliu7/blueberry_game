@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "mutationScore": 98.12959251837007,
+  "killed": 1467,
+  "survived": 21,
+  "timeout": 2,
+  "noCoverage": 7,
+  "compileErrors": 0,
+  "runtimeErrors": 0,
+  "totalMutants": 1497,
+  "thresholdBreak": 80,
+  "sourceFingerprint": "c79f5d87c4517711cb08e4a8ce9232d0cb53212b135734e0120e17346d19352d",
+  "fileCount": 39,
+  "recordedAt": "2026-08-20T03:06:59.866Z",
+  "strykerVersion": "9.6.1"
+}

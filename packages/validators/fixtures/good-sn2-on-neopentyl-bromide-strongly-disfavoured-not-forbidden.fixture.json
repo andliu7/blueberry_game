@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "good-sn2-on-neopentyl-bromide-strongly-disfavoured-not-forbidden",
+  "title": "Hydroxide displaces bromide from neopentyl bromide by SN2, a real but strongly disfavoured pathway at roughly 10 to the minus 5 the rate of ethyl",
+  "expect": {
+    "kind": "good",
+    "note": "CLAUDE.md, graded chemistry not boolean chemistry: neopentyl SN2 is strongly disfavoured, roughly 10^-5 relative to ethyl, and is NOT blocked. Every conservation check passes because nothing about it is impossible; the three beta methyls block the backside trajectory, which is a rate statement and not a legality statement. A boolean reject here would delete the actual lesson. AUTHORING ANNOTATIONS the fixture schema cannot carry, recorded here in prose so they are still on disk and still attackable. kind rate_comparison, value: about 10^-5 relative to ethyl bromide. kind condition_note, value: the competing pathway is anchimerically assisted methyl migration to the tertiary cation, authored as good-anchimerically-assisted-methyl-shift-ionisation-of-neopentyl-bromide. See the reported gap from this pass: chem-core MechanismPathway has an optional annotations field of exactly this shape and the v1 fixture schema does not parse it."
+  },
+  "pathway": {
+    "id": "sn2-neopentyl-bromide-hydroxide",
+    "route": "sn2",
+    "steps": [
+      {
+        "id": "step-1",
+        "identity": { "elementaryStep": "concerted_substitution", "route": "sn2", "reactionCenters": ["C5"] },
+        "arrows": [
+          { "id": "a1", "electrons": 2, "source": { "kind": "lonePair", "atomId": "O1" }, "sink": { "kind": "betweenAtoms", "atomIds": ["O1", "C5"] } },
+          { "id": "a2", "electrons": 2, "source": { "kind": "bond", "bondId": "b5" }, "sink": { "kind": "atom", "atomId": "Br1" } }
+        ],
+        "from": {
+          "id": "s0",
+          "members": [
+            {
+              "role": "substrate",
+              "species": {
+                "id": "neopentyl-bromide",
+                "label": "1-bromo-2,2-dimethylpropane",
+                "atoms": [
+                  { "id": "C1", "element": "C" },
+                  { "id": "C2", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C3", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C4", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C5", "element": "C", "implicitHydrogens": 2 },
+                  { "id": "Br1", "element": "Br", "lonePairs": 3 }
+                ],
+                "bonds": [
+                  { "id": "b1", "a": "C1", "b": "C2", "order": 1 },
+                  { "id": "b2", "a": "C1", "b": "C3", "order": 1 },
+                  { "id": "b3", "a": "C1", "b": "C4", "order": 1 },
+                  { "id": "b4", "a": "C1", "b": "C5", "order": 1 },
+                  { "id": "b5", "a": "C5", "b": "Br1", "order": 1 }
+                ]
+              }
+            },
+            {
+              "role": "nucleophile",
+              "species": {
+                "id": "hydroxide",
+                "label": "hydroxide",
+                "atoms": [
+                  { "id": "O1", "element": "O", "formalCharge": -1, "lonePairs": 3 },
+                  { "id": "H1", "element": "H" }
+                ],
+                "bonds": [{ "id": "b6", "a": "O1", "b": "H1", "order": 1 }]
+              }
+            }
+          ]
+        },
+        "to": {
+          "id": "s1",
+          "members": [
+            {
+              "role": "product",
+              "species": {
+                "id": "neopentyl-alcohol",
+                "label": "2,2-dimethylpropan-1-ol",
+                "atoms": [
+                  { "id": "C1", "element": "C" },
+                  { "id": "C2", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C3", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C4", "element": "C", "implicitHydrogens": 3 },
+                  { "id": "C5", "element": "C", "implicitHydrogens": 2 },
+                  { "id": "O1", "element": "O", "lonePairs": 2 },
+                  { "id": "H1", "element": "H" }
+                ],
+                "bonds": [
+                  { "id": "b7", "a": "C1", "b": "C2", "order": 1 },
+                  { "id": "b8", "a": "C1", "b": "C3", "order": 1 },
+                  { "id": "b9", "a": "C1", "b": "C4", "order": 1 },
+                  { "id": "b10", "a": "C1", "b": "C5", "order": 1 },
+                  { "id": "b11", "a": "C5", "b": "O1", "order": 1 },
+                  { "id": "b12", "a": "O1", "b": "H1", "order": 1 }
+                ]
+              }
+            },
+            {
+              "role": "leaving_group",
+              "species": {
+                "id": "bromide",
+                "label": "bromide",
+                "atoms": [{ "id": "Br1", "element": "Br", "formalCharge": -1, "lonePairs": 4 }]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
