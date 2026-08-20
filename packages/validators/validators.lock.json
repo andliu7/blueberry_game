@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "algorithm": "sha256",
   "hashEncoding": "hex",
   "root": "packages/validators",
@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 190,
-  "suiteHash": "6601b101fcb5469c241b209596f0290fc7f7b944474d02a7a6b12855ab6a0f86",
+  "fileCount": 191,
+  "suiteHash": "ea4717c77c2095b62765d5dab885951f948a4738e25076ef40ffd1214c976383",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -187,8 +187,8 @@
     "src/cli.ts": "96a367961173db80af185048957397093f4a219f09221d57ce3c21f71276da9f",
     "src/exit-codes.ts": "17643beda888adec07257e5675a6f5cb35121f72d282eec5c45d186cf436e0a6",
     "src/fixtures.ts": "0c27963546e2f3f71c27f6a837f8eaca25a5938c32aa6e7fac725b151b8a6d63",
-    "src/integrity.ts": "66590427eaa6c57ab864911c65c9b35cb33841e9616c98cbc8824ccec6fe2127",
-    "src/lock.ts": "ab07f899f992084169f6e738976b30d28c49a2ab49d275a4ba0cd800c42e734e",
+    "src/integrity.ts": "6b355a69ac97721da9462bd4fb4e18360ed189b37129dbf705fb1f045c704902",
+    "src/lock.ts": "8d79ef290ab9ed02053164114b59b6d0c85a7252ca1070fb94c0803b1acfd08d",
     "src/measure/banned.ts": "a128e0e50de0c42009b59032cd0f73274be293531744ba04210206db61757d98",
     "src/measure/bundle.ts": "7f22fe3705b64bb6eaebd3d577321b8c99964a8a90f95051a221c491bca8fb95",
     "src/measure/chem-core.ts": "4934bcb05a5f61f09ba2c48b809ee286781e67c01e21528b92a2a00d35e545c2",
@@ -201,14 +201,49 @@
     "src/measure/subject.ts": "cb8d31be45595ebec5f0d1d0e582c33668f169a603ee283bd53a389257fe561e",
     "src/measure/web-app.ts": "897cc1e252b2f2b38d1444fbd5a7c034acdd9210f4762eeef6ddb8519c14fb4b",
     "src/mutation/run.ts": "99ffb58a57b9247bf69289c85e81e3eb24a018165401104f08241b238354e138",
-    "src/paths.ts": "7311a6cf8e42de24f1064c9e0c5be91c4be5c2808695860fcc74ff7eb217caed",
+    "src/paths.ts": "d9d35c50ccb1cf19d3f411bfc94bb18c5b000c0945c7afe2b478138b161a996d",
     "src/registry.ts": "44f1bb6b8ac0eb0e9da2255294f3d0e7ceaed808405e073da1a0bd03b483bf24",
     "src/report.ts": "6a7e7a394279e64b16a479a28921bfcfea126a648995e384a3337b4e27885047",
     "tests/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/external-data-declaration.test.ts": "c4e57759d68b1ca443b7049e7099b36a64762ec2cf5ad99c7fa280cda9228c0c",
     "tests/feedback-copy-coverage.test.ts": "5ba1664764f01cd14a54bcfe4bb9475aa84367224dc7c0a3b442b2d2077e2253",
     "tests/rate-comparison-competing-routes-not-locked.test.ts": "dbbf3bff651c48e12e80f3d0623e2b846f75aeecb89c3cff9d0941b60b4168fe",
     "tests/step-identity-cause-precision.test.ts": "129bbb8e3e378665bb328aa7d21dfd995296167f89c4a4e4991dee76c7606d97",
     "tests/stereo-descriptors-bond-kind.test.ts": "fd604f79ace2aa2c4df323e50532decc7f954702bd76dca669a84920b2b347f5",
     "tsconfig.json": "24ec8ae744678fbc406cfbebf2dd4ef78cf7df2f0dbd292ffa599e97369fa4ee"
+  },
+  "externalData": {
+    "declaredPackages": [
+      "@blueberry/chem-core",
+      "@blueberry/feedback",
+      "vitest"
+    ],
+    "entryCount": 23,
+    "externalHash": "33122420649ad869fab5c8b47c857cc5f2050d6235e12e5d377c20b71618603c",
+    "entries": {
+      "@blueberry/chem-core package role": "subject-under-test",
+      "@blueberry/feedback binding causeCopy": "subject-under-test",
+      "@blueberry/feedback binding competingRoutesFor": "oracle-data",
+      "@blueberry/feedback binding copyCount": "subject-under-test",
+      "@blueberry/feedback binding copyCoverage": "subject-under-test",
+      "@blueberry/feedback binding copyIsComplete": "subject-under-test",
+      "@blueberry/feedback code packages/feedback/src/index.ts": "2eb707309064915d94930291b99ef09aced1e015aad3a0d5c229eb5c835ff989",
+      "@blueberry/feedback code packages/feedback/src/registry.ts": "429c5c433779c8aef2f9e08a6028b1c2c4631fce9d8b35cf616d8f7cb519588c",
+      "@blueberry/feedback package role": "mixed",
+      "@blueberry/feedback projection cause-copy-competing-routes carbocation_on_destabilised_center": "sn2",
+      "@blueberry/feedback projection cause-copy-competing-routes regiochemistry_contradicts_stability": "radical_addition",
+      "@blueberry/feedback projection cause-copy-competing-routes skipped_favourable_rearrangement": "carbocation_rearrangement",
+      "@blueberry/feedback projection cause-copy-competing-routes sn2_at_tertiary_center": "sn1,e2",
+      "@blueberry/feedback projection cause-copy-competing-routes sn2_center_strongly_hindered": "carbocation_rearrangement",
+      "@blueberry/feedback source packages/feedback/src/copy/conservation.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/electronFlow.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/reactivity.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/route.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/stereochemistry.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/sterics.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/success.ts": "read",
+      "@blueberry/feedback source packages/feedback/src/copy/valence.ts": "read",
+      "vitest package role": "no-data"
+    }
   }
 }
