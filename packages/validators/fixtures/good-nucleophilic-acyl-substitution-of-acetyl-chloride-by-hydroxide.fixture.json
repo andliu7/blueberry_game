@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-nucleophilic-acyl-substitution-of-acetyl-chloride-by-hydroxide",
   "title": "Hydroxide adds to acetyl chloride to give a tetrahedral intermediate, which then collapses and expels chloride",
   "expect": {

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-spectator-counterion-excluded-without-a-justification",
   "title": "The same SN2 as the good spectator fixture, with the sodium counterion excluded from the books and no reason given for excluding it",
   "expect": {

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-radical-chlorination-of-methane-propagation",
   "title": "The two propagation steps of methane chlorination: a chlorine radical abstracts hydrogen, and the methyl radical takes a chlorine from Cl2",
   "expect": {

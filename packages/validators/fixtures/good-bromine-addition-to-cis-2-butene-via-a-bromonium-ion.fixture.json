@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-bromine-addition-to-cis-2-butene-via-a-bromonium-ion",
   "title": "Bromine adds to cis-2-butene through a bridged bromonium ion that bromide then opens from the opposite face, giving the racemic 2,3-dibromobutane pair",
   "expect": {

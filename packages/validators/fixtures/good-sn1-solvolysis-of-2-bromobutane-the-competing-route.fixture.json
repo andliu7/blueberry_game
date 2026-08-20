@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn1-solvolysis-of-2-bromobutane-the-competing-route",
   "title": "2-bromobutane solvolyses in water through the planar butan-2-yl cation, the SN1 route that competes with SN2 on the same secondary substrate",
   "expect": {
     "kind": "good",
-    "note": "The other half of the competing pair, on the same molecule as good-sn2-inversion-at-the-secondary-carbon-of-2-bromobutane. The intermediate at C2 is planar and sp2, so water reaches it from either face and both configurations appear in the product set. AUTHORING ANNOTATIONS the fixture schema cannot carry, in prose. kind racemisation_ratio, value: not 50:50. Ion pairing with the bromide that has just left leaves a net inversion excess, commonly 50 to 80 percent racemisation depending on substrate, solvent, and leaving group. CLAUDE.md is explicit that the ratio is an authoring annotation and never a computed assertion, so no number here is asserted by any check. kind condition_note, value: a strong nucleophile in a polar aprotic solvent turns the same substrate over to the SN2 route. What IS asserted, in sn2-inversion-and-sn1-stereorandomness.oracle.json, is the weaker and checkable claim that both configurations are present in the product set."
+    "note": "The other half of the competing pair, on the same molecule as good-sn2-inversion-at-the-secondary-carbon-of-2-bromobutane. The intermediate at C2 is planar and sp2, so water reaches it from either face and both configurations appear in the product set. The racemisation claim is now an annotation rather than prose, and conservation-stereorandom-annotation requires it to be present on any pathway containing an SN1 capture while reading nothing at all of what it says. This is the fixture where that matters most: it is the only SN1 in the corpus with a genuinely stereogenic centre, so it is the one where an asserted 50:50 would be asserted against real chemistry."
   },
   "pathway": {
     "id": "sn1-2-bromobutane-water",
@@ -373,6 +373,18 @@
             }
           ]
         }
+      }
+    ],
+    "annotations": [
+      {
+        "kind": "racemisation_ratio",
+        "value": "Not 50:50. Partial racemisation with a net inversion excess, commonly reported in the range of roughly 50 to 80 percent racemisation depending on substrate, solvent, and leaving group.",
+        "justification": "The butan-2-yl cation is planar and sp2, so water reaches C2 from either face and both configurations appear in the product set. The two faces are not equally available: the bromide that has just left is still associated as an ion pair and shields the front face for long enough to leave inversion in excess. CLAUDE.md and docs/VERIFICATION.md S1 both say the ratio is an authoring annotation and never a computed assertion, and a validator asserting 50:50 would fail on correct chemistry, so no check reads this value. What IS asserted, and asserted elsewhere in sn2-inversion-and-sn1-stereorandomness.oracle.json, is the weaker and checkable claim that both configurations are present in the product set."
+      },
+      {
+        "kind": "condition_note",
+        "value": "Water as both solvent and nucleophile, with no added strong nucleophile. A strong nucleophile in a polar aprotic solvent turns the same substrate over to the SN2 route.",
+        "justification": "Recorded because this fixture is one half of a competing pair on one molecule, and the other half is good-sn2-inversion-at-the-secondary-carbon-of-2-bromobutane. Which route runs is a condition, not a property of the substrate. No check reads this."
       }
     ]
   }

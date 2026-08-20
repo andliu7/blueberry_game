@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-valence-sn2-with-a-duplicated-species-id-silently-double-counted",
   "title": "The correct SN2 from good-sn2-with-spectator-counterion, with a second, physically distinct sodium counterion sharing the first one's species id rather than getting its own",
   "expect": {

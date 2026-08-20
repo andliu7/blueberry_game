@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-electron-flow-sn2-drawn-without-the-leaving-group-arrow",
   "title": "Bromide displaces chloride from chloromethane, drawn with only the nucleophile arrow, so the chloride keeps a pair no arrow ever gave it",
   "expect": {

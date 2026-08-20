@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-br2-homolysis-with-single-electron-fishhook-arrows",
   "title": "Br2 undergoes homolytic bond cleavage into two bromine radicals, drawn with two single electron fishhook arrows off the same bond",
   "expect": {

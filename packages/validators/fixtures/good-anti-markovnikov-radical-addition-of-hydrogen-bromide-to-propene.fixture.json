@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-anti-markovnikov-radical-addition-of-hydrogen-bromide-to-propene",
   "title": "The two propagation steps of radical HBr addition to propene: bromine adds to the terminal carbon, then the secondary radical abstracts hydrogen from HBr",
   "expect": {

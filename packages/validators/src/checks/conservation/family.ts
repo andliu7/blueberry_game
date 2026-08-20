@@ -2,6 +2,7 @@ import type { Check, CheckContext, CheckFailure, CheckResult } from "../../check
 import { failed, passed } from "../../check.ts";
 import {
   CONSERVATION_CHECK_NAMES,
+  FIXTURE_SCHEMA_VERSION,
   loadCorpus,
   NON_FIXTURE_FILES,
   type ConservationCheckName,
@@ -114,7 +115,7 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
 
       for (const error of corpus.loadErrors) {
         failures.push({
-          expected: "the fixture parses against the v1 fixture schema",
+          expected: `the fixture parses against the v${FIXTURE_SCHEMA_VERSION} fixture schema`,
           actual: error.message,
           fixture: error.relativePath,
         });
@@ -203,7 +204,7 @@ export function conservationCheck(input: FamilyCheckInput): ConservationFamilyCh
 /**
  * Sanity on the family itself, run by every check rather than by one of them.
  *
- * Exported so index.ts can assert the six names it registers are the six names the
+ * Exported so index.ts can assert the names it registers are exactly the names the
  * fixtures are allowed to reference. If those two lists ever drift, a fixture's mustFail
  * entry points at a check that does not run.
  */

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn2-with-spectator-counterion",
   "title": "Bromide displaces chloride from chloromethane by SN2, with sodium declared a spectator counterion",
   "expect": {

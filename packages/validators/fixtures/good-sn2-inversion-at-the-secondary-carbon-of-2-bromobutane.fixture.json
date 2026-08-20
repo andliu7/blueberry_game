@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn2-inversion-at-the-secondary-carbon-of-2-bromobutane",
   "title": "Ethoxide displaces bromide from 2-bromobutane by SN2 at the secondary carbon, the substrate on which SN1 and SN2 compete",
   "expect": {

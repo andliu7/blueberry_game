@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-acid-catalysed-hydration-of-2-methylpropene",
   "title": "2-methylpropene is protonated by hydronium, water captures the tertiary cation, and the water left over from the acid takes the proton back off",
   "expect": {

@@ -1,7 +1,7 @@
 # Conservation fixture corpus
 
 Every file here ending in `.fixture.json` is one mechanism pathway plus a declaration of what
-the seven conservation checks are supposed to say about it. This README is the only file in this
+the ten conservation checks are supposed to say about it. This README is the only file in this
 directory that is not a fixture, and it is on the allowlist in
 `src/checks/conservation/fixture-schema.ts` (`NON_FIXTURE_FILES`). Anything else that is neither
 a fixture nor on that list is reported as a stray file and fails the run, because a fixture saved
@@ -16,7 +16,7 @@ below is a reading aid, not a second source of truth.
 
 ```jsonc
 {
-  "schemaVersion": 1,            // must equal FIXTURE_SCHEMA_VERSION
+  "schemaVersion": 2,            // must equal FIXTURE_SCHEMA_VERSION
   "id": "...",                   // must equal the filename without .fixture.json
   "title": "...",                // one sentence, what the step is
   "expect": {
@@ -46,6 +46,13 @@ below is a reading aid, not a second source of truth.
         "from": { "id": "s0", "members": [], "spectators": [] },
         "to":   { "id": "s1", "members": [], "spectators": [] }
       }
+    ],
+    "annotations": [                                // optional, schema v2
+      {
+        "kind": "rate_comparison",                  // an AuthoredAnnotation kind
+        "value": "...",                             // the authored claim
+        "justification": "..."                      // why the claim is what it is
+      }
     ]
   }
 }
@@ -57,9 +64,40 @@ A source is one of `{ kind: "lonePair" | "singleElectron", atomId }` or
 a bond source must name a bond that exists there.
 
 A member is `{ role, species }`, where `role` is a `SpeciesRole` and `species` is
-`{ id, label?, atoms, bonds? }`. An atom is `{ id, element, formalCharge?, lonePairs?,
-unpairedElectrons?, implicitHydrogens?, isotope? }`, all numeric fields defaulting to 0. A bond
-is `{ id, a, b, order? }` with order defaulting to 1.
+`{ id, label?, atoms, bonds?, declaredTorsions? }`. An atom is `{ id, element, formalCharge?,
+lonePairs?, unpairedElectrons?, implicitHydrogens?, isotope? }`, all numeric fields defaulting
+to 0. A bond is `{ id, a, b, order? }` with order defaulting to 1.
+
+### Schema v2: annotations and declared torsions
+
+Added so the corpus can say three things `CLAUDE.md` requires and v1 had no field for. Both
+shapes are the chem-core types, not a parallel vocabulary.
+
+A **declared torsion** on a species is `{ atoms: [a, b, c, d], degrees, justification }`, a
+`DeclaredTorsion` from `chem-core/src/species.ts`. Exactly four atom ids, an angle in degrees in
+the range [-180, 180], where 0 is syn periplanar and 180 is anti periplanar, and a justification
+saying why the angle is what it is. The parser checks the count of atoms and that the angle is a
+finite number. `conservation-periplanarity-declaration` checks everything else: that the four
+atoms are a bonded chain in the declaring species, that the justification is not empty, and that
+the angle is periplanar.
+
+An **annotation** on a pathway is `{ kind, value, justification }`, an `AuthoredAnnotation` from
+`chem-core/src/step.ts`. The kinds are `racemisation_ratio`, `conformational_justification`,
+`rate_comparison`, `condition_note`, and `cip_label_source`. An annotation is a claim the author
+asserts and the engine must never compute. Three checks require one of a particular kind in a
+particular situation, and none of them reads what it says beyond checking it is not empty.
+`condition_note` is required by nothing and may repeat; it is there so a fixture can record the
+conditions a reader needs without pretending a check is watching.
+
+`value` and `justification` may be empty strings at the parser level, for the same reason a
+spectator's justification may be: the negative controls for the empty case have to exist on
+disk. The checks, not the parser, are what reject an empty one.
+
+**Bumping the version is breaking on purpose.** A fixture still declaring `schemaVersion: 1` is
+refused with `<root>.schemaVersion: is 1, this loader understands 2`, and every check in the
+family reports that as a failure on that file. There is no silent upgrade: a v1 file read as v2
+would be a mechanism with no torsion and no annotation, which is exactly what the new checks
+exist to catch, and it would be read as an authoring gap rather than as a stale file.
 
 A spectator declaration is `{ speciesId, reason, justification, declaredBy }`, where `reason`
 is a `SpectatorReason`. `justification` and `declaredBy` may be empty strings at the parser
@@ -70,7 +108,7 @@ check, not the parser, is what rejects an empty one.
 
 Set in `src/checks/conservation/family.ts`:
 
-- A **good** fixture must produce no violation from any of the seven checks.
+- A **good** fixture must produce no violation from any of the ten checks.
 - A **broken** fixture must produce at least one violation from every check it names in
   `mustFail`, and **no** violation from any check it does not name. A negative control that
   does not fire is a check that is not proven to work. A violation that was not declared means
@@ -119,10 +157,11 @@ broken fixtures below name more than one check.
 
 ## The corpus
 
-Thirty seven good fixtures, thirteen broken, plus three `.oracle.json` files. Every one of the
-seven checks has at least one negative control. Four checks have a control that fires on that
-check and nothing else: `conservation-valence`, `conservation-electron-flow`,
-`conservation-spectator-declaration`, and `conservation-arrow-legality`.
+Thirty seven good fixtures, twenty one broken, plus three `.oracle.json` files, sixty one in
+total. Every one of the ten checks has at least one negative control. Seven checks have a
+control that fires on that check and nothing else: `conservation-valence`,
+`conservation-electron-flow`, `conservation-spectator-declaration`,
+`conservation-arrow-legality`, and all three of the schema v2 annotation checks.
 
 The thirty one good fixtures added in the Phase 1 corpus pass are listed in their own section
 below, after the two tables of Phase 0 fixtures.

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-proton-transfer-acetone-protonated-with-no-acid-in-the-state",
   "title": "Acetone is protonated on oxygen with the acid written above the arrow instead of drawn, so the proton arrives from a species that is not in the multiset",
   "expect": {

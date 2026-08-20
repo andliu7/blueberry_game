@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn1-with-a-1-2-hydride-shift-from-2-bromo-3-methylbutane",
   "title": "2-bromo-3-methylbutane ionises to a secondary cation, a 1,2 hydride shift converts it to the tertiary cation, and bromide returns at the rearranged carbon",
   "expect": {
@@ -228,6 +228,13 @@
             }
           ]
         }
+      }
+    ],
+    "annotations": [
+      {
+        "kind": "racemisation_ratio",
+        "value": "Not applicable at the carbon the product forms at. After the 1,2 hydride shift the cation sits at C3, which carries two methyl groups and is not a stereocentre, so bromide returning to either face gives the same compound.",
+        "justification": "Authored as an explicit not applicable rather than left off, for the reason given in good-sn1-solvolysis-of-tert-butyl-bromide-in-water: nothing in this package can see chirality, so the claim has to come from a person. Worth stating twice over on this fixture because the carbon that LOST the leaving group, C2, was a stereocentre in the substrate and the carbon that gains the nucleophile is not the same carbon. The rearrangement is exactly why the stereochemical question moves, and a reader who assumed the product centre inherits the substrate's would get this wrong."
       }
     ]
   }

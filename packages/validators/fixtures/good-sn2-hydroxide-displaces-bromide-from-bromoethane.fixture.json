@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn2-hydroxide-displaces-bromide-from-bromoethane",
   "title": "Hydroxide displaces bromide from bromoethane in one concerted SN2 step, backside attack at the primary carbon",
   "expect": {

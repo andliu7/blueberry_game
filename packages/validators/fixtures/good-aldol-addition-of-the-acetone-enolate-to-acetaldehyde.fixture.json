@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-aldol-addition-of-the-acetone-enolate-to-acetaldehyde",
   "title": "The acetone enolate attacks the carbonyl carbon of acetaldehyde through its alpha carbon, and water protonates the resulting alkoxide",
   "expect": {

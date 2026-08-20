@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-anchimerically-assisted-methyl-shift-ionisation-of-neopentyl-bromide",
   "title": "Neopentyl bromide ionises with a methyl group migrating in concert with bromide departure, giving the tertiary 2-methylbutan-2-yl cation directly",
   "expect": {

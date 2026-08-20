@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-protonation-of-acetone-by-hydronium",
   "title": "Acetone is protonated on oxygen by hydronium, giving the protonated ketone and water",
   "expect": {

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-sn2-cyanide-displaces-iodide-from-iodomethane",
   "title": "Cyanide attacks iodomethane through carbon, not nitrogen, displacing iodide in one concerted SN2 step",
   "expect": {

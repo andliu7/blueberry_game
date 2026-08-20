@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-proton-transfer-isobutylene-protonated-by-an-acid-declared-a-spectator",
   "title": "Markovnikov protonation of isobutylene where the hydronium that supplies the proton is declared bulk medium and excluded from the multiset",
   "expect": {

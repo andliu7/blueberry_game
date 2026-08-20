@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-electron-flow-hidden-1-2-hydride-shift-with-globally-balanced-implicit-hydrogens",
   "title": "The ethyl cation automerises, the hydride moving from C1 to C2 with no arrow drawn, and the implicit hydrogen counts happen to balance within the single species so mass, charge, valence, and proton transfer all read as conserved",
   "expect": {

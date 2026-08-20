@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-enolate-formation-from-acetone-by-hydroxide",
   "title": "Hydroxide removes an alpha proton from acetone and the carbonyl pi bond takes the electrons onto oxygen, giving the enolate",
   "expect": {

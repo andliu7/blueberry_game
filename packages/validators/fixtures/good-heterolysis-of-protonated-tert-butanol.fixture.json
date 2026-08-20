@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-heterolysis-of-protonated-tert-butanol",
   "title": "Protonated tert-butanol ionises, giving the tert-butyl cation and water as the leaving group",
   "expect": {

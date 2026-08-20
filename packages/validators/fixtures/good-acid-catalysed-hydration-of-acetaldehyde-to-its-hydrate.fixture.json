@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-acid-catalysed-hydration-of-acetaldehyde-to-its-hydrate",
   "title": "Acetaldehyde is protonated on oxygen, water adds to the activated carbonyl carbon, and the water left over from the acid takes the extra proton off",
   "expect": {

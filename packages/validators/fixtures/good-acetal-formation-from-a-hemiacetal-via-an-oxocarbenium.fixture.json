@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-acetal-formation-from-a-hemiacetal-via-an-oxocarbenium",
   "title": "Under acid the hemiacetal of acetaldehyde is protonated, loses water to an oxocarbenium, is attacked by methanol, and is deprotonated to the dimethyl acetal",
   "expect": {

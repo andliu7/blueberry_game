@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-markovnikov-addition-of-hydrogen-chloride-to-2-methylpropene",
   "title": "Hydrogen chloride adds to 2-methylpropene, the proton going to the carbon that already carries more hydrogens so the cation forms at the tertiary carbon",
   "expect": {

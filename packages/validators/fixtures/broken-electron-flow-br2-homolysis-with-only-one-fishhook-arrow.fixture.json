@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-electron-flow-br2-homolysis-with-only-one-fishhook-arrow",
   "title": "Br2 homolysis drawn with only one of the two required single electron fishhook arrows, leaving the second bromine's new radical electron unexplained",
   "expect": {

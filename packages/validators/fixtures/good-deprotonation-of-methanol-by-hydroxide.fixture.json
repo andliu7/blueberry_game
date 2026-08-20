@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-deprotonation-of-methanol-by-hydroxide",
   "title": "Hydroxide removes the hydroxyl proton from methanol, giving methoxide and water",
   "expect": {

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-spectator-declaration-hiding-a-reduced-sodium-counterion",
   "title": "The same SN2 again, with the sodium counterion quietly reduced from a cation to a sodium atom behind a well written spectator declaration",
   "expect": {

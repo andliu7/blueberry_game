@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-acid-catalysed-keto-enol-tautomerisation-of-acetone",
   "title": "Acetone is protonated on oxygen, then water removes an alpha proton to give prop-1-en-2-ol",
   "expect": {

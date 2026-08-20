@@ -1,22 +1,26 @@
 import type { Check } from "../../check.ts";
 import { conservationArrowLegality } from "./arrow-legality.ts";
 import { conservationCharge } from "./charge.ts";
+import { conservationDisfavouredRateComparison } from "./rate-comparison.ts";
 import { conservationElectronFlow } from "./electron-flow.ts";
 import { CONSERVATION_CHECK_NAMES } from "./fixture-schema.ts";
 import { conservationMass } from "./mass.ts";
+import { conservationPeriplanarityDeclaration } from "./periplanarity.ts";
 import { conservationProtonTransfer } from "./proton-transfer.ts";
 import { conservationSpectatorDeclaration } from "./spectator.ts";
+import { conservationStereorandomAnnotation } from "./stereorandom-annotation.ts";
 import { conservationValence } from "./valence.ts";
 
 /**
  * The conservation check family.
  *
- * Seven checks, one export. src/checks/index.ts spreads this array into the registry, so
- * adding an eighth check to this family is a change in this directory and nowhere else.
+ * Ten checks, one export. src/checks/index.ts spreads this array into the registry, so
+ * adding a check to this family is a change in this directory and nowhere else.
  * That was the point of the arrangement and it is what let the seventh be added without
  * touching the registry: the Phase 0 adversary had to file arrow legality as a report
  * rather than a fixture precisely because no such name existed, not because the wiring
- * was in the way.
+ * was in the way. The eighth, ninth, and tenth arrived the same way, from a corpus builder
+ * that could name three CLAUDE.md requirements it had no field to express.
  *
  * ORDER IS THE ORDER A FAILURE IS EASIEST TO READ IN.
  *
@@ -25,11 +29,14 @@ import { conservationValence } from "./valence.ts";
  * three conservation laws in the order CLAUDE.md states them. Then arrow legality, which
  * is about the arrows one at a time and reads best straight after the check that is about
  * all of them at once. Then the two boundary checks, which are about what was allowed into
- * the arithmetic rather than about the arithmetic.
+ * the arithmetic rather than about the arithmetic. Then the three annotation checks, which
+ * are about what a human claimed rather than about anything computed, and which are last
+ * because a fixture whose arithmetic is broken has a worse problem than a missing note.
  *
  * WHAT THE FAMILY DOES NOT COVER, so nobody reads a green run as more than it is.
- * Stereochemistry, sterics, reactivity, route ordering, and RDKit adjudication are other
- * families. A step can conserve everything here and still be chemically wrong.
+ * Stereochemistry proper, sterics beyond the one detected neopentyl pattern, reactivity,
+ * route ordering, and RDKit adjudication are other families. A step can conserve everything
+ * here, carry every annotation CLAUDE.md asks for, and still be chemically wrong.
  */
 export const conservationChecks: readonly Check[] = [
   conservationValence,
@@ -39,6 +46,9 @@ export const conservationChecks: readonly Check[] = [
   conservationArrowLegality,
   conservationProtonTransfer,
   conservationSpectatorDeclaration,
+  conservationStereorandomAnnotation,
+  conservationPeriplanarityDeclaration,
+  conservationDisfavouredRateComparison,
 ];
 
 /**

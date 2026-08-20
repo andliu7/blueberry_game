@@ -1,13 +1,14 @@
 {
   "schemaVersion": 2,
-  "id": "good-sn1-solvolysis-of-tert-butyl-bromide-in-water",
-  "title": "Tert-butyl bromide solvolyses in water in three steps: rate determining heterolysis, capture of the cation by water, then deprotonation of the oxonium by a second water",
+  "id": "broken-annotation-sn1-capture-carrying-no-racemisation-ratio",
+  "title": "The tert-butyl bromide solvolysis with its racemisation_ratio annotation deleted, so the SN1 capture states nothing about the stereochemical outcome",
   "expect": {
-    "kind": "good",
-    "note": "The canonical SN1. Both water molecules are drawn as members of the multiset from the first state rather than written over the arrow, which is the CLAUDE.md system boundary rule: the proton that leaves the oxonium in step 3 has a declared sink because the second water is present. The racemisation annotation is carried as data and says not applicable, with the reason: the tert-butyl centre is not stereogenic. The chiral case is authored as good-sn1-solvolysis-of-2-bromobutane-the-competing-route and the product configurations are pinned in sn2-inversion-and-sn1-stereorandomness.oracle.json."
+    "kind": "broken",
+    "mustFail": ["conservation-stereorandom-annotation"],
+    "note": "NEGATIVE CONTROL for conservation-stereorandom-annotation, presence arm. Byte for byte good-sn1-solvolysis-of-tert-butyl-bromide-in-water with the pathway's annotations array removed and nothing else touched. Every conservation total still balances, every arrow is still drawable, and no other check in the family has anything to say about it, which is the point: the only thing wrong here is that a mechanism which captures a planar cation makes no statement about what happens at that centre. CLAUDE.md says the ratio is an authoring annotation and never a computed assertion, so an absent annotation cannot be recovered by computing it. Note what this control does NOT prove and cannot: nothing here asserts a ratio, and the fixture would pass the moment any non empty value with a justification is added, including not applicable."
   },
   "pathway": {
-    "id": "sn1-tert-butyl-bromide-water",
+    "id": "sn1-tert-butyl-bromide-water-unannotated",
     "route": "sn1",
     "steps": [
       {
@@ -373,13 +374,6 @@
             }
           ]
         }
-      }
-    ],
-    "annotations": [
-      {
-        "kind": "racemisation_ratio",
-        "value": "Not applicable. The cationic carbon carries three identical methyl groups, so it is not a stereocentre and there are no configurations for the capture to choose between.",
-        "justification": "Authored as an explicit not applicable rather than left off. The conservation fixture schema carries no stereo configuration, so nothing in this package can compute that C1 is not stereogenic, and an exemption granted by a check that cannot see chirality would be an exemption granted by a guess. Stating it makes it a claim a human made and can be held to. The stereochemically interesting SN1 is authored as good-sn1-solvolysis-of-2-bromobutane-the-competing-route, and the product configurations are pinned in sn2-inversion-and-sn1-stereorandomness.oracle.json."
       }
     ]
   }

@@ -1,13 +1,14 @@
 {
   "schemaVersion": 2,
-  "id": "good-e2-syn-periplanar-in-a-conformationally-locked-norbornane",
-  "title": "Methoxide eliminates 2-exo-bromonorbornane through the eclipsed exo hydrogen at C3, a syn periplanar E2 in a framework that cannot reach the anti geometry",
+  "id": "broken-annotation-syn-periplanar-e2-carrying-no-conformational-justification",
+  "title": "The syn periplanar norbornane E2 with its conformational_justification annotation deleted, leaving a 3 degree dihedral nobody has defended",
   "expect": {
-    "kind": "good",
-    "note": "CLAUDE.md: syn periplanar E2 is real in conformationally locked systems and is FLAGGED as requiring an authored conformational justification, not rejected. Nothing in the conservation family rejects it, which is the intended behaviour; every arrow is drawable and every total balances, because the objection to syn E2 is a geometric preference and not a conservation law. The flag itself is now data rather than prose: the declared torsion below states the dihedral at 3 degrees and pathway.annotations carries the conformational_justification, so conservation-periplanarity-declaration can see the syn geometry and require the justification, and an adversary can attack either. This note keeps only what the data does not say, which is why this fixture is in the corpus: it is the syn half of the pair whose anti half is good-e2-anti-periplanar-ethoxide-and-2-bromobutane, and it is the case that makes the requirement to DECLARE a torsion load bearing rather than optional."
+    "kind": "broken",
+    "mustFail": ["conservation-periplanarity-declaration"],
+    "note": "NEGATIVE CONTROL for conservation-periplanarity-declaration, syn flag arm, and the exact fixture CLAUDE.md's sentence is about: syn periplanar E2 is real in conformationally locked systems and is FLAGGED as requiring an authored conformational justification, NOT REJECTED. This file is byte for byte good-e2-syn-periplanar-in-a-conformationally-locked-norbornane with the annotations array removed. The declared torsion is untouched and still reads 3 degrees, so the check can still see that the geometry is syn; what it cannot find is any statement of why. Read the failure line next to the good fixture's pass to see the whole rule: the same chemistry, the same arrows, the same 3 degrees, and one authored sentence is the difference between the two verdicts. Nothing here rejects syn elimination."
   },
   "pathway": {
-    "id": "e2-syn-periplanar-2-exo-bromonorbornane",
+    "id": "e2-syn-periplanar-norbornane-unjustified",
     "route": "e2",
     "steps": [
       {
@@ -127,13 +128,6 @@
             }
           ]
         }
-      }
-    ],
-    "annotations": [
-      {
-        "kind": "conformational_justification",
-        "value": "The bicyclo[2.2.1]heptane cage holds the exo bromide at C2 and the exo hydrogen at C3 eclipsed, so this elimination can only go syn.",
-        "justification": "No hydrogen on C3 can reach the 180 degrees that anti periplanar E2 needs. The endo hydrogen at C3 sits near 120 degrees from the exo bromide, and the ring cannot rotate to supply a better one, because the C1 to C7 to C4 bridge fixes every torsion in the two fused five membered rings. Elimination therefore proceeds syn, which is why rigid bicyclics are the standard counterexample to the rule that E2 is always anti. This is an authored conformational claim about a named framework, not a computed one: nothing in the conservation fixture schema carries coordinates, and the checks that read this annotation do not read it for sense."
       }
     ]
   }

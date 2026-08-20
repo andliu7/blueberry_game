@@ -11,7 +11,9 @@ import {
   createState,
   createStep,
   isElement,
+  type AuthoredAnnotation,
   type BondOrder,
+  type DeclaredTorsion,
   type ElectronCount,
   type ElectronFlowArrow,
   type ElectronSink,
@@ -52,15 +54,44 @@ import {
  * negative control could not be written, and the check could never be shown to fire.
  * The parser enforces shape. The checks enforce chemistry and policy.
  *
- * WHAT THIS SCHEMA DELIBERATELY DOES NOT CARRY.
+ * WHAT V2 ADDED, AND WHY THE VERSION WENT UP.
  *
- * Stereochemistry, geometry, declared torsions, and authored annotations. None of them
- * take part in mass, charge, or electron bookkeeping, and a field that no check reads is
- * a field that can be wrong forever without anyone noticing. When the stereochemistry
- * family is written it extends this schema, and the version number goes up.
+ * V1 carried no declared torsions and no authored annotations, on the stated ground that
+ * a field no check reads is a field that can be wrong forever without anyone noticing.
+ * That was right at the time and it stopped being right the moment CLAUDE.md's three
+ * graded chemistry requirements had nowhere to live but prose. `MechanismPathway` in
+ * chem-core already carried `annotations`, and `Species` already carried
+ * `DeclaredTorsion`, so the corpus could not say what the engine could already model:
+ *
+ *   the SN1 racemisation ratio, which is an authoring annotation and never a computed
+ *   assertion, so it has to be readable as data before any check can require it,
+ *   the conformational justification a syn periplanar E2 is flagged as requiring,
+ *   the rate comparison that names the competing pathway on a strongly disfavoured but
+ *   permitted step.
+ *
+ * V2 adds `pathway.annotations` and `species.declaredTorsions`, shaped exactly like the
+ * chem-core types they are parsed into. No parallel shape, no second vocabulary: the
+ * annotation kinds are `AuthoredAnnotation["kind"]` and a torsion is a `DeclaredTorsion`.
+ * Three checks read them, and each has a negative control, so the rule above still holds.
+ *
+ * BREAKING, DELIBERATELY. A fixture still declaring `schemaVersion: 1` is refused by
+ * parseFixture with a load error, which every check in the family reports as a failure.
+ * There is no silent upgrade path and there should not be one: a v1 file loaded as v2
+ * would be a syn periplanar E2 with no torsion and no annotation, which is precisely what
+ * the new checks exist to catch, and it would be read as an authoring gap rather than as a
+ * stale file.
+ *
+ * WHAT THIS SCHEMA STILL DELIBERATELY DOES NOT CARRY.
+ *
+ * Stereo configuration itself. No R/S, no E/Z, no wedge and hash, no coordinates. A
+ * declared torsion is one authored number about one four atom chain, which is what E2
+ * periplanarity turns on and nothing more. CIP descriptors are RDKit's job in the oracle
+ * corpus (`.oracle.json`), per CLAUDE.md: chem-core computes geometry and never assigns
+ * descriptors. When a stereochemistry family is written it extends this schema again, and
+ * the version number goes up again.
  */
 
-export const FIXTURE_SCHEMA_VERSION = 1;
+export const FIXTURE_SCHEMA_VERSION = 2;
 
 /** Only files matching this are loaded. Anything else in fixtures/ is reported. */
 export const FIXTURE_SUFFIX = ".fixture.json";
@@ -83,7 +114,7 @@ import { NON_FIXTURE_FILES } from "../../fixtures.ts";
 export { NON_FIXTURE_FILES };
 
 /**
- * The names of the seven checks in this family.
+ * The names of the ten checks in this family.
  *
  * A fixture's `expect.mustFail` names checks from this list. Naming anything else is a
  * failure rather than a no-op, so a renamed check cannot silently orphan its own negative
@@ -96,6 +127,13 @@ export { NON_FIXTURE_FILES };
  * in its own note that it could not be declared broken because "there is no check name in
  * CONSERVATION_CHECK_NAMES this package could declare as the one that is supposed to catch
  * it". This line is that name.
+ *
+ * The last three arrived with schema v2 and are the same story a second time. The Phase 1
+ * corpus builder recorded three CLAUDE.md requirements it could not express as data and
+ * had to leave as prose in `expect.note`, where no check could read them. These are their
+ * names. They are annotation checks rather than arithmetic checks, and they sit in this
+ * family because they run over the same corpus, use the same two sided good and broken
+ * declaration, and would otherwise need a second copy of family.ts to say the same things.
  */
 export const CONSERVATION_CHECK_NAMES = [
   "conservation-valence",
@@ -105,6 +143,9 @@ export const CONSERVATION_CHECK_NAMES = [
   "conservation-arrow-legality",
   "conservation-proton-transfer",
   "conservation-spectator-declaration",
+  "conservation-stereorandom-annotation",
+  "conservation-periplanarity-declaration",
+  "conservation-disfavoured-rate-comparison",
 ] as const;
 
 export type ConservationCheckName = (typeof CONSERVATION_CHECK_NAMES)[number];
@@ -162,6 +203,22 @@ const ELEMENTARY_STEP_KINDS: Readonly<Record<ElementaryStepKind, true>> = {
   tautomerisation: true,
   coordination: true,
   pericyclic_step: true,
+};
+
+/**
+ * The authored annotation kinds, taken from chem-core rather than restated as strings.
+ *
+ * Typed `Record<AuthoredAnnotation["kind"], true>` for the same reason as every allowlist
+ * above it: adding a kind in chem-core and forgetting it here is a compile error, not a
+ * fixture that mysteriously will not parse. The reverse, a kind here that chem-core does
+ * not define, is also a compile error.
+ */
+const ANNOTATION_KINDS: Readonly<Record<AuthoredAnnotation["kind"], true>> = {
+  racemisation_ratio: true,
+  conformational_justification: true,
+  rate_comparison: true,
+  condition_note: true,
+  cip_label_source: true,
 };
 
 export interface FixtureExpectation {
@@ -271,6 +328,27 @@ function asInteger(
   return value;
 }
 
+/**
+ * A finite number, integral or not.
+ *
+ * Torsion angles are the only non integer quantity in the schema, and a dihedral of 60.5
+ * degrees is an ordinary thing for an author to state. No range is enforced here: whether
+ * a number is a legal dihedral, and whether it is near enough to 0 or 180 to be
+ * periplanar, is chemistry, and chemistry lives in the checks. NaN and Infinity are shape
+ * errors and are refused, because neither can be compared against a tolerance and both
+ * would make every downstream comparison quietly false.
+ */
+function asFiniteNumber(object: Record<string, unknown>, key: string, at: string): number {
+  const value = object[key];
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new FixtureError(
+      `${at}.${key}`,
+      `expected a finite number, got ${JSON.stringify(value) ?? describe(value)}`,
+    );
+  }
+  return value;
+}
+
 function asArray(object: Record<string, unknown>, key: string, at: string): readonly unknown[] {
   const value = object[key];
   if (!Array.isArray(value)) {
@@ -324,9 +402,48 @@ function parseBond(raw: unknown, at: string) {
   });
 }
 
+/**
+ * One authored torsion angle. Schema v2.
+ *
+ * `atoms` is exactly four ids, because that is what a dihedral is measured over, and the
+ * tuple type in chem-core says so. Whether those four are a bonded chain, whether they
+ * exist in the state at all, and whether the angle is a legal one are all checked by
+ * `conservation-periplanarity-declaration`, not here. The parser is shape.
+ *
+ * `justification` is read with `asString` and not `asNonEmptyString`, following the
+ * spectator declaration precedent above. species.ts requires a justification because a
+ * stated torsion nobody defended is a number a validator will trust and a student will be
+ * graded against, and the negative control for that rule is a fixture carrying an empty
+ * one. A parser that refused it would make that control unwritable.
+ */
+function parseDeclaredTorsion(raw: unknown, at: string): DeclaredTorsion {
+  const object = asObject(raw, at);
+  requireKeys(object, at, ["atoms", "degrees", "justification"], []);
+
+  const ids = asArray(object, "atoms", at);
+  if (ids.length !== 4) {
+    throw new FixtureError(
+      `${at}.atoms`,
+      `a dihedral is measured over exactly 4 atoms, got ${ids.length}`,
+    );
+  }
+  const atoms = ids.map((entry, index) => {
+    if (typeof entry !== "string" || entry.trim() === "") {
+      throw new FixtureError(`${at}.atoms[${index}]`, "expected a non empty atom id");
+    }
+    return entry;
+  });
+
+  return {
+    atoms: [atoms[0] as string, atoms[1] as string, atoms[2] as string, atoms[3] as string],
+    degrees: asFiniteNumber(object, "degrees", at),
+    justification: asString(object, "justification", at),
+  };
+}
+
 function parseSpecies(raw: unknown, at: string) {
   const object = asObject(raw, at);
-  requireKeys(object, at, ["id", "atoms"], ["label", "bonds"]);
+  requireKeys(object, at, ["id", "atoms"], ["label", "bonds", "declaredTorsions"]);
 
   const atoms = asArray(object, "atoms", at).map((entry, index) =>
     parseAtom(entry, `${at}.atoms[${index}]`),
@@ -336,12 +453,20 @@ function parseSpecies(raw: unknown, at: string) {
     : [];
 
   const labelPresent = Object.prototype.hasOwnProperty.call(object, "label");
+  const torsionsPresent = Object.prototype.hasOwnProperty.call(object, "declaredTorsions");
 
   return createSpecies({
     id: asNonEmptyString(object, "id", at),
     atoms,
     bonds,
     ...(labelPresent ? { label: asNonEmptyString(object, "label", at) } : {}),
+    ...(torsionsPresent
+      ? {
+          declaredTorsions: asArray(object, "declaredTorsions", at).map((entry, index) =>
+            parseDeclaredTorsion(entry, `${at}.declaredTorsions[${index}]`),
+          ),
+        }
+      : {}),
   });
 }
 
@@ -529,9 +654,42 @@ function parseStep(raw: unknown, at: string): MechanismStep {
   });
 }
 
+/**
+ * One authored annotation. Schema v2.
+ *
+ * step.ts calls this "an annotation the author asserts that the engine must never
+ * compute", and that sentence is the whole reason it is a field on the fixture rather than
+ * something a check derives. The SN1 racemisation ratio depends on substrate, solvent,
+ * leaving group, and ion pairing, and CLAUDE.md is explicit that it is an authoring
+ * annotation and never a computed assertion. A number the corpus states is a number a
+ * human can be held to. A number the engine computes is a number that will be wrong.
+ *
+ * `value` and `justification` are read with `asString`. Same precedent, same reason: the
+ * checks below reject an empty one and each has a fixture proving it.
+ */
+function parseAnnotation(raw: unknown, at: string): AuthoredAnnotation {
+  const object = asObject(raw, at);
+  requireKeys(object, at, ["kind", "value", "justification"], []);
+
+  const kind = asNonEmptyString(object, "kind", at);
+  if (!Object.prototype.hasOwnProperty.call(ANNOTATION_KINDS, kind)) {
+    throw new FixtureError(
+      `${at}.kind`,
+      `"${kind}" is not an AuthoredAnnotation kind. Known kinds: ` +
+        `${Object.keys(ANNOTATION_KINDS).sort().join(", ")}`,
+    );
+  }
+
+  return {
+    kind: kind as AuthoredAnnotation["kind"],
+    value: asString(object, "value", at),
+    justification: asString(object, "justification", at),
+  };
+}
+
 function parsePathway(raw: unknown, at: string): MechanismPathway {
   const object = asObject(raw, at);
-  requireKeys(object, at, ["id", "route", "steps"], []);
+  requireKeys(object, at, ["id", "route", "steps"], ["annotations"]);
 
   const steps = asArray(object, "steps", at).map((entry, index) =>
     parseStep(entry, `${at}.steps[${index}]`),
@@ -540,10 +698,19 @@ function parsePathway(raw: unknown, at: string): MechanismPathway {
     throw new FixtureError(`${at}.steps`, "a pathway with no steps verifies nothing");
   }
 
+  const annotationsPresent = Object.prototype.hasOwnProperty.call(object, "annotations");
+
   return createPathway({
     id: asNonEmptyString(object, "id", at),
     route: parseRoute(asNonEmptyString(object, "route", at), `${at}.route`),
     steps,
+    ...(annotationsPresent
+      ? {
+          annotations: asArray(object, "annotations", at).map((entry, index) =>
+            parseAnnotation(entry, `${at}.annotations[${index}]`),
+          ),
+        }
+      : {}),
   });
 }
 

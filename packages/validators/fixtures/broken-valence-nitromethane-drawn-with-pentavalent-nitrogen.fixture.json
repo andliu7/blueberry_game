@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-valence-nitromethane-drawn-with-pentavalent-nitrogen",
   "title": "Hydroxide deprotonates nitromethane, but the nitro group is drawn with two N=O double bonds, putting ten valence electrons on a period two nitrogen",
   "expect": {

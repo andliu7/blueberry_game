@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-e1-acid-catalysed-dehydration-of-tert-butanol",
   "title": "Tert-butanol is protonated on oxygen, loses water to the tertiary cation, and is deprotonated at a beta carbon to give 2-methylpropene",
   "expect": {

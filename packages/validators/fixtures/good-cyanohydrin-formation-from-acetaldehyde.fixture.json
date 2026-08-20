@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-cyanohydrin-formation-from-acetaldehyde",
   "title": "Cyanide adds to the carbonyl carbon of acetaldehyde and the resulting alkoxide takes a proton from hydrogen cyanide",
   "expect": {

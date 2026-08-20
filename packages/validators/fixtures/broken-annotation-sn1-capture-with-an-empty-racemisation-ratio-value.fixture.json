@@ -1,13 +1,14 @@
 {
   "schemaVersion": 2,
-  "id": "good-sn1-solvolysis-of-tert-butyl-bromide-in-water",
-  "title": "Tert-butyl bromide solvolyses in water in three steps: rate determining heterolysis, capture of the cation by water, then deprotonation of the oxonium by a second water",
+  "id": "broken-annotation-sn1-capture-with-an-empty-racemisation-ratio-value",
+  "title": "The tert-butyl bromide solvolysis carrying a racemisation_ratio annotation whose value is an empty string",
   "expect": {
-    "kind": "good",
-    "note": "The canonical SN1. Both water molecules are drawn as members of the multiset from the first state rather than written over the arrow, which is the CLAUDE.md system boundary rule: the proton that leaves the oxonium in step 3 has a declared sink because the second water is present. The racemisation annotation is carried as data and says not applicable, with the reason: the tert-butyl centre is not stereogenic. The chiral case is authored as good-sn1-solvolysis-of-2-bromobutane-the-competing-route and the product configurations are pinned in sn2-inversion-and-sn1-stereorandomness.oracle.json."
+    "kind": "broken",
+    "mustFail": ["conservation-stereorandom-annotation"],
+    "note": "NEGATIVE CONTROL for conservation-stereorandom-annotation, empty value arm, and the fixture that fixture-schema.ts reads value and justification with asString rather than asNonEmptyString FOR. The parser accepts the empty string on purpose, following the spectator declaration precedent: if it refused, this file could not exist and the arm of the check that rejects an empty annotation could never be shown to fire. The annotation is present, of the right kind, and says nothing. That is worse than absent, because a reader scanning for the kind finds it and stops looking. The justification is left intact so that exactly one arm fires and the failure line names the value rather than both fields."
   },
   "pathway": {
-    "id": "sn1-tert-butyl-bromide-water",
+    "id": "sn1-tert-butyl-bromide-water-empty-annotation",
     "route": "sn1",
     "steps": [
       {
@@ -378,8 +379,8 @@
     "annotations": [
       {
         "kind": "racemisation_ratio",
-        "value": "Not applicable. The cationic carbon carries three identical methyl groups, so it is not a stereocentre and there are no configurations for the capture to choose between.",
-        "justification": "Authored as an explicit not applicable rather than left off. The conservation fixture schema carries no stereo configuration, so nothing in this package can compute that C1 is not stereogenic, and an exemption granted by a check that cannot see chirality would be an exemption granted by a guess. Stating it makes it a claim a human made and can be held to. The stereochemically interesting SN1 is authored as good-sn1-solvolysis-of-2-bromobutane-the-competing-route, and the product configurations are pinned in sn2-inversion-and-sn1-stereorandomness.oracle.json."
+        "value": "",
+        "justification": "Deliberately empty value above. This justification is real text so that the empty value arm fires alone and the failure line is unambiguous about which field is missing."
       }
     ]
   }

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-hydride-transfer-from-borohydride-to-acetone",
   "title": "Borohydride delivers a hydride to the carbonyl carbon of acetone, and water protonates the alkoxide to propan-2-ol",
   "expect": {

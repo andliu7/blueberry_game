@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-e1-dehydrohalogenation-of-tert-butyl-bromide-in-water",
   "title": "Tert-butyl bromide ionises, then water removes a beta proton from the cation to give 2-methylpropene, the E1 route that shares its first step with SN1",
   "expect": {

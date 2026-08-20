@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-e1cb-elimination-of-a-beta-hydroxy-ketone-to-an-enone",
   "title": "Hydroxide removes the alpha proton of 4-hydroxybutan-2-one, and the carbanion expels hydroxide from the beta carbon to give but-3-en-2-one",
   "expect": {

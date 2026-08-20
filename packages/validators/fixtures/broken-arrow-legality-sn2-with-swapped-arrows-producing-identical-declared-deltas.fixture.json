@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-arrow-legality-sn2-with-swapped-arrows-producing-identical-declared-deltas",
   "title": "Bromide displaces chloride from chloromethane, drawn with two arrows that are individually chemically impossible but whose aggregate per atom and per bond declared deltas equal the correct mechanism's",
   "expect": {

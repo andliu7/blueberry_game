@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "good-imine-formation-from-acetaldehyde-and-methylamine",
   "title": "Methylamine adds to acetaldehyde, a proton moves from nitrogen to oxygen, acid protonates the hydroxyl, water leaves to the iminium, and water takes the last proton off nitrogen",
   "expect": {

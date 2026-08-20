@@ -1,13 +1,14 @@
 {
   "schemaVersion": 2,
-  "id": "good-e2-anti-periplanar-ethoxide-and-2-bromobutane",
-  "title": "Ethoxide removes the C3 proton of 2-bromobutane anti periplanar to the leaving bromide, giving but-2-ene in one concerted three arrow step",
+  "id": "broken-annotation-e2-torsion-declared-over-atoms-that-are-not-a-bonded-chain",
+  "title": "The reference anti periplanar E2 whose declared torsion names its four reaction centres in an order that is not a bonded chain, so it defines no dihedral",
   "expect": {
-    "kind": "good",
-    "note": "The reference E2. Three arrows, one barrier: base to hydrogen, the C to H bond into the forming pi bond, and the C to Br bond onto bromide. The proton is explicit as H1 because it moves and no arrow can express a change in an implicit hydrogen count. The dihedral is now data rather than prose: schema v2 carries declaredTorsions, and conservation-periplanarity-declaration reads the 180 degrees below. This fixture is the anti control for that check, and it carries NO conformational_justification annotation on purpose. An anti periplanar E2 needs no conformational defence, only a syn one does, and a corpus where both sides carried the same annotation would not show that the check tells them apart. Syn periplanar E2 is authored separately as good-e2-syn-periplanar-in-a-conformationally-locked-norbornane."
+    "kind": "broken",
+    "mustFail": ["conservation-periplanarity-declaration"],
+    "note": "NEGATIVE CONTROL for conservation-periplanarity-declaration, dihedral shape arm. The torsion names H1, C3, Br1, C2: all four are reaction centres of the step, all four are atoms of the substrate, and the angle beside them still says 180. It is still not a dihedral, because C3 and Br1 are not bonded and the two planes a dihedral is measured between therefore do not exist. This is the failure a spelling mistake in an atom list produces, and without this arm it would read as a perfectly anti periplanar elimination: the number is right, the atoms are all real, and only the connectivity gives it away. The periplanarity arm is deliberately not run on a torsion that failed shape, so this fires once rather than twice."
   },
   "pathway": {
-    "id": "e2-ethoxide-2-bromobutane-anti",
+    "id": "e2-ethoxide-2-bromobutane-torsion-not-a-chain",
     "route": "e2",
     "steps": [
       {
@@ -43,7 +44,7 @@
                 ],
                 "declaredTorsions": [
                   {
-                    "atoms": ["H1", "C3", "C2", "Br1"],
+                    "atoms": ["H1", "C3", "Br1", "C2"],
                     "degrees": 180,
                     "justification": "The reacting conformer, not the only one. 2-bromobutane rotates freely about C2 to C3, and this fixture authors the rotamer the elimination happens in: H1 anti periplanar to bromide at 180 degrees, so the C to H sigma bond and the C to Br sigma star are aligned in one plane on opposite sides. That alignment is why anti is strongly preferred, and the rotation barrier is small enough that the substrate reaches this rotamer freely. Stated rather than computed, because this schema carries no coordinates and a conformer population is not something a fixture can derive."
                   }

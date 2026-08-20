@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "broken-spectator-declaration-laundering-a-redox-transfer-through-two-swapped-counterions",
   "title": "A genuine SN2 with a one electron transfer from a sodium counterion to a fluoride counterion hidden by declaring the before and after forms of each as two different spectator species",
   "expect": {
