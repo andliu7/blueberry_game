@@ -174,6 +174,13 @@ export const CONSERVATION_CHECK_NAMES = [
 
 export type ConservationCheckName = (typeof CONSERVATION_CHECK_NAMES)[number];
 
+/**
+ * The loader's own check name, defined here rather than in family.ts because this file
+ * owns the check name list and parseExpectation needs it. family.ts re-exports it, so
+ * existing importers are unaffected and there is still one definition.
+ */
+export const LOADER_CHECK_NAME: ConservationCheckName = "conservation-fixture-schema";
+
 function isConservationCheckName(value: string): value is ConservationCheckName {
   return (CONSERVATION_CHECK_NAMES as readonly string[]).includes(value);
 }
@@ -868,6 +875,28 @@ function parseExpectation(raw: unknown, at: string): FixtureExpectation {
   }
   if (kind === "broken" && note.trim() === "") {
     throw new FixtureError(at, "a broken fixture must carry a note saying what is wrong with it");
+  }
+
+  // A fixture the loader must refuse cannot also claim to be another check's control.
+  //
+  // Found by the Phase 5 adversary. A refused fixture never becomes a LoadedFixture, so
+  // no other check's find() ever runs on it. Every check in the family sees the load
+  // error, confirms the loader refusal was declared, and skips, so a second name sitting
+  // beside the loader name is accepted syntactically and then verified by nothing. The
+  // suite stays green either way and the claim reads as tested.
+  //
+  // Every other entry in mustFail is a claim the suite actually tests. This one was not,
+  // which makes it the same class of defect as a check with no negative control: it looks
+  // like evidence and is not. Rejecting it at parse time keeps mustFail meaning one thing.
+  if (mustFail.includes(LOADER_CHECK_NAME) && mustFail.length > 1) {
+    const others = mustFail.filter((name) => name !== LOADER_CHECK_NAME);
+    throw new FixtureError(
+      `${at}.mustFail`,
+      `declares "${LOADER_CHECK_NAME}", so this fixture is refused by the loader and never ` +
+        `becomes a pathway. ${others.map((name) => `"${name}"`).join(", ")} therefore ` +
+        `cannot be exercised against it and would be a claim nothing verifies. Name the ` +
+        `loader alone, or make the fixture loadable so the other check can actually run`,
+    );
   }
 
   return { kind, mustFail, note };

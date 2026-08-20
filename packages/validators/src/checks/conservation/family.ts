@@ -14,6 +14,7 @@ import {
   type ConservationCheckName,
   type FixtureLoadError,
   type LoadedFixture,
+  LOADER_CHECK_NAME,
 } from "./fixture-schema.ts";
 
 /**
@@ -53,7 +54,7 @@ import {
  * the output rather than only in a diff. Narrowing it further would mean matching the
  * message text, and a check that greps its own error strings breaks on rewording.
  */
-export const LOADER_CHECK_NAME: ConservationCheckName = "conservation-fixture-schema";
+export { LOADER_CHECK_NAME };
 
 /** Did this fixture declare, in its own file, that the loader must refuse it? */
 export function declaresLoaderRefusal(error: FixtureLoadError): boolean {
