@@ -267,6 +267,25 @@ A synthesis question is the reagent shape read backwards: the product is given a
 the answer. It is not a fifth shape, and it must not become one, because retrosynthesis grading is the
 same comparison run in the other direction.
 
+## Every control acknowledges the press, before any work happens
+
+Owner requirement, recorded 2026-08-20. This is the UX contract for every interactive element in
+both shells, and it is what the 100 ms interaction budget means in practice.
+
+- Every button has a pressed state that renders on pointer down, not on completion. The press itself
+  is the first frame of feedback, always, even when the action then takes time.
+- Nothing waits silently. If the action loads, the acknowledgement continues immediately as a loading
+  affordance: the button itself enters a loading state, or the destination renders as a skeleton.
+  Which one is a per-surface design choice; that there is one is not.
+- A blank rectangle is never a loading state. This is already the rule for lazy loaded routes in the
+  non-negotiables, and it applies at button scale too.
+- The pressed state is on the interaction budget: pointer down to visible acknowledgement is part of
+  the under 100 ms row, and Phase 4's headless frame measurement should include it.
+
+The interaction package already carries the hooks for this: notices are emitted synchronously on
+pointer down, so a shell has what it needs to acknowledge before any async work begins. A shell that
+waits for a server round trip before rendering the press has ignored this section.
+
 ## Feedback: every step explains itself, and almost none of it costs a token
 
 Every step in the Mechanism Trainer gives feedback and an explanation. Not only wrong steps. A
