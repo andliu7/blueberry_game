@@ -13,6 +13,13 @@
  * document, history included, because a cancelled drag is not an action the
  * student took, and leaving its arming on the undo stack would make the next
  * undo appear to do nothing.
+ *
+ * That restore is conditional, and the condition is the point: a session may
+ * only reinstate its snapshot while its own press is still the last thing that
+ * changed the document. Otherwise the snapshot is a photograph of a document
+ * that no longer exists, and putting it back would delete whatever committed in
+ * the meantime with nothing on this stack to recover it from. machine.ts owns
+ * that guard; see "WHAT R3 MAY AND MAY NOT TAKE BACK" in its header.
  */
 
 import type { ShapeDraft } from "./shapes/index.js";

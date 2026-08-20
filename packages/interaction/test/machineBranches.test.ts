@@ -283,6 +283,7 @@ describe("the notice registry", () => {
       unknown_pointer_ignored: true,
       timestamp_went_backwards: true,
       drag_cancelled: true,
+      rollback_skipped_newer_work: true,
       backgrounded_mid_drag: true,
       drag_ended_on_its_own_source: true,
       target_was_ambiguous: true,

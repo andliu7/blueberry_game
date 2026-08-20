@@ -38,6 +38,13 @@ export type NoticeId =
   | "unknown_pointer_ignored"
   | "timestamp_went_backwards"
   | "drag_cancelled"
+  /**
+   * A rollback was asked for and deliberately not applied, because the session
+   * asking for it was no longer the last thing that changed the document. The
+   * student lost nothing; this names the fact that a cancel declined to delete
+   * work it did not do. See machine.ts, "WHAT R3 MAY AND MAY NOT TAKE BACK".
+   */
+  | "rollback_skipped_newer_work"
   | "backgrounded_mid_drag"
   | "drag_ended_on_its_own_source"
   | "target_was_ambiguous"
@@ -92,6 +99,7 @@ export const ALL_NOTICE_IDS: readonly NoticeId[] = [
   "unknown_pointer_ignored",
   "timestamp_went_backwards",
   "drag_cancelled",
+  "rollback_skipped_newer_work",
   "backgrounded_mid_drag",
   "drag_ended_on_its_own_source",
   "target_was_ambiguous",

@@ -12,8 +12,12 @@
  *   R1  Every pointerDown selects whatever is under it.
  *   R2  Every pointerUp selects whatever is under it, but ONLY if that is a
  *       different target from the one the press was on.
- *   R3  Every pointerCancel selects nothing and puts the document back exactly
- *       as it was before R1 fired for that pointer.
+ *   R3  Every pointerCancel selects nothing and undoes ITS OWN pointer's press,
+ *       and nothing else. Precisely: it restores the document to the state it
+ *       was in immediately before R1 fired for that pointer, but only while
+ *       that press is still the last thing that changed the document. If
+ *       anything has committed since, the cancel restores nothing at all and
+ *       says so by name. See "WHAT R3 MAY AND MAY NOT TAKE BACK" below.
  *
  * A tap is the case where R2 finds the same target and does nothing. A drag is
  * the case where it finds a different one. There is no tap branch, no drag
@@ -36,6 +40,58 @@
  * opinion on the same question, tuned by hand, and the two would disagree at the
  * worst moment. `maxDistanceFromDown` is recorded for renderers, never read for
  * a decision.
+ *
+ * WHAT R3 MAY AND MAY NOT TAKE BACK.
+ *
+ * R3 used to be written as "puts the document back exactly as it was before R1
+ * fired for that pointer", and it was implemented by capturing the whole
+ * document at press time and reassigning it on cancel. That sentence is only
+ * true when the pointer's press is the last thing that happened. It is a data
+ * loss bug the moment it is not, because the capture is a photograph of the
+ * whole document, not a record of what this pointer did, and reinstating it
+ * deletes everything anyone else committed in the meantime. There is no undo
+ * for that: a cancelled session is not an action the student took, so it never
+ * goes on the undo stack, so there is nothing to press undo on afterwards.
+ *
+ * "Anyone else" is not hypothetical and does not need two fingers. `command`
+ * events are the pointer free entry point, and a keyboard, a switch device, a
+ * screen reader action or a button in the shell's own chrome can commit a whole
+ * arrow while a pointer sits on the glass. `setShape` can swap the answer shape
+ * underneath a live session. A student can hit undo one handed. Every one of
+ * those lands on the document with no pointer session involved.
+ *
+ * So the rule is: A SESSION MAY ROLL BACK ONLY ITS OWN WORK, AND ONLY WHILE
+ * THAT WORK IS STILL THE LAST WORD ON THE DOCUMENT.
+ *
+ * That is cheap to enforce here because the machine already guarantees a
+ * session touches the document exactly once. R1 applies one command at press.
+ * Moves apply nothing, by construction, and R2 removes the session before it
+ * applies anything. So a session's press is its only edit, and any later change
+ * to `state.doc` is by definition somebody else's. Each session therefore
+ * carries two documents: `snapshot`, the one before its press, and
+ * `documentAfterOwnPress`, the one its press left behind. A rollback is allowed
+ * exactly while `state.doc` is still that same object, and every one of the
+ * four places that asks for a rollback goes through the one guard in
+ * `dropSession`, so no call site can forget it.
+ *
+ * WHAT THIS COSTS THE STUDENT, which is the argument for it.
+ *
+ * The case being traded is a palm brushing the glass while a lone pair is armed
+ * and something else commits. Before: the commit is destroyed, silently and
+ * unrecoverably. After: nothing is destroyed, and what can be left behind is at
+ * worst the student's own arming, still highlighted, when the newer commit did
+ * not consume it. That is a highlight, cleared by one tap on empty space or one
+ * Escape. Losing a highlight costs a tap. Losing a completed arrow costs the
+ * work, with no undo entry to recover it from.
+ *
+ * The alternative considered and rejected was to snapshot only the selection
+ * layer rather than the whole document, so a cancel would clear the arming and
+ * leave everything else. It does not hold, because R1 does not only ever arm:
+ * pressing a sink while something is armed COMMITS AN ARROW at press time, and
+ * pressing a bare atom toggles its lone pairs. A selection only snapshot would
+ * leave those committed after a cancel, which breaks the ordinary lone pointer
+ * case that R3 exists for. It would also need machine.ts to ask a shape to put
+ * a selection back, and machine.ts contains no shape name on purpose.
  *
  * WHY ONE POINTER OWNS THE MACHINE.
  *
@@ -93,6 +149,19 @@ export interface PointerSession {
   readonly lastTimestampMs: number;
   /** The document as it was before this session touched it. R3 restores this. */
   readonly snapshot: DocumentState;
+  /**
+   * The document this session's press left behind, which for an ignored session
+   * is the same object as `snapshot` because it pressed nothing.
+   *
+   * This is the staleness check R3 turns on. While `state.doc` is still this
+   * exact object, this session's press is the last thing that changed the
+   * document and `snapshot` is an accurate record of undoing it. The moment it
+   * is not, somebody else has committed and `snapshot` would delete their work.
+   * Reference identity is the whole test: every document here is frozen and
+   * replaced rather than mutated, and a command that changes nothing returns the
+   * document it was given, so a refused arrow does not invalidate anything.
+   */
+  readonly documentAfterOwnPress: DocumentState;
 }
 
 export interface InteractionState {
@@ -174,13 +243,15 @@ function onPointerDown(
   // cancelled rather than carrying two sessions with the same id.
   const stale = findSession(working, pointer.pointerId);
   if (stale !== undefined) {
-    working = dropSession(working, stale, { restore: stale.role === "owner" });
+    const dropped = dropSession(working, stale, { rollback: true });
+    working = dropped.state;
     notices.push(
       notice(
         "stale_pointer_session_replaced",
         "info",
         `pointer ${pointer.pointerId} went down twice without an up`,
       ),
+      ...dropped.notices,
     );
   }
 
@@ -204,14 +275,18 @@ function onPointerDown(
   if (owner !== undefined) {
     const penTakesOver = pointer.pointerType === "pen" && owner.pointerType === "touch";
     if (penTakesOver) {
-      // The hand resting on the iPad loses to the Pencil. R3 on the touch.
-      working = dropSession(working, owner, { restore: true });
+      // The hand resting on the iPad loses to the Pencil. R3 on the touch, with
+      // R3's staleness guard, so the Pencil arriving cannot delete an arrow the
+      // student completed by some other route while their hand was resting.
+      const dropped = dropSession(working, owner, { rollback: true });
+      working = dropped.state;
       notices.push(
         notice(
           "pen_preempted_touch",
           "info",
-          `pen ${pointer.pointerId} took over from touch ${owner.pointerId}, whose selection was rolled back`,
+          `pen ${pointer.pointerId} took over from touch ${owner.pointerId}, which was cancelled`,
         ),
+        ...dropped.notices,
       );
     } else {
       notices.push(
@@ -236,8 +311,18 @@ function onPointerDown(
 
   // R1.
   const applied = applyCommand(working, { kind: "selectTarget", target: hit.primary }, env);
+
+  // The press is this session's only edit to the document, so record what it
+  // left behind. Everything that changes `state.doc` after this point belongs to
+  // somebody else, and that is what makes R3's rollback guard exact rather than
+  // a heuristic.
+  const pressed = replaceSession(
+    applied.state,
+    Object.freeze({ ...session, documentAfterOwnPress: applied.state.doc }),
+  );
+
   return {
-    state: applied.state,
+    state: pressed,
     notices: [...notices, ...ambiguityNotices(hit, applied.state.commandSeq), ...applied.notices],
     effects: applied.effects,
   };
@@ -307,7 +392,7 @@ function onPointerUp(
   }
 
   const hit = hitTest(state, pointer, env);
-  const working = dropSession(state, session, { restore: false });
+  const working = dropSession(state, session, { rollback: false }).state;
 
   if (session.role !== "owner") {
     return { state: working, notices, effects: [] };
@@ -341,19 +426,23 @@ function onPointerCancel(state: InteractionState, pointer: PointerInput): Transi
     return { state, notices: [unknownPointer(pointer.pointerId, "cancel")], effects: [] };
   }
 
-  // R3. Everything this session did goes back, history included.
-  const working = dropSession(state, session, { restore: session.role === "owner" });
+  // R3. This session's own press goes back, history included, and nothing else
+  // does. `dropSession` decides whether the rollback is still safe to apply.
+  const dropped = dropSession(state, session, { rollback: true });
   const notices =
     session.role === "owner"
       ? [
           notice(
             "drag_cancelled",
             "info",
-            `pointer ${pointer.pointerId} was cancelled by the platform; the document was rolled back`,
+            dropped.rolledBack
+              ? `pointer ${pointer.pointerId} was cancelled by the platform; its own press was rolled back`
+              : `pointer ${pointer.pointerId} was cancelled by the platform; its press was already superseded, so the document was left alone`,
           ),
+          ...dropped.notices,
         ]
       : [];
-  return { state: working, notices, effects: [] };
+  return { state: dropped.state, notices, effects: [] };
 }
 
 function onBackgrounded(state: InteractionState): Transition {
@@ -361,18 +450,25 @@ function onBackgrounded(state: InteractionState): Transition {
     return { state, notices: [], effects: [] };
   }
 
-  // Every live session is cancelled. The owner's snapshot is the one that
-  // matters, because ignored sessions never changed anything.
+  // Every live session is cancelled. Only the owner can have a rollback, because
+  // ignored sessions never changed anything, and that rollback runs through the
+  // same R3 guard a pointerCancel does: an incoming phone call is not a licence
+  // to delete an arrow the student finished while the pointer sat on the glass.
   const owner = ownerSession(state);
-  const doc = owner === undefined ? state.doc : owner.snapshot;
+  const dropped =
+    owner === undefined
+      ? { state, rolledBack: false, notices: [] as readonly InteractionNotice[] }
+      : dropSession(state, owner, { rollback: true });
+
   return {
-    state: Object.freeze({ ...state, doc, sessions: Object.freeze([]) }),
+    state: Object.freeze({ ...dropped.state, sessions: Object.freeze([]) }),
     notices: [
       notice(
         "backgrounded_mid_drag",
         "info",
         `the app lost the foreground with ${state.sessions.length} pointer(s) down; all were cancelled`,
       ),
+      ...dropped.notices,
     ],
     effects: [],
   };
@@ -568,6 +664,10 @@ function buildSession(
     downTimestampMs: pointer.timestampMs,
     lastTimestampMs: pointer.timestampMs,
     snapshot: state.doc,
+    // Overwritten for the owner as soon as R1 has applied. Until then the two
+    // are the same document, which is exactly right: a session that has not
+    // pressed anything yet has nothing to take back.
+    documentAfterOwnPress: state.doc,
   });
 }
 
@@ -590,17 +690,63 @@ function replaceSession(state: InteractionState, session: PointerSession): Inter
   });
 }
 
+/**
+ * What happened when a session was removed, so a call site can say which.
+ */
+interface SessionDrop {
+  readonly state: InteractionState;
+  /** True only when the session's snapshot was actually reinstated. */
+  readonly rolledBack: boolean;
+  /** Non empty only when a rollback was asked for and refused as stale. */
+  readonly notices: readonly InteractionNotice[];
+}
+
+/**
+ * Remove a session, and roll the document back to its snapshot ONLY when that
+ * snapshot is still an accurate record of undoing this session's own press.
+ *
+ * This is the single guard R3 rests on, and the four call sites that ask for a
+ * rollback (a cancel, the app losing the foreground, a pointer id reused after a
+ * dropped up, and a pen preempting a touch) all reach it. See "WHAT R3 MAY AND
+ * MAY NOT TAKE BACK" in the header. `rollback: false` is the release path, which
+ * has nothing to undo because the release is the student finishing on purpose.
+ */
 function dropSession(
   state: InteractionState,
   session: PointerSession,
-  options: { readonly restore: boolean },
-): InteractionState {
-  const sessions = state.sessions.filter((existing) => existing.pointerId !== session.pointerId);
-  return Object.freeze({
-    ...state,
-    doc: options.restore ? session.snapshot : state.doc,
-    sessions: Object.freeze(sessions),
-  });
+  options: { readonly rollback: boolean },
+): SessionDrop {
+  const sessions = Object.freeze(
+    state.sessions.filter((existing) => existing.pointerId !== session.pointerId),
+  );
+
+  // An ignored session never applied a command, so there is never anything of
+  // its own to take back and its snapshot is not a rollback target.
+  const wanted = options.rollback && session.role === "owner";
+
+  if (wanted && state.doc !== session.documentAfterOwnPress) {
+    return {
+      state: Object.freeze({ ...state, sessions }),
+      rolledBack: false,
+      notices: [
+        notice(
+          "rollback_skipped_newer_work",
+          "info",
+          `the rollback for pointer ${session.pointerId} was skipped: the document changed after that pointer's press, so reverting it would have deleted work the pointer did not do`,
+        ),
+      ],
+    };
+  }
+
+  return {
+    state: Object.freeze({
+      ...state,
+      doc: wanted ? session.snapshot : state.doc,
+      sessions,
+    }),
+    rolledBack: wanted,
+    notices: [],
+  };
 }
 
 function bumpSeq(state: InteractionState, seq: CommandSeq): InteractionState {
