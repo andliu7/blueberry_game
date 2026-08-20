@@ -120,6 +120,12 @@ toggle implicit hydrogens. Drag from source to sink to draw a curved arrow with 
 guide, which the committed capture extra/x01 shows. Bond end handles are the drag target rather than
 the bond body, which extra/x02 shows.
 
+FOUR ANSWER SHAPES, NOT ONE. See the table in CLAUDE.md. The state machine accepts a mechanism
+drawing, a structure, a reagent set or ordered sequence, and a ranked choice among candidate products.
+Only the first exists in chem-core today, so design the other three as input modes now and let Phase 3
+supply their grading. A state machine built only for dragging arrows has to be rebuilt to take a
+reagent list, and rebuilding this phase after Phase 3 depends on it is the expensive path.
+
 Three pointer types, not two: mouse, touch, and pen. Pen is pointerType pen with pressure read and
 palm rejection through touch-action none. iPad Safari with an Apple Pencil is a named target.
 
@@ -142,6 +148,10 @@ packages/curriculum: an authored problem schema, answer checking, and mastery ma
 Chemistry I and II, Organic Chemistry I and II, and DAT and MCAT scope. Numeric answers with
 significant figures and units. Multiple choice. Structure answers, which may call chem-core.
 Balanced equations. Titration curve reading. Spectra interpretation.
+
+The three non mechanism answer shapes from CLAUDE.md are implemented here: predict the product,
+supply the reagents including the ordered synthesis case, and pick the major product with its reason.
+A synthesis is the reagent shape read backwards and must not become a fifth shape.
 
 Tier 2 feedback is authored here: every problem carries predicted wrong answers with their own
 authored explanation, matched on answer state rather than on prose. These are the mistakes an

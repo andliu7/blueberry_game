@@ -236,6 +236,36 @@ and still short of this. Treat it as a starting point, not the target.
 Every one of the four carries a named cause. The bar shows a yellow triangle and nothing else. That
 gap is the win condition on the feedback axis.
 
+## Four answer shapes, not one
+
+A question is not only a prompt. It is an answer SHAPE, and the shape decides what the student
+touches on screen and what the engine compares against. There are four, and only the first is built.
+
+| Shape | The student supplies | Graded against |
+|---|---|---|
+| **Mechanism** | Curved arrows across one or more steps | `chem-core`, the four result types |
+| **Predict the product** | A structure | Canonical structure equivalence, Indigo on lazy routes |
+| **Supply the reagents** | A reagent set, and for a synthesis an ordered sequence of them | An authored reagent answer with accepted equivalents |
+| **Major product** | A choice among candidate products, and the reason it wins | The authored major product plus the ranking argument |
+
+`StudentAttempt.built` is a `MechanismStep` today, so the engine understands exactly one of these.
+That is a real gap and it is recorded here rather than discovered in Phase 3.
+
+The chemistry the other three test is already in the cause registry: `regiochemistry_contradicts_stability`
+is Markovnikov, `attacked_wrong_electrophilic_site` is 1,2 against 1,4, `skipped_favourable_rearrangement`
+is the cation that shifts before it is trapped, and `route_requires_conditions_not_present` is about
+reagents. What is missing is the answer shape, not the reasoning.
+
+**Phase 2 must design the interaction layer for four input modes, not one.** That is the whole reason
+this is written down now. A state machine built only for dragging arrows has to be rebuilt to accept a
+structure, a reagent list, or a ranked choice, and rebuilding Phase 2 after Phase 3 depends on it is
+the expensive version of this decision. Phase 3 implements the three non mechanism shapes in
+`packages/curriculum`.
+
+A synthesis question is the reagent shape read backwards: the product is given and the reagents are
+the answer. It is not a fifth shape, and it must not become one, because retrosynthesis grading is the
+same comparison run in the other direction.
+
 ## Feedback: every step explains itself, and almost none of it costs a token
 
 Every step in the Mechanism Trainer gives feedback and an explanation. Not only wrong steps. A
