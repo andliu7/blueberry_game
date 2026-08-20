@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { LoadedFixture } from "../src/checks/conservation/fixture-schema.ts";
+import { isConservationFamilyCheck } from "../src/checks/conservation/family.ts";
 import { conservationStepIdentity } from "../src/checks/conservation/step-identity.ts";
 
 /**
@@ -28,7 +29,13 @@ function fixtureOf(...steps: unknown[]): LoadedFixture {
   return { pathway: { steps } } as unknown as LoadedFixture;
 }
 
+// Narrowed rather than asserted. `conservationStepIdentity` is typed `Check`, which has
+// no `find`; only a `ConservationFamilyCheck` does. This used to compile because tests/
+// was never type checked, so the call was reaching a member the type does not declare.
 function causesOf(fixture: LoadedFixture): readonly string[] {
+  if (!isConservationFamilyCheck(conservationStepIdentity)) {
+    throw new Error("conservation-step-identity is no longer a conservation family check");
+  }
   return conservationStepIdentity.find(fixture).map((violation) => violation.cause);
 }
 

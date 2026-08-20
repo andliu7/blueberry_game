@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 196,
-  "suiteHash": "29886b0088a92cffed9715aa7ca139cdc11679b5234def11f6e11a2895b6cdfe",
+  "fileCount": 197,
+  "suiteHash": "43a6cf525e8774b5ab36ef76297d9f9fbd595cbc7b3989a346fab894f47f5432",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -212,10 +212,11 @@
     "tests/external-data-census-barrel-export-blind-spot.test.ts": "aaff9dc619d46e9655b3b286d5469e041bb365c78f0e563504744860b8827f14",
     "tests/external-data-declaration.test.ts": "c4e57759d68b1ca443b7049e7099b36a64762ec2cf5ad99c7fa280cda9228c0c",
     "tests/feedback-copy-coverage.test.ts": "5ba1664764f01cd14a54bcfe4bb9475aa84367224dc7c0a3b442b2d2077e2253",
-    "tests/rate-comparison-competing-routes-not-locked.test.ts": "dbbf3bff651c48e12e80f3d0623e2b846f75aeecb89c3cff9d0941b60b4168fe",
-    "tests/step-identity-cause-precision.test.ts": "129bbb8e3e378665bb328aa7d21dfd995296167f89c4a4e4991dee76c7606d97",
+    "tests/rate-comparison-competing-routes-not-locked.test.ts": "78913a8c6f48ed10992ddf97f14dd87132b224d8c1bdb278604483b5af3554c2",
+    "tests/step-identity-cause-precision.test.ts": "5db3538097a13a1d5adb42686d0c56511e9169b1589f3817a44b06ac4571ff08",
     "tests/stereo-descriptors-bond-kind.test.ts": "fd604f79ace2aa2c4df323e50532decc7f954702bd76dca669a84920b2b347f5",
-    "tsconfig.json": "24ec8ae744678fbc406cfbebf2dd4ef78cf7df2f0dbd292ffa599e97369fa4ee"
+    "tsconfig.json": "24ec8ae744678fbc406cfbebf2dd4ef78cf7df2f0dbd292ffa599e97369fa4ee",
+    "tsconfig.test.json": "7d527a6a90c55d5d3f6ee202e9d0f813ef842454f53f4997cab9017bb1366a15"
   },
   "externalData": {
     "declaredPackages": [

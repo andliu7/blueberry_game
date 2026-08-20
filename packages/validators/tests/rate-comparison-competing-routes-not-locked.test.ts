@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { isConservationFamilyCheck } from "../src/checks/conservation/family.ts";
+
 /**
  * ADVERSARY PASS TWO, PHASE 1. "ALSO WORTH PROBING" ITEM 1 IN THE BRIEF.
  *
@@ -168,6 +170,9 @@ describe("conservation-disfavoured-rate-comparison rule 4, and what actually gua
     const { conservationDisfavouredRateComparison } = await import(
       "../src/checks/conservation/rate-comparison.ts"
     );
+    if (!isConservationFamilyCheck(conservationDisfavouredRateComparison)) {
+      throw new Error("conservation-disfavoured-rate-comparison is no longer a family check");
+    }
     const violations = conservationDisfavouredRateComparison.find(
       neopentylSn2WithRateComparisonNaming(UNBELIEVED_ROUTE),
     );
@@ -203,6 +208,9 @@ describe("conservation-disfavoured-rate-comparison rule 4, with packages/feedbac
     const { conservationDisfavouredRateComparison } = await import(
       "../src/checks/conservation/rate-comparison.ts"
     );
+    if (!isConservationFamilyCheck(conservationDisfavouredRateComparison)) {
+      throw new Error("conservation-disfavoured-rate-comparison is no longer a family check");
+    }
     const violations = conservationDisfavouredRateComparison.find(
       neopentylSn2WithRateComparisonNaming(UNBELIEVED_ROUTE),
     );
