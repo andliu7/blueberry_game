@@ -62,6 +62,35 @@ import { censusFindings, scanImports, type ImportCensus } from "../src/integrity
  * As with the neighbouring test file, the keyword is assembled at runtime so this file's
  * own sample text is not itself counted as a real import by the census that scans this
  * package.
+ *
+ * =====================================================================================
+ * WHAT CLOSED IT, AND WHAT THIS FILE ASSERTS NOW.
+ *
+ * Everything above is the finding as it was filed and is left exactly as written, because
+ * it is the record of what the gap was. The assertions below are inverted: they now assert
+ * the closed behaviour, which is what the finding's own last paragraph asked for.
+ *
+ * The fix is in `valueBindingsOf` in src/integrity.ts, not in `censusFindings`. A bare
+ * `export * from "pkg"` is now recorded as the wildcard value binding "*", the same
+ * binding `import * as ns from "pkg"` has always produced, so the two wildcard forms are
+ * symmetric and everything downstream of the scanner works unchanged. `byPackage` is
+ * populated, and `censusFindings` reports `undeclared-package` off the same rule it always
+ * used.
+ *
+ * The adversary's own suggestion, walking `seenPackages` as well as `byPackage`, was
+ * considered and not taken. `seenPackages` deliberately holds every specifier seen at all,
+ * type only and side effect imports included, and the census's contract is about VALUES: a
+ * type is erased at runtime and carries no data the suite grades against, which is why a
+ * type only import contributes no bindings on purpose. Reporting `undeclared-package` off
+ * `seenPackages` would turn `import type { Foo } from "pkg"` into a hard stop and would
+ * print "is imported for its values ()" with nothing in the parentheses. `seenPackages` is
+ * also already the fallback that keeps a declared but type only package from reading as
+ * `declared-but-unused`, and one set cannot mean two different things in two rules. The
+ * scanner was wrong; the census was answering correctly the question it was asked.
+ *
+ * The two contrast cases below are kept and still pass unchanged. They are what proves the
+ * fix made the wildcard forms agree with each other rather than making everything fire.
+ * =====================================================================================
  */
 
 const KEYWORD = ["exp", "ort"].join("");
@@ -99,7 +128,7 @@ function censusFromSource(specimen: { readonly relativePath: string; readonly so
   return { byPackage, seenPackages };
 }
 
-describe("scanImports treats a bare wildcard re-export as carrying no value bindings", () => {
+describe("scanImports classifies all three wildcard forms as one wildcard value binding", () => {
   it("`export * as ns from` is classified, same as `import * as ns from`", () => {
     const sites = scanImports(`${KEYWORD} * as ns from "totally-new-external-package";`);
     expect(sites).toHaveLength(1);
@@ -112,40 +141,67 @@ describe("scanImports treats a bare wildcard re-export as carrying no value bind
     expect(sites[0]?.valueBindings).toEqual(["*"]);
   });
 
-  it("but bare `export * from`, with no `as` clause, is classified as carrying NO value bindings at all", () => {
+  it("and bare `export * from`, with no `as` clause, is classified the same way", () => {
     const sites = scanImports(`${KEYWORD} * from "totally-new-external-package";`);
     expect(sites).toHaveLength(1);
     expect(sites[0]?.specifier).toBe("totally-new-external-package");
-    // This is the gap. Semantically this line re-exports every named export of the
-    // package as a value any importer of this module can use. The scanner records it as
-    // exporting nothing.
+    // This was the gap. Semantically this line re-exports every named export of the
+    // package as a value any importer of this module can use, so it is at least as much a
+    // value import as the two forms above, and it is now recorded as the same binding.
+    expect(sites[0]?.valueBindings).toEqual(["*"]);
+  });
+
+  it("`export type * from` stays type only and still carries no value bindings", () => {
+    const sites = scanImports(`${KEYWORD} type * from "totally-new-external-package";`);
+    expect(sites).toHaveLength(1);
+    expect(sites[0]?.specifier).toBe("totally-new-external-package");
+    // The other side of the fix. A type only wildcard re-export carries no runtime value,
+    // so widening the wildcard branch must not widen this one with it.
     expect(sites[0]?.valueBindings).toEqual([]);
   });
 });
 
 describe(
-  "the consequence: a brand new external package, introduced only through a bare wildcard " +
-    "re-export, produces zero census findings",
+  "the consequence, now closed: a brand new external package, introduced only through a " +
+    "bare wildcard re-export, is reported as undeclared",
   () => {
-    it("seenPackages notices it, byPackage does not, and censusFindings reports nothing", () => {
+    it("seenPackages notices it, byPackage now does too, and censusFindings reports it", () => {
       const census = censusFromSource({
         relativePath: "src/checks/conservation/barrel.ts",
         source: `${KEYWORD} * from "totally-new-external-package";\n`,
       });
 
       expect(census.seenPackages.has("totally-new-external-package")).toBe(true);
-      expect(census.byPackage.has("totally-new-external-package")).toBe(false);
+      // Was false. The barrel now populates byPackage under the wildcard binding, which is
+      // the map censusFindings actually walks.
+      expect(census.byPackage.has("totally-new-external-package")).toBe(true);
+      expect([...(census.byPackage.get("totally-new-external-package")?.keys() ?? [])]).toEqual([
+        "*",
+      ]);
 
       const findings = censusFindings(census, []);
       const mentionsNewPackage = findings.some((finding) =>
         finding.detail.includes("totally-new-external-package"),
       );
-      // The gate this test is against: an entirely undeclared external package, freshly
-      // imported for its values via a barrel, is passed over in total silence. If this
-      // assertion ever starts failing because censusFindings learns to walk seenPackages
-      // as well as byPackage, that is the gap closing, not this test breaking.
-      expect(mentionsNewPackage).toBe(false);
-      expect(findings).toEqual([]);
+      // The gate this test now holds: an entirely undeclared external package, freshly
+      // imported for its values via a barrel, is a hard stop with its own status, exactly
+      // as it always was for a plain named import.
+      expect(mentionsNewPackage).toBe(true);
+      expect(findings.map((finding) => finding.kind)).toEqual(["undeclared-package"]);
+    });
+
+    it("a type only wildcard re-export of an undeclared package is still not a finding", () => {
+      const census = censusFromSource({
+        relativePath: "src/checks/conservation/types-barrel.ts",
+        source: `${KEYWORD} type * from "totally-new-external-package";\n`,
+      });
+
+      expect(census.seenPackages.has("totally-new-external-package")).toBe(true);
+      expect(census.byPackage.has("totally-new-external-package")).toBe(false);
+      // This is the case that walking seenPackages would have broken. A type carries no
+      // value the suite grades anything against, so requiring a classification for one
+      // would be friction with nothing on the other side of it.
+      expect(censusFindings(census, [])).toEqual([]);
     });
 
     it("contrast: the same new package, imported for one named value directly, IS caught", () => {

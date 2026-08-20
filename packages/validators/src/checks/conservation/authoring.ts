@@ -69,14 +69,49 @@ import type { Violation } from "./family.ts";
  * this rule adds no new burden to the common case. Two or more occurrences, and each
  * annotation has to say which one it is for.
  *
+ * WHAT AN ANNOTATION NAMING TWO OCCURRENCES MEANS. IT MEANS THE FILE DOES NOT SAY.
+ *
+ * This is the third pass adversary's finding, and it is the third appearance of one defect.
+ * The scope was wrong at pathway level, then wrong at occurrence level, and this is the
+ * structural answer rather than a third patch at a third scope.
+ *
+ * The rule that used to be here filtered the occurrences an annotation names and then
+ * pushed THE SAME annotation object onto each of their claim lists. One annotation naming
+ * two step ids therefore satisfied "exactly one claim here" at both of them, and
+ * `good-known-limit-one-racemisation-ratio-annotation-naming-both-sn1-captures-satisfies-both-occurrences`
+ * is that file: one authored sentence covering an SN1 capture at a carbon that is not
+ * stereogenic and an SN1 capture at a carbon with net inversion excess. Two chemically
+ * distinct centres with two different correct answers, and one claim on file said to be
+ * both of them.
+ *
+ * So the meaning enforced from here on is stated positively, and it is the only meaning
+ * that survives the two answers being different:
+ *
+ *   ONE ANNOTATION IS ONE CLAIM, AND ONE CLAIM IS ABOUT EXACTLY ONE OCCURRENCE.
+ *
+ * An annotation that names two occurrences is not two claims. It is one claim that does not
+ * say which place it is the claim for, which is the same failure as an annotation that
+ * names none of them, arrived at from the other side. So it satisfies NEITHER occurrence,
+ * and each occurrence it names reports that the only thing naming it is shared. The remedy
+ * is in the failure line and it is the boring one: write one annotation per occurrence.
+ *
+ * Note what is deliberately NOT done. The annotation is not consumed by the first
+ * occurrence it names, nor by the last, nor by the nearest. Those are the position
+ * heuristics the pass before this one rejected, and they are rejected here for the same
+ * reason: they silently pick a subject rather than reporting that the file does not name
+ * one. Nothing about that reasoning is undone. What changes is only that "names two" now
+ * resolves to zero satisfied occurrences instead of two.
+ *
  * WHAT THIS BINDING COSTS, STATED RATHER THAN HIDDEN.
  *
  * An annotation whose prose names a SIBLING occurrence's step id, for contrast rather than
- * as its subject, binds to both and is reported as a second claim about that sibling. The
- * remedy is in the failure line: name only the step this claim is about and refer to the
- * others by description. That is a real cost, and it is paid deliberately, because the
- * alternative readings, first id wins or last id wins, are position heuristics that would
- * silently pick a subject rather than reporting that the file does not say which.
+ * as its subject, binds to both and satisfies neither. When the sibling carries its own
+ * annotation as well, the sibling reports two claims about it; when the sibling carries
+ * nothing else, the sibling reports that the only thing naming it is shared. Either way the
+ * remedy is the same and is in the failure line: name only the step this claim is about and
+ * refer to the others by description. That is a real cost, and it is paid deliberately,
+ * because the alternative readings, first id wins or last id wins, are position heuristics
+ * that would silently pick a subject rather than reporting that the file does not say which.
  *
  * THE STRUCTURAL ALTERNATIVE, WHICH IS NOT TAKEN HERE AND SHOULD BE LATER.
  *
@@ -148,10 +183,15 @@ export function namesStep(text: string, stepId: string): boolean {
 }
 
 /**
- * The occurrences one annotation is a claim about.
+ * The occurrences one annotation NAMES.
  *
  * One occurrence in the pathway: that one, implicitly. More than one: those whose step id
- * the annotation names. See the binding note in the file docstring.
+ * the annotation names.
+ *
+ * Naming is not the same as being the claim for. An annotation that names two occurrences
+ * is the claim for neither, and that decision is made by the caller, not here, because it
+ * is a rule about cardinality rather than about reading. See the binding note in the file
+ * docstring.
  */
 export function boundOccurrences(
   annotation: AuthoredAnnotation,
@@ -165,8 +205,9 @@ export function boundOccurrences(
 /**
  * The presence, scope, and shape rules every required annotation is held to.
  *
- * Missing, unbound, duplicated at one occurrence, missing at one occurrence, empty value,
- * empty justification, and, when the caller supplies a vocabulary, ungrounded. Nothing
+ * Missing, unbound, duplicated at one occurrence, missing at one occurrence, shared across
+ * two occurrences and therefore the claim for neither, empty value, empty justification,
+ * and, when the caller supplies a vocabulary, ungrounded. Nothing
  * about content. The parser accepts an empty string on purpose, following the spectator
  * declaration precedent, so that the negative control for the empty case can exist on
  * disk; this is the half that refuses it.
@@ -194,13 +235,32 @@ export function requiredAnnotationViolations(
     return violations;
   }
 
-  // Scope. One claim per occurrence, and no claim about nothing.
-  const claims = new Map<string, AuthoredAnnotation[]>(
+  // Scope. One claim per occurrence, no claim about nothing, and no claim about two things.
+  //
+  // Two maps, and the difference between them is the whole rule. `naming` is every
+  // annotation that mentions this occurrence's step id at all, which is what the duplicate
+  // rule counts. `exclusive` is the annotations that mention this occurrence AND no other,
+  // which is what the "is this occurrence annotated" question is allowed to count. An
+  // annotation naming two occurrences appears in two `naming` lists and in no `exclusive`
+  // list, so it satisfies neither of them. See the binding note in the file docstring.
+  const naming = new Map<string, AuthoredAnnotation[]>(
     occurrences.map((occurrence) => [occurrence.stepId, []]),
   );
+  const exclusive = new Map<string, AuthoredAnnotation[]>(
+    occurrences.map((occurrence) => [occurrence.stepId, []]),
+  );
+  const alsoNamed = new Map<AuthoredAnnotation, readonly string[]>();
+
   for (const [index, annotation] of found.entries()) {
     const bound = boundOccurrences(annotation, occurrences);
-    for (const occurrence of bound) claims.get(occurrence.stepId)?.push(annotation);
+    alsoNamed.set(
+      annotation,
+      bound.map((occurrence) => occurrence.stepId),
+    );
+    for (const occurrence of bound) {
+      naming.get(occurrence.stepId)?.push(annotation);
+      if (bound.length === 1) exclusive.get(occurrence.stepId)?.push(annotation);
+    }
 
     if (bound.length === 0) {
       violations.push({
@@ -221,21 +281,8 @@ export function requiredAnnotationViolations(
   }
 
   for (const occurrence of occurrences) {
-    const mine = claims.get(occurrence.stepId) ?? [];
-
-    if (mine.length === 0) {
-      violations.push({
-        where: occurrence.where,
-        expected: `one "${required.kind}" annotation naming ${occurrence.stepId}`,
-        actual:
-          `the pathway carries ${found.length} annotation(s) of that kind and none of them names ` +
-          `this step, so this place is unannotated while another place is annotated twice or ` +
-          `not at all. ` +
-          required.because,
-        cause: required.cause,
-      });
-      continue;
-    }
+    const mine = naming.get(occurrence.stepId) ?? [];
+    const onlyMine = exclusive.get(occurrence.stepId) ?? [];
 
     if (mine.length > 1) {
       violations.push({
@@ -249,7 +296,46 @@ export function requiredAnnotationViolations(
           `only the step this claim is about`,
         cause: required.cause,
       });
+      continue;
     }
+
+    if (onlyMine.length === 1) continue;
+
+    // Exactly one annotation names this step and it names others too. That is one claim
+    // spread over places whose correct answers can differ, so it is the claim for none of
+    // them. This is the third pass adversary's finding and the reason `exclusive` exists.
+    if (mine.length === 1) {
+      const shared = mine[0] as AuthoredAnnotation;
+      const others = (alsoNamed.get(shared) ?? []).filter((stepId) => stepId !== occurrence.stepId);
+      violations.push({
+        where: occurrence.where,
+        expected:
+          `one "${required.kind}" annotation that is a claim about ${occurrence.stepId} and ` +
+          `about no other place in this pathway`,
+        actual:
+          `the only annotation naming this step, ${JSON.stringify(shared.value)}, also names ` +
+          `${others.join(", ")}. One annotation is one claim, and one claim cannot be the ` +
+          `authored answer at two chemically distinct places at once: those places can have ` +
+          `different correct answers, and a single sentence asserting both is not two claims, ` +
+          `it is one claim that does not say which place it is for. It is not read as ` +
+          `covering either. Write one ${required.kind} per place, each naming only its own ` +
+          `step id. ` +
+          required.because,
+        cause: required.cause,
+      });
+      continue;
+    }
+
+    violations.push({
+      where: occurrence.where,
+      expected: `one "${required.kind}" annotation naming ${occurrence.stepId}`,
+      actual:
+        `the pathway carries ${found.length} annotation(s) of that kind and none of them names ` +
+        `this step, so this place is unannotated while another place is annotated twice or ` +
+        `not at all. ` +
+        required.because,
+      cause: required.cause,
+    });
   }
 
   // Shape, and grounding when the caller asked for it. Per annotation, whatever it bound to.

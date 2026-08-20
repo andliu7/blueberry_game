@@ -546,7 +546,47 @@ export function scanImports(source: string): readonly ImportSite[] {
   return sites;
 }
 
-/** Parse an import clause into the exported names it pulls in for their values. */
+/**
+ * Parse an import clause into the exported names it pulls in for their values.
+ *
+ * THE WILDCARD CASES, WHICH IS WHERE THE THIRD PASS ADVERSARY FOUND A HOLE.
+ *
+ * Three shapes carry a wildcard, and all three make every named export of the other module
+ * reachable from this one as a value:
+ *
+ *     import * as ns from "pkg"     a namespace object bound locally
+ *     export * as ns from "pkg"     the same object, re-exported
+ *     export * from "pkg"           every named export re-exported one at a time
+ *
+ * The first two were recorded as the binding "*". The third was recorded as NOTHING,
+ * because the only wildcard branch here required the literal keyword `as`, so the lone "*"
+ * fell through to the plain identifier test and matched neither. The caller then skipped
+ * the site entirely on `valueBindings.length === 0`, so a wholly undeclared external
+ * package introduced by one bare `export *` produced no census finding at all: not
+ * undeclared-package, not undeclared-binding, nothing.
+ *
+ * The fix is here rather than in `censusFindings`, and the reason is that this was a
+ * SCANNER defect and not a census defect. `censusFindings` was asked the wrong question:
+ * it was told the barrel imported no values, and it answered correctly for what it was
+ * told. The adversary's own suggestion, walking `seenPackages` as well as `byPackage`,
+ * would have made the census right about this one case by making it wrong about two
+ * others. `seenPackages` deliberately holds every specifier seen AT ALL, type only and
+ * side effect imports included, and the census's stated contract is about VALUES: a type
+ * is erased at runtime and cannot carry data the suite grades against, which is why a type
+ * only import contributes no bindings on purpose. Reporting `undeclared-package` off
+ * `seenPackages` would turn `import type { Foo } from "pkg"` into a hard stop, and the
+ * finding's own wording, "is imported for its values (...)", would be false with an empty
+ * binding list inside the parentheses. `seenPackages` also already has a second job, as
+ * the fallback that keeps a declared but type only package from reading as
+ * declared-but-unused, and one set cannot mean "seen" in one rule and "imported for its
+ * values" in another.
+ *
+ * So a bare `export *` is recorded as the wildcard binding "*", exactly as `import * as`
+ * already was. The two forms then behave identically everywhere downstream, including the
+ * per binding classification a `mixed` package requires, and nothing else in this file
+ * changes. `export type * from "pkg"` stays type only and stays empty, because the clause
+ * begins with `type` and is refused at the top of this function.
+ */
 function valueBindingsOf(rawClause: string): readonly string[] {
   const clause = rawClause.trim();
   if (/^type\b/.test(clause)) return [];
@@ -562,7 +602,9 @@ function valueBindingsOf(rawClause: string): readonly string[] {
   for (const piece of head.split(",")) {
     const item = piece.trim().replace(/,$/, "").trim();
     if (item === "") continue;
-    if (/^\*\s+as\s+/.test(item)) {
+    // `* as ns`, and the bare `*` of a wildcard re-export. Both make every named export of
+    // the other module reachable through this one, so both are the same wildcard binding.
+    if (item === "*" || /^\*\s+as\s+/.test(item)) {
       found.push("*");
       continue;
     }

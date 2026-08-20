@@ -251,6 +251,50 @@ which is every such fixture in the corpus except the three above, the binding is
 nothing needs to be written. The structural alternative, an `appliesTo` field on the annotation
 plus a schema v3, is a chem-core change and is recorded in `authoring.ts` rather than made.
 
+### Changed by the Phase 1 builder pass four
+
+The third pass adversary filed four findings, one against the integrity mechanism itself and
+three against the conservation family. All four are closed. The three that live in this
+directory were filed `good` because that is what the suite said about them at the time, and all
+three are now `broken`. Each keeps `known-limit` in its name so the lineage is readable, and each
+note now carries a closing paragraph saying what catches it and what is still open. The check
+count is unchanged at twelve: no new check was needed, two existing checks got a rule they were
+missing, and one shared function had a scoping defect fixed structurally.
+
+| Now | `mustFail` | What now catches it |
+|---|---|---|
+| `broken-known-limit-one-racemisation-ratio-annotation-naming-both-sn1-captures-satisfies-both-occurrences` | stereorandom | One annotation is one claim about exactly one occurrence. An annotation naming two occurrences is the claim for neither, so both captures report that the only sentence naming them is shared. |
+| `broken-known-limit-acyl-substitution-addition-and-elimination-collapsed-into-one-connected-step` | step-elementarity | Rule B, new: no pair of atoms both loses bonding and gains bonding inside one step. Arrows a2 and a3 take the C2=O1 pi bond apart and put it back, and the state between them is the tetrahedral intermediate the file never writes down. |
+| `broken-known-limit-sn2-at-a-secondary-carbon-directly-adjacent-to-a-quaternary-carbon-not-recognised-as-hindered` | rate-comparison | The steric model is now the geometry rather than the worked example: a carbon under attack with any carbon neighbour carrying three further carbons. The attacked carbon's own substituent count is reported and no longer gates the test. |
+
+THE ANNOTATION BINDING RULE, THIRD AND STRUCTURAL VERSION. The scope defect in
+`requiredAnnotationViolations` was fixed at pathway scope, then at occurrence scope, and the
+third variant was that one annotation object was pushed onto every bound occurrence's claim list,
+so a sentence naming two step ids satisfied the exactly-one rule at both. `authoring.ts` now
+separates the annotations that NAME an occurrence from the annotation that is the CLAIM FOR it:
+naming exactly one makes it the claim for that one, and naming two makes it the claim for
+neither, because one authored sentence cannot be the answer at two places whose correct answers
+differ. Nothing was consumed first-id-wins or nearest-wins; those position heuristics are still
+rejected for silently picking a subject. The `conservation-periplanarity-declaration` twin is
+closed by the same edit rather than a second one, since both checks state their requirement
+through that one function, and it is verified end to end in
+`tests/annotation-binding-is-one-claim-one-occurrence.test.ts` by merging the two committed
+justifications of `good-e2-two-independent-syn-periplanar-eliminations-...` into one annotation
+naming both cages. No fixture was added for it, so the fixture count did not move.
+
+WHAT RULE B IN `conservation-step-elementarity` DOES NOT SAY. Condition 1 was not weakened and
+was not touched, because connectivity is what a genuinely concerted step looks like. Rule B is a
+separate question about the same arrows and it is one decidable signature of a round trip, not a
+barrier model: a collapsed two step sequence whose two halves touch no common pair twice is still
+missed. The general question, how many barriers a given array of arrows crosses, still needs a
+model chem-core does not have.
+
+WHAT THE WIDENED STERIC MODEL DOES NOT CATCH. The threshold of three further carbons on the
+neighbour is unchanged, so beta branching short of quaternary, isobutyl for instance, still does
+not fire. Alpha branching on its own still does not fire: a plain secondary or tertiary centre
+with no quaternary carbon beside it is not this rule's business, and tertiary SN2 has its own
+cause, `sn2_at_tertiary_center`, and its own rule still to be written.
+
 ### Good
 
 | Fixture | What it proves |

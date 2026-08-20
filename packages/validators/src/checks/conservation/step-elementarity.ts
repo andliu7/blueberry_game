@@ -7,7 +7,12 @@ import {
 } from "@blueberry/chem-core";
 
 import type { Check } from "../../check.ts";
-import { arrowClusters, stepArrowFacts, type ArrowCluster } from "./arrow-facts.ts";
+import {
+  arrowClusters,
+  stepArrowFacts,
+  type ArrowCluster,
+  type StepArrowFacts,
+} from "./arrow-facts.ts";
 import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
 
 /**
@@ -38,7 +43,14 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * step sequence drawn as one" under what it cannot discriminate. Nothing anywhere asked
  * whether the arrows BELONG TOGETHER.
  *
- * THE CRITERION, AND EVERY REASON IT IS THIS CAUTIOUS.
+ * THERE ARE TWO INDEPENDENT RULES IN THIS FILE. RULE A IS THE ORIGINAL ONE AND IS ABOUT
+ * ARROWS THAT DO NOT REACH EACH OTHER. RULE B IS ABOUT ARROWS THAT ALL TOUCH ONE ATOM.
+ *
+ * They are independent: a step can fail either without failing the other, and neither is a
+ * special case of the other. Rule A asks whether the arrows are in the same place. Rule B
+ * asks whether the arrows move in one direction while they are there.
+ *
+ * RULE A, THE CRITERION, AND EVERY REASON IT IS THIS CAUTIOUS.
  *
  * Two conditions, both required before a word is said:
  *
@@ -66,14 +78,75 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * close into one ring. Widening the number weakens the check and narrowing it starts
  * guessing, so it is fixed and it is not to be adjusted to make a fixture pass either way.
  *
+ * RULE B, THE BOND THAT IS BROKEN AND MADE AGAIN INSIDE ONE STEP.
+ *
+ * Rule A's own exclusion list used to open with this sentence: "It does not assert that a
+ * step with one arrow group is elementary. A two step sequence drawn as one at the SAME
+ * centre, an addition and an elimination sharing the carbonyl carbon for instance, has one
+ * connected arrow group and passes here." The third pass adversary took that sentence and
+ * filed the fixture, and it is the one on this list that teaches wrong chemistry rather
+ * than merely failing to teach right chemistry: nucleophilic acyl substitution with the
+ * addition and the elimination collapsed into one step teaches a student that acyl
+ * substitution has no tetrahedral intermediate, which is the single most common wrong
+ * answer on that transformation.
+ *
+ * All four of its arrows touch the carbonyl carbon, so rule A's condition 1 is not met and
+ * the check returned before the proximity test was reached. Widening rule A cannot close
+ * it. Connectivity is what a genuinely concerted step LOOKS LIKE, so a rule that punished
+ * connectivity would reject E2, hydroboration, and every pericyclic step in the corpus.
+ *
+ * THE CRITERION, WHICH IS A DIFFERENT QUESTION ABOUT THE SAME ARROWS.
+ *
+ *   In one elementary step, no pair of atoms both loses bonding and gains bonding.
+ *
+ * An arrow drawn out of a bond says that bond is coming apart on the way to the transition
+ * state. An arrow drawn into the space between two atoms says a bond there is coming
+ * together. One transition state is one continuous reorganisation, so each pair of atoms is
+ * doing one of those two things, not both. A pair that does both has gone out and come
+ * back, and the place it came back from is an intermediate, which is by definition a second
+ * barrier. In the acyl fixture the pair is the carbonyl carbon and its oxygen: arrow a2
+ * pushes the C=O pi bond onto the oxygen, and arrow a3 pushes it straight back. The
+ * tetrahedral intermediate is the state between those two arrows, and it is exactly the
+ * species the fixture declines to write down.
+ *
+ * WHY THIS DOES NOT FIRE ON CONCERTED CHEMISTRY, WHICH IS THE THING THAT MATTERS MOST.
+ *
+ * Every concerted mechanism in the corpus moves electrons through a pair once and in one
+ * direction. SN2 forms one bond and breaks another and they are different pairs. E2 breaks
+ * C-H, forms C=C, breaks C-LG: three pairs, three single directions. Hydroboration's four
+ * centre array breaks B-H and C=C while forming H-C and C-B: four pairs, one direction
+ * each. A pericyclic step alternates around a ring and no bond in the ring is touched
+ * twice. Radical propagation abstracts and forms at different pairs. This is not a
+ * coincidence about this corpus either: a curved arrow that leaves a bond and a curved
+ * arrow that arrives at the same bond, in the same drawing, are two statements about that
+ * bond's fate that cannot both describe one continuous motion.
+ *
+ * Two shapes that look adjacent to this and are deliberately NOT caught. Two arrows out of
+ * ONE bond, which is how the corpus draws homolysis, is two breaks and no form: both
+ * arrows point the same way, so nothing has come back. And one single arrow whose source
+ * bond and whose sink pair are the same two atoms is an arrow that declares no change,
+ * which `conservation-arrow-legality` already owns with a better message, so the break and
+ * the form are required to come from DIFFERENT arrows before a word is said here.
+ *
+ * WHAT RULE B DOES NOT ASSERT. This is a narrow, decidable signature of a round trip, not
+ * a barrier model. It says nothing about how many barriers an arbitrary array of arrows
+ * crosses, because answering that in general needs a model of transition state energies
+ * that chem-core does not have and that this package is not the place to invent. A
+ * collapsed two step sequence whose two halves happen to touch no common pair twice is
+ * still missed, and so is any collapse whose second half acts on bonds the first half never
+ * touched. Rule B also says nothing about the ORDER of the arrows, since a drawing has no
+ * order, and nothing about the net change on the pair: a bond that ends at the order it
+ * started is caught for the same reason as one that does not, because the finding is the
+ * round trip and not the arithmetic.
+ *
  * WHAT THIS DELIBERATELY DOES NOT ASSERT. Stated plainly, because a green run here is worth
  * exactly what these exclusions leave.
  *
- *   It does not assert that a step with one arrow group is elementary. A two step sequence
- *   drawn as one at the SAME centre, an addition and an elimination sharing the carbonyl
- *   carbon for instance, has one connected arrow group and passes here. That is a real
- *   blind spot and closing it needs a model of how many barriers a given array of arrows
- *   crosses, which is a different and much harder claim than the one made here.
+ *   It does not assert that a step with one arrow group and no round tripped bond is
+ *   elementary. Rule B closes the shape the second pass adversary predicted and the third
+ *   pass adversary filed, and it closes it by naming one decidable signature rather than by
+ *   deciding the general question. The general question is still open and still needs a
+ *   model of how many barriers a given array of arrows crosses.
  *
  *   It does not assert that a step with two distant groups is impossible. It asserts that
  *   nothing in the drawing connects them, so the file is claiming one barrier where it has
@@ -212,16 +285,104 @@ function describe(clusters: readonly ArrowCluster[], component: readonly number[
   return `arrow(s) ${arrowIds.sort().join(", ")} acting on {${atomIds.sort().join(", ")}}`;
 }
 
+/** An unordered pair of atom ids, as one stable key. */
+function pairKey(left: AtomId, right: AtomId): string {
+  return left < right ? `${left}|${right}` : `${right}|${left}`;
+}
+
+function pairLabel(key: string): string {
+  return key.split("|").join("-");
+}
+
+/**
+ * Rule B. Pairs of atoms this step's arrows both pull apart and push together.
+ *
+ * A bond source contributes the break, at the pair the bond joins. A `betweenAtoms` sink
+ * contributes the form, at the pair it names. An `atom` sink contributes neither: those
+ * electrons localise on one atom rather than bonding a pair. Lone pair and single electron
+ * sources contribute no break for the same reason.
+ *
+ * The break and the form have to come from different arrows. One arrow whose bond source
+ * and whose `betweenAtoms` sink are the same two atoms is an arrow that declares no change,
+ * which `conservation-arrow-legality` reports with a message about that arrow rather than
+ * about this step.
+ */
+interface RoundTrippedPair {
+  /** The atom pair, as a stable key. Rendered through `pairLabel`. */
+  readonly key: string;
+  /** Arrows drawing electrons out of the bond at that pair. */
+  readonly broken: readonly string[];
+  /** Arrows drawing electrons into a bond at that pair. */
+  readonly formed: readonly string[];
+}
+
+function roundTrippedPairs(facts: StepArrowFacts): readonly RoundTrippedPair[] {
+  const broken = new Map<string, string[]>();
+  const formed = new Map<string, string[]>();
+
+  for (const resolved of facts.arrows) {
+    if (!resolved.resolves) continue;
+    const arrowId = resolved.arrow.id;
+    const bond = resolved.sourceBond;
+    if (bond !== undefined) {
+      const key = pairKey(bond.a, bond.b);
+      broken.set(key, [...(broken.get(key) ?? []), arrowId]);
+    }
+    if (resolved.arrow.sink.kind === "betweenAtoms") {
+      const key = pairKey(resolved.arrow.sink.atomIds[0], resolved.arrow.sink.atomIds[1]);
+      formed.set(key, [...(formed.get(key) ?? []), arrowId]);
+    }
+  }
+
+  const found: RoundTrippedPair[] = [];
+  for (const [key, breakers] of broken) {
+    const makers = formed.get(key);
+    if (makers === undefined) continue;
+    // Different arrows, not one arrow declaring no change. See the note above.
+    if (!breakers.some((arrowId) => makers.some((other) => other !== arrowId))) continue;
+    found.push({ key, broken: [...breakers].sort(), formed: [...makers].sort() });
+  }
+
+  found.sort((left, right) => left.key.localeCompare(right.key));
+  return found;
+}
+
+function roundTripViolations(
+  step: MechanismStep,
+  facts: StepArrowFacts,
+): readonly Violation[] {
+  return roundTrippedPairs(facts).map((pair) => ({
+    where: `${step.id} / bond ${pairLabel(pair.key)} both broken and made again`,
+    expected:
+      "each pair of atoms in one step to be doing one thing: coming apart, or coming " +
+      "together. One transition state is one continuous reorganisation",
+    actual:
+      `arrow(s) ${pair.broken.join(", ")} push electrons OUT of the bond between ` +
+      `${pairLabel(pair.key)} and arrow(s) ${pair.formed.join(", ")} push electrons back ` +
+      `INTO it, in the same step. That bond goes away and comes back, so the drawing passes ` +
+      `through a structure it never writes down, and that structure is an intermediate ` +
+      `between two barriers. This is the addition and elimination of an addition elimination ` +
+      `collapsed into one step: at a carbonyl it is the tetrahedral intermediate, and a step ` +
+      `drawn this way teaches that the intermediate does not exist. Draw the two barriers in ` +
+      `sequence with the intermediate between them. Nothing here objects to the arrows ` +
+      `sharing an atom, which is what a genuinely concerted step looks like, only to the same ` +
+      `pair being taken apart and put back`,
+    cause: CAUSE,
+  }));
+}
+
 function stepViolations(step: MechanismStep): readonly Violation[] {
   if (step.arrows.length < 2) return [];
   const facts = stepArrowFacts(step);
   if (!facts.allReferencesResolve) return [];
 
+  const violations: Violation[] = [...roundTripViolations(step, facts)];
+
   const clusters = arrowClusters(facts);
-  if (clusters.length < 2) return [];
+  if (clusters.length < 2) return violations;
 
   const components = proximityComponents(step.from, clusters);
-  if (components.length < 2) return [];
+  if (components.length < 2) return violations;
 
   // One line, however many components there are. They are all the same finding: this
   // drawing contains more than one independent event.
@@ -242,23 +403,23 @@ function stepViolations(step: MechanismStep): readonly Violation[] {
     }
   }
 
-  return [
-    {
-      where: `${step.id} / ${components.length} independent groups of arrows`,
-      expected:
-        "the arrows of one step to describe one transition state: one continuous push of " +
-        "electrons, or several that at least reach each other",
-      actual:
-        `they fall into ${components.length} groups that share no atom and are not near each ` +
-        `other. ${descriptions.map((text, index) => `Group ${index + 1}: ${text}`).join(". ")}. ` +
-        `${gaps.join("; ")}, further than the ${MAX_SEPARATION_BONDS} bonds a single cyclic ` +
-        `transition state reaches. Each group is a separate barrier, so this is more than one ` +
-        `elementary step drawn as one, however certain both are to happen. Draw them in ` +
-        `sequence with the intermediate in between, or, if they really are coupled, draw the ` +
-        `arrow that couples them`,
-      cause: CAUSE,
-    },
-  ];
+  violations.push({
+    where: `${step.id} / ${components.length} independent groups of arrows`,
+    expected:
+      "the arrows of one step to describe one transition state: one continuous push of " +
+      "electrons, or several that at least reach each other",
+    actual:
+      `they fall into ${components.length} groups that share no atom and are not near each ` +
+      `other. ${descriptions.map((text, index) => `Group ${index + 1}: ${text}`).join(". ")}. ` +
+      `${gaps.join("; ")}, further than the ${MAX_SEPARATION_BONDS} bonds a single cyclic ` +
+      `transition state reaches. Each group is a separate barrier, so this is more than one ` +
+      `elementary step drawn as one, however certain both are to happen. Draw them in ` +
+      `sequence with the intermediate in between, or, if they really are coupled, draw the ` +
+      `arrow that couples them`,
+    cause: CAUSE,
+  });
+
+  return violations;
 }
 
 /** The atoms of every cluster in one component, as one set. */

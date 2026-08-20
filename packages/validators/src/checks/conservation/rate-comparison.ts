@@ -91,13 +91,15 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  *
  * HOW A STRONGLY HINDERED CENTRE IS DETECTED, AND WHY IT IS COMPUTED RATHER THAN DECLARED.
  *
- * A `concerted_substitution` step on route sn2, at a carbon that is primary, one carbon
- * neighbour, whose single carbon neighbour carries three further carbons. That is the
- * neopentyl pattern: a CH2 with a quaternary carbon behind it, three methyls sitting across
- * the trajectory the nucleophile has to travel. It is a graph property of the `from` state
- * and needs no stereochemistry, no geometry, and no authored flag, which is the point. If
- * the trigger were an authored field, the fixture that forgot the annotation would also
- * have forgotten the flag, and the check would pass on precisely the file it exists for.
+ * A `concerted_substitution` step on route sn2, at a carbon with a QUATERNARY CARBON
+ * NEIGHBOUR: a neighbour carrying three further carbons, sitting across the trajectory the
+ * nucleophile has to travel to reach the backside. Neopentyl is the worked example of that
+ * geometry, a CH2 with a quaternary carbon behind it, and it is not the whole of it: see
+ * `hinderedCentres` below for why the attacked carbon's own substituent count is reported
+ * and no longer gates the test. It is a graph property of the `from` state and needs no
+ * stereochemistry, no geometry, and no authored flag, which is the point. If the trigger
+ * were an authored field, the fixture that forgot the annotation would also have forgotten
+ * the flag, and the check would pass on precisely the file it exists for.
  *
  * WHICH CARBONS ARE TESTED FOR THAT PATTERN, WHICH IS THE SECOND PASS ADVERSARY'S FINDING.
  *
@@ -124,12 +126,14 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * not resolve at all, the derived half stands down and `conservation-arrow-legality` owns
  * the finding, which is the convention every file in this family follows.
  *
- * WHAT THE DETECTOR DELIBERATELY DOES NOT CATCH. Tertiary SN2, which is a separate cause
- * (`sn2_at_tertiary_center`) and a separate rule, and beta branching short of quaternary,
- * isobutyl for instance, which is disfavoured by a factor of about 10^-2 rather than 10^-5
- * and is not what CLAUDE.md's paragraph is about. Widening this detector is a later phase's
- * work and needs its own fixtures; a detector that fires on cases nobody authored an
- * annotation for would fail correct chemistry.
+ * WHAT THE DETECTOR DELIBERATELY DOES NOT CATCH. Alpha branching on its own: a plain
+ * secondary or tertiary centre with no quaternary carbon anywhere beside it. Tertiary SN2
+ * is a separate cause (`sn2_at_tertiary_center`) and a separate rule, and reporting it
+ * under this one would name the wrong reason. Beta branching short of quaternary, isobutyl
+ * for instance, is disfavoured by a factor of about 10^-2 rather than 10^-5 and is not what
+ * CLAUDE.md's paragraph is about. Widening the threshold of three is a later phase's work
+ * and needs its own fixtures; a detector that fires on cases nobody authored an annotation
+ * for would fail correct chemistry.
  *
  * WHY "NAMES THE COMPETING PATHWAY" IS CHECKED BY LOOKING FOR A ROUTE ID.
  *
@@ -149,8 +153,10 @@ interface HinderedCentre {
   readonly step: MechanismStep;
   readonly species: Species;
   readonly atomId: string;
-  readonly betaCarbonId: string;
-  readonly betaSubstituentCount: number;
+  /** Carbon neighbours of the attacked carbon that each carry three further carbons. */
+  readonly quaternaryNeighbourIds: readonly string[];
+  /** How many carbon neighbours the attacked carbon has: 1 primary, 2 secondary, 3 tertiary. */
+  readonly alphaCarbonCount: number;
   /** How this carbon came to be tested: from the arrows, from the declaration, or both. */
   readonly source: string;
 }
@@ -184,15 +190,47 @@ function arrowDerivedCentres(step: MechanismStep): readonly string[] {
 }
 
 /**
- * The neopentyl pattern, read off the graph of the `from` state.
+ * A quaternary wall behind the carbon under attack, read off the graph of the `from` state.
  *
- * Primary carbon under attack, exactly one carbon neighbour, and that neighbour carrying
- * three carbons besides this one. Implicit hydrogens are not consulted: what blocks the
- * backside trajectory is carbon substituents, and a count of them is the same number
- * whether the remaining hydrogens are drawn or implied.
+ * THE MODEL, WHICH IS THE GEOMETRY AND NOT THE CANONICAL EXAMPLE.
+ *
+ *   The carbon under attack has at least one carbon neighbour that carries three further
+ *   carbons.
+ *
+ * That neighbour is a quaternary carbon, and it sits across the trajectory a nucleophile
+ * has to travel to reach the backside of the attacked carbon. Three carbon substituents on
+ * it, whichever way it turns, and one of them is always in the way. Nothing else is
+ * required and nothing else is asserted. Implicit hydrogens are not consulted: what blocks
+ * the trajectory is carbon substituents, and a count of them is the same number whether the
+ * remaining hydrogens are drawn or implied.
+ *
+ * WHAT THIS REPLACED, AND WHY THE OLD SHAPE WAS THE WRONG ONE.
+ *
+ * The rule used to open with `if (alphaCarbons.length !== 1) continue`, which required the
+ * attacked carbon to be PRIMARY before the beta test ran at all. That is not a steric model,
+ * it is a transcription of the one worked example: neopentyl bromide, whose CH2 happens to
+ * have exactly one carbon neighbour. The third pass adversary filed
+ * `broken-known-limit-sn2-at-a-secondary-carbon-directly-adjacent-to-a-quaternary-carbon-not-recognised-as-hindered`,
+ * which is 3-bromo-2,2-dimethylbutane: the attacked carbon carries the same quaternary
+ * carbon behind it AND a methyl of its own, so it is at least as blocked as neopentyl and it
+ * was skipped before the beta test could run, because two carbon neighbours is not one.
+ *
+ * Counting the attacked carbon's own neighbours as a REASON TO STOP LOOKING had the sign
+ * backwards. Alpha branching adds to hindrance, it does not remove it. So the gate is gone
+ * and the neighbour count is kept only as something to report, since it is what tells a
+ * reader whether they are looking at neopentyl or at something worse.
+ *
+ * WHAT IS DELIBERATELY NOT WIDENED WITH IT. The threshold of three further carbons on the
+ * neighbour stays exactly where it was. Beta branching short of quaternary, isobutyl for
+ * instance, is disfavoured by roughly 10^-2 rather than 10^-5 and is not what CLAUDE.md's
+ * paragraph is about; lowering the three would start demanding an annotation on ordinary
+ * chemistry, which is the failure mode that matters most here. Alpha branching ALONE, a
+ * plain secondary or tertiary centre with no quaternary neighbour, is still not detected by
+ * this rule: a tertiary SN2 centre has its own cause, `sn2_at_tertiary_center`, and its own
+ * rule to be written, and borrowing this one for it would report the wrong reason.
  *
  * Tested at every carbon the arrows name AND every carbon the author declared, so neither
- * record alone can hide the pattern. See the docstring above.
+ * record alone can hide the pattern. See the docstring at the top of this file.
  */
 function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
   const found: HinderedCentre[] = [];
@@ -212,20 +250,18 @@ function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
     if (findAtom(species, atomId)?.element !== "C") continue;
 
     const alphaCarbons = carbonNeighbours(species, atomId);
-    if (alphaCarbons.length !== 1) continue;
-
-    const betaCarbonId = alphaCarbons[0] as string;
-    const betaSubstituents = carbonNeighbours(species, betaCarbonId).filter(
-      (neighbourId) => neighbourId !== atomId,
+    const quaternaryNeighbourIds = alphaCarbons.filter(
+      (neighbourId) =>
+        carbonNeighbours(species, neighbourId).filter((further) => further !== atomId).length >= 3,
     );
-    if (betaSubstituents.length < 3) continue;
+    if (quaternaryNeighbourIds.length === 0) continue;
 
     found.push({
       step,
       species,
       atomId,
-      betaCarbonId,
-      betaSubstituentCount: betaSubstituents.length,
+      quaternaryNeighbourIds,
+      alphaCarbonCount: alphaCarbons.length,
       source,
     });
   }
@@ -322,12 +358,16 @@ const find: ViolationFinder = (fixture) => {
 
   if (perStep.length === 0) return [];
 
+  const degreeOf = (count: number): string =>
+    count <= 1 ? "primary" : count === 2 ? "secondary" : count === 3 ? "tertiary" : "quaternary";
+
   const describe = (centres: readonly HinderedCentre[]): string =>
     centres
       .map(
         (centre) =>
-          `atom ${centre.atomId} (${centre.source}; neighbour ${centre.betaCarbonId} carries ` +
-          `${centre.betaSubstituentCount} further carbons)`,
+          `atom ${centre.atomId} (${centre.source}; ${degreeOf(centre.alphaCarbonCount)}, and ` +
+          `neighbour(s) ${centre.quaternaryNeighbourIds.join(", ")} each carry three further ` +
+          `carbons)`,
       )
       .join(" and ");
 
@@ -345,8 +385,9 @@ const find: ViolationFinder = (fixture) => {
       cause: CAUSE,
       occurrences,
       because:
-        "the attacked carbon is primary with a quaternary carbon behind it, the neopentyl " +
-        "pattern, which reacts by SN2 roughly 10^-5 as fast as ethyl. CLAUDE.md says this is " +
+        "the attacked carbon has a quaternary carbon behind it, the neopentyl geometry, " +
+        "which reacts by SN2 roughly 10^-5 as fast as ethyl, and slower still when the " +
+        "attacked carbon carries substituents of its own. CLAUDE.md says this is " +
         "NOT blocked and that the engine states how disfavoured it is and names the competing " +
         "pathway. Nothing here rejects the step; what is missing is the statement",
     }),
