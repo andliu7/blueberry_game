@@ -291,20 +291,33 @@ Python sidecar rather than by the seven conservation checks.
 | `bromine-addition-to-2-butene-racemic-against-meso.oracle.json` | The mechanism connecting each alkene to its product set, bromonium configuration included. cis gives an achiral meso bromonium and the racemic pair; trans gives a chiral bromonium and the single meso product. |
 | `sn2-inversion-and-sn1-stereorandomness.oracle.json` | SN2 inversion as a pinned pair of CIP labels, and SN1 as the same planar cation running to both configurations with no ratio asserted anywhere. |
 
-### What this corpus cannot say, and where it is said instead
+### Authored annotations, and the checks that grade them
 
-Three things `CLAUDE.md` asks for have no field in the v1 fixture schema. They are recorded as
-prose in `expect.note` on the fixtures that need them and are checked by nothing:
+Three things `CLAUDE.md` asks for used to live as prose in `expect.note`, where no check could
+read them. Schema v2 carries them as data and three registered checks grade them.
 
-- the racemisation ratio annotation on an SN1,
-- the conformational justification on a syn periplanar E2,
-- the rate comparison and named competing pathway on neopentyl SN2.
+| Requirement | Annotation kind | Check |
+|---|---|---|
+| Racemisation ratio on an SN1 | `racemisation_ratio` | `conservation-stereorandom-annotation` |
+| Conformational justification on a syn periplanar E2 | `conformational_justification` | `conservation-periplanarity-declaration` |
+| Rate comparison naming the competing pathway on neopentyl SN2 | `rate_comparison` | `conservation-disfavoured-rate-comparison` |
 
-`chem-core`'s `MechanismPathway` already carries an optional `annotations` field of exactly the
-right shape, with `racemisation_ratio`, `conformational_justification`, and `rate_comparison`
-among its kinds, and `Species` carries `DeclaredTorsion`. `parsePathway` in `fixture-schema.ts`
-does not accept either. Closing that is a schema change and a version bump, which is not a
-fixture author's edit to make.
+The stereorandom check asserts that a ratio is PRESENT and never what its value is. Asserting
+50:50 fails on correct chemistry, because ion pairing gives net inversion excess. See
+`docs/VERIFICATION.md` S1.
+
+Eight negative controls prove these fire, all prefixed `broken-annotation-`: an E2 at a gauche
+dihedral, an E2 declaring no torsion, a torsion declared over atoms that are not a bonded chain,
+a syn periplanar E2 with no justification, a neopentyl SN2 with no rate comparison, a rate
+comparison naming no competing pathway, an SN1 with no racemisation ratio, and an SN1 whose ratio
+value is empty.
+
+### What this corpus still cannot say
+
+Stereochemistry is absent from the conservation schema by design, argued at the top of
+`fixture-schema.ts`. That is why the two Br2 fixtures are identical at this layer apart from the
+substrate name, and why the racemic against meso distinction is asserted in
+`bromine-addition-to-2-butene-racemic-against-meso.oracle.json` where RDKit grades it instead.
 
 ## Adding a fixture
 

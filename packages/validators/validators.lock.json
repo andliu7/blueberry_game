@@ -18,11 +18,11 @@
     "validators.lock.json"
   ],
   "fileCount": 154,
-  "suiteHash": "6d9cfb7862e65285c3ea12f3811ec06e3625d1bafa9917b031edf88da2fcdc43",
+  "suiteHash": "dfcb682c061aa6bb8da1e42d4028c7458675fe297f168661c3d2ee82d240607c",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "fixtures/README.md": "4343bad8a8d1151ea82f3c54bb206a1068b77399591360b1c314b9365d001124",
+    "fixtures/README.md": "92a928f21321e072db5a961e1cd32cf9d5c5a52dbd52d2bf33fb18042696b9f7",
     "fixtures/bond-kind-unspecified-stereo-declaration.oracle.json": "bc6cb1df103880e40ef7aa9b26387ed6e2a96fd4576aca515a74bb719f294c24",
     "fixtures/broken-annotation-e2-elimination-declared-at-a-gauche-dihedral.fixture.json": "031b9833f8fd077abb10341da3826d26463f1b5202497292382f7a549a3cccf4",
     "fixtures/broken-annotation-e2-elimination-declaring-no-torsion-at-all.fixture.json": "2171834a7ef858296404d1a057d0ae9233aff42c1558c8a1b97a57198285ef5d",
