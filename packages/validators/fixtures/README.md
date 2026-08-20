@@ -1,7 +1,7 @@
 # Conservation fixture corpus
 
 Every file here ending in `.fixture.json` is one mechanism pathway plus a declaration of what
-the eleven conservation checks are supposed to say about it. This README is the only file in this
+the twelve conservation checks are supposed to say about it. This README is the only file in this
 directory that is not a fixture, and it is on the allowlist in
 `src/checks/conservation/fixture-schema.ts` (`NON_FIXTURE_FILES`). Anything else that is neither
 a fixture nor on that list is reported as a stray file and fails the run, because a fixture saved
@@ -115,7 +115,7 @@ check, not the parser, is what rejects an empty one.
 
 Set in `src/checks/conservation/family.ts`:
 
-- A **good** fixture must produce no violation from any of the eleven checks.
+- A **good** fixture must produce no violation from any of the twelve checks.
 - A **broken** fixture must produce at least one violation from every check it names in
   `mustFail`, and **no** violation from any check it does not name. A negative control that
   does not fire is a check that is not proven to work. A violation that was not declared means
@@ -167,7 +167,7 @@ broken fixtures below name more than one check.
 Eighty `.fixture.json` files, thirty nine good and forty one broken, plus three `.oracle.json`
 files and this README. That is eighty four files, which is the FIXTURE COUNT the suite prints,
 since that number counts everything in this directory rather than only the conservation fixtures.
-Every one of the eleven checks has at least one negative control.
+Every one of the twelve checks has at least one negative control.
 
 Counts in the section headings below are from the pass that wrote them and were already stale
 before the Phase 1 builder pass two: the two tables that follow are Phase 0's fixtures, the
@@ -212,6 +212,44 @@ and `good-known-limit-spectator-role-and-reason-drift-across-three-spectators`. 
 by this pass and each note now says why. The first needs to know which end of a bond is the
 electrophile, which is reactivity modelling; the second needs a rule about agreement between a
 spectator's role, reason, and justification.
+
+### Changed by the Phase 1 builder pass three
+
+The second pass adversary filed four findings. Three were closed and one was adjudicated as a
+human review gate. The suite went from eleven checks to twelve.
+
+`conservation-step-elementarity` is the twelfth check. It groups a step's arrows so that two
+arrows are together whenever they share an atom, transitively, then merges groups that come
+within three bonds of each other in the `from` state, and fails when more than one group
+survives. It is the only thing in the package that emits `step_not_elementary`, a cause chem-core
+has carried since Phase 1 with nothing able to reach it. Its docstring lists what it deliberately
+does not assert, and the first item on that list is the large one: a step with ONE connected
+group of arrows is never questioned here, so a two step sequence drawn as one at the same centre
+still passes.
+
+| Fixture | Was | Now | What changed in the checks |
+|---|---|---|---|
+| `broken-known-limit-neopentyl-sn2-rate-comparison-evaded-by-authoring-the-reaction-centre-away-from-the-hindered-carbon` | good | broken, rate-comparison | `hinderedCentres` took its candidate carbons from `identity.reactionCenters`, an authored field, so writing the leaving group's id there hid the neopentyl pattern. The candidates are now the union of that field and the carbons the arrows name, derived by `heavySigmaDepartures`. Same move as periplanarity rule 1b, same reason. |
+| `broken-known-limit-sn2-and-a-distant-unrelated-deprotonation-drawn-as-one-step` | good | broken, step-elementarity | An SN2 at one carbon and an unrelated deprotonation four bonds away, drawn as one step, with every other check correctly silent because both halves are individually correct chemistry. |
+| `good-sn1-two-independent-captures-in-one-pathway-each-correctly-annotated` | good but the suite was RED on it | good and green | The check was wrong, not the fixture. `requiredAnnotationViolations` counted annotations per PATHWAY, so two independent SN1 captures each carrying their own correctly grounded ratio read as two claims about one cation. The scope is now the occurrence. |
+| `good-known-limit-spectator-justification-contradicts-its-own-declared-reason` | good | good, and now says why it stays that way | Whether prose contradicts an enum is not mechanically decidable, and the token presence rule that was proposed detects an absent word rather than a contradiction. The note now states the human review gate instead. |
+
+Three fixtures were added, two of them negative controls for a defect that had never been
+written down:
+
+| Fixture | Proves |
+|---|---|
+| `good-e2-two-independent-syn-periplanar-eliminations-each-with-its-own-conformational-justification` | The twin the adversary predicted in `conservation-periplanarity-declaration` was real. Two syn periplanar eliminations in two separate cages, each with its own justification, failed with "exactly one conformational_justification annotation on pathway ..., 2 of them" before the fix, and passes after it. |
+| `broken-annotation-two-syn-periplanar-eliminations-sharing-one-conformational-justification` | The other direction of the same defect, which used to PASS: two syn eliminations and one justification between them, so the second cage was defended by nothing. |
+| `broken-annotation-two-sn1-captures-sharing-one-racemisation-ratio` | The same false negative on the SN1 ratio: the tert-butyl capture is annotated, the butan-2-yl one, which is the one with a configuration to lose, is not. |
+
+HOW AN ANNOTATION SAYS WHICH STEP IT IS ABOUT. `AuthoredAnnotation` carries `kind`, `value` and
+`justification` and no pointer to a step, so the binding is by naming: the annotation writes the
+step id in its value or its justification, exactly as the grounding rule already makes it write
+an atom or species id. When a pathway has only ONE place requiring an annotation of that kind,
+which is every such fixture in the corpus except the three above, the binding is implicit and
+nothing needs to be written. The structural alternative, an `appliesTo` field on the annotation
+plus a schema v3, is a chem-core change and is recorded in `authoring.ts` rather than made.
 
 ### Good
 
@@ -347,8 +385,10 @@ read them. Schema v2 carries them as data and three registered checks grade them
 | Rate comparison naming the competing pathway on neopentyl SN2 | `rate_comparison` | `conservation-disfavoured-rate-comparison` |
 | The declared step kind and reaction centres agreeing with the arrows | none, `identity` is not an annotation | `conservation-step-identity` |
 
-The eleventh check is not an annotation check and is listed here because it closes the same kind
-of hole: a field the parser checked for shape and no check ever compared against the chemistry.
+The eleventh and twelfth checks are not annotation checks and are listed here because they close
+the same kind of hole. `conservation-step-elementarity` is the twelfth: it asks whether a step's
+arrows can belong to one transition state at all, by grouping them where they share an atom and
+failing when the groups end up more than three bonds apart. The eleventh: a field the parser checked for shape and no check ever compared against the chemistry.
 It reads what the arrows and the two states describe and fails when the declared
 `elementaryStep` contradicts it. It classifies nothing. Its docstring lists both the kinds it can
 tell apart and the kinds it cannot, and the second list is the longer one on purpose.

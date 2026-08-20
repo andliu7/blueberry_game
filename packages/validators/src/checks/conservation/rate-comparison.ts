@@ -11,7 +11,13 @@ import {
 import { competingRoutesFor } from "@blueberry/feedback";
 
 import type { Check } from "../../check.ts";
-import { annotationsOfKind, requiredAnnotationViolations, speciesContaining } from "./authoring.ts";
+import { heavySigmaDepartures, stepArrowFacts } from "./arrow-facts.ts";
+import {
+  annotationsOfKind,
+  requiredAnnotationViolations,
+  speciesContaining,
+  type AnnotationOccurrence,
+} from "./authoring.ts";
 import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
 
 /**
@@ -93,6 +99,31 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * the trigger were an authored field, the fixture that forgot the annotation would also
  * have forgotten the flag, and the check would pass on precisely the file it exists for.
  *
+ * WHICH CARBONS ARE TESTED FOR THAT PATTERN, WHICH IS THE SECOND PASS ADVERSARY'S FINDING.
+ *
+ * The pattern was always computed. WHERE it was looked for was not: the candidates came
+ * from `step.identity.reactionCenters`, an authored field, so the whole requirement could
+ * be evaded by writing the leaving group's id there instead of the carbon's.
+ * `good-known-limit-neopentyl-sn2-rate-comparison-evaded-by-authoring-the-reaction-centre-away-from-the-hindered-carbon`
+ * is bit for bit the proven good neopentyl fixture with `reactionCenters: ["Br1"]` and no
+ * annotation, and every check was silent on it. `conservation-step-identity` cannot catch
+ * that either: its reaction centre rule is one directional, every declared centre must be
+ * touched by an arrow, and Br1 genuinely is touched.
+ *
+ * So the candidates are now DERIVED as well as read. In a substitution the electrophilic
+ * carbon is the atom the leaving group left, and `heavySigmaDepartures` in arrow-facts.ts
+ * already computes exactly that from the arrows: a full sigma bond between two heavy atoms
+ * breaking with the pair localising on one end. The retained end is the carbon under
+ * attack. This is the same move `periplanarity.ts` rule 1b made for the E2 torsion quartet,
+ * for the same reason: both halves of a comparison must not come from the same authored
+ * field.
+ *
+ * The two sources are UNIONED rather than swapped. A declared centre that the arrows do not
+ * name is still tested, so the check is strictly stronger than it was and a fixture whose
+ * arrows this file cannot read does not silently stop being examined. When the arrows do
+ * not resolve at all, the derived half stands down and `conservation-arrow-legality` owns
+ * the finding, which is the convention every file in this family follows.
+ *
  * WHAT THE DETECTOR DELIBERATELY DOES NOT CATCH. Tertiary SN2, which is a separate cause
  * (`sn2_at_tertiary_center`) and a separate rule, and beta branching short of quaternary,
  * isobutyl for instance, which is disfavoured by a factor of about 10^-2 rather than 10^-5
@@ -120,6 +151,8 @@ interface HinderedCentre {
   readonly atomId: string;
   readonly betaCarbonId: string;
   readonly betaSubstituentCount: number;
+  /** How this carbon came to be tested: from the arrows, from the declaration, or both. */
+  readonly source: string;
 }
 
 function isSn2Substitution(step: MechanismStep, pathway: MechanismPathway): boolean {
@@ -134,17 +167,46 @@ function carbonNeighbours(species: Species, atomId: string): readonly string[] {
 }
 
 /**
+ * The carbons this step's arrows say are under attack.
+ *
+ * The retained end of every full heavy atom sigma bond that breaks with its pair localising
+ * on the other end. In a substitution that is the carbon the leaving group left, which is
+ * the carbon a nucleophile has to reach. Nothing here reads `identity`.
+ *
+ * Empty when any arrow reference does not resolve. A set of touched atoms assembled from
+ * arrows pointing at nothing is smaller than the truth, and `conservation-arrow-legality`
+ * reports the dangling reference with a better message.
+ */
+function arrowDerivedCentres(step: MechanismStep): readonly string[] {
+  const facts = stepArrowFacts(step);
+  if (!facts.allReferencesResolve) return [];
+  return heavySigmaDepartures(step, facts).map((departure) => departure.retainedId);
+}
+
+/**
  * The neopentyl pattern, read off the graph of the `from` state.
  *
  * Primary carbon under attack, exactly one carbon neighbour, and that neighbour carrying
  * three carbons besides this one. Implicit hydrogens are not consulted: what blocks the
  * backside trajectory is carbon substituents, and a count of them is the same number
  * whether the remaining hydrogens are drawn or implied.
+ *
+ * Tested at every carbon the arrows name AND every carbon the author declared, so neither
+ * record alone can hide the pattern. See the docstring above.
  */
 function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
   const found: HinderedCentre[] = [];
+  const derived = new Set<string>(arrowDerivedCentres(step));
+  const declared = new Set<string>(step.identity.reactionCenters);
+  const candidates = new Set<string>([...derived, ...declared]);
 
-  for (const atomId of step.identity.reactionCenters) {
+  for (const atomId of candidates) {
+    const source =
+      derived.has(atomId) && declared.has(atomId)
+        ? "named by the arrows and declared a reaction centre"
+        : derived.has(atomId)
+          ? "named by the arrows as the carbon the leaving group left, whatever identity.reactionCenters says"
+          : "declared a reaction centre";
     const species = speciesContaining(step.from, atomId);
     if (species === undefined) continue;
     if (findAtom(species, atomId)?.element !== "C") continue;
@@ -164,9 +226,11 @@ function hinderedCentres(step: MechanismStep): readonly HinderedCentre[] {
       atomId,
       betaCarbonId,
       betaSubstituentCount: betaSubstituents.length,
+      source,
     });
   }
 
+  found.sort((left, right) => left.atomId.localeCompare(right.atomId));
   return found;
 }
 
@@ -236,30 +300,50 @@ function competingRouteViolations(
   return violations;
 }
 
+/**
+ * One annotation per hindered STEP, not one per pathway.
+ *
+ * Same scoping defect, and same fix, as `conservation-stereorandom-annotation` carried:
+ * two hindered substitutions in one pathway are two separate claims to make, and counting
+ * `rate_comparison` annotations pathway wide would both reject two correct ones and accept
+ * one covering two steps. `authoring.ts` owns the binding. No fixture in the corpus has two
+ * hindered steps today, so nothing on disk changes shape; the rule is here so that the
+ * first one to arrive is scoped correctly rather than being the fixture that finds this.
+ *
+ * A step with two hindered centres is still one occurrence. The annotation is about the
+ * step's rate, and a step has one.
+ */
 const find: ViolationFinder = (fixture) => {
   const pathway = fixture.pathway;
-  const centres = pathway.steps
+  const perStep = pathway.steps
     .filter((step) => isSn2Substitution(step, pathway))
-    .flatMap((step) => hinderedCentres(step));
+    .map((step) => ({ step, centres: hinderedCentres(step) }))
+    .filter((entry) => entry.centres.length > 0);
 
-  if (centres.length === 0) return [];
+  if (perStep.length === 0) return [];
 
-  const where =
-    `pathway ${pathway.id} / strongly hindered SN2 at ` +
+  const describe = (centres: readonly HinderedCentre[]): string =>
     centres
       .map(
         (centre) =>
-          `${centre.step.id} atom ${centre.atomId} (neighbour ${centre.betaCarbonId} carries ` +
+          `atom ${centre.atomId} (${centre.source}; neighbour ${centre.betaCarbonId} carries ` +
           `${centre.betaSubstituentCount} further carbons)`,
       )
-      .join("; ");
+      .join(" and ");
+
+  const occurrences: AnnotationOccurrence[] = perStep.map((entry) => ({
+    stepId: entry.step.id,
+    where: `pathway ${pathway.id} / strongly hindered SN2 at ${entry.step.id} ${describe(entry.centres)}`,
+  }));
+
+  const where = occurrences.map((occurrence) => occurrence.where).join("; ");
 
   const violations: Violation[] = [];
   violations.push(
     ...requiredAnnotationViolations(pathway, {
       kind: "rate_comparison",
-      where,
       cause: CAUSE,
+      occurrences,
       because:
         "the attacked carbon is primary with a quaternary carbon behind it, the neopentyl " +
         "pattern, which reacts by SN2 roughly 10^-5 as fast as ethyl. CLAUDE.md says this is " +

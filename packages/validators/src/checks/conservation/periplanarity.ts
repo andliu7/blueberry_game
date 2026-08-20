@@ -15,10 +15,9 @@ import {
   type E2Quartet,
 } from "./arrow-facts.ts";
 import {
-  annotationGroundingViolations,
   annotationVocabulary,
-  annotationsOfKind,
   requiredAnnotationViolations,
+  type AnnotationOccurrence,
 } from "./authoring.ts";
 import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
 
@@ -223,49 +222,21 @@ function shapeViolations(site: DeclaredTorsionSite, where: string): Violation[] 
 }
 
 /**
- * The conformational justification has to be about this molecule.
+ * What a site's declared angle turned out to be, alongside what was wrong with it.
  *
- * The Phase 1 adversary filed the norbornane syn E2 again with its justification replaced
- * by the single character "z", which satisfied every rule this file had: present, exactly
- * one, value non empty, justification non empty. A length threshold would be answered by
- * typing two words. So the rule added instead is that the annotation must name an atom id
- * or a species id from the state, which is a requirement about what the claim REFERS TO
- * rather than about what it says. The honestly authored one in
- * good-e2-syn-periplanar-in-a-conformationally-locked-norbornane already names C1, C2, C3,
- * C4 and C7 while explaining what the bridge fixes.
- *
- * Whether a bicyclo[2.2.1] cage genuinely cannot reach 180 degrees remains a human review
- * gate, as the docstring at the top of this file has always said. This is a floor under it.
+ * `syn` is carried out rather than acted on here because the conformational justification
+ * is required once per syn periplanar STEP and the annotations live on the PATHWAY, so the
+ * requirement can only be stated once every syn step in the pathway is known. See the note
+ * on the twin defect in `find` below.
  */
-function conformationalGroundingViolations(
-  pathway: MechanismPathway,
-  step: MechanismStep,
-  where: string,
-): Violation[] {
-  const vocabulary = annotationVocabulary([step.from]);
-  const violations: Violation[] = [];
-  for (const [index, annotation] of annotationsOfKind(
-    pathway,
-    "conformational_justification",
-  ).entries()) {
-    violations.push(
-      ...annotationGroundingViolations(
-        annotation,
-        vocabulary,
-        `${where} / annotation[${index}] kind conformational_justification`,
-        "e2_syn_periplanar_unjustified",
-      ),
-    );
-  }
-  return violations;
+interface AngleOutcome {
+  readonly violations: readonly Violation[];
+  readonly syn: boolean;
+  /** The declared angle, for the failure line the pathway level rule writes. */
+  readonly degrees: number;
 }
 
-function angleViolations(
-  pathway: MechanismPathway,
-  step: MechanismStep,
-  site: DeclaredTorsionSite,
-  where: string,
-): Violation[] {
+function angleViolations(site: DeclaredTorsionSite, where: string): AngleOutcome {
   const violations: Violation[] = [];
   const degrees = site.torsion.degrees;
 
@@ -278,27 +249,14 @@ function angleViolations(
         `check that silently wrapped it would read 360 as syn periplanar without saying so`,
       cause: GEOMETRY_NOT_DECLARED,
     });
-    return violations;
+    return { violations, syn: false, degrees };
   }
 
   const fromSyn = Math.abs(degrees);
   const fromAnti = Math.abs(180 - Math.abs(degrees));
 
   if (fromSyn <= PERIPLANAR_TOLERANCE_DEGREES) {
-    violations.push(
-      ...requiredAnnotationViolations(pathway, {
-        kind: "conformational_justification",
-        where,
-        cause: "e2_syn_periplanar_unjustified",
-        because:
-          `the declared dihedral is ${degrees} degrees, which is syn periplanar. CLAUDE.md says ` +
-          `syn periplanar E2 is real in conformationally locked systems and is FLAGGED as ` +
-          `requiring an authored conformational justification, not rejected. This is that flag. ` +
-          `Say what locks the conformation, and the fixture passes`,
-      }),
-    );
-    violations.push(...conformationalGroundingViolations(pathway, step, where));
-    return violations;
+    return { violations, syn: true, degrees };
   }
 
   if (fromAnti > PERIPLANAR_TOLERANCE_DEGREES) {
@@ -316,7 +274,7 @@ function angleViolations(
     });
   }
 
-  return violations;
+  return { violations, syn: false, degrees };
 }
 
 /** Do these four ids name the same set of atoms as the derived quartet? */
@@ -376,11 +334,14 @@ function quartetViolations(
   return [];
 }
 
-function siteViolations(
-  pathway: MechanismPathway,
-  step: MechanismStep,
-  site: DeclaredTorsionSite,
-): Violation[] {
+/** One judged torsion: what was wrong with it, and whether it is a syn periplanar one. */
+interface SiteOutcome {
+  readonly violations: readonly Violation[];
+  readonly syn: boolean;
+  readonly degrees: number;
+}
+
+function siteViolations(step: MechanismStep, site: DeclaredTorsionSite): SiteOutcome {
   const where =
     `${step.id}.from / species ${site.species.id} / torsion [${site.torsion.atoms.join(", ")}]`;
 
@@ -402,14 +363,21 @@ function siteViolations(
   // A number attached to atoms that are not a dihedral is not an angle to reason about, so
   // the periplanarity arm is not run on it. Reporting "this is not periplanar" about a
   // torsion that does not exist would be a second failure line about the first failure.
-  if (shape.length === 0) {
-    violations.push(...angleViolations(pathway, step, site, where));
-  }
+  if (shape.length > 0) return { violations, syn: false, degrees: site.torsion.degrees };
 
-  return violations;
+  const angle = angleViolations(site, where);
+  violations.push(...angle.violations);
+  return { violations, syn: angle.syn, degrees: angle.degrees };
 }
 
-function stepViolations(pathway: MechanismPathway, step: MechanismStep): Violation[] {
+/** What one E2 step reported, and the angle of its syn torsion if it had one. */
+interface StepOutcome {
+  readonly violations: readonly Violation[];
+  /** The declared syn periplanar angle at this step, if any torsion judged here was syn. */
+  readonly synDegrees?: number;
+}
+
+function stepViolations(step: MechanismStep): StepOutcome {
   const violations: Violation[] = [];
   const centers = new Set<string>(step.identity.reactionCenters);
   const sites = declaredTorsionSites(step);
@@ -459,18 +427,67 @@ function stepViolations(pathway: MechanismPathway, step: MechanismStep): Violati
     }
   }
 
-  for (const site of judged) violations.push(...siteViolations(pathway, step, site));
+  let synDegrees: number | undefined;
+  for (const site of judged) {
+    const outcome = siteViolations(step, site);
+    violations.push(...outcome.violations);
+    if (outcome.syn && synDegrees === undefined) synDegrees = outcome.degrees;
+  }
 
-  return violations;
+  return synDegrees === undefined ? { violations } : { violations, synDegrees };
 }
 
+/**
+ * THE TWIN OF THE STEREORANDOM DEFECT, AND WHY THE ANNOTATION RULE LIVES OUT HERE.
+ *
+ * The conformational justification is required once per SYN PERIPLANAR ELIMINATION, and
+ * `pathway.annotations` is a pathway wide list. This file used to ask for it from inside
+ * the per step angle rule while counting annotations across the whole pathway, which is
+ * the same shaped bug `conservation-stereorandom-annotation` carried, and it was wrong in
+ * both directions at once. Two syn eliminations each carrying their own justification were
+ * rejected as duplicate claims about one conformation. Two syn eliminations sharing one
+ * justification passed, with the second one's conformation defended by nothing.
+ *
+ * The requirement is therefore stated once, here, over every syn elimination in the
+ * pathway, and `authoring.ts` decides which annotation is a claim about which step. When
+ * there is exactly one syn elimination, which is every syn fixture in the corpus today,
+ * the binding is implicit and nothing about those files changes.
+ */
 const find: ViolationFinder = (fixture) => {
   const pathway = fixture.pathway;
   const violations: Violation[] = [];
+  const synOccurrences: AnnotationOccurrence[] = [];
+
   for (const step of pathway.steps) {
     if (!isE2Elimination(step, pathway)) continue;
-    violations.push(...stepViolations(pathway, step));
+    const outcome = stepViolations(step);
+    violations.push(...outcome.violations);
+    if (outcome.synDegrees === undefined) continue;
+    synOccurrences.push({
+      stepId: step.id,
+      where:
+        `${step.id}.from / syn periplanar E2 at ${outcome.synDegrees} degrees`,
+      // The conformation being defended is the one in the state the elimination starts
+      // from, so that is what the claim may be anchored to.
+      vocabulary: annotationVocabulary([step.from]),
+    });
   }
+
+  if (synOccurrences.length > 0) {
+    violations.push(
+      ...requiredAnnotationViolations(pathway, {
+        kind: "conformational_justification",
+        cause: "e2_syn_periplanar_unjustified",
+        occurrences: synOccurrences,
+        because:
+          `the declared dihedral is syn periplanar. CLAUDE.md says syn periplanar E2 is real in ` +
+          `conformationally locked systems and is FLAGGED as requiring an authored ` +
+          `conformational justification, not rejected. This is that flag. Say what locks the ` +
+          `conformation, and the fixture passes`,
+      }),
+    );
+  }
+
   return violations;
 };
 

@@ -140,6 +140,12 @@ export { NON_FIXTURE_FILES };
  * validates `identity.elementaryStep` against the electron flow, and it had to be filed
  * good because no name here could be declared as the check that ought to catch it. This
  * line is that name, and that fixture is now broken.
+ *
+ * `conservation-step-elementarity` is the twelfth and is the same story a fourth time. The
+ * second pass adversary filed an SN2 and an unrelated deprotonation four carbons away drawn
+ * as one step, and had to file it good because no name here could be declared as the check
+ * that ought to catch it, even though chem-core has carried `step_not_elementary` since
+ * Phase 1 with nothing able to emit it. This line is that name.
  */
 export const CONSERVATION_CHECK_NAMES = [
   "conservation-valence",
@@ -153,6 +159,7 @@ export const CONSERVATION_CHECK_NAMES = [
   "conservation-periplanarity-declaration",
   "conservation-disfavoured-rate-comparison",
   "conservation-step-identity",
+  "conservation-step-elementarity",
 ] as const;
 
 export type ConservationCheckName = (typeof CONSERVATION_CHECK_NAMES)[number];

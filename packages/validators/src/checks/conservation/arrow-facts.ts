@@ -148,6 +148,58 @@ export function stepArrowFacts(step: MechanismStep): StepArrowFacts {
 }
 
 /**
+ * The arrows of one step, grouped so that two arrows are in the same group whenever they
+ * share an atom, transitively.
+ *
+ * A purely mechanical fact about the drawing, and deliberately nothing more. It says which
+ * arrows are drawn head to tail into one continuous push of electrons and which are not.
+ * It does NOT say that separate groups are separate steps: that is a chemical judgement
+ * and it lives in `step-elementarity.ts`, which adds a bond distance test on top before it
+ * will say anything. Every genuinely concerted multi centre step in the corpus, E2, the
+ * four centre hydroboration, radical propagation, comes back as ONE group here, because a
+ * cyclic or linear array of curved arrows shares an atom at every join.
+ *
+ * Unresolved arrows contribute no atoms and are therefore each alone in their own group.
+ * Callers must stand down when `allReferencesResolve` is false, for the reason at the top
+ * of this file.
+ */
+export interface ArrowCluster {
+  readonly arrowIds: readonly string[];
+  readonly atomIds: ReadonlySet<AtomId>;
+}
+
+export function arrowClusters(facts: StepArrowFacts): readonly ArrowCluster[] {
+  const clusters: { arrowIds: string[]; atomIds: Set<AtomId> }[] = [];
+
+  for (const resolved of facts.arrows) {
+    const atomIds = new Set<AtomId>([...resolved.sourceAtomIds, ...resolved.sinkAtomIds]);
+    const touching = clusters.filter((cluster) =>
+      [...atomIds].some((atomId) => cluster.atomIds.has(atomId)),
+    );
+
+    if (touching.length === 0) {
+      clusters.push({ arrowIds: [resolved.arrow.id], atomIds });
+      continue;
+    }
+
+    // Merge every cluster this arrow reaches into the first of them, then drop the rest.
+    const target = touching[0] as { arrowIds: string[]; atomIds: Set<AtomId> };
+    target.arrowIds.push(resolved.arrow.id);
+    for (const atomId of atomIds) target.atomIds.add(atomId);
+    for (const other of touching.slice(1)) {
+      target.arrowIds.push(...other.arrowIds);
+      for (const atomId of other.atomIds) target.atomIds.add(atomId);
+      clusters.splice(clusters.indexOf(other), 1);
+    }
+  }
+
+  return clusters.map((cluster) => ({
+    arrowIds: [...cluster.arrowIds].sort(),
+    atomIds: cluster.atomIds,
+  }));
+}
+
+/**
  * How the electrons travelled with a hydrogen that changed heavy atom.
  *
  * THIS IS THE DISCRIMINATION THE ADVERSARY ASKED FOR, AND IT IS THE ONLY ONE IN THIS FILE

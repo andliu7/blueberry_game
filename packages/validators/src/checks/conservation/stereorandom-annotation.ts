@@ -1,13 +1,12 @@
-import type { MechanismPathway, MechanismState, MechanismStep } from "@blueberry/chem-core";
+import type { MechanismPathway, MechanismStep } from "@blueberry/chem-core";
 
 import type { Check } from "../../check.ts";
 import {
-  annotationGroundingViolations,
   annotationVocabulary,
-  annotationsOfKind,
   requiredAnnotationViolations,
+  type AnnotationOccurrence,
 } from "./authoring.ts";
-import { conservationCheck, type Violation, type ViolationFinder } from "./family.ts";
+import { conservationCheck, type ViolationFinder } from "./family.ts";
 
 /**
  * CHECK 8. An SN1 capture carries an authored racemisation annotation, and no check
@@ -32,11 +31,27 @@ import { conservationCheck, type Violation, type ViolationFinder } from "./famil
  * THIS CHECK ASSERTS, EXACTLY:
  *
  *   1. A pathway containing an SN1 capture step carries a `racemisation_ratio` annotation.
- *   2. There is exactly one of them.
+ *   2. There is exactly one of them PER CAPTURE STEP, not per pathway. See below.
  *   3. Its `value` is not empty.
  *   4. Its `justification` is not empty.
  *   5. Value and justification together name at least one atom id or species id from the
  *      capture step, so the claim is anchored to the centre it is about.
+ *
+ * WHY RULE 2 IS PER CAPTURE AND NOT PER PATHWAY, WHICH IS THE ADVERSARY'S SECOND PASS.
+ *
+ * It used to be per pathway, and that rejected correct chemistry.
+ * `good-sn1-two-independent-captures-in-one-pathway-each-correctly-annotated` authors two
+ * unrelated cations, the tert-butyl one and the butan-2-yl one, as the two steps of one
+ * pathway, each carrying its own correctly grounded ratio. Both claims are true, neither is
+ * about the other's centre, and the check rejected the file because it counted two
+ * annotations of one kind and could not see that they were about two different things.
+ * A check that rejects correct work is as serious a defect as one that accepts wrong work.
+ *
+ * The scope is now the capture step. Each capture needs exactly one ratio ABOUT IT, and an
+ * annotation says which capture it is about by naming that step's id when the pathway has
+ * more than one. `authoring.ts` owns that binding and documents what it costs. The
+ * converse hole closes with it: two captures sharing one annotation used to pass, and now
+ * the second capture reports that nothing on file is a claim about it.
  *
  * THIS CHECK DOES NOT ASSERT, AND MUST NEVER BE MADE TO:
  *
@@ -94,36 +109,24 @@ const find: ViolationFinder = (fixture) => {
   const captures = pathway.steps.filter((step) => isSn1Capture(step, pathway));
   if (captures.length === 0) return [];
 
-  const violations: Violation[] = [];
-  const captureStates: MechanismState[] = [];
-  for (const step of captures) captureStates.push(step.from, step.to);
-  const vocabulary = annotationVocabulary(captureStates);
+  const occurrences: AnnotationOccurrence[] = captures.map((step) => ({
+    stepId: step.id,
+    where: `pathway ${pathway.id} / SN1 capture at ${step.id}`,
+    // The claim is about the configuration this capture creates, so the names it may be
+    // anchored to are the ones in the two states of this capture and no others.
+    vocabulary: annotationVocabulary([step.from, step.to]),
+  }));
 
-  violations.push(
-    ...requiredAnnotationViolations(pathway, {
-      kind: "racemisation_ratio",
-      where: `pathway ${pathway.id} / SN1 capture at ${captures.map((step) => step.id).join(", ")}`,
-      cause: CAUSE,
-      because:
-        "the nucleophile arrives at a planar cation, so both configurations appear in the " +
-        "product set and the fixture is silent about which. CLAUDE.md makes the ratio an " +
-        "authoring annotation and never a computed assertion, so it has to be written down " +
-        "here or it exists nowhere. No check reads what it says",
-    }),
-  );
-
-  for (const [index, annotation] of annotationsOfKind(pathway, "racemisation_ratio").entries()) {
-    violations.push(
-      ...annotationGroundingViolations(
-        annotation,
-        vocabulary,
-        `pathway ${pathway.id} / annotation[${index}] kind racemisation_ratio`,
-        CAUSE,
-      ),
-    );
-  }
-
-  return violations;
+  return requiredAnnotationViolations(pathway, {
+    kind: "racemisation_ratio",
+    cause: CAUSE,
+    occurrences,
+    because:
+      "the nucleophile arrives at a planar cation, so both configurations appear in the " +
+      "product set and the fixture is silent about which. CLAUDE.md makes the ratio an " +
+      "authoring annotation and never a computed assertion, so it has to be written down " +
+      "here or it exists nowhere. No check reads what it says",
+  });
 };
 
 export const conservationStereorandomAnnotation: Check = conservationCheck({

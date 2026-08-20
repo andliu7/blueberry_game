@@ -34,7 +34,7 @@ export const ROUTE_COPY: Readonly<Record<RouteCauseId, CauseCopy>> = Object.free
   step_not_elementary: {
     whatYouDid: "You drew several separate steps as one.",
     why: "One elementary step is one transition state and one energy barrier. Forming a bond and moving a proton somewhere unrelated are two barriers, so they are two steps, even when both are certain to happen.",
-    lookAt: "Split wherever an intermediate exists, even a short lived one. Addition to a carbonyl under acid is three steps: protonate the carbonyl oxygen, attack the carbon, then deprotonate, with the tetrahedral intermediate drawn in between.",
+    lookAt: "Trace your arrows and see whether they join up. If one set of them never touches the other, and the two sets are at opposite ends of the molecule, you have drawn two things happening at once that have no way of reaching each other. Split wherever an intermediate exists, even a short lived one. Addition to a carbonyl under acid is three steps: protonate the carbonyl oxygen, attack the carbon, then deprotonate, with the tetrahedral intermediate drawn in between.",
   },
   step_kind_disagrees_with_arrows: {
     whatYouDid: "You called this step one kind of step and drew a different one.",

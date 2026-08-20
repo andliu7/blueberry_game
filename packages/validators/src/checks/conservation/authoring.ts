@@ -28,13 +28,64 @@ import type { Violation } from "./family.ts";
  * character count, which two words defeat. See the long note on
  * `annotationGroundingViolations`.
  *
- * WHY MORE THAN ONE ANNOTATION OF A REQUIRED KIND IS A FAILURE.
+ * WHY MORE THAN ONE ANNOTATION OF A REQUIRED KIND IS A FAILURE, AND WHY THAT SENTENCE
+ * USED TO BE WRONG.
  *
- * Two racemisation ratios on one pathway are two authored claims about the same centre,
+ * Two racemisation ratios ABOUT THE SAME CENTRE are two authored claims about one thing,
  * and nothing downstream can pick between them. A reader takes the first, a renderer takes
- * the last, and neither is wrong about what the file says. One authored claim per required
- * kind keeps the annotation a statement rather than a menu. Kinds that no check requires,
- * `condition_note` most of all, are not held to this and may repeat.
+ * the last, and neither is wrong about what the file says. One authored claim per place
+ * that requires one keeps the annotation a statement rather than a menu.
+ *
+ * That was previously enforced by counting annotations PER PATHWAY, which is a different
+ * and false rule: a pathway with two independent SN1 captures, each carrying its own
+ * correctly grounded ratio, was rejected as though the two claims were about one cation.
+ * `good-sn1-two-independent-captures-in-one-pathway-each-correctly-annotated` is that
+ * fixture and it is correct chemistry, correctly annotated. CLAUDE.md treats a check that
+ * rejects correct work exactly as seriously as one that accepts wrong work, so the scope
+ * is now the OCCURRENCE rather than the pathway. See `AnnotationOccurrence`.
+ *
+ * The same defect existed one check over in `periplanarity.ts`, which asked for a
+ * `conformational_justification` once per syn periplanar E2 STEP while counting
+ * annotations across the whole pathway. Both directions were wrong there: two justified
+ * syn eliminations were rejected, and two syn eliminations sharing ONE justification were
+ * accepted. Both call sites now pass their occurrence list here and both directions are
+ * decided in this file, once.
+ *
+ * Kinds that no check requires, `condition_note` most of all, are not held to any of this
+ * and may repeat freely.
+ *
+ * HOW AN ANNOTATION BINDS TO THE OCCURRENCE IT IS ABOUT.
+ *
+ * `AuthoredAnnotation` in chem-core is `{ kind, value, justification }`. It carries no
+ * pointer to a step, so there is no structural field to read. The binding used here is the
+ * one already available in the data: the annotation NAMES the step it is about, by step
+ * id, in its value or its justification, exactly as the grounding rule below already
+ * requires it to name an atom or a species. A name from a known finite list, present or
+ * absent. Nothing about what the sentence says.
+ *
+ * When a pathway has exactly ONE occurrence of the requirement, the binding is implicit
+ * and no step id is needed: there is only one thing the claim could be about. That keeps
+ * every honestly authored single occurrence fixture in the corpus unchanged, and it is why
+ * this rule adds no new burden to the common case. Two or more occurrences, and each
+ * annotation has to say which one it is for.
+ *
+ * WHAT THIS BINDING COSTS, STATED RATHER THAN HIDDEN.
+ *
+ * An annotation whose prose names a SIBLING occurrence's step id, for contrast rather than
+ * as its subject, binds to both and is reported as a second claim about that sibling. The
+ * remedy is in the failure line: name only the step this claim is about and refer to the
+ * others by description. That is a real cost, and it is paid deliberately, because the
+ * alternative readings, first id wins or last id wins, are position heuristics that would
+ * silently pick a subject rather than reporting that the file does not say which.
+ *
+ * THE STRUCTURAL ALTERNATIVE, WHICH IS NOT TAKEN HERE AND SHOULD BE LATER.
+ *
+ * The boring fix is a field: `AuthoredAnnotation.appliesTo?: StepId` in chem-core, a
+ * fixture schema version bump to v3 to carry it, and a rule here that prefers the field
+ * and falls back to the naming convention for annotations that omit it. That is a
+ * chem-core change and this task does not own chem-core, so it is reported rather than
+ * made. Until it exists, the binding is the naming convention above, and the convention
+ * is enforced rather than assumed: an annotation that names no occurrence fails.
  */
 
 export type AnnotationKind = AuthoredAnnotation["kind"];
@@ -46,35 +97,95 @@ export function annotationsOfKind(
   return (pathway.annotations ?? []).filter((annotation) => annotation.kind === kind);
 }
 
+/**
+ * One place in a pathway that requires one annotation of a kind.
+ *
+ * A capture step for a racemisation ratio, a syn periplanar elimination for a
+ * conformational justification, a hindered substitution for a rate comparison. The step is
+ * the unit because the step is what a caller can identify from the arrows, and because
+ * every requirement in this family is triggered by a step.
+ */
+export interface AnnotationOccurrence {
+  /** The step this occurrence is at. Its id is the name an annotation binds by. */
+  readonly stepId: string;
+  /** Human description of this occurrence, rendered into the failure line. */
+  readonly where: string;
+  /**
+   * Names a claim about this occurrence may be grounded against, when the caller wants
+   * the grounding rule applied. Undefined means this caller does not ask for grounding,
+   * and no grounding failure is ever reported for it.
+   */
+  readonly vocabulary?: ReadonlySet<string>;
+}
+
 export interface RequiredAnnotation {
   readonly kind: AnnotationKind;
-  /** Where in the fixture the requirement was triggered, for the failure line. */
-  readonly where: string;
-  /** The chem-core CauseId a missing or empty annotation maps to. */
+  /** The chem-core CauseId a missing, duplicated, or empty annotation maps to. */
   readonly cause: string;
-  /** One sentence: why this pathway has to carry it. Rendered verbatim into the failure. */
+  /** One sentence: why these places have to carry it. Rendered verbatim into the failure. */
   readonly because: string;
+  /**
+   * Every place in this pathway that requires one annotation of this kind.
+   *
+   * Never empty: a caller with nothing to require does not call this function at all.
+   */
+  readonly occurrences: readonly AnnotationOccurrence[];
 }
 
 /**
- * The presence and shape rules every required annotation is held to.
+ * Does this text name this step id as a whole word?
  *
- * Missing, duplicated, empty value, or empty justification. Nothing about content. The
- * parser accepts an empty string on purpose, following the spectator declaration
- * precedent, so that the negative control for the empty case can exist on disk; this is
- * the half that refuses it.
+ * Separate from `namesIn` because the boundary class has to be different. Step ids are
+ * hyphenated, and under `namesIn`'s boundaries "step-1" would match inside
+ * "step-1-capture-tert-butyl", so naming one occurrence would silently bind to another
+ * whose id happens to be a prefix. A hyphen is part of an id here, not a boundary.
+ */
+export function namesStep(text: string, stepId: string): boolean {
+  if (stepId.trim() === "") return false;
+  return new RegExp(`(^|[^A-Za-z0-9_-])${escapeForRegExp(stepId)}([^A-Za-z0-9_-]|$)`, "i").test(
+    text,
+  );
+}
+
+/**
+ * The occurrences one annotation is a claim about.
+ *
+ * One occurrence in the pathway: that one, implicitly. More than one: those whose step id
+ * the annotation names. See the binding note in the file docstring.
+ */
+export function boundOccurrences(
+  annotation: AuthoredAnnotation,
+  occurrences: readonly AnnotationOccurrence[],
+): readonly AnnotationOccurrence[] {
+  if (occurrences.length <= 1) return occurrences;
+  const text = `${annotation.value} ${annotation.justification}`;
+  return occurrences.filter((occurrence) => namesStep(text, occurrence.stepId));
+}
+
+/**
+ * The presence, scope, and shape rules every required annotation is held to.
+ *
+ * Missing, unbound, duplicated at one occurrence, missing at one occurrence, empty value,
+ * empty justification, and, when the caller supplies a vocabulary, ungrounded. Nothing
+ * about content. The parser accepts an empty string on purpose, following the spectator
+ * declaration precedent, so that the negative control for the empty case can exist on
+ * disk; this is the half that refuses it.
  */
 export function requiredAnnotationViolations(
   pathway: MechanismPathway,
   required: RequiredAnnotation,
 ): readonly Violation[] {
   const found = annotationsOfKind(pathway, required.kind);
+  const occurrences = required.occurrences;
   const violations: Violation[] = [];
+  const everywhere = occurrences.map((occurrence) => occurrence.where).join("; ");
 
   if (found.length === 0) {
     violations.push({
-      where: required.where,
-      expected: `an authored annotation of kind "${required.kind}" on pathway ${pathway.id}`,
+      where: everywhere,
+      expected:
+        `an authored annotation of kind "${required.kind}" on pathway ${pathway.id}` +
+        (occurrences.length === 1 ? "" : `, one for each of the ${occurrences.length} places above`),
       actual:
         `the pathway carries ${(pathway.annotations ?? []).length === 0 ? "no annotations at all" : `kinds [${(pathway.annotations ?? []).map((annotation) => annotation.kind).join(", ")}]`}. ` +
         required.because,
@@ -83,22 +194,71 @@ export function requiredAnnotationViolations(
     return violations;
   }
 
-  if (found.length > 1) {
-    violations.push({
-      where: required.where,
-      expected: `exactly one "${required.kind}" annotation on pathway ${pathway.id}`,
-      actual:
-        `${found.length} of them: ${found.map((annotation) => JSON.stringify(annotation.value)).join(" and ")}. ` +
-        `Two authored claims about the same thing cannot both be the one on file, and nothing ` +
-        `downstream can pick between them`,
-      cause: required.cause,
-    });
+  // Scope. One claim per occurrence, and no claim about nothing.
+  const claims = new Map<string, AuthoredAnnotation[]>(
+    occurrences.map((occurrence) => [occurrence.stepId, []]),
+  );
+  for (const [index, annotation] of found.entries()) {
+    const bound = boundOccurrences(annotation, occurrences);
+    for (const occurrence of bound) claims.get(occurrence.stepId)?.push(annotation);
+
+    if (bound.length === 0) {
+      violations.push({
+        where: `pathway ${pathway.id} / annotation[${index}] kind ${required.kind}`,
+        expected:
+          `the annotation to name the step it is a claim about, one of ` +
+          `[${occurrences.map((occurrence) => occurrence.stepId).join(", ")}], in its value or ` +
+          `its justification`,
+        actual:
+          `it names none of them, and this pathway has ${occurrences.length} places that each ` +
+          `require their own ${required.kind}. An annotation that does not say which one it is ` +
+          `about is a claim nothing downstream can attach to a centre. chem-core's ` +
+          `AuthoredAnnotation carries no step pointer, so the step id written in the prose is ` +
+          `the binding`,
+        cause: required.cause,
+      });
+    }
   }
 
+  for (const occurrence of occurrences) {
+    const mine = claims.get(occurrence.stepId) ?? [];
+
+    if (mine.length === 0) {
+      violations.push({
+        where: occurrence.where,
+        expected: `one "${required.kind}" annotation naming ${occurrence.stepId}`,
+        actual:
+          `the pathway carries ${found.length} annotation(s) of that kind and none of them names ` +
+          `this step, so this place is unannotated while another place is annotated twice or ` +
+          `not at all. ` +
+          required.because,
+        cause: required.cause,
+      });
+      continue;
+    }
+
+    if (mine.length > 1) {
+      violations.push({
+        where: occurrence.where,
+        expected: `exactly one "${required.kind}" annotation about ${occurrence.stepId}`,
+        actual:
+          `${mine.length} of them: ${mine.map((annotation) => JSON.stringify(annotation.value)).join(" and ")}. ` +
+          `Two authored claims about the same thing cannot both be the one on file, and nothing ` +
+          `downstream can pick between them. An annotation counts as a claim about every step ` +
+          `id it names, so one that mentions a sibling step for contrast lands here too: name ` +
+          `only the step this claim is about`,
+        cause: required.cause,
+      });
+    }
+  }
+
+  // Shape, and grounding when the caller asked for it. Per annotation, whatever it bound to.
   for (const [index, annotation] of found.entries()) {
+    const where = `pathway ${pathway.id} / annotation[${index}] kind ${annotation.kind}`;
+
     if (annotation.value.trim() === "") {
       violations.push({
-        where: `${required.where} / annotation[${index}] kind ${annotation.kind}`,
+        where,
         expected: "a non empty value, which is the authored claim itself",
         actual:
           "the value is empty, so the annotation records that somebody knew a claim was " +
@@ -108,7 +268,7 @@ export function requiredAnnotationViolations(
     }
     if (annotation.justification.trim() === "") {
       violations.push({
-        where: `${required.where} / annotation[${index}] kind ${annotation.kind}`,
+        where,
         expected: "a non empty justification saying why the value is what it is",
         actual:
           "the justification is empty. step.ts requires one so a validator can see that a " +
@@ -116,6 +276,21 @@ export function requiredAnnotationViolations(
           "cannot be argued with later",
         cause: required.cause,
       });
+    }
+
+    const bound = boundOccurrences(annotation, occurrences);
+    const grounding = bound.length === 0 ? occurrences : bound;
+    const vocabulary = new Set<string>();
+    let asked = false;
+    for (const occurrence of grounding) {
+      if (occurrence.vocabulary === undefined) continue;
+      asked = true;
+      for (const name of occurrence.vocabulary) vocabulary.add(name);
+    }
+    if (asked) {
+      violations.push(
+        ...annotationGroundingViolations(annotation, vocabulary, where, required.cause),
+      );
     }
   }
 
