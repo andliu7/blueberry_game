@@ -1,7 +1,21 @@
-# Blueberry Mechanisms
+# Blueberry
 
-An organic chemistry mechanism engine plus two shells: a game-mode web app, and a standalone Expo
-mobile app.
+A chemistry learning platform. One web app and one Expo app over a shared core.
+
+The product is a set of tabs, not a single game:
+
+- **Mechanism Trainer.** The organic chemistry mechanism engine, and the hardest thing here. This is
+  the crown jewel and the reason the engine exists
+- **Courses.** General Chemistry I and II, Organic Chemistry I and II, and DAT and MCAT preparation
+- **Onboarding quiz.** Real chemistry questions, sat before signup, that place a student into a course
+- **Periodic table.** Interactive, always reachable
+- **AI chat.** Server metered, sees the student's current state
+- **Tutor messaging.** Async, moderated, shipped last
+
+Most of the curriculum is not mechanism chemistry. Gas laws, thermodynamics, kinetics, titration
+curves, stoichiometry, and spectroscopy interpretation do not touch `chem-core` at all. They need an
+authored problem and answer checking engine, which is a second system alongside the first, not an
+extension of it. Do not route a limiting reactant problem through a mechanism validator.
 
 This file is the single source of truth. Where the build prompt, a subagent instruction, or a code
 comment disagrees with this file, this file wins. If you find a conflict, report it rather than
@@ -13,12 +27,18 @@ in the sibling repository. Reopening one costs time and, in two cases, costs a r
 ## Repository layout
 
 ```
-packages/chem-core     Engine. No React, no DOM, no rendering, no RDKit. Pure TS.
+packages/chem-core     Mechanism engine. No React, no DOM, no rendering, no RDKit. Pure TS.
+packages/curriculum    Authored problems, answer checking, placement, mastery. Pure TS.
+packages/feedback      Named causes plus authored teaching copy. Pure TS. See "Feedback" below.
 packages/validators    Executable checks. Headless, exits nonzero on failure. Dev only.
 apps/web               React 19 + Vite + Tailwind v4. New app, not the Blueberry app.
 apps/mobile            Expo / React Native.
 docs/reference/        Reference artifacts for critics. Read only.
 ```
+
+`packages/curriculum` carries the two thirds of the syllabus that is not mechanisms. It has its own
+answer checking, its own problem schema, and its own validators. It may depend on `chem-core` for a
+structure question. `chem-core` must never depend on it.
 
 `apps/web` is a **new** application in this repository. It is not the existing Blueberry app and it
 does not live inside it. See `docs/INHERITED-DECISIONS.md` D1 for the two measured reasons, both of
@@ -61,9 +81,18 @@ Fixed. Do not adjust one to make a check pass.
 | Interaction to visual feedback | under 100 ms |
 | Minimum hit target | 44 by 44 points |
 | Text contrast | WCAG AA |
-| Free tier | 5 problems per day plus the full tutorial |
+| Free tier | The full tutorial, the introductory lessons, the periodic table, and 5 problems per day |
 | AI chat per user | 20,000 tokens per day |
 | AI chat global ceiling | 25 USD per day |
+| Wrong attempts resolved without a model call | 90 percent or better, at Tier 1 or Tier 2 |
+| Onboarding quiz, time to a course recommendation | Under 3 minutes |
+
+The tutorial and the introductory lessons are free and are never gated, because they are what sells
+the rest. They are held to the highest quality bar in the product. A student who bounces off a free
+lesson never sees a paid one.
+
+The free tier is enforced server side. See the non-negotiable below. A client side counter is a
+suggestion, not a limit.
 
 The Ketcher rows exist because `ketcher-standalone` inlines the Indigo WASM engine at 15.5 MB, with
 `ketcher-react` a further 3.1 MB. A single unguarded import puts that download in front of every
@@ -71,11 +100,26 @@ student. A CI check must assert that the game route's dependency graph does not 
 
 ## The bar
 
-The reference is Alchemie's Mechanisms. Critics compare against the artifacts committed under
-`docs/reference/alchemie/`, never against the app name and never from memory. A critic that cannot
-open its assigned reference file reports that and stops. It does not reconstruct the reference from
-description. `docs/reference/alchemie/OBSERVATIONS.md` records structured observations and is a
-supplement to the images, not a substitute for them.
+Four bars. Each owns one surface, so no critic has to guess which reference applies to what.
+
+| Surface | Bar | How a critic reaches it |
+|---|---|---|
+| Mechanism Trainer interaction | Alchemie's Mechanisms | The committed captures in `docs/reference/alchemie/`, by filename |
+| Placement quiz, onboarding funnel, reward moment | Duolingo | The live product, in a browser |
+| Curriculum breadth, mastery mapping, explanation quality | Khan Academy chemistry | The live product, in a browser |
+| Interactive periodic table | ptable.com | The live site, in a browser |
+
+Critics compare against the artifact, never against the product name and never from memory. A critic
+that cannot open or reach its assigned reference reports that and stops. It does not reconstruct the
+reference from a description. `docs/reference/alchemie/OBSERVATIONS.md` records structured
+observations and is a supplement to the images, not a substitute for them.
+
+**Duolingo is the bar for the reward moment only.** Take the large single number for a session
+result, the full bleed celebration distinct from the working state, and the tiered badge that means
+something because it was scarce. Do not take the streak loss anxiety loop. This is used before exams
+by people who are already stressed, and a mechanic built on fear of losing a number is the wrong
+tool for that audience. Reward returning. Do not punish leaving. The mascot is already built and is
+imported, never rebuilt. See `docs/INHERITED-DECISIONS.md` D4.
 
 Interaction patterns are fair reference. Alchemie's assets, visual design, problem sets, and
 authored content are theirs. Author your own content and keep the visual language recognizably
@@ -192,6 +236,37 @@ and still short of this. Treat it as a starting point, not the target.
 Every one of the four carries a named cause. The bar shows a yellow triangle and nothing else. That
 gap is the win condition on the feedback axis.
 
+## Feedback: every step explains itself, and almost none of it costs a token
+
+Every step in the Mechanism Trainer gives feedback and an explanation. Not only wrong steps. A
+correct step says why it was right, because a student who guesses correctly has learned nothing.
+
+Three tiers, in this order. A tier is only reached when the one above it has nothing to say.
+
+**Tier 1, the named cause.** `chem-core` already resolves every attempt to one of 46 named causes in
+a closed union. Each cause carries authored teaching copy in `packages/feedback`: what the student
+did, why it is wrong, and what to look at instead. Written once, reviewed once, served forever.
+Zero tokens.
+
+**Tier 2, the anticipated distractor.** Each authored problem carries a list of predicted wrong
+answers with their own authored explanation. These are the specific mistakes an instructor knows
+students make on that exact problem: attacking the wrong carbonyl face, pushing an arrow from an
+electron sink, protonating the wrong oxygen. Matching is on mechanism state, not on prose. Zero
+tokens.
+
+**Tier 3, AI chat.** Only for an attempt no cause and no distractor matched. This is the tail, and
+it should be a small one. Every Tier 3 hit is logged with the state that produced it, because a
+recurring Tier 3 is a missing Tier 2 that should be authored and never generated again.
+
+The measured consequence, and it is a hard requirement: the percentage of wrong attempts resolved at
+Tier 1 or Tier 2 is reported on every validator run. A build where that number falls is a build that
+got more expensive and less consistent at the same time. The AI budget in the Budgets table is a
+ceiling on the tail, not a running cost of normal use.
+
+A generated explanation is never cached and replayed as though it were authored. Authored copy is
+reviewed by a person; generated copy is not, and quietly promoting one to the other is how a wrong
+explanation becomes permanent.
+
 ## Loop discipline
 
 Loop until the stated numeric exit condition is met, or five iterations, whichever comes first. On
@@ -201,10 +276,15 @@ blocker is.
 Never loop on subjective quality. There is no exit condition for "looks good" and the loop will not
 terminate. Visual and pacing judgment are human review gates.
 
-Run the full builder / validator / adversary loop on Phases 0, 1, 2, 5, and 6 only. Use single pass
-builders on Phases 3, 4, 7, and 8, and stop for human review. Rendering feel, game pacing, and
-onboarding copy are judgment calls, and a critic will loop on them indefinitely while producing
-nothing you would not have decided faster yourself.
+Run the full builder / validator / adversary loop on Phases 0, 1, 2, 3, 6, 7, and 8, which are the
+correctness critical and security critical ones. Use single pass builders on Phases 4, 5, and 9, and
+stop for human review. Rendering feel, game pacing, and onboarding copy are judgment calls, and a
+critic will loop on them indefinitely while producing nothing you would not have decided faster
+yourself.
+
+Phase 5 carries the onboarding funnel and the free lessons, which are the highest leverage copy in
+the product. That makes it a human gate, not a loop. There is no exit condition for "this lesson
+converts."
 
 ## Suite integrity
 

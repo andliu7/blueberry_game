@@ -86,146 +86,176 @@ Exit: the suite runs headless, exits nonzero on every broken fixture, exits zero
 known good fixtures, and `validators.lock.json` is committed. A validator suite that has never
 failed has not been tested.
 
-PHASE 1: CHEMISTRY CORE
+PHASE 1: MECHANISM CORE
 
 Builders, one per workstream. Molecule state and immutable transitions. Arrow semantics: which arrow
-types exist, what each moves, what each is legal on. Mechanism step evaluation. Stereochemistry:
-assignment, inversion, retention, stereorandom outcomes. Scoring and partial credit.
+types exist, what each moves, what each is legal on. Mechanism step evaluation. Stereochemistry.
+Scoring and partial credit.
 
-Partial credit is a first class requirement. The four result types are the contract, and every one
-carries a named cause. A student who builds an ether when asked for an ester made a different mistake
-than one who violated valence, and a student who reached the right product by a different valid route
-made no mistake at all. The engine must say which, in a sentence, not a symbol. The bar shows one
-undifferentiated warning triangle for every failure it knows the cause of. That is the gap.
+ARROW LEGALITY IS THE HEADLINE AND IT IS ALREADY A KNOWN HOLE. The Phase 0 adversary proved an SN2
+drawn with a lone pair teleporting onto a non adjacent atom reports zero violations, because
+declared deltas total per atom and per atom pair and never ask whether a source and its sink are
+adjacent. The fixture guarding it is committed. Close it first.
+
+Also carried from the Phase 0 adversary, each with a committed fixture: spectator laundering across
+two species ids, and species id uniqueness documented in state.ts and enforced nowhere.
+
+Partial credit is a first class requirement. The four result types are the contract and every one
+carries a named cause. Tier 1 feedback copy is written in this phase: authored teaching copy for
+every named cause in packages/feedback, saying what the student did, why it is wrong, and what to
+look at instead. A cause without copy is an incomplete cause.
 
 Exit: full suite green on a corpus of at least 30 authored mechanisms spanning substitution,
-elimination, addition, and carbonyl chemistry, with fixture count reported and non decreasing.
-Mutation testing on `chem-core` at or above 80 percent killed. At least 12 distinct named failure
-causes reachable, with the percentage of corpus wrong-attempts resolving to a named cause reported as
-a number. The adversary produces no new findings on a second pass.
+elimination, addition, and carbonyl chemistry, fixture count reported and non decreasing. Mutation
+testing on chem-core at or above 80 percent killed. At least 12 distinct named failure causes
+reachable, with the percentage of corpus wrong attempts resolving to a named cause reported as a
+number. Every named cause has authored copy. The adversary produces no new findings on a second pass.
 
-Human gate: I check the partial credit taxonomy before Phase 2. Stop.
+Human gate: I check the partial credit taxonomy and read the feedback copy before Phase 2. Stop.
 
 PHASE 2: INTERACTION LAYER
 
 Platform agnostic interaction logic, still no rendering. Tap an atom to toggle lone pairs. Tap to
 toggle implicit hydrogens. Drag from source to sink to draw a curved arrow with a dashed in flight
-guide. Drag semantics distinguish lone pair to atom, bond to atom, and bond to bond. Snapping and hit
-tolerance tuned so a fingertip can hit a lone pair at the tightest spacing in the corpus.
+guide, which the committed capture extra/x01 shows. Bond end handles are the drag target rather than
+the bond body, which extra/x02 shows.
 
-Three pointer types, not two: mouse, touch, and pen. Pen is `pointerType === 'pen'` with `e.pressure`
-read and palm rejection through `touch-action: none`. iPad Safari with an Apple Pencil is a named
-target. Do not fold pen into touch.
+Three pointer types, not two: mouse, touch, and pen. Pen is pointerType pen with pressure read and
+palm rejection through touch-action none. iPad Safari with an Apple Pencil is a named target.
 
-Every mechanism must also be completable tap only, with no drag gesture at any point. Some students
-use a trackpad and some have motor impairments. This is a hard requirement and it is also the
-clearest place to beat the bar on ergonomics, since nothing observed in it suggests a tap-only path
-exists.
-
-Model this as a state machine over pointer events with no DOM and no React Native dependency. Both
-shells adapt native events into it.
+Every mechanism must also be completable tap only, with no drag gesture at any point. This is a hard
+requirement and the clearest place to beat the bar on ergonomics.
 
 Exit: 100 percent branch coverage on the state machine module, measured and reported, including
 cancelled drags, drags released over empty space, drags released over the source atom, two
 simultaneous drags, taps faster than state transitions, a drag interrupted by backgrounding, and pen
-input with and without pressure support. Tap only completion verified across the full corpus. Mis-tap
-rate against the synthetic fingertip model at both the tightest lone pair spacing and the tightest
-bond handle to atom spacing, reported as numbers.
+input with and without pressure support. Tap only completion verified across the full corpus.
+Mis-tap rate against the synthetic fingertip model at both the tightest lone pair spacing and the
+tightest bond handle to atom spacing, reported as numbers.
 
-PHASE 3: RENDERING, single pass, not looped
+PHASE 3: CURRICULUM ENGINE AND PLACEMENT QUIZ
 
-Two renderers against one interface. 2D SVG, authored here rather than extended from elsewhere. 3D
-through Three.js or React Three Fiber, both already dependencies in the sibling repo.
+The second system. Most of the syllabus is not mechanisms and must not be routed through a mechanism
+validator.
 
-Every 3D usage must answer a question 2D cannot. Stereochemistry qualifies. Orbital and p-orbital
-alignment for conjugation qualifies. Most steps do not. Do not add 3D because it looks impressive.
+packages/curriculum: an authored problem schema, answer checking, and mastery mapping across General
+Chemistry I and II, Organic Chemistry I and II, and DAT and MCAT scope. Numeric answers with
+significant figures and units. Multiple choice. Structure answers, which may call chem-core.
+Balanced equations. Titration curve reading. Spectra interpretation.
 
-Animations: atoms converging as a bond forms, bonds breaking with electron flow visible along the
-arrow path, stereocenter inversion as an actual umbrella flip rather than a cut.
+Tier 2 feedback is authored here: every problem carries predicted wrong answers with their own
+authored explanation, matched on answer state rather than on prose. These are the mistakes an
+instructor knows students make on that exact problem.
 
-Take three things from the bar, per `OBSERVATIONS.md`: implicit hydrogens on a faint arc rather than
-as bonded nodes, charge as a badge outside the atom silhouette so it never fights the element letter,
-and one button of chrome. Resist adding a toolbar.
+The placement quiz sits on top: real questions, adaptive enough to finish fast, ending in a course
+recommendation. It runs before signup.
 
-Respect `prefers-reduced-motion` to the sibling repo's standard: drop to a static representative
-frame, never simply remove the animation and leave no state. A stereocenter inversion with reduced
-motion still has to show that inversion happened.
+Exit: answer checking correct on an authored corpus with fixture count reported. Significant figures
+and unit handling verified against a deliberately broken fixture set, because a checker that accepts
+2.0 for 2.00 teaches students the wrong habit. Placement quiz reaches a recommendation in under 3
+minutes of simulated input, measured. Percentage of authored problems carrying at least one Tier 2
+distractor reported as a number. Adversary pass.
+
+PHASE 4: RENDERING, single pass, not looped
+
+Two renderers against one interface. 2D SVG, authored here. 3D through Three.js or React Three
+Fiber, both already dependencies in the sibling repo.
+
+Every 3D usage must answer a question 2D cannot. Stereochemistry qualifies. Orbital and p orbital
+alignment for conjugation qualifies. Most steps do not.
+
+Take three things from the Alchemie captures: implicit hydrogens on a faint arc rather than as
+bonded nodes, charge as a badge outside the atom silhouette, and one button of chrome.
+
+Respect prefers-reduced-motion to the sibling repo standard: drop to a static representative frame,
+never simply remove the animation and leave no state.
 
 Exit: measured frame budget in headless Chromium, plus the device measurement script and a results
 file I can populate. Human gate: I review animation feel and run the devices. Stop.
 
-PHASE 4: GAME SHELL, single pass, not looped
+PHASE 5: APP SHELL, TABS, PERIODIC TABLE, ONBOARDING, single pass, not looped
 
-Level progression and unlock logic. Failure animations: an incorrect arrow snaps back elastically, a
-leaving group that will not leave wobbles and stays put, a valid but wrong result is named out loud.
-No red X, and `--destructive` is not the wrong-answer color.
+The tabs: Mechanism Trainer, Courses, Periodic Table, Chat, Messages. Level progression and unlock
+logic. The reward moment per the Duolingo row in CLAUDE.md, rewarding returning and never punishing
+leaving.
+
+The interactive periodic table is bar matched against ptable.com. It is free, always reachable, and
+works offline.
+
+Onboarding: the placement quiz, then the free tutorial covering real mechanisms rather than a UI
+tour, then the free introductory lessons. The paywall appears only after the student has succeeded
+at something. Skippable, and skipping leads somewhere useful rather than to a wall.
 
 Import the mascot behaviour machine from the sibling repo. Do not rebuild it. Wire game events to
-behaviours, not moods: correct resolves to `bounce`, wrong to `squash`, streak milestones to
-`celebrate`. Mood and behaviour compose, so a student can be `stressed` during exam week and still
-bounce on a correct answer.
+behaviours, not moods.
 
-Duolingo is the reference for the reward moment only: one large number for the session result, a
-full bleed celebration state visually distinct from the working state, a tiered badge that means
-something because it was scarce. Do not take the streak loss anxiety loop. This is used before exams
-by people who are already stressed. Reward returning, do not punish leaving.
+Failure animations: an incorrect arrow snaps back elastically, a leaving group that will not leave
+wobbles and stays put, a valid but wrong result is named out loud. No red X, and --destructive is not
+the wrong answer color.
 
-PHASE 5: AUTH, DATA, FREE TIER
+Human gate: I review the copy, the funnel, and the feel. Stop.
 
-Supabase. Google OAuth plus email OTP as a six digit code, for the recorded reason: GitHub Pages
-serves from a subpath with no server to rewrite anything and the app routes on the hash, so a
-confirmation link carrying its own `#access_token=` fights the router over one field. Requires the
-Supabase email template to send `{{ .Token }}`.
+PHASE 6: AUTH, DATA, FREE TIER
 
-Port the sibling repo's schema patterns rather than inventing new ones: `is_staff()` and
-`current_user_role()` as `security definer stable` functions reused in every policy, attempts append
-only with no update or delete policy for anyone, `staff_roster` keyed by lowercase email as the
-authorization source of truth, content tables public read and staff write.
+Supabase. Google OAuth plus email OTP as a six digit code, for the recorded reason in D5.
 
-Progress and attempts go to Postgres, append only, indexed on `(user_id, created_at)`. The sibling
-repo writes progress to localStorage only despite having the table, and that gap is inherited work,
-not a pattern to copy.
+Port the sibling repo schema patterns rather than inventing new ones: is_staff() and
+current_user_role() as security definer stable functions reused in every policy, attempts append only
+with no update or delete policy for anyone, staff_roster keyed by lowercase email, content tables
+public read and staff write. The seven migrations in the sibling repo are the starting point.
 
-Free tier gated in an Edge Function or an RLS policy, never in the client.
+Progress, attempts, placement results, and course enrollment go to Postgres, append only, indexed on
+(user_id, created_at).
 
-Exit: an authenticated user cannot read another user's rows, verified by a test that actually
-attempts it with the second seeded account. Not reasoned about. Attempted. And a client attempting to
-write an entitlement, role, or progress column it should not control is rejected by the database,
-verified the same way, with column level GRANTs in place because RLS filters rows and not columns.
+Free tier and paid entitlement gated in an Edge Function or an RLS policy, never in the client.
 
-PHASE 6: AI CHAT
+Exit: an authenticated user cannot read another user rows, verified by a test that actually attempts
+it with the second seeded account. Not reasoned about. Attempted. A client attempting to write an
+entitlement, role, or progress column it should not control is rejected by the database, verified the
+same way, with column level GRANTs in place because RLS filters rows and not columns.
 
-Decide first, and state the reason: Supabase Edge Function or Google Apps Script. The sibling repo
-uses Apps Script, and its budget logic lives outside the inspectable repo so it is unproven rather
-than absent. The recommendation is an Edge Function, because the budget counter needs a transaction
-against the same Postgres holding the usage rows, and two concurrent requests racing a counter across
-an HTTP boundary with separate storage is exactly the case that loses.
+PHASE 7: AI CHAT AS THE TIER 3 TAIL
+
+Decide first and state the reason: Supabase Edge Function or Google Apps Script. The recommendation
+is an Edge Function, because the budget counter needs a transaction against the same Postgres holding
+the usage rows.
+
+Chat is the third tier of feedback, not the first. It is reached only when no named cause and no
+authored distractor matched. Every Tier 3 hit is logged with the state that produced it, so a
+recurring one can be authored into Tier 2 and never generated again.
 
 The key is server side, always. Metering ships with the feature: per user daily token budget, per
 user rate limit, global daily spend ceiling degrading gracefully rather than failing open, cost per
-conversation logged and queryable. All enforced before the first message renders.
+conversation logged and queryable.
 
-Chat sees the student's current molecule state and recent attempts, passed explicitly, so it can
-answer why this is wrong rather than answering in the abstract. Do not infer the state.
+Chat sees the student current state and recent attempts, passed explicitly. Do not infer the state.
 
 Exit: a load test against a mock endpoint returning synthetic token counts confirms the ceiling stops
 spending, including the concurrent case where two requests race the same counter. One live call
-verifies the real accounting path. Do not load test against the live API; that spends money to prove
-a spend limit works and can trip your own ceiling.
+verifies the real accounting path. Percentage of wrong attempts reaching Tier 3 reported as a number
+and at or under 10 percent. Do not load test against the live API.
 
-PHASE 7: ONBOARDING, single pass, not looped
+PHASE 8: TUTOR MESSAGING
 
-Free tutorial covering a small number of real mechanisms, not a UI tour and not a static image in a
-modal, which is what the bar does. The paywall appears only after the student has succeeded at
-something. Skippable, and skipping leads somewhere useful rather than to a wall. Human gate: I review
-the copy. Stop.
+Shipped last because it is the only feature where the risk is people rather than code.
 
-PHASE 8: SCALE HARDENING, single pass, not looped
+Async only. Tutor initiated, or student requested with a tutor accepting. Never open discovery. Every
+message logged and retained. Reporting and blocking present from the first version, not added later.
+Tutors are a staff_roster role, not self signup.
 
-Only after 0 through 7 pass. Offline problem caching, attempt queueing, defined conflict resolution.
-Supabase Pro, since the free tier pauses after seven days of inactivity. Realtime connection count
-against the ceiling. Database egress under projected load. Backups, since the free plan has none and
-attempt history cannot be rebuilt.
+Assume some students are under 18. That drives retention, moderation, and what a tutor can see about
+a student.
+
+Exit: RLS verified by attempted cross conversation reads with seeded accounts. A blocked user cannot
+send, verified by attempt. Reporting produces a staff visible record, verified by attempt. Rate
+limits enforced server side.
+
+PHASE 9: SCALE HARDENING, single pass, not looped
+
+Only after 0 through 8 pass. Offline problem caching, attempt queueing, defined conflict resolution.
+Supabase Pro, since the free tier pauses after seven days of inactivity and branching needs Pro.
+Realtime connection count against the ceiling. Database egress under projected load. Backups, since
+the free plan has none and attempt history cannot be rebuilt.
 
 RULES THAT APPLY THROUGHOUT
 
