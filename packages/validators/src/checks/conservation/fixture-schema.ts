@@ -66,6 +66,13 @@ export const FIXTURE_SCHEMA_VERSION = 1;
 export const FIXTURE_SUFFIX = ".fixture.json";
 
 /**
+ * The oracle's own fixture extension, documented in corpus.ts and python/CONTRACT.md.
+ * Named here so the stray file sweep can tell "not a conservation fixture" apart from
+ * "should not be in this directory at all".
+ */
+export const ORACLE_FIXTURE_SUFFIX = ".oracle.json";
+
+/**
  * Files allowed to sit in fixtures/ without being fixtures.
  *
  * Kept short and explicit. Anything not on this list and not ending in the fixture suffix
@@ -646,7 +653,22 @@ export async function loadCorpus(
     const base = path.basename(absolutePath);
 
     if (!base.endsWith(FIXTURE_SUFFIX)) {
-      if (!NON_FIXTURE_FILES.includes(base)) strayFiles.push(relativePath);
+      // A `.oracle.json` here is a fixture, just not one of ours.
+      //
+      // corpus.ts and python/CONTRACT.md both document the fixtures directory as the
+      // sanctioned place for a chem-core state to reach the RDKit oracle: any file whose
+      // name ends `.oracle.json` is picked up automatically. Nobody widened this
+      // allowlist when that path was built, so the documented capability was unusable.
+      // The first such file made all six conservation checks report a stray and the
+      // suite went red on a file that was exactly where it was supposed to be. Found by
+      // the Phase 0 adversary, which could not fix it from inside fixtures/.
+      //
+      // It is deliberately not added to NON_FIXTURE_FILES: an oracle fixture is real
+      // corpus and must keep counting toward the fixture total. It is only not a
+      // conservation fixture.
+      if (!NON_FIXTURE_FILES.includes(base) && !base.endsWith(ORACLE_FIXTURE_SUFFIX)) {
+        strayFiles.push(relativePath);
+      }
       continue;
     }
 
