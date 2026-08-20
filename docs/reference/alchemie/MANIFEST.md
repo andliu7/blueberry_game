@@ -51,16 +51,30 @@ before trusting the claim.
 
 ## Measured observations
 
-Fill by hand from the artifacts. Numbers a critic can compare against beat impressions.
+Measured, not estimated. The captures are 2556 by 1179 px, an iPhone 14 Pro class panel in landscape
+at 3x, so pixels divide by 3 to give points. Segmented with PIL and numpy during Phase 2 while
+building the synthetic fingertip model. Method is recorded beside each number and the layouts are
+reproduced in `packages/interaction/src/geometry/reference-layouts.ts`.
 
-- Atom sphere diameter, in points: `____`
-- Bond handle diameter, in points: `____`
-- Centre to centre distance, bond handle to its nearest atom, in points: `____`
-- Tightest spacing between two independently tappable targets, in points: `____`
-- Approximate time from action to feedback, in ms, from the recording: `____`
-- **Number of distinct wrong-answer presentations observed across all captures:** `____`
-- Number of those that name a cause in words rather than a symbol: `____`
-- Body text contrast ratio sampled from `08-intro-modal.png`: `____`
+- Atom sphere diameter, in points: **71.5** (bbox over 5 atoms in 2 captures, range 71.3 to 71.7)
+- Bond handle diameter, in points: **15.7** (two independent methods agreeing to 0.1: a width profile
+  down a C=O capsule showing a 9.3 shaft bulging to 15.67 at both ends, and the pulled-off handle in
+  `extra/x02` isolated at 15.7 by 16.0, circularity 0.98). That is 0.22 of an atom diameter, which
+  confirms OBSERVATIONS.md's prose "roughly a quarter" as a number
+- Centre to centre distance, bond handle to its nearest atom, in points: **41.4** (41.5 and 41.3 on
+  the two handles of a double bond)
+- Tightest spacing between two independently tappable targets, in points: **29.2**, the two handles
+  of a double bond. Lone pair dots are 15.8 across on a 59.5 orbit, 25.2 apart within a pair
+- Approximate time from action to feedback, in ms, from the recording: `____` **still unmeasured.**
+  Both optional recordings are missing and a still cannot carry a duration
+- **Number of distinct wrong-answer presentations observed across all captures:** **2**, not the 1
+  this file originally estimated. The yellow warning triangle, and a separate black spiky exploded
+  atom outline which this manifest already gives its own row at slot 04. They co-occur but are
+  distinct presentations. The offending atom is also dimmed, which may be a third channel or part of
+  the same state
+- Number of those that name a cause in words rather than a symbol: **0**. No text appears in any
+  error state in any capture. This is the number the feedback axis is calibrated on and it survives
+- Body text contrast ratio sampled from `08-intro-modal.png`: `____` **still unmeasured**
 
 The last three rows are the ones that matter. Feedback specificity is the axis where beating the bar
 is most achievable and most valuable to a student, and it is the easiest to quantify: count their

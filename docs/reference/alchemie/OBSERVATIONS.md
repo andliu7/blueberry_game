@@ -42,8 +42,10 @@ on each one.
 **Bonds** are thick white capsules. At each end sits a small white circular handle. Those handles,
 not the bond body, appear to be the interactive targets for bond manipulation.
 
-**Formal charge** renders as a small circled `+` badge attached to the lower right of the atom,
-outside the sphere, with a faint ring drawn around the atom.
+**Formal charge** renders as a small circled `+` badge attached to the lower LEFT of the atom,
+outside the sphere, with a faint ring drawn around the atom. This originally said lower right and was
+wrong. Measured in Phase 2: badge centre (280.9, 119.6) against oxygen centre (300.3, 85.5). Badge
+diameter 24.0 points.
 
 **Error state** on an atom renders as a black spiky or exploded outline replacing the smooth
 sphere silhouette, paired with a yellow warning triangle.
@@ -85,9 +87,18 @@ worth trying.
 
 The bond end handles are small, roughly a quarter of an atom's diameter, and they sit adjacent to
 the atom they attach to. That adjacency is the weak point: at a fingertip's contact radius, the
-handle and its atom overlap, so a tap near the junction is ambiguous. Measure the centre to centre
-distance and the handle radius from `07-problem-canvas-full.png` and set our own tightest spacing
-against those numbers.
+handle and its atom overlap, so a tap near the junction is ambiguous. Those numbers are now measured
+and live in `MANIFEST.md`: handle 15.7 points across, 41.4 from its atom centre, atom 71.5 across.
+
+Note the file this paragraph used to name, `07-problem-canvas-full.png`, does not exist. Slot 07 is
+`07-goal-achieved.png` and the full canvas is `01-mechanism-canvas-full.png`. The measurements were
+taken from `01` and from `extra/x02`, which shows a handle pulled clear of its bond.
+
+Phase 2 turned the prose into a verdict. Under a 44 point minimum hit target, measured against the
+exclusive area a target actually owns rather than the area it is drawn at, their bond handles reach
+34 percent of budget and their lone pairs 93 percent. Those are two different defects: the handles
+are crowded by the atom they sit on, and the lone pairs are simply drawn about 3 points too small
+with nothing crowding them at all.
 
 The second gap is that every capture shows a drag-based or drag-implying interaction. Nothing
 observed suggests a tap-only path exists. Our tap-only completion requirement is therefore not
