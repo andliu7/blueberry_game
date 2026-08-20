@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 197,
-  "suiteHash": "43a6cf525e8774b5ab36ef76297d9f9fbd595cbc7b3989a346fab894f47f5432",
+  "fileCount": 201,
+  "suiteHash": "e8518db5eec215ce9d3eecd02159bb9eb7534fe80fe4d7ff008332b22d32d138",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -100,8 +100,11 @@
     "fixtures/good-hypervalent-phosphorus-addition-elimination-at-the-period-three-ceiling.fixture.json": "f166110070afe8930a7199f0fb6c9b8081b2cab47b9635274a1f498024145bd8",
     "fixtures/good-imine-formation-from-acetaldehyde-and-methylamine.fixture.json": "83ffe31778ea4edf7f93dfbce29095e09046ad71f018bfda6eacdc9c8dc5dca3",
     "fixtures/good-known-limit-arrow-legality-departing-bond-pair-handed-directly-to-a-non-donating-nucleophile.fixture.json": "508a37304c19adef751927fcd8c8b45bedae2ec331db7d8382391619f6da0dd5",
+    "fixtures/good-known-limit-cyanohydrin-addition-and-a-separate-acids-protonation-collapsed-into-one-connected-step.fixture.json": "989020bfa3d19b2f54c58f5edde2e3362a655f407a97cc55a536b433bb52b9a3",
+    "fixtures/good-known-limit-sn2-prime-allylic-attack-at-a-quaternary-flanked-carbon-not-recognised-as-hindered.fixture.json": "e92d1826b96ee403a0378f5050516493d17637204799b076ca396f0ecf881c9e",
     "fixtures/good-known-limit-spectator-justification-contradicts-its-own-declared-reason.fixture.json": "ca45b1c80436b456e7561334dd28b057de750a8d45dc2b970a60b5aa873f9125",
     "fixtures/good-known-limit-spectator-role-and-reason-drift-across-three-spectators.fixture.json": "aff85ddcc56f3d5102469b4ff35d51453631afd7fcc3ad16fccba3ddad26a3d4",
+    "fixtures/good-known-limit-two-sn1-captures-sharing-an-accidental-duplicate-step-id-cannot-be-annotated-at-all.fixture.json": "f67e45d92d20aaecf06f328d12197372ffa1ded8243451f3f568adaeed624741",
     "fixtures/good-markovnikov-addition-of-hydrogen-chloride-to-2-methylpropene.fixture.json": "90b050eb75080872536377302c24fa1117f2db6307a8f265473f09232b9a5631",
     "fixtures/good-nucleophilic-acyl-substitution-of-acetyl-chloride-by-hydroxide.fixture.json": "34097158905d147460b9210c17f26d80ea8967cef9755495f327f73dcda5ac34",
     "fixtures/good-protonation-of-acetone-by-hydronium.fixture.json": "19e8c74bbe678bc17674a53bb3c6ae268eb9dad5035ff12a3c43665086d6f9db",
@@ -210,6 +213,7 @@
     "tests/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "tests/annotation-binding-is-one-claim-one-occurrence.test.ts": "c1d9ed0f8c09941d3a2166fd99011cb1251629c68d05f1f4aeddcad1b99a7542",
     "tests/external-data-census-barrel-export-blind-spot.test.ts": "aaff9dc619d46e9655b3b286d5469e041bb365c78f0e563504744860b8827f14",
+    "tests/external-data-census-misses-require-and-non-literal-dynamic-import.test.ts": "508286a0a2c10c01d5e2fd40bcc06bd6307de7ec49352720535fd375a767dd65",
     "tests/external-data-declaration.test.ts": "c4e57759d68b1ca443b7049e7099b36a64762ec2cf5ad99c7fa280cda9228c0c",
     "tests/feedback-copy-coverage.test.ts": "5ba1664764f01cd14a54bcfe4bb9475aa84367224dc7c0a3b442b2d2077e2253",
     "tests/rate-comparison-competing-routes-not-locked.test.ts": "78913a8c6f48ed10992ddf97f14dd87132b224d8c1bdb278604483b5af3554c2",
