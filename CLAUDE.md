@@ -29,7 +29,7 @@ in the sibling repository. Reopening one costs time and, in two cases, costs a r
 ```
 packages/chem-core     Mechanism engine. No React, no DOM, no rendering, no RDKit. Pure TS.
 packages/curriculum    Authored problems, answer checking, placement, mastery. Pure TS.
-packages/feedback      Named causes plus authored teaching copy. Pure TS. See "Feedback" below.
+packages/feedback      Authored student facing copy for the named causes in chem-core. Pure TS.
 packages/validators    Executable checks. Headless, exits nonzero on failure. Dev only.
 apps/web               React 19 + Vite + Tailwind v4. New app, not the Blueberry app.
 apps/mobile            Expo / React Native.
@@ -243,10 +243,17 @@ correct step says why it was right, because a student who guesses correctly has 
 
 Three tiers, in this order. A tier is only reached when the one above it has nothing to say.
 
-**Tier 1, the named cause.** `chem-core` already resolves every attempt to one of 46 named causes in
-a closed union. Each cause carries authored teaching copy in `packages/feedback`: what the student
-did, why it is wrong, and what to look at instead. Written once, reviewed once, served forever.
-Zero tokens.
+**Tier 1, the named cause.** `chem-core` resolves every attempt to a named cause in a closed union.
+The count is whatever `causeCount()` returns and is deliberately not written here, because a literal
+in this file goes stale the first time a builder adds a cause, and one already did. Each cause
+carries authored teaching copy in `packages/feedback`: what the student did, why it is wrong, and
+what to look at instead. Written once, reviewed once, served forever. Zero tokens.
+
+The registry of cause ids lives in `chem-core`, because the engine has to resolve an attempt whether
+or not any copy is loaded. Only the student facing copy lives in `packages/feedback`. `chem-core`
+also carries a short `summary` and `teaches` on each cause definition: those are engine facing, sized
+for a log line and a validator report, and they are never what a student reads. If the two ever
+disagree on chemistry, that is a bug in one of them and not a style difference.
 
 **Tier 2, the anticipated distractor.** Each authored problem carries a list of predicted wrong
 answers with their own authored explanation. These are the specific mistakes an instructor knows

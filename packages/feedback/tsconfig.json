@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    // Same reasoning as packages/validators: keep the incremental build stamp inside
+    // dist/ so it is covered by the dist/ gitignore rule rather than sitting next to
+    // this file as untracked build output.
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    // The review CLI runs the sources directly with `node --experimental-strip-types`,
+    // and Node's type stripping does not rewrite a ".js" specifier to a ".ts" file on
+    // disk. So relative imports here carry a ".ts" extension and this option lets tsc
+    // still emit by rewriting them to ".js" in dist/. TypeScript 5.7 or newer.
+    // packages/validators uses the same pair of settings for the same reason.
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../chem-core" }]
+}

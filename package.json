@@ -11,12 +11,12 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "typecheck": "tsc -b packages/chem-core packages/validators",
+    "typecheck": "tsc -b packages/chem-core packages/feedback packages/validators",
     "test": "npm run test --workspaces --if-present",
     "validate": "npm run validate -w packages/validators",
     "lock:check": "npm run lock:check -w packages/validators",
     "lock:regen": "npm run lock:regen -w packages/validators",
-    "build": "tsc -b packages/chem-core packages/validators"
+    "build": "tsc -b packages/chem-core packages/feedback packages/validators"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
