@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 191,
-  "suiteHash": "ea4717c77c2095b62765d5dab885951f948a4738e25076ef40ffd1214c976383",
+  "fileCount": 195,
+  "suiteHash": "cb297b70f35850ad79bdddec97de0cf8359ef4bcb491da0047480f552099c2f7",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -96,7 +96,10 @@
     "fixtures/good-hydroboration-of-propene-in-one-concerted-four-centre-step.fixture.json": "61fa332326ab6f0bf622221aa06423b90f492e207b3525a5e94c5c5e045037a8",
     "fixtures/good-hypervalent-phosphorus-addition-elimination-at-the-period-three-ceiling.fixture.json": "f166110070afe8930a7199f0fb6c9b8081b2cab47b9635274a1f498024145bd8",
     "fixtures/good-imine-formation-from-acetaldehyde-and-methylamine.fixture.json": "83ffe31778ea4edf7f93dfbce29095e09046ad71f018bfda6eacdc9c8dc5dca3",
+    "fixtures/good-known-limit-acyl-substitution-addition-and-elimination-collapsed-into-one-connected-step.fixture.json": "4ab2703144cba6f9ac827f2238518364a221d30271c5593cbdeaacad3dbc1402",
     "fixtures/good-known-limit-arrow-legality-departing-bond-pair-handed-directly-to-a-non-donating-nucleophile.fixture.json": "508a37304c19adef751927fcd8c8b45bedae2ec331db7d8382391619f6da0dd5",
+    "fixtures/good-known-limit-one-racemisation-ratio-annotation-naming-both-sn1-captures-satisfies-both-occurrences.fixture.json": "096a48dd4c4a4a4ccc036bcea5275c805d2276ccefb74ddac0aa66b6e4a6ea92",
+    "fixtures/good-known-limit-sn2-at-a-secondary-carbon-directly-adjacent-to-a-quaternary-carbon-not-recognised-as-hindered.fixture.json": "3ee4e7556be84ca1675264d9fd1705f275d5e1d599abf052f07558d5d2c4b1dd",
     "fixtures/good-known-limit-spectator-justification-contradicts-its-own-declared-reason.fixture.json": "ca45b1c80436b456e7561334dd28b057de750a8d45dc2b970a60b5aa873f9125",
     "fixtures/good-known-limit-spectator-role-and-reason-drift-across-three-spectators.fixture.json": "aff85ddcc56f3d5102469b4ff35d51453631afd7fcc3ad16fccba3ddad26a3d4",
     "fixtures/good-markovnikov-addition-of-hydrogen-chloride-to-2-methylpropene.fixture.json": "90b050eb75080872536377302c24fa1117f2db6307a8f265473f09232b9a5631",
@@ -205,6 +208,7 @@
     "src/registry.ts": "44f1bb6b8ac0eb0e9da2255294f3d0e7ceaed808405e073da1a0bd03b483bf24",
     "src/report.ts": "6a7e7a394279e64b16a479a28921bfcfea126a648995e384a3337b4e27885047",
     "tests/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/external-data-census-barrel-export-blind-spot.test.ts": "be42a46381ffe0571e82b443aa4c443d48defa37cfb2819b55a64bd57459cbe3",
     "tests/external-data-declaration.test.ts": "c4e57759d68b1ca443b7049e7099b36a64762ec2cf5ad99c7fa280cda9228c0c",
     "tests/feedback-copy-coverage.test.ts": "5ba1664764f01cd14a54bcfe4bb9475aa84367224dc7c0a3b442b2d2077e2253",
     "tests/rate-comparison-competing-routes-not-locked.test.ts": "dbbf3bff651c48e12e80f3d0623e2b846f75aeecb89c3cff9d0941b60b4168fe",
