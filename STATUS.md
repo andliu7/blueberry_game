@@ -37,8 +37,8 @@ Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is au
 | Phase | Mode | State |
 |---|---|---|
 | 0 Contracts and validators | Gauntlet loop | DONE, merged into `phase-1` history |
-| 1 Mechanism core | Gauntlet loop | IN PROGRESS, branch `phase-1`, adversary iteration 4 of 5 |
-| 2 Interaction layer | Gauntlet loop | Not started |
+| 1 Mechanism core | Gauntlet loop | DONE, human gate passed, merged to `main` |
+| 2 Interaction layer | Gauntlet loop | IN PROGRESS, branch `phase-2` |
 | 3 Curriculum engine and placement quiz | Gauntlet loop | Not started |
 | 4 Rendering | Single pass, human gate | Not started |
 | 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | Not started |
@@ -78,12 +78,27 @@ geometry, each with a fixture recording the limit: an arrow shaped
 electrophile, and a spectator whose prose contradicts its own declared reason is
 a human review problem rather than a mechanical one.
 
-### Remaining Phase 1 exit conditions
+### How Phase 1 closed
 
-1. An adversary pass that produces no new findings. Iteration 4 of 5 running.
-2. **Your gate.** Read the 51 causes and judge whether the wording teaches.
-   `npm run review -w packages/feedback` prints all of it. No agent can do this,
-   and it is the axis where the bar shows a yellow triangle and nothing else.
+Five adversary passes, twenty three findings, twenty one fixed. The loop hit the five iteration cap
+in `CLAUDE.md` rather than converging to a clean pass, and that is recorded honestly rather than
+smoothed over: pass five still produced findings.
+
+Two are open on purpose, each with a fixture pinning exactly what it does not cover. Both need a
+barrier model chem-core does not have, and building one under loop pressure is how a third false
+positive ships. This phase already shipped two checks that rejected correct chemistry, which is the
+argument for stopping.
+
+The human gate passed on review of the 51 named causes.
+
+### The four answer shapes, recorded before Phase 2 builds for one
+
+A question is an answer shape, not only a prompt. There are four: draw the mechanism, predict the
+product, supply the reagents including the ordered synthesis case, and pick the major product.
+`StudentAttempt.built` is a `MechanismStep`, so the engine understands one of them. Phase 2 designs
+the input state machine for all four; Phase 3 grades the other three.
+
+A synthesis is the reagent shape read backwards, not a fifth shape.
 
 ## Phase 0 detail
 
