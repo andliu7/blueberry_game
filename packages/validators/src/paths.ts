@@ -37,3 +37,19 @@ export const LAST_RUN_PATH: string = path.join(RESULTS_DIR, "last-run.json");
 export function toPackageRelative(absolutePath: string): string {
   return path.relative(PACKAGE_ROOT, absolutePath).split(path.sep).join("/");
 }
+
+/**
+ * Convert an absolute path to a repository relative path with forward slashes.
+ *
+ * Used by the integrity lock for the declared external data set, which by definition
+ * lives outside PACKAGE_ROOT, so a package relative path for it would be a string of
+ * "../.." segments that nobody can read in a lock diff.
+ */
+export function toRepoRelative(absolutePath: string): string {
+  return path.relative(REPO_ROOT, absolutePath).split(path.sep).join("/");
+}
+
+/** Resolve a repository relative path, forward slashes, to an absolute path. */
+export function fromRepoRelative(repoRelativePath: string): string {
+  return path.join(REPO_ROOT, ...repoRelativePath.split("/"));
+}

@@ -35,6 +35,7 @@ async function commandCheck(): Promise<number> {
   if (report.status === "unmodified") {
     console.log("SUITE INTEGRITY: unmodified");
     console.log(`  files hashed: ${report.fileCountOnDisk}`);
+    console.log(`  external data entries: ${report.externalEntryCountOnDisk}`);
     console.log(`  algorithm:    ${HASH_ALGORITHM}, lock schema v${LOCK_SCHEMA_VERSION}`);
     console.log(`  suite hash:   ${report.suiteHashOnDisk}`);
     return EXIT_OK;
@@ -45,10 +46,28 @@ async function commandCheck(): Promise<number> {
 }
 
 async function commandRegen(): Promise<number> {
-  const lock = await regenerateLock();
+  const result = await regenerateLock();
+
+  // Regen is not a way past an undeclared external data dependency. If it were, the one
+  // command a builder reaches for on a red lock would also be the command that blesses a
+  // dependency nobody wrote down, and the census would be optional in practice.
+  if (result.kind === "refused") {
+    console.log("SUITE INTEGRITY: REFUSED TO REGENERATE");
+    for (const finding of result.findings) {
+      console.log(`  ${finding.kind}  ${finding.detail}`);
+    }
+    console.log("");
+    console.log("Nothing was written. Declare the dependency in EXTERNAL_DATA in");
+    console.log("src/integrity.ts first, then regenerate.");
+    return EXIT_SUITE_MODIFIED;
+  }
+
+  const lock = result.lock;
   console.log("SUITE INTEGRITY: lock regenerated");
   console.log(`  wrote:        ${toPackageRelative(LOCK_PATH)}`);
   console.log(`  files hashed: ${lock.fileCount}`);
+  console.log(`  external data entries: ${lock.externalData.entryCount}`);
+  console.log(`  external hash: ${lock.externalData.externalHash}`);
   console.log(`  algorithm:    ${lock.algorithm}, lock schema v${lock.schemaVersion}`);
   console.log(`  suite hash:   ${lock.suiteHash}`);
   console.log("");
