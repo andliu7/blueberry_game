@@ -1,0 +1,133 @@
+/**
+ * Why nothing happened, or why what happened is not what was asked for.
+ *
+ * A closed union of ids, in the same spirit as chem-core's cause registry and
+ * for the same three reasons: a validator can group by it, a report can count
+ * it, and an adversary can go looking for the id that has never fired.
+ *
+ * THESE ARE NOT CHEMISTRY CAUSES AND THEY ARE NOT STUDENT COPY.
+ *
+ * chem-core's `CauseId` names a chemistry mistake. A `NoticeId` names an
+ * interaction outcome: a second finger was ignored, a drag was cancelled, a
+ * reagent was already on the list. `detail` on a notice is a log line for a
+ * developer and a validator, sized like chem-core's `summary`. The sentence a
+ * student reads is authored in packages/feedback, keyed by these ids, and if the
+ * two ever disagree that is a bug in one of them.
+ *
+ * The one place the two meet is `arrow_refused_by_legality`, which carries
+ * chem-core's own `ArrowLegalityFinding` list. Those findings already carry a
+ * CauseId, so the chemistry reason travels with the interaction refusal instead
+ * of being reconstructed from it.
+ *
+ * The bar shows a yellow warning triangle and nothing else. This file is half of
+ * the answer to that; the other half is the cause registry in chem-core.
+ */
+
+import type { ArrowLegalityFinding } from "@blueberry/chem-core";
+import type { ScoredTarget } from "./geometryPort.js";
+import type { CommandSeq } from "./ids.js";
+import type { HitTarget } from "./targets.js";
+
+export type NoticeId =
+  // Pointer plumbing. None of these are the student's fault, and none of them
+  // should ever be shown as an error.
+  | "secondary_pointer_ignored"
+  | "pen_preempted_touch"
+  | "non_primary_button_ignored"
+  | "stale_pointer_session_replaced"
+  | "unknown_pointer_ignored"
+  | "timestamp_went_backwards"
+  | "drag_cancelled"
+  | "backgrounded_mid_drag"
+  | "drag_ended_on_its_own_source"
+  | "target_was_ambiguous"
+  // Shape independent.
+  | "nothing_to_undo"
+  | "target_not_valid_in_this_shape"
+  | "command_not_valid_in_this_shape"
+  | "nothing_selected_for_this_target"
+  // Mechanism shape.
+  | "arrow_refused_by_legality"
+  | "bond_source_needs_an_end"
+  // Structure shape.
+  | "no_element_selected"
+  | "atom_not_in_structure"
+  | "bond_order_cycled_instead_of_added"
+  // Supply the reagents shape.
+  | "reagent_already_chosen"
+  | "sequence_slot_out_of_range"
+  | "sequence_slot_requires_ordered_mode"
+  // Major product shape.
+  | "unknown_candidate"
+  | "reason_requires_a_choice";
+
+/**
+ * `info` means the machine absorbed something and the student did not lose an
+ * action. `refused` means the student did something deliberate and it did not
+ * take effect, which is the class the feedback axis is measured on: every
+ * refusal must carry a name, never a bare symbol.
+ */
+export type NoticeSeverity = "info" | "refused";
+
+export interface InteractionNotice {
+  readonly id: NoticeId;
+  readonly severity: NoticeSeverity;
+  /** Engine facing. One line. Never shown to a student. */
+  readonly detail: string;
+  /** The command this notice came out of, when there was one. */
+  readonly commandSeq?: CommandSeq;
+  /** Set on `target_not_valid_in_this_shape` and friends. */
+  readonly target?: HitTarget;
+  /** Set on `target_was_ambiguous`: the runners up, best first. */
+  readonly candidates?: readonly ScoredTarget[];
+  /** Set on `arrow_refused_by_legality`: chem-core's own findings, unedited. */
+  readonly legality?: readonly ArrowLegalityFinding[];
+}
+
+export const ALL_NOTICE_IDS: readonly NoticeId[] = [
+  "secondary_pointer_ignored",
+  "pen_preempted_touch",
+  "non_primary_button_ignored",
+  "stale_pointer_session_replaced",
+  "unknown_pointer_ignored",
+  "timestamp_went_backwards",
+  "drag_cancelled",
+  "backgrounded_mid_drag",
+  "drag_ended_on_its_own_source",
+  "target_was_ambiguous",
+  "nothing_to_undo",
+  "target_not_valid_in_this_shape",
+  "command_not_valid_in_this_shape",
+  "nothing_selected_for_this_target",
+  "arrow_refused_by_legality",
+  "bond_source_needs_an_end",
+  "no_element_selected",
+  "atom_not_in_structure",
+  "bond_order_cycled_instead_of_added",
+  "reagent_already_chosen",
+  "sequence_slot_out_of_range",
+  "sequence_slot_requires_ordered_mode",
+  "unknown_candidate",
+  "reason_requires_a_choice",
+];
+
+/**
+ * How many distinct interaction outcomes this package can name.
+ *
+ * A function rather than a number written into a document, for the reason
+ * CLAUDE.md gives about `causeCount()`: a literal in prose goes stale the first
+ * time a builder adds one, and one already did.
+ */
+export function noticeCount(): number {
+  return ALL_NOTICE_IDS.length;
+}
+
+/** Small helper so call sites stay one line and severity is never forgotten. */
+export function notice(
+  id: NoticeId,
+  severity: NoticeSeverity,
+  detail: string,
+  extra?: Omit<InteractionNotice, "id" | "severity" | "detail">,
+): InteractionNotice {
+  return { id, severity, detail, ...(extra ?? {}) };
+}
