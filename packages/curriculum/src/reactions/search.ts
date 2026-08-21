@@ -18,10 +18,18 @@
  *             that group in its own `anyOf`, so searching AlBr3 reaches the
  *             bromination the textbook wrote with FeBr3 without any lookup here.
  *
- *   class     SUBSTRING match, case folded. This is what makes "alcohol" reach
- *             "primary alcohol" and "tertiary alcohol" with no hierarchy
- *             modelled anywhere. It is the reason the ChemicalClass union is
- *             written as English phrases.
+ *   class     WORD-START match, case folded: the query must appear in the
+ *             class phrase starting at a word boundary. This is what makes
+ *             "alcohol" reach "primary alcohol" and "tertiary alcohol" with no
+ *             hierarchy modelled anywhere, and it is the reason the
+ *             ChemicalClass union is written as English phrases. It is
+ *             word-start rather than raw substring because an adversary pass
+ *             found the collision the header of this file only speculated
+ *             about: "amine" is a substring of "enamine", an unrelated
+ *             functional group, so a raw substring search for amine chemistry
+ *             surfaced acetal hydrolysis. A prefix still works ("alco" finds
+ *             the alcohols), and "enam" still finds the enamines; what no
+ *             longer happens is a match that starts mid-word.
  *
  *   name      SUBSTRING match over the name and every alias, case folded. The
  *             student who remembers "something Kishner" finds it.
@@ -67,12 +75,20 @@ function matchesReagent(reaction: Reaction, key: string): boolean {
   return reaction.reagents.some((slot) => slot.anyOf.some((token) => searchKey(token) === key));
 }
 
+/**
+ * Word-start containment: the query matches at the start of the phrase or
+ * immediately after a space. See the class axis note in the file header.
+ */
+function containsAtWordStart(phrase: string, key: string): boolean {
+  return (" " + phrase).includes(" " + key);
+}
+
 function matchesSubstrate(reaction: Reaction, key: string): boolean {
-  return reaction.substrateClasses.some((klass) => searchKey(klass).includes(key));
+  return reaction.substrateClasses.some((klass) => containsAtWordStart(searchKey(klass), key));
 }
 
 function matchesProduct(reaction: Reaction, key: string): boolean {
-  return reaction.productClasses.some((klass) => searchKey(klass).includes(key));
+  return reaction.productClasses.some((klass) => containsAtWordStart(searchKey(klass), key));
 }
 
 function matchesName(reaction: Reaction, key: string): boolean {

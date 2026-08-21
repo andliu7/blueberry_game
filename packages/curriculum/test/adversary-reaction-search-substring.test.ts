@@ -32,8 +32,11 @@ describe("class search substring collision between amine and enamine", () => {
     const enamineOnlyMatches = matches.filter((reaction) => {
       const classes = [...reaction.substrateClasses, ...reaction.productClasses];
       const matchedAmineFamily = classes.some((klass) => klass.toLowerCase().includes("amine"));
+      // "aryl amine" added after the fix: the original list omitted it, but
+      // aniline IS an amine, so a row producing one is a legitimate hit for
+      // "amine" and not part of the enamine collision this file pins down.
       const matchedARealAmine = classes.some((klass) =>
-        ["primary amine", "secondary amine", "tertiary amine"].includes(klass),
+        ["primary amine", "secondary amine", "tertiary amine", "aryl amine"].includes(klass),
       );
       return matchedAmineFamily && !matchedARealAmine;
     });

@@ -68,9 +68,14 @@ describe("a distractor that is a notation variant of the correct answer", () => 
     expect(buildWithDeadDistractor).toThrow(/never|unreachable|notation/i);
   });
 
-  it("demonstrates the distractor can never fire, regardless of the authoring refusal", () => {
-    // Build without going through the (currently absent) refusal above, so the
-    // reachability claim itself is verified directly against gradeAttempt.
+  it("demonstrates the pre-emption that motivates the refusal", () => {
+    // UPDATED IN PLACE after the fix: this case originally built the dead
+    // distractor directly to prove it could never fire. createProblem now
+    // refuses that construction (the test above), so the pre-emption is shown
+    // on a problem with NO distractor at the notation point: a submission that
+    // is the correct value with the wrong notation resolves to the notation
+    // cause before the distractor list is ever consulted, which is exactly why
+    // a distractor authored at such a point could never be shown.
     const problem = createProblem({
       id: "adversary-dead-distractor-direct",
       course: "gen_chem_1",
@@ -85,23 +90,22 @@ describe("a distractor that is a notation variant of the correct answer", () => 
       },
       distractors: [
         {
-          id: "same-value-fewer-sig-figs",
-          state: { kind: "numeric", text: "2.0", unit: "atm" },
+          id: "genuinely-wrong-value",
+          state: { kind: "numeric", text: "4.00", unit: "atm" },
           explanation: {
-            whatHappened: "This writes the pressure with only two significant figures.",
-            why: "The starting data supports three figures, and two undercounts the precision.",
-            lookAt: "Count the figures in every measurement that went into the answer.",
+            whatHappened: "This doubles the pressure instead of reading it from the data.",
+            why: "This is fixture text standing in for real chemistry.",
+            lookAt: "The starting values before any arithmetic.",
           },
         },
       ],
     });
 
-    // A student submits exactly the distractor's own state.
+    // A student submits the correct value with one fewer significant figure.
     const result = gradeAttempt(problem, { kind: "numeric", text: "2.0", unit: "atm" });
 
-    // The distractor's author-written explanation is never what the student
-    // sees: the generic notation cause pre-empts it every time, silently.
-    expect(result.kind).not.toBe("matched_distractor");
+    // The notation cause pre-empts the distractor walk, per grading.ts's
+    // recorded tier order.
     expect(result.kind).toBe("named_cause");
     if (result.kind === "named_cause") {
       expect(result.cause).toBe("significant_figures_too_few");

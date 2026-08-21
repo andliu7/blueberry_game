@@ -44,17 +44,27 @@ export const curriculumQuiz: Check = {
     }
 
     const {
+      ALL_COURSE_IDS,
       SEED_CORPUS,
       simulateFleet,
       simulateStudent,
+      topicCount,
       QUESTION_CAP,
       TIME_BUDGET_SECONDS,
       WORST_CASE_SECONDS_BY_KIND,
     } = curriculum;
 
     // Every claimed course plus the no-claim default, because the walk differs
-    // per course and a budget met on one is not a budget met on all.
-    const courses = ["gen_chem_1", "gen_chem_2", "orgo_1", "orgo_2", null] as const;
+    // per course and a budget met on one is not a budget met on all. DERIVED
+    // from the registry, never written out here: an adversary pass proved that
+    // a hardcoded copy of this list silently omitted "dat" and "mcat", and the
+    // broken walks behind both claims were invisible to this check by
+    // construction. A course added to CourseId is in this fleet the moment it
+    // exists.
+    const courses: readonly (import("@blueberry/curriculum").CourseId | null)[] = [
+      ...ALL_COURSE_IDS,
+      null,
+    ];
     let worstQuestions = 0;
     let worstSeconds = 0;
     const unprobeable = new Set<string>();
@@ -137,8 +147,8 @@ export const curriculumQuiz: Check = {
         property: "quiz coverage of the topic registry",
         reason:
           `${unprobeable.size} topic(s) wanted by some walk carried no quiz eligible problem, a corpus ` +
-          "thinness fact, not a machine defect: the seed corpus is 16 problems against a 46 topic " +
-          "registry. Authoring waves close this; padding with fake problems would hide it.",
+          `thinness fact, not a machine defect: the corpus is ${SEED_CORPUS.length} problems against a ` +
+          `${topicCount()} topic registry. Authoring waves close this; padding with fake problems would hide it.`,
       },
     ];
 

@@ -10,8 +10,19 @@
  * to which at what order. Atom ids and species ids are NOT compared: a student
  * who drew the same molecule with different ids drew the same molecule. Roles are
  * not compared either, because labelling a species "byproduct" rather than
- * "product" is not a chemistry error. Declared spectators are excluded, which is
- * chem-core's own system boundary rule applied unchanged.
+ * "product" is not a chemistry error.
+ *
+ * SPECTATORS ARE ASYMMETRIC, and this is a correctness rule, not a convenience.
+ * The AUTHORED answer's spectator declarations are honoured: they were written
+ * and reviewed by a person, which is what CLAUDE.md's system boundary requires
+ * of a declaration. The SUBMITTED state's spectator declarations are IGNORED:
+ * every species the student drew participates in grading. An adversary pass
+ * proved the alternative marks wrong chemistry correct, exactly the attack
+ * CLAUDE.md names: a student who draws a wrong extra species and declares it a
+ * spectator inside their own submission would hide the mistake from the
+ * checker. Nothing validates a student-side declaration, so nothing may trust
+ * one. The contract with the shell is that the submission contains exactly what
+ * the student drew as their answer, nothing pre-populated.
  *
  * WHAT IT CANNOT COMPARE, and what it does instead of guessing:
  *
@@ -346,8 +357,17 @@ export function speciesAreEquivalent(left: Species, right: Species): Isomorphism
   return findIsomorphism(buildGraph(left), buildGraph(right));
 }
 
+/** The authored side: spectator declarations were reviewed, so they are honoured. */
 function participatingSpecies(state: MechanismState): readonly Species[] {
   return participatingMembers(state).map((member) => member.species);
+}
+
+/**
+ * The submitted side: spectator declarations are ignored, per the file header.
+ * Everything the student drew is graded.
+ */
+function submittedSpecies(state: MechanismState): readonly Species[] {
+  return state.members.map((member) => member.species);
 }
 
 function totalCharge(species: readonly Species[]): number {
@@ -362,43 +382,68 @@ function formulaKey(species: readonly Species[]): string {
 }
 
 /**
- * Match two multisets of species, each against each.
+ * Match two multisets of species, each against each: two copies of the same
+ * molecule in one state must not both match one copy in the other.
  *
- * Backtracking over an assignment, the same shape as the atom search and for the
- * same reason: two copies of the same molecule in a state must not both match one
- * copy in the other.
+ * This is BIPARTITE MATCHING, not general search, and that distinction is the
+ * whole fix here. An earlier version backtracked over assignments and re-ran
+ * the species comparison inside the search, which an adversary pass measured at
+ * ~23 seconds for ten near-identical species, two orders of magnitude over the
+ * 100 ms interaction budget. Maximum bipartite matching is polynomial: compare
+ * every pair ONCE (each comparison individually guarded by
+ * ISOMORPHISM_NODE_BUDGET), then find a perfect matching over the resulting
+ * boolean edges with Kuhn's augmenting paths, O(n^3) in the species count. No
+ * separate budget is needed because nothing here is exponential any more.
+ *
+ * Undecided pair comparisons contribute no edge. If a perfect matching exists
+ * without them, the multisets are equivalent, soundly: every edge used was a
+ * verified isomorphism. If no perfect matching exists and at least one pair was
+ * undecided, the honest answer is undecided, because the missing edge might
+ * have completed the matching.
  */
 function multisetsAreEquivalent(
   expected: readonly Species[],
   submitted: readonly Species[],
 ): { readonly decided: boolean; readonly equivalent: boolean } {
   if (expected.length !== submitted.length) return { decided: true, equivalent: false };
-  const used = new Array<boolean>(submitted.length).fill(false);
+  const size = expected.length;
   let undecided = false;
 
-  function assign(position: number): boolean {
-    if (position === expected.length) return true;
-    const one = expected[position];
-    if (one === undefined) return false;
-    for (let index = 0; index < submitted.length; index += 1) {
-      if (used[index] === true) continue;
-      const other = submitted[index];
-      if (other === undefined) continue;
+  const edges: boolean[][] = expected.map((one) =>
+    submitted.map((other) => {
       const outcome = speciesAreEquivalent(one, other);
       if (!outcome.decided) {
         undecided = true;
-        continue;
+        return false;
       }
-      if (!outcome.isomorphic) continue;
-      used[index] = true;
-      if (assign(position + 1)) return true;
-      used[index] = false;
+      return outcome.isomorphic;
+    }),
+  );
+
+  // Kuhn's algorithm: for each expected species, walk an augmenting path.
+  const matchedExpectedFor = new Array<number>(size).fill(-1);
+
+  function augment(expectedIndex: number, visited: boolean[]): boolean {
+    const row = edges[expectedIndex];
+    if (row === undefined) return false;
+    for (let submittedIndex = 0; submittedIndex < size; submittedIndex += 1) {
+      if (row[submittedIndex] !== true || visited[submittedIndex] === true) continue;
+      visited[submittedIndex] = true;
+      const holder = matchedExpectedFor[submittedIndex];
+      if (holder === undefined || holder === -1 || augment(holder, visited)) {
+        matchedExpectedFor[submittedIndex] = expectedIndex;
+        return true;
+      }
     }
     return false;
   }
 
-  const matched = assign(0);
-  if (matched) return { decided: true, equivalent: true };
+  let matched = 0;
+  for (let expectedIndex = 0; expectedIndex < size; expectedIndex += 1) {
+    if (augment(expectedIndex, new Array<boolean>(size).fill(false))) matched += 1;
+  }
+
+  if (matched === size) return { decided: true, equivalent: true };
   if (undecided) return { decided: false, equivalent: false };
   return { decided: true, equivalent: false };
 }
@@ -413,7 +458,7 @@ export function checkStructure(spec: StructureAnswerSpec, state: StructureState)
   }
 
   const expected = participatingSpecies(spec.state);
-  const submitted = participatingSpecies(state.state);
+  const submitted = submittedSpecies(state.state);
 
   if (formulaKey(expected) !== formulaKey(submitted)) {
     return {
@@ -469,8 +514,10 @@ export function structureStateMatches(
   submitted: StructureState,
 ): boolean {
   if (hasStereoDeclarations(target.state) || hasStereoDeclarations(submitted.state)) return false;
+  // The target is an AUTHORED distractor state, so its declarations are
+  // honoured like the answer's; the submission's are ignored, same as above.
   const expected = participatingSpecies(target.state);
-  const given = participatingSpecies(submitted.state);
+  const given = submittedSpecies(submitted.state);
   if (formulaKey(expected) !== formulaKey(given)) return false;
   if (totalCharge(expected) !== totalCharge(given)) return false;
   const comparison = multisetsAreEquivalent(expected, given);

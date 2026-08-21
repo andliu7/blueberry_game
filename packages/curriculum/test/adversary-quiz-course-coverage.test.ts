@@ -32,8 +32,25 @@
 
 import { describe, expect, it } from "vitest";
 import { SEED_CORPUS } from "../src/corpus/index.ts";
-import { createQuiz } from "../src/quiz/machine.ts";
-import { topicIdsForCourse } from "../src/placement.ts";
+import { createQuiz, reduceQuiz, type QuizState } from "../src/quiz/machine.ts";
+import { probeTopicIdsForCourse, topicIdsForCourse } from "../src/placement.ts";
+
+/**
+ * INVERTED IN PLACE after the fix, per this repository's practice: this file
+ * originally characterised the broken shape (createQuiz finishing instantly
+ * with zero questions asked). placement.ts now gives DAT and MCAT a probe list
+ * spanning the four content courses, so the quiz ASKS, and the contract
+ * assertions this file was written for now pass against a real walk.
+ */
+function skipToEnd(initial: QuizState): QuizState {
+  let state = initial;
+  let elapsed = 0;
+  while (state.phase === "asking" && state.currentProblem !== null) {
+    elapsed += 20;
+    state = reduceQuiz(state, { kind: "skipped", elapsedSeconds: elapsed });
+  }
+  return state;
+}
 
 describe("claiming a course the topic registry never assigns any topic to", () => {
   it("has zero topics for dat and mcat in the pathway registry, which is what makes the walk break", () => {
@@ -44,24 +61,29 @@ describe("claiming a course the topic registry never assigns any topic to", () =
   });
 
   it.each(["dat", "mcat"] as const)(
+    "probes a review course claim %s against the content sequence rather than finishing instantly",
+    (course) => {
+      expect(probeTopicIdsForCourse(course).length).toBeGreaterThan(0);
+      const quiz = createQuiz({ problems: SEED_CORPUS, claimedCourse: course });
+      expect(quiz.phase).toBe("asking");
+      expect(quiz.currentProblem).not.toBeNull();
+    },
+  );
+
+  it.each(["dat", "mcat"] as const)(
     "gives claimedCourse %s a non-empty starting frontier, per the recommendation's own contract",
     (course) => {
-      const quiz = createQuiz({ problems: SEED_CORPUS, claimedCourse: course });
+      const quiz = skipToEnd(createQuiz({ problems: SEED_CORPUS, claimedCourse: course }));
 
       expect(quiz.phase).toBe("finished");
       expect(quiz.recommendation).not.toBeNull();
-
-      // This is the failing assertion. quiz/machine.ts's own Recommendation
-      // doc comment says startTopics is "Never empty", and today it is empty
-      // for both DAT and MCAT.
+      expect(quiz.recommendation?.questionsAsked ?? 0).toBeGreaterThan(0);
       expect(quiz.recommendation?.startTopics.length ?? 0).toBeGreaterThan(0);
     },
   );
 
   it("produces copy that names a topic count rather than the nonsensical zero", () => {
-    const quiz = createQuiz({ problems: SEED_CORPUS, claimedCourse: "dat" });
-    // Today this reads "...runs through 0 topics worth firming up first.",
-    // which is the visible symptom of the empty startTopics list above.
+    const quiz = skipToEnd(createQuiz({ problems: SEED_CORPUS, claimedCourse: "dat" }));
     expect(quiz.recommendation?.copy ?? "").not.toMatch(/\b0 topics\b/);
   });
 });

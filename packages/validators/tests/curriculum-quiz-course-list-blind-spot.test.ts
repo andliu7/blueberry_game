@@ -4,7 +4,9 @@ import type { CheckContext } from "../src/check.ts";
 
 /**
  * ADVERSARY FINDING, Phase 3, attack surface 3 (the quiz walk) and attack
- * surface 6 (what a check structurally misses).
+ * surface 6 (what a check structurally misses). HISTORICAL: the header below
+ * describes the check as it stood when the finding was filed; the describe
+ * block at the bottom records the fix and now guards against regression.
  *
  * curriculum-quiz.ts's own fleet loop reads:
  *
@@ -57,25 +59,47 @@ const emptyContext: CheckContext = {
   fixtures: [],
 };
 
-describe("curriculum-quiz, a check whose course fleet list omits two valid CourseId values", () => {
-  it("passes today even though claiming dat or mcat breaks the walk it exists to guard", async () => {
+/**
+ * INVERTED IN PLACE after the fix. The check's course list is now DERIVED from
+ * `ALL_COURSE_IDS` in placement.ts rather than written out in the check's own
+ * source, and placement.ts gives DAT and MCAT a probe list spanning the four
+ * content courses. So the blind spot this file documented is closed two ways:
+ * the walks work, and the check exercises them. The assertions below guard
+ * both, so a regression to a hardcoded narrower list in a future edit of the
+ * check has a test to get past.
+ */
+describe("curriculum-quiz, whose course fleet is derived from the registry", () => {
+  it("runs green while the review course walks it now covers actually work", async () => {
     const { curriculumQuiz } = await import("../src/checks/curriculum/quiz.ts");
     const curriculum = await import("@blueberry/curriculum");
 
     const result = await curriculumQuiz.run(emptyContext);
-
-    // The check the suite actually runs: green, because "dat" and "mcat" are
-    // never in its course list.
     expect(result.status).toBe("pass");
 
-    // The same corpus, walked with a course the check never tries, breaks the
-    // "Never empty" contract the check's own description claims to guard
-    // ("the placement quiz reaches a recommendation for every simulated
-    // student inside the question cap and the modelled 180 second budget").
-    // A recommendation with zero start topics is not a recommendation a
-    // student can act on, and nothing about the check catches it.
-    const quiz = curriculum.createQuiz({ problems: curriculum.SEED_CORPUS, claimedCourse: "dat" });
-    expect(quiz.phase).toBe("finished");
-    expect(quiz.recommendation?.startTopics.length ?? 0).toBe(0);
+    // The walks the old hardcoded list never tried: a DAT or MCAT claim asks
+    // real questions and ends with a non-empty frontier, per the
+    // Recommendation contract.
+    for (const course of ["dat", "mcat"] as const) {
+      let state = curriculum.createQuiz({ problems: curriculum.SEED_CORPUS, claimedCourse: course });
+      expect(state.phase).toBe("asking");
+      let elapsed = 0;
+      while (state.phase === "asking" && state.currentProblem !== null) {
+        elapsed += 20;
+        state = curriculum.reduceQuiz(state, { kind: "skipped", elapsedSeconds: elapsed });
+      }
+      expect(state.phase).toBe("finished");
+      expect(state.recommendation?.questionsAsked ?? 0).toBeGreaterThan(0);
+      expect(state.recommendation?.startTopics.length ?? 0).toBeGreaterThan(0);
+    }
+
+    // The derivation guard: every course the registry admits must be a course
+    // the registry's own probe list serves. If a CourseId is ever added whose
+    // probe list is empty, this fails before the quiz can dead-end on it.
+    for (const course of curriculum.ALL_COURSE_IDS) {
+      expect(
+        curriculum.probeTopicIdsForCourse(course).length,
+        `probeTopicIdsForCourse(${course})`,
+      ).toBeGreaterThan(0);
+    }
   });
 });

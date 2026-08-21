@@ -204,7 +204,11 @@ export const ORGANIC_PROBLEMS: readonly Problem[] = Object.freeze([
           kind: "structure",
           state: createState({ id: "st-ethoxide", members: [{ species: ethoxide, role: "product" }] }),
         },
-        cause: "structure_charge_differs",
+        // The formula cause, not the charge cause: ethoxide differs from
+        // ethanol by a whole proton, and the formula check fires before the
+        // charge check. createProblem now refuses a declaration the checker
+        // contradicts, which is how this line got corrected.
+        cause: "structure_molecular_formula_differs",
         explanation: {
           whatHappened:
             "This is the ethoxide ion, which is ethanol with its hydroxyl proton removed and a negative charge on the oxygen.",

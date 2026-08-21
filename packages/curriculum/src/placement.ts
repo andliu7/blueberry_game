@@ -729,6 +729,47 @@ export function topicIdsForCourse(course: CourseId): readonly TopicId[] {
   return allTopicIds().filter((id) => topicDefinition(id).course === course);
 }
 
+/**
+ * The four content courses, in teaching order. DAT and MCAT are absent on
+ * purpose: no topic's HOME is a review course, because mastery and the pathway
+ * graph live in one place, per the Problem.course doc in problem.ts.
+ */
+export const CONTENT_COURSE_IDS: readonly CourseId[] = Object.freeze([
+  "gen_chem_1",
+  "gen_chem_2",
+  "orgo_1",
+  "orgo_2",
+]);
+
+/**
+ * Every claimable course. A validator iterating courses derives its list from
+ * here rather than writing its own, because a hardcoded copy is how the DAT
+ * and MCAT walks went untested until an adversary pass found them broken.
+ */
+export const ALL_COURSE_IDS: readonly CourseId[] = Object.freeze([
+  ...CONTENT_COURSE_IDS,
+  "dat",
+  "mcat",
+]);
+
+/**
+ * The topics a course PROBES, which is wider than the topics it HOMES.
+ *
+ * For a content course the two lists are the same. DAT and MCAT are review
+ * courses over the whole content sequence: they home no topics
+ * (topicIdsForCourse returns [] for both, by design), and they probe every
+ * content course's topics in teaching order. Before this function existed the
+ * placement quiz walked topicIdsForCourse directly, and a student claiming DAT
+ * or MCAT finished with zero questions asked and an empty starting frontier,
+ * breaking the recommendation's own "never empty" contract.
+ */
+export function probeTopicIdsForCourse(course: CourseId): readonly TopicId[] {
+  if (course === "dat" || course === "mcat") {
+    return CONTENT_COURSE_IDS.flatMap((content) => topicIdsForCourse(content));
+  }
+  return topicIdsForCourse(course);
+}
+
 /** Organic Chemistry II only. Everything else has no act and is filtered out. */
 export function topicIdsForAct(act: ActId): readonly TopicId[] {
   return allTopicIds().filter((id) => topicDefinition(id).act === act);

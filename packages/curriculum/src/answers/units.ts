@@ -5,15 +5,20 @@
  * so a unit named in an authored answer that is not in the registry is a compile
  * error at authoring time rather than a grading surprise at 1am.
  *
- * WHY LOOKUP IS CASE SENSITIVE ON THE SYMBOL.
+ * WHY SYMBOL LOOKUP IS CASE SENSITIVE ONLY WHERE CASE CARRIES MEANING.
  *
- * "M" is molar and "m" is metre. "mM" is millimolar. A case insensitive symbol
- * match would quietly convert a concentration into a length, and a checker that
- * does that is worse than one that refuses, because it marks a right answer
- * wrong for a reason the student cannot see. Symbols are matched exactly. Word
- * aliases such as "grams" or "atmospheres" are matched case insensitively,
- * because no two units in the registry differ only by the case of a spelled out
- * word.
+ * "M" is molar and "m" is metre. A case insensitive symbol match on THAT pair
+ * would quietly convert a concentration into a length, and a checker that does
+ * that is worse than one that refuses, because it marks a right answer wrong
+ * for a reason the student cannot see. But an adversary pass case-folded the
+ * whole registry and found the m/M pair is the ONLY collision in it: "ATM",
+ * "Torr", "KPA" and every other capitalisation collide with nothing, and
+ * rejecting them spends the notation tier on a typo the registry did not need
+ * to reject. So the rule is: exact symbol match first; then a case folded
+ * match, honoured only when exactly one symbol folds to that key. The m/M
+ * family stays exact-only by construction, because both fold to "m" and the
+ * fold is therefore ambiguous. Word aliases such as "grams" or "atmospheres"
+ * are matched case insensitively as before.
  *
  * WHY TEMPERATURE CARRIES AN OFFSET AND WHY THAT IS FLAGGED.
  *
@@ -172,10 +177,33 @@ const ALIAS_INDEX: ReadonlyMap<string, UnitSymbol> = (() => {
 })();
 
 /**
+ * Case folded symbol lookup, holding only the keys exactly one symbol folds
+ * to. "atm" is here; "m" is not, because both "m" and "M" fold to it and an
+ * ambiguous fold must stay exact-only. See the file header.
+ */
+const UNAMBIGUOUS_FOLDED_SYMBOLS: ReadonlyMap<string, UnitSymbol> = (() => {
+  const counts = new Map<string, UnitSymbol[]>();
+  for (const symbol of Object.keys(UNITS) as UnitSymbol[]) {
+    const key = symbol.toLowerCase();
+    counts.set(key, [...(counts.get(key) ?? []), symbol]);
+  }
+  const index = new Map<string, UnitSymbol>();
+  for (const [key, symbols] of counts) {
+    const only = symbols[0];
+    if (symbols.length === 1 && only !== undefined) index.set(key, only);
+  }
+  return index;
+})();
+
+/**
  * Text to unit. `null` means the registry does not know it.
  *
  * Never throws. This is on the grading path, where the input is a student's
  * typing and an unknown unit is an answer to report, not a crash.
+ *
+ * Resolution order: exact symbol, then spelled out alias, then a case folded
+ * symbol where the fold is unambiguous. Order matters: "m" and "M" must hit
+ * the exact branch, and they always do because both are registered symbols.
  */
 export function resolveUnit(text: string): UnitSymbol | null {
   const trimmed = text.trim();
@@ -183,7 +211,8 @@ export function resolveUnit(text: string): UnitSymbol | null {
   if (Object.prototype.hasOwnProperty.call(UNITS, trimmed)) {
     return trimmed as UnitSymbol;
   }
-  return ALIAS_INDEX.get(trimmed.toLowerCase()) ?? null;
+  const folded = trimmed.toLowerCase();
+  return ALIAS_INDEX.get(folded) ?? UNAMBIGUOUS_FOLDED_SYMBOLS.get(folded) ?? null;
 }
 
 export function dimensionOf(symbol: UnitSymbol): Dimension {

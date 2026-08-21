@@ -34,7 +34,7 @@
  */
 
 import { checkAnswer, statesMatch, type AnswerSpec, type AnswerState } from "./answer.js";
-import type { CurriculumCauseId } from "./causes.js";
+import { causeSpecificity, type CurriculumCauseId } from "./causes.js";
 import { createExplanation, type Explanation } from "./explanation.js";
 import type { DistractorId, LessonId, ProblemId } from "./ids.js";
 import type { AnswerKind } from "./kinds.js";
@@ -173,6 +173,38 @@ export function createProblem(input: ProblemInput): Problem {
       throw new Error(
         `problem ${input.id} distractor ${distractor.id} cannot be graded: ${verdict.cause}. A ` +
           `distractor the checker cannot decide about can never match, so it would teach nobody.`,
+      );
+    }
+
+    // Two more refusals, both from an adversary pass, both on the wrong branch:
+    //
+    // A NOTATION-VARIANT DISTRACTOR IS UNREACHABLE. gradeAttempt consults
+    // notation causes before the distractor list (grading.ts records why), so a
+    // distractor whose own state is the correct value written with the wrong
+    // notation can never fire: any submission landing on it gets the notation
+    // cause first, and the authored explanation teaches nobody. That is
+    // authoring effort spent on a trap, refused here the same way a distractor
+    // that grades correct is refused.
+    if (causeSpecificity(verdict.cause) === "notation") {
+      throw new Error(
+        `problem ${input.id} distractor ${distractor.id} is a notation variant of the correct ` +
+          `answer (the checker says ${verdict.cause}), so it is unreachable: the notation cause ` +
+          `fires before any distractor is consulted and its explanation can never be shown. ` +
+          `Author the distractor at a genuinely different value, or drop it.`,
+      );
+    }
+
+    // A DECLARED CAUSE THAT DISAGREES WITH THE CHECKER. Distractor.cause never
+    // affects matching, but it is the field reports count "which mistakes does
+    // this corpus anticipate" from, and CLAUDE.md's feedback axis is measured
+    // on named causes. A declaration the real checker contradicts corrupts
+    // that count silently, so the disagreement is a build error, found the
+    // moment the corpus imports.
+    if (distractor.cause !== undefined && distractor.cause !== verdict.cause) {
+      throw new Error(
+        `problem ${input.id} distractor ${distractor.id} declares cause "${distractor.cause}" ` +
+          `but the checker reports "${verdict.cause}". The checker is the authority; update the ` +
+          `declaration or fix the checker, but do not let the two disagree.`,
       );
     }
   }

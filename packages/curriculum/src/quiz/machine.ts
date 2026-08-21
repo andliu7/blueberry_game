@@ -37,7 +37,7 @@ import type { Problem } from "../problem.js";
 import type { ProblemId } from "../ids.js";
 import {
   prerequisiteClosure,
-  topicIdsForCourse,
+  probeTopicIdsForCourse,
   type CourseId,
   type TopicId,
 } from "../placement.js";
@@ -82,8 +82,18 @@ export interface Recommendation {
   readonly course: CourseId;
   /**
    * The frontier: topics the student should start at. Never empty; a student
-   * who missed everything starts at the course's first topic, which is a
-   * starting point and not a judgement.
+   * who missed everything starts at the course's first probeable topic, which
+   * is a starting point and not a judgement.
+   *
+   * RULING, recorded after an adversary pass asked for one: a start topic MAY
+   * be homed in a different course than `course` below. prerequisiteClosure
+   * crosses course boundaries on purpose (an Organic Chemistry II gap is often
+   * an Organic Chemistry I topic), and telling the student to firm up that
+   * earlier topic IS the recommendation, not a bookkeeping error. `course`
+   * names what the student is aiming at; `startTopics` names where to begin.
+   * The shell renders a cross-course start topic as a short detour into the
+   * earlier course's track, so Phase 5's per course unlock gates need no new
+   * machinery: the topic's home course is in TOPICS.
    */
   readonly startTopics: readonly TopicId[];
   readonly confidence: "low" | "moderate";
@@ -144,7 +154,10 @@ function pickProblem(
 }
 
 function courseTopics(course: CourseId): readonly TopicId[] {
-  return topicIdsForCourse(course);
+  // The PROBE list, not the home list: for DAT and MCAT this is every content
+  // course's topics in teaching order, so a review course claim gets a real
+  // walk rather than an instant empty finish. See placement.ts.
+  return probeTopicIdsForCourse(course);
 }
 
 /** The largest reserve any next question could need under the model. */
