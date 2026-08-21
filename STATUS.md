@@ -208,10 +208,33 @@ gitignored `reference images/` folder, mined for structure only.
 Artifacts: build order 08bfb9d3, named causes 01410d95, cue card dc2c1184, course outline 78e3deaa
 (rewritten chemistry first for the PhD reviewer, awaiting their ruling on ten questions).
 
-Still open to exit Phase 3: the adversary pass this looped phase requires, and the PhD ruling is
-the content human gate. Known gaps recorded honestly: 16 problems against a 46 topic registry
-(authoring wave needed), the reaction table has no chem-core join, sig fig broken fixture set from
-BUILD-PROMPT Phase 3 exit not yet a validator fixture family.
+## Phase 3 EXITED, 2026-08-21
+
+The loop closed. Adversary pass ran at 8628286 (seven findings, one of the worst kind: a
+self-declared spectator marking wrong chemistry correct). Authoring wave landed at 024ad95
+(corpus 16 to 55 problems, 140 distractors, every one encoding a mined mistake pattern).
+Fix cycle closed all seven findings at 3db980d; lock regenerated separately at de1f33f.
+
+Suite at exit: 30 of 30 checks pass, integrity unmodified. Curriculum tests 171 of 171,
+validators 87 of 87, typecheck clean. Quiz worst case 6 questions, 175 modelled seconds.
+Distractor coverage 100 percent, 2.55 per problem. All five answer kinds exercised.
+
+Fixes worth knowing about when reading the code:
+- structure.ts ignores SUBMITTED spectator declarations; only authored ones are honoured
+- multiset species matching is Kuhn's bipartite matching now, polynomial, 23 s worst case to 31 ms
+- DAT and MCAT claims probe the four content courses via probeTopicIdsForCourse (placement.ts)
+- RULING in quiz/machine.ts: cross-course starting frontiers are deliberate
+- createProblem refuses notation-variant distractors (unreachable) and declared causes the
+  checker contradicts
+- reaction class search is word-start match ("amine" no longer surfaces enamine-only rows)
+- unit symbols resolve case-insensitively where the fold is unambiguous ("ATM" works; m/M exact)
+- the curriculum-quiz check derives its course fleet from ALL_COURSE_IDS, never a hardcoded list
+
+Still open, NOT blocking the phase exit: the PhD ruling on the ten outline questions (content
+human gate), Act 2/3 and Gen Chem authoring waves (corpus check gates at 15, passing at 55),
+8 unprobeable topics reported honestly by the quiz check, reaction table chem-core join,
+sig fig broken fixture family, Re/Si task-direction decision (blocks stereoLabels authoring),
+9 RDKit adjudication queue items awaiting a human.
 
 ## Done outside the phase plan## Done outside the phase plan
 
