@@ -2,15 +2,70 @@
 
 A chemistry learning platform. One web app and one Expo app over a shared core.
 
-The product is a set of tabs, not a single game:
+The product is a set of tabs, not a single game. The centre of gravity is mechanisms: interactive,
+adjustable, something a student goes into and plays with, not watches.
 
 - **Mechanism Trainer.** The organic chemistry mechanism engine, and the hardest thing here. This is
   the crown jewel and the reason the engine exists
+- **The pathway.** A Duolingo shaped progress track through lessons broken down by topic, with
+  unlocks along the way, mechanism cycles included, a skill rating, and a reward currency. See
+  "Progression, rating, and economy" below
 - **Courses.** General Chemistry I and II, Organic Chemistry I and II, and DAT and MCAT preparation
+- **Reaction search.** A database a student can search by reagents or reactants when they do not
+  know a reaction's name. The lookup a real student actually performs the night before an exam
+- **Leaderboards.** Daily, weekly, and monthly, global. See the privacy note below
 - **Onboarding quiz.** Real chemistry questions, sat before signup, that place a student into a course
 - **Periodic table.** Interactive, always reachable
+- **Short form video.** Roughly one minute per concept, embedded in lessons. Authored content from a
+  named creator, not generated. See "Content pipeline" below
 - **AI chat.** Server metered, sees the student's current state
-- **Tutor messaging.** Async, moderated, shipped last
+- **Tutor messaging.** Async, moderated, shipped last. Connects tutors to customers; the logistics
+  are an owner decision recorded before Phase 8 builds them
+
+## Progression, rating, and economy
+
+Owner direction, recorded 2026-08-20. Three systems, and each has a server side rule.
+
+**The pathway.** Lessons grouped by topic in a visible track with unlock gates, the shape Duolingo
+and chess.com use. `docs/reference/competitors/orgosolver-03-skill-tree-progression.png` is a worked
+example already committed. Unlockables include mechanism cycles. Unlock state is progress, so it is
+enforced server side per the non-negotiables; the client renders it and never decides it.
+
+**The rating.** Chess.com's Elo is the named inspiration. True Elo is head to head; a study app is a
+student against a problem, so the honest implementation is an Elo LIKE rating where problems carry
+difficulty and a student's rating moves by expected against actual outcome. It feeds the leaderboards
+and placement. Computed server side, from the append only attempt history, never client supplied.
+
+**The currency.** Diamonds, earned by lessons and streak style returns, spent on unlocks or cosmetic
+reward. An economy is an entitlement system, so balances and spends live in Postgres behind RLS with
+the same column level GRANT discipline as roles: a client that can write its own balance has a free
+store. Rewarding returning stays the rule; the anxiety loop stays banned.
+
+**Leaderboards.** Daily, weekly, monthly, global. Two rules that are not optional. Computed server
+side from attempts, never client reported. And the privacy floor: assume minors, so leaderboards show
+a chosen display name never a real one, opt out exists, and no profile is reachable from a
+leaderboard row beyond that display name.
+
+## Monetisation
+
+Owner direction, recorded 2026-08-20. The subscription is priced as a fraction of a real course
+cost, because the comparison a student actually makes is against the roughly 1200 dollar summer
+course, not against other apps. Framing, trials, and the exact fraction are owner decisions at
+Phase 5's human gate, where the funnel copy is reviewed. Entitlement enforcement is server side per
+the non-negotiables, and the free tier stays as specified: tutorial, intro lessons, periodic table,
+5 problems a day.
+
+## Content pipeline
+
+Short form video, about one minute per concept, authored by a named creator (Kai), planned as
+costumed, catchy, single concept explainers. The app treats these as authored lesson assets:
+embedded in lessons, never autoplaying with sound, always skippable, transcript stored with the
+video for accessibility and search. Video hosting and egress are a Phase 9 cost item; nothing in
+the free tier depends on video being present, so lessons must stand without them.
+
+Curriculum content scope: Organic Chemistry II exists as a full breakdown from the owner. Organic
+Chemistry I is generated from the topic scope already recorded and reviewed at the same human gate
+as other authored content.
 
 Most of the curriculum is not mechanism chemistry. Gas laws, thermodynamics, kinetics, titration
 curves, stoichiometry, and spectroscopy interpretation do not touch `chem-core` at all. They need an
