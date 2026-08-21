@@ -66,6 +66,42 @@ export function lonePairSlots(scene: StepScene, atomId: AtomId): readonly Point2
   return slots;
 }
 
+/** Per species pixel offset from the authored layout, keyed by species id. */
+export type SpeciesOffsets = Readonly<Record<string, Point2>>;
+
+/** Which species each atom of the from state belongs to. */
+export function speciesOf(step: MechanismStep): ReadonlyMap<AtomId, string> {
+  const map = new Map<AtomId, string>();
+  for (const member of step.from.members) {
+    for (const atom of member.species.atoms) map.set(atom.id, member.species.id);
+  }
+  return map;
+}
+
+/**
+ * The live layout: the authored scene with each species moved by where the
+ * student dragged it. Every consumer of positions (targets, lone pair slots,
+ * arrow endpoints, the canvas) reads the scene this returns, never the
+ * authored one, so a drop site is wherever its atom is now. Offsets are in
+ * pixels; scene units are bond lengths with y up, hence the divide and flip.
+ */
+export function applySpeciesOffsets(scene: StepScene, step: MechanismStep, offsets: SpeciesOffsets): StepScene {
+  if (Object.keys(offsets).length === 0) return scene;
+  const owner = speciesOf(step);
+  const atoms = scene.atoms.map((atom) => {
+    const species = owner.get(atom.id);
+    const offset = species === undefined ? undefined : offsets[species];
+    if (offset === undefined) return atom;
+    const delta: Vec = { x: offset.x / PX, y: -offset.y / PX, z: 0 };
+    return {
+      ...atom,
+      from: { ...atom.from, pos: add(atom.from.pos, delta) },
+      to: { ...atom.to, pos: add(atom.to.pos, delta) },
+    };
+  });
+  return { ...scene, atoms };
+}
+
 export function atomCentre(scene: StepScene, atomId: AtomId): Point2 {
   const atom = scene.atoms.find((candidate) => candidate.id === atomId);
   if (atom === undefined) throw new Error(`no scene atom ${atomId}`);
@@ -130,6 +166,78 @@ export function buildTargets(
 
 function distance(a: Point2, b: Point2): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+/** Pixel midpoint of a bond by chem-core bond id, or null when the scene does not draw it. */
+export function bondMidpoint(step: MechanismStep, scene: StepScene, bondId: string): Point2 | null {
+  for (const bond of scene.bonds) {
+    if (bond.phase !== "forming" && bondIdFor(step, bond.a, bond.b) === bondId) {
+      return mix(atomCentre(scene, bond.a), atomCentre(scene, bond.b), 0.5);
+    }
+  }
+  return null;
+}
+
+/** Of an atom's lone pair slots, the one facing `toward`. The slot the electrons leave from. */
+export function nearestLonePairSlot(scene: StepScene, atomId: AtomId, toward: Point2): Point2 {
+  const slots = lonePairSlots(scene, atomId);
+  let best: Point2 | null = null;
+  let bestD = Infinity;
+  for (const slot of slots) {
+    const d = distance(slot, toward);
+    if (d < bestD) {
+      bestD = d;
+      best = slot;
+    }
+  }
+  return best ?? atomCentre(scene, atomId);
+}
+
+/**
+ * Where a hit target is drawn, so an arrow anchored to it starts or ends on the
+ * thing the student touched rather than on the pointer's press point. The in
+ * flight guide and the committed arrow both go through here, which is what
+ * keeps them from disagreeing about where a source is.
+ */
+export function targetAnchor(step: MechanismStep, scene: StepScene, target: HitTarget): Point2 | null {
+  switch (target.kind) {
+    case "atom":
+    case "unpairedElectron":
+    case "hydrogenCount":
+      return atomCentre(scene, target.atomId);
+    case "lonePair": {
+      const slots = lonePairSlots(scene, target.atomId);
+      return slots[target.slotIndex] ?? slots[0] ?? atomCentre(scene, target.atomId);
+    }
+    case "bondEndHandle":
+    case "bondBody":
+      return bondMidpoint(step, scene, target.bondId);
+    case "betweenAtomsSite":
+      return mix(atomCentre(scene, target.atomIds[0]), atomCentre(scene, target.atomIds[1]), 0.5);
+    default:
+      return null;
+  }
+}
+
+/** The point on the line from `centre` toward `toward`, `r` px out: the rim of an atom. */
+export function rimPoint(centre: Point2, toward: Point2, r: number): Point2 {
+  const dx = toward.x - centre.x;
+  const dy = toward.y - centre.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { x: centre.x + (dx / len) * r, y: centre.y + (dy / len) * r };
+}
+
+/** Centroid of every drawn atom, the side a curve should bow away from. */
+export function sceneCentroid(scene: StepScene): Point2 {
+  let x = 0;
+  let y = 0;
+  for (const atom of scene.atoms) {
+    const p = toPx(atom.from.pos);
+    x += p.x;
+    y += p.y;
+  }
+  const n = scene.atoms.length || 1;
+  return { x: x / n, y: y / n };
 }
 
 /**

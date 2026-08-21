@@ -38,6 +38,7 @@ import {
   type InteractionNotice,
   type InteractionState,
   type MechanismDraft,
+  type Point2,
 } from "@blueberry/interaction";
 import { MoleculeSvg } from "../../render/svg/MoleculeSvg";
 import { layoutState } from "../../render/layout/layout";
@@ -48,7 +49,7 @@ import { Press } from "../../app/ui/Press";
 import { Berry } from "../../mascot/Berry";
 import type { BerryBehaviour } from "../../mascot/berryBehaviour";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
-import { buildTargets, createHitTester, type DrawTarget } from "./hitLayout";
+import { applySpeciesOffsets, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
 import { gradeDrawing, missingArrows, type DrawVerdict } from "./grade";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
@@ -142,7 +143,14 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   if (draft.shape !== "mechanism") throw new Error("the trainer only holds a mechanism draft");
   const mechanism: MechanismDraft = draft;
   const armedAtom = mechanism.armed === null ? null : mechanism.armed.target.kind === "lonePair" || mechanism.armed.target.kind === "bondEndHandle" ? mechanism.armed.target.atomId : null;
-  const targets = useMemo(() => buildTargets(step, scene, mechanism.revealedLonePairs, armedAtom), [step, mechanism.revealedLonePairs, armedAtom]);
+  // Where each species has been carried, in px. The live scene is the authored
+  // one plus these, and it is what the targets and the canvas read, so a drop
+  // site stays on its atom wherever the student put the molecule. Positions
+  // survive a reset on purpose: an arrangement is not an answer.
+  const [offsets, setOffsets] = useState<SpeciesOffsets>({});
+  const live = useMemo(() => applySpeciesOffsets(scene, step, offsets), [step, offsets]);
+  const onSpeciesMove = useCallback((speciesId: string, offset: Point2) => setOffsets((prev) => ({ ...prev, [speciesId]: offset })), []);
+  const targets = useMemo(() => buildTargets(step, live, mechanism.revealedLonePairs, armedAtom), [step, live, mechanism.revealedLonePairs, armedAtom]);
   targetsRef.current = targets;
   const guide = inFlightGuide(state);
 
@@ -247,7 +255,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
 
       <section className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm" style={{ minHeight: "20rem" }}>
         {mode === "draw" ? (
-          <DrawCanvas key={epoch} step={step} scene={scene} draft={mechanism} guide={guide} targets={targets} dispatch={store.dispatch} failure={failure} reducedMotion={reducedMotion} />
+          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} draft={mechanism} guide={guide} targets={targets} dispatch={store.dispatch} failure={failure} reducedMotion={reducedMotion} />
         ) : renderer === "2d" ? (
           <MoleculeSvg {...renderProps} />
         ) : (

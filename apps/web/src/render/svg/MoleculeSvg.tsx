@@ -27,7 +27,8 @@ import { REDUCED_MOTION_FRAME } from "../contract";
 import type { AtomPlacement } from "../layout/layout";
 import type { SceneAtom } from "../layout/stepScene";
 import type { Vec } from "../layout/vec";
-import { add, clamp01, fromAngle, lerp, midpoint, normalize, scale, smoothstep, sub } from "../layout/vec";
+import { add, clamp01, fromAngle, lerp, midpoint, normalize, smoothstep, sub } from "../layout/vec";
+import { AtomSphere, BondCapsule, ChargeBadge, DepthDefs, HydrogenArc, SHADOW_FILTER_ID } from "./depth";
 
 /** Pixels per scene unit (one bond length). */
 const PX = 72;
@@ -36,24 +37,6 @@ const ATOM_R = 21;
 const ATOM_R_SMALL = 13;
 /** Minimum hit target: 44 by 44 points, the accessibility floor in CLAUDE.md. */
 const HIT_R = 22;
-
-const ELEMENT_FILL: Record<string, string> = {
-  // Saturated enough to hold white glyphs at 4.5:1+ in both themes.
-  C: "#334155",
-  H: "#64748b",
-  O: "#dc2626",
-  N: "#2563eb",
-  Br: "#9a3412",
-  Cl: "#15803d",
-  S: "#a16207",
-  P: "#c2410c",
-  F: "#0e7490",
-  I: "#6d28d9",
-};
-
-function fillFor(element: string): string {
-  return ELEMENT_FILL[element] ?? "#334155";
-}
 
 function radiusFor(element: string): number {
   return element === "H" ? ATOM_R_SMALL : ATOM_R;
@@ -79,43 +62,6 @@ function placementAt(atom: SceneAtom, glide: number): AtomPlacement {
   };
 }
 
-const SUBSCRIPTS = ["", "", "₂", "₃", "₄"];
-
-/** The faint arc of implicit hydrogens, with an H-count glyph on it. */
-function HydrogenArc({ placement, count, r }: { placement: AtomPlacement; count: number; r: number }) {
-  if (count <= 0) return null;
-  const arcR = r + 13;
-  const center = px(placement.pos);
-  // Scene angles are mathematical (y up); px() flips y, so angles negate.
-  const a0 = -(placement.openAngle - 0.7);
-  const a1 = -(placement.openAngle + 0.7);
-  const start = { x: center.x + arcR * Math.cos(a0), y: center.y + arcR * Math.sin(a0) };
-  const end = { x: center.x + arcR * Math.cos(a1), y: center.y + arcR * Math.sin(a1) };
-  const label = px(add(placement.pos, fromAngle(placement.openAngle, (arcR + 12) / PX)));
-  return (
-    <g>
-      <path
-        d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`}
-        fill="none"
-        stroke="var(--scene-faint)"
-        strokeWidth={2}
-        strokeLinecap="round"
-      />
-      <text
-        x={label.x}
-        y={label.y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={15}
-        fontWeight={600}
-        fill="var(--scene-faint)"
-      >
-        H{SUBSCRIPTS[count] ?? `×${count}`}
-      </text>
-    </g>
-  );
-}
-
 /** Lone pairs as paired dots on the rim, fanned away from the hydrogen arc. */
 function LonePairs({ placement, count, r }: { placement: AtomPlacement; count: number; r: number }) {
   if (count <= 0) return null;
@@ -136,42 +82,6 @@ function LonePairs({ placement, count, r }: { placement: AtomPlacement; count: n
     );
   }
   return <g>{dots}</g>;
-}
-
-/** Formal charge as a circled badge outside the silhouette, plus a faint ring. */
-function ChargeBadge({
-  placement,
-  charge,
-  r,
-  opacity,
-}: {
-  placement: AtomPlacement;
-  charge: number;
-  r: number;
-  opacity: number;
-}) {
-  if (charge === 0 || opacity <= 0.01) return null;
-  const center = px(placement.pos);
-  const badgeCenter = px(add(placement.pos, fromAngle(placement.badgeAngle, (r + 16) / PX)));
-  const sign = charge > 0 ? "+" : "−";
-  const magnitude = Math.abs(charge);
-  return (
-    <g opacity={opacity}>
-      <circle cx={center.x} cy={center.y} r={r + 6} fill="none" stroke="var(--ring)" strokeWidth={1.5} opacity={0.4} />
-      <circle cx={badgeCenter.x} cy={badgeCenter.y} r={10} fill="var(--card)" stroke="var(--bond-stroke)" strokeWidth={1.5} />
-      <text
-        x={badgeCenter.x}
-        y={badgeCenter.y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={13}
-        fontWeight={700}
-        fill="var(--foreground)"
-      >
-        {magnitude > 1 ? `${magnitude}${sign}` : sign}
-      </text>
-    </g>
-  );
 }
 
 export function MoleculeSvg({
@@ -222,13 +132,15 @@ export function MoleculeSvg({
       style={{ touchAction: "none" }}
     >
       <defs>
+        <DepthDefs />
         {/* Curved-arrow head, oriented by the path direction. */}
         <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary)" />
         </marker>
       </defs>
 
-      {/* Bonds under atoms, so discs mask the joint. */}
+      {/* Bonds under atoms, capsules that stop at the sphere surface. */}
+      <g filter={`url(#${SHADOW_FILTER_ID})`}>
       {scene.bonds.map((bond) => {
         const a = at(bond.a);
         const b = at(bond.b);
@@ -248,28 +160,16 @@ export function MoleculeSvg({
         if (opacity <= 0.01) return null;
         const p1 = px(start);
         const p2 = px(end);
-        if (bond.order === 1) {
-          return (
-            <line key={bond.key} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="var(--bond-stroke)" strokeWidth={7} strokeLinecap="round" opacity={opacity} />
-          );
-        }
-        // Double and triple bonds: parallel lines offset perpendicular.
-        const dir = normalize(sub(end, start));
-        const perp = { x: -dir.y, y: dir.x, z: 0 };
-        const lines: React.ReactElement[] = [];
-        const offsets = bond.order === 2 ? [-4.5, 4.5] : [-7, 0, 7];
-        offsets.forEach((off, i) => {
-          const o = scale(perp, off / PX);
-          const q1 = px(add(start, o));
-          const q2 = px(add(end, o));
-          lines.push(<line key={i} x1={q1.x} y1={q1.y} x2={q2.x} y2={q2.y} stroke="var(--bond-stroke)" strokeWidth={5} strokeLinecap="round" />);
-        });
-        return (
-          <g key={bond.key} opacity={opacity}>
-            {lines}
-          </g>
-        );
+        const radiusOf = (id: AtomId) => radiusFor(scene.atoms.find((atom) => atom.id === id)?.element ?? "C");
+        // `start` is always at an atom; `end` is at an atom unless the bond is
+        // still forming, when it is the growing tip and has no surface to stop
+        // at until it arrives, so its inset scales in with the growth.
+        const startId = bond.phase === "forming" ? bond.growFrom : bond.a;
+        const endId = startId === bond.a ? bond.b : bond.a;
+        const endInset = bond.phase === "forming" ? radiusOf(endId) * smoothstep(0.3, 0.85, t) : radiusOf(endId);
+        return <BondCapsule key={bond.key} a={p1} b={p2} rA={radiusOf(startId)} rB={endInset} order={bond.order} opacity={opacity} />;
       })}
+      </g>
 
       {/* Release burst at a breaking bond's midpoint, a short radial shimmer.
           Ours is purple and restrained; the pattern (mark the break) is the
@@ -343,25 +243,16 @@ export function MoleculeSvg({
         const isSelected = selected.has(atom.id);
         return (
           <g key={atom.id}>
-            <HydrogenArc placement={placement} count={implicitH} r={r} />
+            <HydrogenArc centre={c} openAngle={placement.openAngle} count={implicitH} r={r} />
             <LonePairs placement={placement} count={lonePairs} r={r} />
             {isSelected ? (
               <circle cx={c.x} cy={c.y} r={r + 8} fill="none" stroke="var(--ring)" strokeWidth={3} />
             ) : null}
-            <circle cx={c.x} cy={c.y} r={r} fill={fillFor(atom.element)} />
-            <text
-              x={c.x}
-              y={c.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={atom.element === "H" ? 14 : 18}
-              fontWeight={700}
-              fill="#ffffff"
-            >
-              {atom.element}
-            </text>
-            <ChargeBadge placement={placement} charge={atom.fromCharge} r={r} opacity={1 - chargeFade} />
-            <ChargeBadge placement={placement} charge={atom.toCharge} r={r} opacity={chargeFade} />
+            <g filter={`url(#${SHADOW_FILTER_ID})`}>
+              <AtomSphere centre={c} r={r} element={atom.element} />
+            </g>
+            <ChargeBadge at={px(add(placement.pos, fromAngle(placement.badgeAngle, (r + 6) / PX)))} charge={atom.fromCharge} opacity={1 - chargeFade} />
+            <ChargeBadge at={px(add(placement.pos, fromAngle(placement.badgeAngle, (r + 6) / PX)))} charge={atom.toCharge} opacity={chargeFade} />
             {/* Invisible hit disc: at least 44x44 points regardless of how
                 small the visible atom is drawn. */}
             <circle
