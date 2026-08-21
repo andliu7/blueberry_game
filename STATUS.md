@@ -38,7 +38,7 @@ Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is au
 |---|---|---|
 | 0 Contracts and validators | Gauntlet loop | DONE, merged into `phase-1` history |
 | 1 Mechanism core | Gauntlet loop | DONE, human gate passed, merged to `main` |
-| 2 Interaction layer | Gauntlet loop | IN PROGRESS, branch `phase-2` |
+| 2 Interaction layer | Gauntlet loop | BLOCKED AT LOOP CAP, blocker report below, owner decision needed |
 | 3 Curriculum engine and placement quiz | Gauntlet loop | Not started |
 | 4 Rendering | Single pass, human gate | Not started |
 | 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | Not started |
@@ -163,6 +163,52 @@ it is auditable rather than hidden.
 - The oracle grades authored corpus states, not chem-core's own output. Closes when a
   `.oracle.json` produced by `serializeState()` lands in `fixtures/`. That is Phase 1.
 - Adversary pass running.
+
+## Phase 2 blocker report, per the loop discipline
+
+The interaction layer hit the five iteration cap with findings still arriving, so the loop stopped.
+This is the report CLAUDE.md requires: what failed, what was tried, what the blocker is.
+
+### What failed
+
+The fifth iteration's adversary pass returned two correctness findings against fixes made in the
+fourth, plus one latent naming collision. The suite itself is green: 332 tests, 365 of 365 branches
+in scope, tap only 44 of 44, mis tap 1.04 percent against the bar's 21.24. What keeps failing is not
+the code that exists but the assumptions each fix was written against.
+
+### What was tried, the whole loop
+
+| Pass | Found | Fixed by |
+|---|---|---|
+| One | Snapshot restore destroyed other input paths' commits, 4 reproductions | Builder: rollback only while the press is the last change |
+| Two | Revise undid blind; guide read global selection; setShape no op wiped history; external ids unchecked | Orchestrator: revise window, owner doc gates, no op guard, id refusal |
+| Three | Window opened on a disarm; id guard missed two entry points | Orchestrator: arming condition on the window, guards at both |
+| Four | Arming condition lossy for the two field structure shape; setShape bypasses the id throw | Stopped at cap |
+
+### What the blocker actually is
+
+Not either finding. Both are patchable in an hour, and that is exactly why they should not be
+patched. Four passes have now found the same two root assumptions leaking in five different places:
+that the document is one session's private property, and that a lossy projection, reference identity
+or hasSelection, can stand in for what a command actually did.
+
+The structural fix is for the shape reducer interface to REPORT what a command did, armed,
+disarmed, committed, rather than the machine inferring it by diffing projections. ShapeOutcome
+gains a field, the machine's window and rollback logic read it directly, and the whole class of
+finding stops being constructible. That is an interface change touching every reducer, which is
+precisely the kind of change the fifth iteration of a loop should not make under pressure.
+
+### Options, with a recommendation
+
+1. **Authorize one structural fix cycle beyond the cap.** ShapeOutcome reports its effect, setShape
+   validates the draft it installs, the notice collision gets its own id. Then one verification
+   pass. Recommended: the findings are real correctness bugs in the package every later phase
+   builds on, and the fix direction is known rather than exploratory.
+2. **Accept as documented limits and open Phase 3.** Defensible for finding 3, not for findings 1
+   and 2: one silently creates a bond the student never drew, the other lets a session restore
+   reintroduce a hazard three fixes tried to close.
+3. **Ship the hour of narrow patches.** Fastest, and the pattern of this loop says a sixth pass
+   finds the sixth leak of the same assumptions.
 
 ## Done outside the phase plan
 
