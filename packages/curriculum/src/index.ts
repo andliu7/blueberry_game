@@ -255,3 +255,14 @@ export {
   searchKey,
   searchReactions,
 } from "./reactions/index.js";
+
+export type { QuizConfig, QuizEvent, QuizState, Recommendation, AskedRecord } from "./quiz/machine.js";
+export {
+  createQuiz,
+  reduceQuiz,
+  QUESTION_CAP,
+  TIME_BUDGET_SECONDS,
+  WORST_CASE_SECONDS_BY_KIND,
+} from "./quiz/machine.js";
+export type { StudentProfile, SimulationResult, FleetResult } from "./quiz/simulate.js";
+export { simulateStudent, simulateFleet } from "./quiz/simulate.js";

@@ -1,5 +1,6 @@
 import type { Check } from "../../check.ts";
 import { curriculumCorpus } from "./corpus.ts";
+import { curriculumQuiz } from "./quiz.ts";
 
 /**
  * The curriculum family.
@@ -12,4 +13,4 @@ import { curriculumCorpus } from "./corpus.ts";
  * BUILD-PROMPT.md Phase 3's exit condition that no check here reads. Both belong
  * beside this one, and an array is where they go.
  */
-export const curriculumChecks: readonly Check[] = [curriculumCorpus];
+export const curriculumChecks: readonly Check[] = [curriculumCorpus, curriculumQuiz];
