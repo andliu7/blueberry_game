@@ -41,16 +41,16 @@
  *   problem.ts         The authored problem, and the constructor that refuses.
  *   grading.ts         The result type, the tier order, and the counters.
  *   corpus/            Sixteen authored problems with real distractors.
+ *   reactions/         The reaction database. Data with a search function,
+ *                      indexed by reagent token, substrate and product class,
+ *                      and name. Seeded from the reagent vocabulary in
+ *                      `docs/COURSE-OUTLINE-ORGO2.md` section 6.
  *
  * NOT BUILT YET, and each has a seam rather than a stub:
  *
  *   The placement quiz. It walks `TOPICS`, which already carries the
  *   prerequisite edges, and it grades with `gradeAttempt` over problems it
  *   selects by `difficulty`. Nothing about it needs a new answer shape.
- *
- *   The reaction database. It is data with a search function, indexed by
- *   reagents, reactants and products. The reagent token vocabulary in
- *   answers/reagents.ts is the join key.
  *
  *   Spaced repetition. It is a scheduler over the append only attempt history,
  *   which is Phase 6 data. What this package owes it is `Attempt` and
@@ -217,3 +217,41 @@ export type { Attempt, FeedbackTier, GradingResult, Tier3Entry, TierBreakdown } 
 export { gradeAttempt, isWrong, tier3Entries, tierBreakdown } from "./grading.js";
 
 export { SEED_CORPUS, problemById } from "./corpus/index.js";
+
+export type {
+  ChemicalClass,
+  ConditionDimension,
+  EquivalenceGroup,
+  EquivalenceGroupId,
+  MatchAxis,
+  Reaction,
+  ReactionCondition,
+  ReactionCoverage,
+  ReactionId,
+  ReactionInput,
+  ReactionMatch,
+  ReagentSlot,
+  ReagentSlotInput,
+} from "./reactions/index.js";
+export {
+  ACT_1_REACTIONS,
+  ACT_2_REACTIONS,
+  EQUIVALENCE_GROUPS,
+  NEAR_MISS_REACTIONS,
+  REACTIONS,
+  allEquivalenceGroupIds,
+  createReaction,
+  equivalenceGroup,
+  equivalenceGroupCount,
+  reactionById,
+  reactionCount,
+  reactionCoverage,
+  reactionsForTopic,
+  searchByClass,
+  searchByName,
+  searchByProductClass,
+  searchByReagent,
+  searchBySubstrateClass,
+  searchKey,
+  searchReactions,
+} from "./reactions/index.js";

@@ -71,17 +71,34 @@ describe("the external data declaration is a census, checked against the real im
     expect(censusFindings(censusMatchingDeclaration())).toEqual([]);
   });
 
+  /**
+   * The stand-in package here USED TO BE @blueberry/curriculum, and it was changed in
+   * Phase 3 wave two when that package became a real declared dependency: a specimen
+   * that is genuinely declared cannot demonstrate an undeclared one, and this test went
+   * red on the day the census did its job correctly.
+   *
+   * The assertion is unchanged. Only the name of the imaginary package moved, and it is
+   * asserted below to be absent from EXTERNAL_DATA rather than merely believed absent,
+   * so the next package this repository adds cannot quietly hollow this test out the way
+   * curriculum just did.
+   */
   it("a value import from a package nobody declared is a finding, not a pass", () => {
+    const undeclared = "@blueberry/pathway";
+    expect(
+      EXTERNAL_DATA.some((entry) => entry.specifier === undeclared),
+      `${undeclared} is now declared, so it can no longer stand in for an undeclared package`,
+    ).toBe(false);
+
     const census = censusMatchingDeclaration();
     census.byPackage.set(
-      "@blueberry/curriculum",
-      new Map([["problemsForTopic", new Set(["src/checks/conservation/invented.ts"])]]),
+      undeclared,
+      new Map([["unlockStateForTopic", new Set(["src/checks/conservation/invented.ts"])]]),
     );
-    census.seenPackages.add("@blueberry/curriculum");
+    census.seenPackages.add(undeclared);
 
     const findings = censusFindings(census);
     expect(findings.map((finding) => finding.kind)).toContain("undeclared-package");
-    expect(findings.some((finding) => finding.detail.includes("@blueberry/curriculum"))).toBe(true);
+    expect(findings.some((finding) => finding.detail.includes(undeclared))).toBe(true);
   });
 
   /**
