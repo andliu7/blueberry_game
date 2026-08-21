@@ -6,7 +6,9 @@ The product is a set of tabs, not a single game. The centre of gravity is mechan
 adjustable, something a student goes into and plays with, not watches.
 
 - **Mechanism Trainer.** The organic chemistry mechanism engine, and the hardest thing here. This is
-  the crown jewel and the reason the engine exists
+  the crown jewel and the reason the engine exists. Owner direction on how it should feel
+  and look, recorded 2026-08-21, is in `docs/OWNER-DIRECTION-MECHANISM-UX.md`; read it before
+  Phase 5
 - **The pathway.** A Duolingo shaped progress track through lessons broken down by topic, with
   unlocks along the way, mechanism cycles included, a skill rating, and a reward currency. See
   "Progression, rating, and economy" below
