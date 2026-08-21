@@ -18,7 +18,7 @@
     "validators.lock.json"
   ],
   "fileCount": 211,
-  "suiteHash": "57aa9f5d2e0cdbbcc1a2bcf0426567b61ddd2ae576f2cb45441477f6520afdcf",
+  "suiteHash": "607904c3e588212547d96a68f4ff0a6f22d1befd920726b037419b0afa80eb37",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -178,7 +178,7 @@
     "src/checks/conservation/valence.ts": "953e6b393d47273b1e753b6595b7e32a8c8e6ad8b8a46b8d5b96648ee3181571",
     "src/checks/feedback/copy-coverage.ts": "06598d016388a8c13f8d937e2874b82fdf00b613d779029b806257cb647b5bf3",
     "src/checks/feedback/index.ts": "8c4c35c0c45fe82ea6cfef009b9e69feac739b430f0f82c680a8d5c242d1733a",
-    "src/checks/feedback/named-causes.ts": "6127b7bdcb70e2a55f1076991d9988259a9372f9283a31205a69e6b984383930",
+    "src/checks/feedback/named-causes.ts": "783e77168300215265336b716056aa52a28bdac4182e752671820b291d158ad2",
     "src/checks/harness-self-test.ts": "59966d0ee70110a707389c36e4d13fe42093e9deed7801eae844127e3b22dd1b",
     "src/checks/index.ts": "aacbe1bcb202e780b4880d9ca006a2182c81c79983ad181921c7f9c888bd616c",
     "src/checks/mutation/index.ts": "e7a005c6a10b7912a86407a298c0f1d33740207c8d14b162f568543fb2237ab2",
