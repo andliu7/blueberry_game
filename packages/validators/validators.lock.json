@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 213,
-  "suiteHash": "5d8f0cae8e1ccb95d320415331945a1ccaa3c48a8c4438db052f4bf55b719c11",
+  "fileCount": 214,
+  "suiteHash": "807814236d610c464b693d559fb342b0640fc972d00fb1389a8633085b03dc55",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -177,7 +177,8 @@
     "src/checks/conservation/stereorandom-annotation.ts": "559a647b63e427241f0395330e72b13cf72ffadf84be401a2622c30ebdfb5627",
     "src/checks/conservation/valence.ts": "953e6b393d47273b1e753b6595b7e32a8c8e6ad8b8a46b8d5b96648ee3181571",
     "src/checks/curriculum/corpus.ts": "c6bcb700f7d84260cb3061a2308078785db85398a6c1ddf43b21b5d595aad870",
-    "src/checks/curriculum/index.ts": "79faf10ca19fbad4bdd370b11cf9f352ba3e2bd05f88e96c8838e10125dd32eb",
+    "src/checks/curriculum/index.ts": "656d011ad42dd18cfa949478578b50ba9c092531212742e713b38a6c75a9027f",
+    "src/checks/curriculum/quiz.ts": "170aaa1c1ea020f12e73fc4865b8f289735fedc0d2a459271b98da1e7f6b38af",
     "src/checks/feedback/copy-coverage.ts": "06598d016388a8c13f8d937e2874b82fdf00b613d779029b806257cb647b5bf3",
     "src/checks/feedback/index.ts": "8c4c35c0c45fe82ea6cfef009b9e69feac739b430f0f82c680a8d5c242d1733a",
     "src/checks/feedback/named-causes.ts": "ea535e071e0dbe92a0154b295d6b5307b1fe7dfce4625084dcc46b825f7785d0",
