@@ -39,7 +39,7 @@ Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is au
 | 0 Contracts and validators | Gauntlet loop | DONE, merged into `phase-1` history |
 | 1 Mechanism core | Gauntlet loop | DONE, human gate passed, merged to `main` |
 | 2 Interaction layer | Gauntlet loop | DONE, authorized structural cycle plus verification, merged to `main` |
-| 3 Curriculum engine and placement quiz | Gauntlet loop | IN PROGRESS, waves 1 to 3 done, adversary pass next |
+| 3 Curriculum engine and placement quiz | Gauntlet loop | DONE, exited 2026-08-21, merged to `main` |
 | 4 Rendering | Single pass, human gate | DONE, merged to `main` on owner go-ahead; device runs still open |
 | 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | BUILT on `phase-5`, waiting at the human gate |
 | 6 Auth, data, free tier | Gauntlet loop | Not started |
