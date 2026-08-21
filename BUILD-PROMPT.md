@@ -160,6 +160,14 @@ instructor knows students make on that exact problem.
 The placement quiz sits on top: real questions, adaptive enough to finish fast, ending in a course
 recommendation. It runs before signup.
 
+The reaction database is authored here too: reactions indexed by reagents, reactants, and products,
+so a student who does not know a reaction's name finds it from what they do know. It is data with a
+search function, not a model. Problems carry a difficulty number in this schema, because the Elo like
+rating in CLAUDE.md needs one to move against.
+
+Content scope: Organic Chemistry II arrives as the owner's full breakdown. Organic Chemistry I is
+generated from the recorded topic scope and reviewed at the same human gate as other authored copy.
+
 Exit: answer checking correct on an authored corpus with fixture count reported. Significant figures
 and unit handling verified against a deliberately broken fixture set, because a checker that accepts
 2.0 for 2.00 teaches students the wrong habit. Placement quiz reaches a recommendation in under 3
@@ -185,9 +193,16 @@ file I can populate. Human gate: I review animation feel and run the devices. St
 
 PHASE 5: APP SHELL, TABS, PERIODIC TABLE, ONBOARDING, single pass, not looped
 
-The tabs: Mechanism Trainer, Courses, Periodic Table, Chat, Messages. Level progression and unlock
-logic. The reward moment per the Duolingo row in CLAUDE.md, rewarding returning and never punishing
-leaving.
+The tabs: Mechanism Trainer, Pathway, Courses, Search, Leaderboards, Periodic Table, Chat,
+Messages. Level progression and unlock logic as the visible Duolingo shaped track, with
+`docs/reference/competitors/orgosolver-03-skill-tree-progression.png` as the committed worked
+example. The reward moment per the Duolingo row in CLAUDE.md, rewarding returning and never
+punishing leaving.
+
+The diamond currency's earn and spend moments render here; balances and spends are Phase 6 data.
+Leaderboard UI renders here from Phase 6's server computed standings, display names only. Short
+form videos embed in lessons per the content pipeline rules: never autoplaying with sound, always
+skippable, lessons standing without them.
 
 The interactive periodic table is bar matched against ptable.com. It is free, always reachable, and
 works offline.
@@ -216,6 +231,14 @@ public read and staff write. The seven migrations in the sibling repo are the st
 
 Progress, attempts, placement results, and course enrollment go to Postgres, append only, indexed on
 (user_id, created_at).
+
+New tables this phase, each with the same discipline: the Elo like rating, computed server side from
+the append only attempts, never client supplied; diamond balances and a spend ledger, append only,
+behind RLS with column level GRANTs, because an economy is an entitlement system and a client that
+writes its own balance has a free store; leaderboard standings computed daily, weekly, monthly by a
+scheduled server job from attempts, storing display name only; profiles with a chosen display name,
+leaderboard opt out defaulting to safe for minors; and subscription entitlement, priced per the
+Monetisation section, enforced in an Edge Function or RLS, never the client.
 
 Free tier and paid entitlement gated in an Edge Function or an RLS policy, never in the client.
 
