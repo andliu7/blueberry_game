@@ -30,22 +30,22 @@ type ReactivityCauseId = Extract<
 
 export const REACTIVITY_COPY: Readonly<Record<ReactivityCauseId, CauseCopy>> = Object.freeze({
   leaving_group_too_poor: {
-    whatYouDid: "You pushed off a group that does not leave on its own.",
+    whatYouDid: "This step pushes off a group that does not leave on its own.",
     why: "A leaving group has to be stable while carrying away the electron pair it takes with it, which is another way of saying it has to be a weak base. Hydroxide and alkoxide are strong bases, so they stay put. Halides, water, and sulfonates are weak bases, so they go.",
-    lookAt: "Activate it first. Under acid an alcohol is protonated and leaves as water, and outside acid it is converted to a tosylate or a halide before the substitution. Check which of those the conditions actually give you.",
+    lookAt: "Activate it first. Under acid an alcohol is protonated and leaves as water, and outside acid it is converted to a tosylate or a halide before the substitution. Check which of those the conditions give you.",
   },
   nucleophile_not_present_in_state: {
     whatYouDid: "The nucleophile in your step is not one of the species in the flask.",
     why: "The system is exactly what has been drawn. A reagent that the conditions imply still has to be added as a species before it can attack anything.",
-    lookAt: "Read the reagent line again and draw what it actually provides. Sodium methoxide gives you methoxide plus a sodium counterion, and the counterion is a spectator, not the nucleophile.",
+    lookAt: "The reagent line names what to draw. Sodium methoxide gives you methoxide plus a sodium counterion, and the counterion is a spectator, not the nucleophile.",
   },
   acid_and_base_regime_mixed: {
-    whatYouDid: "You used a strong acid and a strong base in the same mechanism.",
+    whatYouDid: "This mechanism uses a strong acid and a strong base.",
     why: "They cannot be in the flask together. Under acid there is no free alkoxide or carbanion sitting around, and under base there is no protonated carbonyl. A sequence that needs both is describing two different experiments.",
     lookAt: "Pick the regime the conditions give you and stay inside it. Under acid, activate by protonating first and deprotonate at the end. Under base, deprotonate first and protonate only on workup.",
   },
   skipped_favourable_rearrangement: {
-    whatYouDid: "You trapped a carbocation when a much more stable one was one shift away.",
+    whatYouDid: "You trapped a carbocation, and a much more stable one was one shift away.",
     why: "Hydride and alkyl shifts are fast when they buy stability, often faster than the nucleophile arrives. A secondary cation next to a carbon carrying three alkyl groups usually rearranges before anything captures it.",
     lookAt: "Look at the carbons next door to your cation. If a hydrogen or a methyl group can move across and leave a tertiary cation behind, draw that shift and finish the mechanism from the rearranged cation, then compare which of the two products the question is showing you.",
     competingRoutes: ["carbocation_rearrangement"],

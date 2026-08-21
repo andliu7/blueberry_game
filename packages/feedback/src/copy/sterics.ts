@@ -36,7 +36,7 @@ export const STERICS_COPY: Readonly<Record<StericsCauseId, CauseCopy>> = Object.
     competingRoutes: ["sn1", "e2"],
   },
   nucleophile_cannot_reach_backside: {
-    whatYouDid: "You attacked the back face of a carbon that has no reachable back face.",
+    whatYouDid: "This step attacks the back face of a carbon that has no reachable back face.",
     why: "At a bridgehead in a small bicyclic system the cage holds that carbon rigid, and the position directly opposite the leaving group points into the ring framework. Nothing can approach from there without tearing the cage apart. A crowded centre is slow; this one is geometrically impossible.",
     lookAt: "Small bridgehead positions do not do backside attack, and for a related geometric reason they do not ionise easily either, because the cation cannot flatten out. Look for the reaction happening somewhere else on the molecule.",
   },

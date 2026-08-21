@@ -30,8 +30,15 @@ export interface CauseCopy {
   /**
    * What the student did, in their own terms.
    *
-   * Refers to the action they took, not to the internal rule that caught it.
-   * "You gave an atom more bonds than it can hold", never "valence exceeded".
+   * Refers to what happened in the drawing, not to the internal rule that caught
+   * it. "That atom has more bonds than it can hold", never "valence exceeded".
+   *
+   * CLAUDE.md, "The voice": the subject is the drawing, not the student. "That
+   * atom has more bonds than it can hold" and "You gave an atom more bonds than
+   * it can hold" state the same fact, and only the second one reads as an
+   * accusation. Where the sentence is about something that went right, "you" is
+   * the correct subject and the praise has to be specific enough to prove the
+   * attempt was actually read.
    */
   readonly whatYouDid: string;
   /**

@@ -29,9 +29,9 @@ type ConservationCauseId = Extract<
 
 export const CONSERVATION_COPY: Readonly<Record<ConservationCauseId, CauseCopy>> = Object.freeze({
   mass_not_conserved: {
-    whatYouDid: "You finished the step with a different set of atoms from the one you started with.",
+    whatYouDid: "The step ends with a different set of atoms from the one it started with.",
     why: "Atoms are not made or destroyed in a mechanism step. If a proton or a leaving group is gone from one molecule, it is attached to another molecule that is still in the flask.",
-    lookAt: "Count each element on both sides of the step, hydrogens included. The element whose count changed points straight at the atom you moved without giving it anywhere to land.",
+    lookAt: "Count each element on both sides of the step, hydrogens included. The element whose count changed points straight at the atom that moved without anywhere to land.",
   },
   charge_not_conserved: {
     whatYouDid: "The total charge is not the same before and after your step.",
@@ -44,14 +44,14 @@ export const CONSERVATION_COPY: Readonly<Record<ConservationCauseId, CauseCopy>>
     lookAt: "Trace each arrow from tail to head and mark the electrons it carries, two for a full arrow and one for a fishhook. Any bond that changed with no arrow on it is where the missing pair went.",
   },
   proton_source_not_in_state: {
-    whatYouDid: "You took a proton from something that is not in the flask.",
-    why: "Only species that have been drawn can react. Conditions written above the arrow, such as acid or aqueous, tell you what to draw. They are not a substitute for drawing it.",
+    whatYouDid: "This step takes a proton from something that is not in the flask.",
+    why: "Only species that have been drawn can react. Conditions written above the arrow, such as acid or aqueous, tell you what to draw, and it is the drawn species an arrow can reach.",
     lookAt: "Add the acid as a real species first, then push the arrow from your substrate to its proton. Under aqueous acid the donor is hydronium, not a bare proton floating on its own.",
   },
   proton_sink_not_in_state: {
-    whatYouDid: "You pulled a proton off and gave it to nothing.",
+    whatYouDid: "This step pulls a proton off and hands it to nothing.",
     why: "Deprotonation is a transfer, so something accepts that proton, and it has to be a species in the system. The word solvent or workup written above an arrow is not a species.",
-    lookAt: "Name the base the conditions actually give you. Under basic conditions it is the base itself. Under acidic conditions it is normally the solvent, or the conjugate base of the acid you protonated with earlier.",
+    lookAt: "The conditions name the base for you. Under basic conditions it is the base itself. Under acidic conditions it is normally the solvent, or the conjugate base of the acid you protonated with earlier.",
   },
   species_appeared_without_source: {
     whatYouDid: "A molecule shows up in your product that was not there before and was not made by this step.",
@@ -64,18 +64,18 @@ export const CONSERVATION_COPY: Readonly<Record<ConservationCauseId, CauseCopy>>
     lookAt: "Draw the departed group as its own species, with its charge on it. Bromide, water, and tosylate all stay on the page after they leave.",
   },
   spectator_changed_during_step: {
-    whatYouDid: "You changed a species that was declared a spectator.",
+    whatYouDid: "A species declared a spectator changes during this step.",
     why: "A spectator is left out of the balance on the promise that it does not react. The moment it takes part, that promise is what is wrong, and every count built on it stops meaning anything.",
     lookAt: "If that species really does react here, drop the spectator declaration so it is counted like everything else. If it should not be reacting, the arrow that touches it is the mistake.",
   },
   spectator_declared_without_justification: {
-    whatYouDid: "You left a species out of the balance without recording a reason.",
+    whatYouDid: "A species is out of the balance with no reason recorded.",
     why: "Excluding something from conservation changes what the checks can catch, so it is a decision rather than a formatting choice. A silent exclusion cannot be reviewed or argued with later.",
     lookAt: "Write the reason down, which is normally that it is a counterion or a bulk solvent molecule that never bonds to anything here. If you cannot write that sentence, it is a participant and belongs in the balance.",
   },
   implicit_hydrogen_changed_without_arrow: {
     whatYouDid: "A hydrogen count changed on an atom and no arrow explains it.",
-    why: "Leaving hydrogens undrawn saves space. It does not exempt them from the rules. A proton that moves is moved by electrons, so it gets an arrow like every other atom.",
+    why: "Leaving hydrogens undrawn saves space, and they still play by the same rules. A proton that moves is moved by electrons, so it gets an arrow like every other atom.",
     lookAt: "Draw that hydrogen explicitly for this step, then add the arrows that move it: one from the base into the hydrogen, and one from the carbon to hydrogen bond onto the carbon or into the pi bond that is forming.",
   },
   duplicate_species_id_in_state: {

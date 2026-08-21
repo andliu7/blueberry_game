@@ -24,12 +24,12 @@ export const SUCCESS_COPY: Readonly<Record<SuccessCauseId, CauseCopy>> = Object.
   },
   alternative_route_same_product: {
     whatYouDid: "You reached the right product by a different route from the one the question had in mind.",
-    why: "More than one mechanism can end at the same structure. Nothing you drew is impossible, so this is not an error, it is a second correct answer.",
+    why: "More than one mechanism can end at the same structure. Every step you drew holds up on its own, which makes this a second correct answer rather than a near miss.",
     lookAt: "Put your route next to the one that was asked for and find the step where they separate. The conditions in the question, solvent, base strength, temperature, are what decide which of the two a real flask takes.",
   },
   valid_transformation_not_requested: {
-    whatYouDid: "You built a real reaction, but not the one the question asked for.",
-    why: "Every step you drew is chemically sound. The product is simply a different compound, which almost always means a different site was attacked or a competing pathway was followed to the end.",
-    lookAt: "Read the target structure again and mark every bond that differs from the starting material. Those bonds tell you which atoms have to be joined and which have to be broken.",
+    whatYouDid: "This is a real reaction, and it is a different one from the reaction the question asked for.",
+    why: "Every step you drew is chemically sound. The product is a different compound, which almost always means a different site was attacked or a competing pathway was followed to the end.",
+    lookAt: "The target structure is the fastest way in. Mark every bond in it that differs from the starting material, and those bonds name the atoms that have to be joined and the ones that have to come apart.",
   },
 });

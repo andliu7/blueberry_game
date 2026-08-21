@@ -24,17 +24,17 @@ type StereochemistryCauseId = Extract<
 export const STEREOCHEMISTRY_COPY: Readonly<Record<StereochemistryCauseId, CauseCopy>> =
   Object.freeze({
     sn2_did_not_invert: {
-      whatYouDid: "You kept the same arrangement of groups at the carbon the nucleophile attacked.",
+      whatYouDid: "The carbon the nucleophile attacked kept the same arrangement of groups.",
       why: "In SN2 the nucleophile comes in on the opposite side from the leaving group, because that is the approach that lines up with the antibonding orbital of the bond being broken. The other three groups fold through as it does, like an umbrella in wind. Inversion here is geometry, not a tendency.",
       lookAt: "Redraw the centre with the nucleophile in the position opposite where the leaving group was, then flip the other three groups over to the other side. If the priority order of those groups has not changed, the descriptor goes from R to S or from S to R.",
     },
     addition_face_wrong: {
-      whatYouDid: "You added the two new groups to the same face of the alkene.",
+      whatYouDid: "Both new groups went onto the same face of the alkene.",
       why: "Bromination goes through a cyclic bromonium ion that covers one face completely, so the bromide has to open it from the opposite side. That makes the addition anti.",
       lookAt: "Track which face the first bromine bridged, then bring the bromide in on the other one. Anti addition to cis-2-butene gives the racemic pair of 2,3-dibromobutane, and anti addition to trans-2-butene gives the meso compound. If yours came out the other way round, the second bromide went in on the bridged face.",
     },
     e2_not_periplanar: {
-      whatYouDid: "You eliminated a proton that is not aligned with the leaving group.",
+      whatYouDid: "The proton taken here is not aligned with the leaving group.",
       why: "E2 makes the pi bond in the same motion as it breaks the carbon to hydrogen and carbon to leaving group bonds, so those two bonds have to lie in one plane with the two carbons. That means a dihedral near 180 degrees or near 0. Anything in between leaves the orbitals unable to overlap.",
       lookAt: "Draw the Newman projection down the two carbons and rotate until the leaving group is anti to a hydrogen. Whichever hydrogen ends up there is the one that leaves, and that is what decides which alkene you get.",
     },
@@ -44,7 +44,7 @@ export const STEREOCHEMISTRY_COPY: Readonly<Record<StereochemistryCauseId, Cause
       lookAt: "Say what stops anti periplanar here. In a rigid bicycle or a fused ring the leaving group can have no anti hydrogen at all, and that is the justification. If a single bond rotation would give you anti, use anti instead.",
     },
     stereocenter_created_without_declared_geometry: {
-      whatYouDid: "You made a new stereocenter and left it undefined.",
+      whatYouDid: "This step makes a new stereocenter and leaves it undefined.",
       why: "A carbon carrying four different groups exists as two arrangements that cannot be superimposed, and they are different compounds. Drawing it flat does not average them, it just does not say which one you made.",
       lookAt: "Ask which face the incoming group approached from. If one face is blocked, the wedge and dash follow from that. If both faces are open, both products form and you should draw both.",
     },
