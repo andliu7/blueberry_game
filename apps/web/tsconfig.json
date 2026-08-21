@@ -1,0 +1,27 @@
+{
+  // apps/web extends the repo base for the strictness flags, then overrides the
+  // module story, because this package is built by Vite rather than tsc. Vite
+  // resolves imports the way a bundler does, so moduleResolution "bundler" is the
+  // honest setting; NodeNext would demand .js extensions on imports that Vite
+  // never sees.
+  //
+  // composite + emitDeclarationOnly (rather than noEmit) is what lets the root
+  // `tsc -b` include this app in the one repo-wide typecheck. tsc -b only accepts
+  // composite projects, and composite projects must emit something; declarations
+  // into tsbuild/ (gitignored) are the cheapest something.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "tsbuild",
+    "emitDeclarationOnly": true,
+    "sourceMap": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "test", "scripts", "vite.config.ts", "vitest.config.ts"],
+  "references": [{ "path": "../../packages/chem-core" }]
+}

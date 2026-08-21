@@ -71,6 +71,8 @@ tools/blueberry-ai/fixtures/.work.css
 
 # TypeScript incremental build state. Churns every build, never useful in history.
 *.tsbuildinfo
+# Declaration-only emit from composite app projects (apps/web outDir).
+tsbuild/
 
 # Mutation testing scratch. The distilled score in packages/chem-core/mutation/last-run.json
 # is committed evidence; the full Stryker report is a large machine artifact and is not.
