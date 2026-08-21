@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@blueberry/chem-core": "*",
+    "@blueberry/curriculum": "*",
+    "@blueberry/feedback": "*",
+    "@blueberry/interaction": "*",
     "@react-three/fiber": "^9.7.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

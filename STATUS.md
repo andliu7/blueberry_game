@@ -1,6 +1,6 @@
 # Status
 
-Updated 2026-08-19.
+Updated 2026-08-21.
 
 ## Preflight
 
@@ -40,8 +40,8 @@ Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is au
 | 1 Mechanism core | Gauntlet loop | DONE, human gate passed, merged to `main` |
 | 2 Interaction layer | Gauntlet loop | DONE, authorized structural cycle plus verification, merged to `main` |
 | 3 Curriculum engine and placement quiz | Gauntlet loop | IN PROGRESS, waves 1 to 3 done, adversary pass next |
-| 4 Rendering | Single pass, human gate | Not started |
-| 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | Not started |
+| 4 Rendering | Single pass, human gate | DONE, merged to `main` on owner go-ahead; device runs still open |
+| 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | BUILT on `phase-5`, waiting at the human gate |
 | 6 Auth, data, free tier | Gauntlet loop | Not started |
 | 7 AI chat as the Tier 3 tail | Gauntlet loop | Not started |
 | 8 Tutor messaging | Gauntlet loop | Not started |
@@ -260,7 +260,92 @@ THE HUMAN GATE, what the owner reviews before merge:
    Pixel 6a and iPhone 12, fill apps/web/measurements/device-results.json.
 5. Token conformance: light mode, purple led, cream ground, per DESIGN-TOKENS.md.
 
-## Done outside the phase plan## Done outside the phase plan
+## Phase 4 gate, 2026-08-21
+
+Merged to `main` at 0436757 on the owner's "keep going". Items 1, 2, 3 and 5 of the gate
+were exercised in a browser during the Phase 5 smoke test (animation, press feel, reduced
+motion frame, light purple cream tokens). Item 4, the Pixel 6a and iPhone 12 runs, is NOT
+done: `apps/web/measurements/device-results.json` is still all nulls and only a hand on the
+phones fills it. Carried as open, not claimed.
+
+## Phase 5 BUILT, single pass complete, waiting at the human gate. 2026-08-21
+
+Branch `phase-5`, off `main` after the Phase 4 merge. Not merged: the merge waits for the gate.
+
+What exists, all under `apps/web/src`:
+
+- `app/` the shell. Hash routing (`routes.ts`, `useHashRoute.ts`, same reason as D5), a
+  bottom tab bar under 768 px and a left rail above, eight tabs in the CLAUDE.md order, a
+  diamond badge, a theme toggle. Every tab except the trainer is `React.lazy` behind a visible
+  skeleton. The trainer stays in the entry chunk on purpose so the payload gate keeps
+  weighing the real game route rather than an empty shell
+- `app/progress.ts` the SEAM for Phase 6. `ProgressSource` interface, one local
+  implementation over localStorage, documented in its header as a rendering cache and never
+  an entitlement. Phase 6 swaps the implementation; the tabs read the interface
+- `mascot/` `berryBehaviour.ts` and `berryMood.ts` copied verbatim from the sibling repo
+  (one guarded index read in `poseAt` for this repo's stricter compiler, noted in place),
+  the flat mark adapted, the mood CSS copied, and `Berry.tsx` driving the machine with one
+  rAF loop and a CSS transform. Events wire to behaviours, never moods. The 3D berry is NOT
+  imported: it carries `motion/react` and three, and adding `motion` is a gate question
+- `tabs/trainer/` the Mechanism Trainer wired end to end: the Phase 2 interaction store
+  over a shell hit tester built from the Phase 4 scene, the draw canvas (tap and drag both,
+  pen and touch distinguished at the boundary, `touch-action: none`), grading, and the
+  Phase 4 playback on success. Failure animations: snap back for an illegal arrow, wobble on
+  the leaving group for a legal but wrong drawing, the result named out loud, no red
+- `tabs/pathway/` the Duolingo shaped track from `TOPICS`, five node states, the
+  `derivePathway` rule pure and exported. Cross course prerequisites count as met unless the
+  placement frontier says otherwise, or the first node of every track is locked on arrival
+- `tabs/courses/` six courses, topics, and `lesson/LessonPlayer.tsx` over the corpus
+  problems of a topic, grading through `gradeAttempt` only, feedback per tier, the reward
+  moment (`RewardMoment.tsx`: large number, full bleed, scarce badge, return bonus, no
+  streak loss), and the video slot (`LessonVideo.tsx`: never autoplay, always skippable,
+  transcript slot, marked Template)
+- `tabs/search/` over `searchReactions`, says which axis matched
+- `tabs/periodic/` 118 elements authored in `elements.ts`, 18 column grid with the f block
+  below, four colourings, detail panel, symbol in the URL. `public/sw.js` caches the shell
+  for offline, registered in production only
+- `tabs/leaderboards/`, `tabs/chat/`, `tabs/messages/` render their shape with an honest
+  empty state and the phase that supplies the data. The leaderboard display name field
+  exists and opt out is the default
+- `onboarding/` welcome, the placement quiz over the real reducer and corpus, the
+  recommendation in the quiz's own voice, the tutorial (trainer with a guidance strip),
+  an intro lesson, then the paywall card, which is copy and not a gate. Every step skips
+  to somewhere useful
+
+Measured at the exit: suite 30 of 30, integrity unmodified, fixture count 101. Game route
+initial payload 107.5 KB gzipped against 400 KB (was 74.4 KB in Phase 4; the interaction,
+feedback and curriculum-free trainer wiring is the difference). Ketcher isolation pass, 9
+lazy chunks. Headless steady state 60 fps, worst gap 17.1 ms, zero frames over 20 ms.
+Typecheck clean across the repo. Browser smoke test on the production build: onboarding
+through quiz, tutorial (tap only, both arrows, graded correct), a three problem lesson
+with one Tier 1 miss, the reward moment, the paywall card, pathway, periodic table, search.
+
+THE HUMAN GATE, what the owner reviews before merge:
+1. `npm run dev -w @blueberry/web`, clear localStorage, walk onboarding start to finish.
+   The copy on every screen is the review: welcome, recommendation, tutorial strip,
+   paywall card. Price, trial, and framing are yours to set on that card.
+2. The feel: tab bar placement, the pathway's winding track against
+   `docs/reference/competitors/orgosolver-03-skill-tree-progression.png`, the reward moment
+   against Duolingo's, the periodic table against ptable.com.
+3. The trainer's "legal but not requested" card says chem-core cannot name the
+   transformation. Decide whether that wording ships or waits for the resolver below.
+4. Whether to bring the 3D berry across (adds `motion` to the shell payload).
+5. The Phase 4 device runs, still owed.
+
+Gaps found while building, none of them shell bugs, each needing an owner or a later phase:
+- chem-core has no runtime resolver from a drawn step to an `AttemptResolution`. The
+  validators compute resolutions from authored fixtures only. `tabs/trainer/grade.ts`
+  grades by legality plus arrow set equality and says so. The resolver belongs in chem-core
+- The curriculum cause registry has no student facing copy (`summary` and `teaches` are
+  engine facing by contract), so a curriculum Tier 1 miss shows `teaches` plus the checker
+  detail and reads as a fragment. `packages/feedback` covers chem-core causes only. A
+  curriculum copy set is authoring work, reviewed at a content gate
+- No `LessonId` is set on any corpus problem, so a lesson is "a topic's problems". When
+  lessons are authored the player takes their list and nothing else changes
+- Structure answers cannot be drawn in the shell (Ketcher is lazy by budget and not wired);
+  a structure problem is skipped without penalty and says why
+
+## Done outside the phase plan
 
 **Reference material filed.** 28 raw captures triaged. 10 into the required manifest slots, 9 more
 into `docs/reference/alchemie/extra/`, 8 competitor captures into `docs/reference/competitors/` so no

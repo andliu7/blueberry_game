@@ -19,3 +19,13 @@ createRoot(container).render(
     <App />
   </StrictMode>,
 );
+
+// The offline shell, production only: in dev Vite serves unhashed modules
+// that a cache would pin to a stale version between edits.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      /* no service worker is a slower app, not a broken one */
+    });
+  });
+}

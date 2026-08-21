@@ -1,0 +1,98 @@
+/*
+ * Mood rules for the flat mark, copied from the sibling repo's index.css
+ * (the "the berry's moods, on the flat mark" section) so the same data-mood
+ * attribute draws the same face. Do not edit the numbers here without editing
+ * them there: the mascot is one character in two apps.
+ */
+
+.berry-origin {
+  transform-origin: 50% 90%;
+  will-change: transform;
+}
+
+.bb-eyes[data-mood] .bb-eye-open {
+  opacity: 0;
+}
+.bb-eyes[data-mood] .bb-eye-kind {
+  opacity: 1;
+}
+.bb-eyes[data-mood] .bb-blush {
+  opacity: 0;
+}
+
+.bb-eyes[data-mood="curious"] .bb-eye-open,
+.bb-eyes[data-mood="focused"] .bb-eye-open,
+.bb-eyes[data-mood="reading"] .bb-eye-open,
+.bb-eyes[data-mood="thinking"] .bb-eye-open,
+.bb-eyes[data-mood="stressed"] .bb-eye-open,
+.bb-eyes[data-mood="excited"] .bb-eye-open,
+.bb-eyes[data-mood="sad"] .bb-eye-open {
+  opacity: 1;
+}
+.bb-eyes[data-mood="curious"] .bb-eye-kind,
+.bb-eyes[data-mood="focused"] .bb-eye-kind,
+.bb-eyes[data-mood="reading"] .bb-eye-kind,
+.bb-eyes[data-mood="thinking"] .bb-eye-kind,
+.bb-eyes[data-mood="stressed"] .bb-eye-kind,
+.bb-eyes[data-mood="excited"] .bb-eye-kind,
+.bb-eyes[data-mood="sad"] .bb-eye-kind {
+  opacity: 0;
+}
+
+.bb-eyes[data-mood="shy"] .bb-blush {
+  opacity: 1;
+}
+.bb-eyes[data-mood="cheer"] .bb-blush {
+  opacity: 0.85;
+}
+.bb-eyes[data-mood="excited"] .bb-blush {
+  opacity: 0.45;
+}
+.bb-eyes[data-mood="happy"] .bb-blush {
+  opacity: 0.45;
+}
+.bb-eyes[data-mood="proud"] .bb-blush {
+  opacity: 0.3;
+}
+
+.bb-smile,
+.bb-eye-kind {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 220ms ease,
+    opacity 200ms ease;
+}
+.bb-eyes[data-mood="cheer"] .bb-smile {
+  transform: scaleY(1.75);
+}
+.bb-eyes[data-mood="excited"] .bb-smile {
+  transform: scaleY(1.5);
+}
+.bb-eyes[data-mood="happy"] .bb-smile {
+  transform: scaleY(1.2);
+}
+.bb-eyes[data-mood="focused"] .bb-smile,
+.bb-eyes[data-mood="thinking"] .bb-smile {
+  transform: scaleY(0.3);
+}
+.bb-eyes[data-mood="stressed"] .bb-smile {
+  transform: scaleY(0.08);
+}
+.bb-eyes[data-mood="sad"] .bb-smile {
+  transform: scaleY(-0.7);
+}
+.bb-eyes[data-mood="reading"] .bb-smile,
+.bb-eyes[data-mood="sleepy"] .bb-smile {
+  transform: scaleY(0.55);
+}
+.bb-eyes[data-mood="sleepy"] .bb-eye-kind {
+  transform: scaleY(0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-smile,
+  .bb-eye-kind {
+    transition: none;
+  }
+}

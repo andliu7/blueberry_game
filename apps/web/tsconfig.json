@@ -23,5 +23,10 @@
     "types": ["vite/client"]
   },
   "include": ["src", "test", "scripts", "vite.config.ts", "vitest.config.ts"],
-  "references": [{ "path": "../../packages/chem-core" }]
+  "references": [
+    { "path": "../../packages/chem-core" },
+    { "path": "../../packages/interaction" },
+    { "path": "../../packages/feedback" },
+    { "path": "../../packages/curriculum" }
+  ]
 }

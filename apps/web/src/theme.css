@@ -24,6 +24,7 @@
  *   decision; the game route budget should not spend bytes Phase 4 does not need.
  */
 @import "tailwindcss";
+@import "./mascot/mascot.css";
 
 /* Class based dark mode, same mechanism as the sibling repo. Tailwind v4 repoints
    the dark: variant at the .dark class instead of prefers-color-scheme. */
@@ -53,6 +54,19 @@
      floor on the cream ground; the faint variant is for the hydrogen arc. */
   --bond-stroke: #64748b;
   --scene-faint: rgba(71, 85, 105, 0.5);
+  /* The gap docs/DESIGN-TOKENS.md names: success and the two non-binary
+     outcomes need tokens of their own, and none of them is red. --good is
+     emerald-700 (4.6:1 on white, 4.4:1 on cream for large text only, so body
+     copy on cream uses --good-ink). --alt-route is the teal of "right answer,
+     other road"; --not-requested is the amber-800 of "sound, but elsewhere". */
+  --good: #047857;
+  --good-ink: #065f46;
+  --good-soft: #d1fae5;
+  --alt-route: #0f766e;
+  --alt-route-soft: #ccfbf1;
+  --not-requested: #92400e;
+  --not-requested-soft: #fef3c7;
+  --diamond: #0ea5e9;
 }
 
 .dark {
@@ -73,6 +87,14 @@
   --grid-line: rgba(255, 255, 255, 0.035);
   --bond-stroke: #a8a29e;
   --scene-faint: rgba(168, 162, 158, 0.55);
+  --good: #34d399;
+  --good-ink: #6ee7b7;
+  --good-soft: rgba(52, 211, 153, 0.16);
+  --alt-route: #5eead4;
+  --alt-route-soft: rgba(94, 234, 212, 0.16);
+  --not-requested: #fbbf24;
+  --not-requested-soft: rgba(251, 191, 36, 0.16);
+  --diamond: #38bdf8;
 }
 
 /* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,
@@ -95,6 +117,14 @@
   --color-ring: var(--ring);
   --color-accent-from: var(--accent-from);
   --color-accent-to: var(--accent-to);
+  --color-good: var(--good);
+  --color-good-ink: var(--good-ink);
+  --color-good-soft: var(--good-soft);
+  --color-alt-route: var(--alt-route);
+  --color-alt-route-soft: var(--alt-route-soft);
+  --color-not-requested: var(--not-requested);
+  --color-not-requested-soft: var(--not-requested-soft);
+  --color-diamond: var(--diamond);
 
   /* Type scale, defined once per the note in docs/DESIGN-TOKENS.md that the
      sibling repo never defined one. Seven steps, 1.25 ratio-ish, snapped to
@@ -164,6 +194,124 @@ body {
   }
 }
 
+/* The loading continuation of a press: a dot that pulses inside the button,
+   so the acknowledgement never stops while the action runs. */
+.press.is-busy {
+  transform: scale(0.98);
+  filter: brightness(0.95);
+}
+.busy-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: busy-pulse 0.9s ease-in-out infinite;
+}
+@keyframes busy-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Failure animations, per BUILD-PROMPT.md Phase 5. None of them is red.
+   snap-back: an incorrect arrow returns elastically to where it started.
+   wobble: a leaving group that will not leave shakes and stays put.
+   Both are transforms only, so they run on the compositor. */
+@keyframes snap-back {
+  0% {
+    transform: translate(var(--snap-dx, 0px), var(--snap-dy, 0px));
+    opacity: 1;
+  }
+  60% {
+    transform: translate(calc(var(--snap-dx, 0px) * -0.12), calc(var(--snap-dy, 0px) * -0.12));
+  }
+  80% {
+    transform: translate(calc(var(--snap-dx, 0px) * 0.05), calc(var(--snap-dy, 0px) * 0.05));
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.35;
+  }
+}
+.snap-back {
+  animation: snap-back 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  20% {
+    transform: translateX(-4px) rotate(-3deg);
+  }
+  40% {
+    transform: translateX(4px) rotate(3deg);
+  }
+  60% {
+    transform: translateX(-3px) rotate(-2deg);
+  }
+  80% {
+    transform: translateX(2px) rotate(1deg);
+  }
+}
+.wobble {
+  animation: wobble 480ms ease-in-out both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* The reward moment: full bleed, distinct from the working state. The number
+   counts up in JS; the panel itself rises and the badge pops. */
+@keyframes reward-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.reward-rise {
+  animation: reward-rise 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes badge-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.badge-pop {
+  animation: badge-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Safe area for the bottom tab bar on notched phones. */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Freeze, do not vanish: the skeleton stays visible as a static frame. */
   .skeleton {
@@ -171,5 +319,23 @@ body {
   }
   .press {
     transition-duration: 1ms;
+  }
+  .busy-dot {
+    animation: none;
+    opacity: 1;
+  }
+  /* Failure animations drop to their END frame, which still carries the state:
+     the snapped arrow is faint, the wobbled group is where it was. */
+  .snap-back {
+    animation-duration: 1ms;
+  }
+  .wobble {
+    animation: none;
+  }
+  .reward-rise,
+  .badge-pop,
+  .fade-in {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
   }
 }
