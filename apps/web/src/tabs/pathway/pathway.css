@@ -14,8 +14,13 @@
  * Round 1 used a zero blur box-shadow for the edge. It was sharp, but the edge
  * colours sat too close to the cream ground (#cbd5e1 under a white face), so
  * the band read as a soft drop shadow and the collapse was not legible. Round
- * 2 makes the edge a disc and picks an edge colour with real contrast against
- * its own face for every state.
+ * 2 made the edge a disc but kept a white highlight crescent on the face and a
+ * translucent halo over the edge, and the critic read the result as a glossy
+ * marble: nothing flat to drop, nothing hard to drop onto. Round 3 is the
+ * reference button literally: a FLAT face, no gradient, no highlight, no blur
+ * anywhere, sitting on a hard edged band of 6px in a clearly darker step of
+ * the same hue. The edge band is the only thing that says "3D", and the
+ * press is the face covering it.
  *
  * Colours per state come in through --node-face, --node-edge and --node-ink,
  * set by a state class on the node. One rule for the geometry, five colour
@@ -23,10 +28,10 @@
  */
 
 .path-node {
-  --node-edge-h: 8px;
-  --node-size: 4.5rem;
+  --node-edge-h: 6px;
+  --node-size: 4rem;
   --node-face: #ede9fe;
-  --node-edge: #b197f5;
+  --node-edge: #a78bfa;
   --node-ink: var(--primary);
   position: relative;
   display: block;
@@ -68,25 +73,11 @@
   transition: transform 80ms cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
-/* A lit crescent along the top so the face reads as a dome, the reference look. */
-.path-node__face::before {
-  content: "";
-  position: absolute;
-  left: 16%;
-  right: 16%;
-  top: 9%;
-  height: 26%;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.28);
-  pointer-events: none;
-}
 
-/* The press: the face drops onto the floor, the same frame as pointer down. */
+/* The press: the face drops onto the floor, the same frame as pointer down.
+   Transform only; the band disappears because the face now covers it. */
 .path-node--press:active .path-node__face {
   transform: translateY(var(--node-edge-h));
-}
-.path-node--press:active .path-node__face::before {
-  opacity: 0.5;
 }
 
 .path-node:focus-visible {
@@ -94,30 +85,32 @@
   outline-offset: 5px;
 }
 
+/* Face and edge are two steps apart on the same hue, the reference's
+   green-on-darker-green, so the band is unmistakably part of the button. */
 .path-node--done {
-  --node-face: #10b981;
-  --node-edge: #047857;
+  --node-face: #22c55e;
+  --node-edge: #15803d;
   --node-ink: #ffffff;
 }
 .path-node--current {
-  --node-face: var(--primary);
+  --node-face: #7c3aed;
   --node-edge: #4c1d95;
   --node-ink: #ffffff;
 }
 .path-node--open {
-  --node-face: #ede9fe;
-  --node-edge: #b197f5;
-  --node-ink: #6d28d9;
+  --node-face: #ddd6fe;
+  --node-edge: #8b5cf6;
+  --node-ink: #5b21b6;
 }
 .path-node--review {
-  --node-face: #fbbf24;
-  --node-edge: #b45309;
-  --node-ink: #78350f;
+  --node-face: #facc15;
+  --node-edge: #a16207;
+  --node-ink: #713f12;
 }
 .path-node--locked {
-  --node-face: #e7e5e4;
-  --node-edge: #a8a29e;
-  --node-ink: #78716c;
+  --node-face: #d6d3d1;
+  --node-edge: #78716c;
+  --node-ink: #57534e;
   cursor: not-allowed;
 }
 
@@ -146,29 +139,30 @@
   --node-size: 0.875rem;
   cursor: default;
 }
-.path-node--swatch .path-node__face::before {
-  display: none;
-}
 
 /* The halo around the current node: the ring the reference draws to say
-   "you are here". It wraps the whole slab and stays put while the face
-   drops, which is what makes the drop legible against a fixed reference. */
+   "you are here". Opaque and hard edged like everything else here, it wraps
+   the whole slab and stays put while the face drops, which is what makes the
+   drop legible against a fixed reference. */
 .path-halo {
   position: absolute;
-  left: -9px;
-  right: -9px;
-  top: -9px;
-  bottom: -9px;
+  left: -10px;
+  right: -10px;
+  top: -10px;
+  bottom: -10px;
   border-radius: 9999px;
-  border: 5px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border: 4px solid #c4b5fd;
   pointer-events: none;
+}
+.dark .path-halo {
+  border-color: #6d28d9;
 }
 
 /* The floating START tag above the current node. A small bob, transform only. */
 .path-start {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 16px);
+  bottom: calc(100% + 14px);
   transform: translateX(-50%);
   padding: 0.4rem 0.9rem;
   border-radius: 0.75rem;
@@ -212,6 +206,9 @@
 .path-row {
   --wind: 0;
   --wind-step: min(64px, 11vw);
+  /* Pitch. 64px face, 6px edge, 10px either side: about 90px per node, so a
+     phone viewport shows six nodes and the path reads as a track. */
+  padding: 10px 0;
   /* Three columns with the slab pinned in the middle, so wind 0 is dead
      centre of the track and every swing is measured from there regardless
      of how long the lesson name beside it is. The name takes the column on
@@ -221,6 +218,11 @@
   align-items: center;
   column-gap: 1rem;
   transform: translateX(calc(var(--wind) * var(--wind-step)));
+}
+/* The START tag floats above the current node, so that row alone gets the
+   headroom for it; every other row stays on the tight pitch. */
+.path-row--current {
+  padding-top: 44px;
 }
 .path-row__slab {
   grid-column: 2;
@@ -239,7 +241,8 @@
   background: var(--banner);
   color: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 5px 0 color-mix(in srgb, var(--banner) 65%, #000);
+  /* The banner is the same slab idiom: a hard 5px band, no blur. */
+  box-shadow: 0 5px 0 0 color-mix(in srgb, var(--banner) 65%, #000);
 }
 .path-banner__guide {
   border-left: 2px solid rgba(255, 255, 255, 0.35);

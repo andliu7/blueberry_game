@@ -26,9 +26,10 @@
  *
  * THE LOOK. docs/reference/competitors/inspirations/duolingo path or track.png
  * and progress & buttons.png are the bar for the track itself: large round
- * lesson buttons with a visible 3D edge that depress on press, a floating
- * START tag over the current one, unit banners cutting the track into acts.
- * The button styling lives in pathway.css beside this file.
+ * lesson buttons, a flat face on a hard 6px edge band, that depress on press,
+ * a floating START tag over the current one, unit banners cutting the track
+ * into acts, and a pitch tight enough that six nodes fit a phone screen. The
+ * button styling and the pitch live in pathway.css beside this file.
  */
 
 import { useMemo, type CSSProperties } from "react";
@@ -167,20 +168,20 @@ function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index
   switch (state) {
     case "done":
       return (
-        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
-          <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+          <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "review":
     case "current":
       return (
-        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
+        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
           <path d={STAR_PATH} fill="currentColor" />
         </svg>
       );
     case "locked":
       return (
-        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+        <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
           <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" />
           <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
         </svg>
@@ -259,7 +260,7 @@ function TrackNode({
   const labelLeft = wind > 0;
 
   return (
-    <li className="path-row relative w-full py-5" style={{ "--wind": wind } as CSSProperties}>
+    <li className={`path-row relative w-full ${node.state === "current" ? "path-row--current" : ""}`} style={{ "--wind": wind } as CSSProperties}>
       <div className="path-row__slab relative">
         {node.state === "current" ? <span className="path-halo" aria-hidden /> : null}
         {node.state === "current" ? (
@@ -349,7 +350,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
           return (
             <section key={unit.key} className="flex flex-col gap-3" aria-label={unit.title}>
               <UnitBanner unit={unit} course={course} />
-              <ol className="path-track mx-auto flex w-full max-w-md flex-col py-6">
+              <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
                 {unit.nodes.map((node, i) => (
                   <TrackNode key={node.topic} node={node} index={first + i} course={course} />
                 ))}

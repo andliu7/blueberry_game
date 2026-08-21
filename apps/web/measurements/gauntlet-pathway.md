@@ -74,3 +74,44 @@ the real `:active` behaviour was verified separately as above.
 
 Open for the critic: the START tag still sits close under the spine banner when node 1 is
 current; the open face highlight crescent may be too strong on the pale violet face.
+
+## 2026-08-21, pathway-track-3d-buttons, round 3
+
+Files: apps/web/src/tabs/pathway/PathwayTab.tsx, apps/web/src/tabs/pathway/pathway.css.
+derivePathway unchanged.
+
+Critic's gap: the nodes read as glossy marbles (highlight crescent, translucent halo, an 8 px
+floor that read as a feathered shadow), so there was nothing hard for the face to drop onto; and
+a pitch of about 140 px put two nodes in a viewport where the reference fits six.
+
+What changed
+
+- The face is flat. The white highlight crescent (`::before`) is gone, there is no gradient and
+  no blur anywhere on the node. The edge is a 6 px hard band: `.path-node__edge` is an opaque
+  disc 6 px below the 64 px face, two colour steps darker on the same hue (done #22c55e on
+  #15803d, current #7c3aed on #4c1d95, open #ddd6fe on #8b5cf6, review #facc15 on #a16207,
+  locked #d6d3d1 on #78716c). The halo on the current node is an opaque 4 px #c4b5fd ring.
+- `:active` still moves the face by the edge height, transform only. Measured in Chrome:
+  `a.matches(":active")` true synchronously inside the pointerdown listener on a real click.
+- Pitch: 64 px face plus 6 px edge plus 10 px padding either side, measured 90 px row to row,
+  so a 786 px viewport shows seven nodes. Only the current row carries 44 px of headroom for the
+  floating START tag. Track padding dropped from py-6 to py-2.
+- Hit targets measured: node 64 by 70, Guidebook 56 by 64. Focus ring and reduced motion rules
+  unchanged.
+
+Caught in the browser before commit: a brace left open in the `.path-row--current` edit moved
+the grid declarations out of `.path-row`, which put every non current label in the wrong cell.
+Fixed, re-verified by computed style (all rows display grid, label in column 1 or 3).
+
+Suite: npm run validate 30 of 30, integrity unmodified. npx tsc -b apps/web clean. Console: no
+errors on #/pathway after a fresh load.
+
+Screenshots: apps/web/measurements/gauntlet-shots/pathway-track-3d-buttons-r3-mid.jpg (current
+node pressed, face flush on the floor, band hidden) and pathway-track-3d-buttons-r3-end.jpg
+(one screen down into Act 1, seven nodes, locked and open bands visible). As before the browser
+tool cannot hold a pointer across a screenshot, so the pressed transform was applied inline for
+the mid capture and removed after; the real `:active` behaviour was verified separately.
+
+Open for the critic: the open face (#ddd6fe) is pale against the cream ground; if it reads as
+washed out the fix is a darker face, not a highlight. Locked nodes are warm grey on purpose so
+they sit on the cream.
