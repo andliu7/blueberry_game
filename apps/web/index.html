@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Blueberry Mechanisms</title>
+    <script>
+      // Pre-paint theme script, inherited pattern from the sibling repo with the
+      // default FLIPPED per the owner divergence in docs/DESIGN-TOKENS.md: this
+      // app is light mode first. Dark only when the student explicitly chose it.
+      // It runs inline, before first paint, so there is never a flash of the
+      // wrong theme; a React effect would run after paint and flash.
+      (function () {
+        try {
+          if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {
+          /* storage blocked: stay light */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

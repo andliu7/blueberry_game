@@ -1,0 +1,175 @@
+/*
+ * Blueberry Mechanisms design tokens.
+ *
+ * Source of truth: docs/DESIGN-TOKENS.md, with the owner divergence recorded
+ * there applied: LIGHT MODE FIRST, purple led (#7c3aed to #8b5cf6 as the working
+ * centre), cream and stone as the warm neutral ground so the sibling app stays
+ * recognisable. The inherited stone palette becomes the dark variant.
+ *
+ * Divergences from the inherited table, each with the reason:
+ *
+ *   --muted-foreground light is slate-600 #475569, not the inherited slate-500
+ *   #64748b. Slate-500 on the cream ground #f6f4ef measures 4.35:1, under the
+ *   4.5:1 WCAG AA floor for body text. The inherited value was tuned for white
+ *   cards; on cream it fails the contrast gate this repo runs, so it is darkened
+ *   one step. (On white cards slate-500 passes at 4.76:1, but one token serving
+ *   two grounds must clear the worse one.)
+ *
+ *   --primary is the purple family, not the inherited near-black slate. That is
+ *   the owner divergence itself. #7c3aed on white measures 5.7:1, and white on
+ *   #7c3aed the same, so both directions clear AA for normal text.
+ *
+ *   Fonts are declared as stacks with system fallbacks and no webfont files are
+ *   shipped in this phase. The webfont payload belongs to the Phase 5 app shell
+ *   decision; the game route budget should not spend bytes Phase 4 does not need.
+ */
+@import "tailwindcss";
+
+/* Class based dark mode, same mechanism as the sibling repo. Tailwind v4 repoints
+   the dark: variant at the .dark class instead of prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f6f4ef;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #7c3aed;
+  --primary-bright: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --destructive: #e11d48;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #8b5cf6;
+  /* Accent gradient, sheen borders and glow. Inherited unchanged. */
+  --accent-from: #6366f1;
+  --accent-to: #d946ef;
+  /* 28px hairline grid, the app's soft spatial unit. */
+  --grid-line: rgba(15, 23, 42, 0.025);
+  /* Mechanism canvas strokes. Slate-600-ish clears the 3:1 graphics contrast
+     floor on the cream ground; the faint variant is for the hydrogen arc. */
+  --bond-stroke: #64748b;
+  --scene-faint: rgba(71, 85, 105, 0.5);
+}
+
+.dark {
+  --background: #0c0a09;
+  --foreground: #e7e5e4;
+  --card: #1c1917;
+  --card-foreground: #f5f5f4;
+  --primary: #8b5cf6;
+  --primary-bright: #a78bfa;
+  --primary-foreground: #ffffff;
+  --secondary: #292524;
+  --muted: #292524;
+  --muted-foreground: #a8a29e;
+  --destructive: #f43f5e;
+  --border: #44403c;
+  --input: #44403c;
+  --ring: #818cf8;
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --bond-stroke: #a8a29e;
+  --scene-faint: rgba(168, 162, 158, 0.55);
+}
+
+/* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,
+   border-border, bg-primary, ...). @theme inline reads the var at use time, so
+   the .dark override above keeps working through the utilities. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-bright: var(--primary-bright);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-accent-from: var(--accent-from);
+  --color-accent-to: var(--accent-to);
+
+  /* Type scale, defined once per the note in docs/DESIGN-TOKENS.md that the
+     sibling repo never defined one. Seven steps, 1.25 ratio-ish, snapped to
+     whole pixels. */
+  --text-scale-xs: 0.75rem;
+  --text-scale-sm: 0.875rem;
+  --text-scale-base: 1rem;
+  --text-scale-lg: 1.125rem;
+  --text-scale-xl: 1.375rem;
+  --text-scale-2xl: 1.75rem;
+  --text-scale-display: 2.5rem;
+
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", "Iowan Old Style", Palatino, Georgia, serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  /* The 28px hairline grid from the sibling repo, the soft spatial unit. */
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  min-height: 100vh;
+}
+
+.title-face {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* Pressed state contract (CLAUDE.md: every control acknowledges the press).
+   :active paints on pointer down, the same frame, before any JS runs. The
+   transform plus the darkening is the acknowledgement; anything async that
+   follows continues from here as a loading affordance. */
+.press {
+  transition:
+    transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+}
+.press:active {
+  transform: scale(0.96);
+  filter: brightness(0.92);
+}
+
+/* Loading skeleton: a visible shimmer, never a blank rectangle. */
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--muted) 40%,
+    color-mix(in srgb, var(--muted) 60%, var(--card)) 50%,
+    var(--muted) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Freeze, do not vanish: the skeleton stays visible as a static frame. */
+  .skeleton {
+    animation: none;
+  }
+  .press {
+    transition-duration: 1ms;
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "comment": "Fill from the on-device runs. `npm run measure:device -w @blueberry/web` serves the app and prints the URL and the steps. averageFps and dipFps come straight off the on-screen readout (?stats=1).",
+  "target": "60 fps sustained during bond formation, per the Budgets table in CLAUDE.md",
+  "results": [
+    {
+      "device": "Pixel 6a",
+      "renderer": "2d-svg",
+      "averageFps": null,
+      "dipFps": null,
+      "measuredBy": null,
+      "date": null
+    },
+    {
+      "device": "Pixel 6a",
+      "renderer": "3d-lazy",
+      "averageFps": null,
+      "dipFps": null,
+      "measuredBy": null,
+      "date": null
+    },
+    {
+      "device": "iPhone 12",
+      "renderer": "2d-svg",
+      "averageFps": null,
+      "dipFps": null,
+      "measuredBy": null,
+      "date": null
+    },
+    {
+      "device": "iPhone 12",
+      "renderer": "3d-lazy",
+      "averageFps": null,
+      "dipFps": null,
+      "measuredBy": null,
+      "date": null
+    }
+  ]
+}

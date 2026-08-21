@@ -236,6 +236,30 @@ human gate), Act 2/3 and Gen Chem authoring waves (corpus check gates at 15, pas
 sig fig broken fixture family, Re/Si task-direction decision (blocks stereoLabels authoring),
 9 RDKit adjudication queue items awaiting a human.
 
+## Phase 4 BUILT, single pass complete, waiting at the human gate. 2026-08-21
+
+Branch phase-4, commit 41abbb4, not yet merged: the merge waits for the gate.
+
+apps/web exists: React 19 + Vite + Tailwind v4. One renderer contract
+(src/render/contract.ts), two implementations: the 2D SVG renderer (the default,
+the deliverable) and a lazy 3D renderer through @react-three/fiber that only the
+2D/3D toggle reaches. Demo is SN2 at bromomethane, real chem-core constructors,
+authored backside layout hints.
+
+Measured at the exit: initial payload 74.4 KB gzipped against the 400 KB ceiling,
+suite 30 of 30 with both web gates armed and measuring, headless steady state
+56.4 fps with zero frames over 20 ms (apps/web/measurements/headless-results.json).
+
+THE HUMAN GATE, what the owner reviews before merge:
+1. `npm run dev -w @blueberry/web`, watch the step: does the animation feel right?
+   Arrow draw, atom glide, bond growth from the donor end, the release burst.
+2. Press feel: every control acknowledges on pointer down.
+3. Reduced motion (OS setting): the page should show a frozen mid-step frame.
+4. Device runs: `npm run build -w @blueberry/web` then
+   `npm run measure:device -w @blueberry/web`, follow the printed steps on the
+   Pixel 6a and iPhone 12, fill apps/web/measurements/device-results.json.
+5. Token conformance: light mode, purple led, cream ground, per DESIGN-TOKENS.md.
+
 ## Done outside the phase plan## Done outside the phase plan
 
 **Reference material filed.** 28 raw captures triaged. 10 into the required manifest slots, 9 more
