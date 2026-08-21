@@ -57,7 +57,7 @@ import type { ArmedSourceHint } from "../geometryPort.js";
 import { notice } from "../notices.js";
 import { sameTarget, type HitTarget } from "../targets.js";
 import { armedAtomId, inferSink } from "./arrowInference.js";
-import { changed, refused, unchanged, type ShapeOutcome } from "./outcome.js";
+import { changed, emitted, refused, unchanged, type ShapeOutcome } from "./outcome.js";
 
 /** Prefix for arrow ids this package mints. Never collides with authored ids. */
 export const STUDENT_ARROW_PREFIX = "student-arrow-";
@@ -136,11 +136,13 @@ export function applyToMechanism(
 
     case "clearSelection":
       if (draft.armed === null) return unchanged(draft);
-      return changed(withArmed(draft, null));
+      return changed(withArmed(draft, null), "disarmed");
 
     case "setElectronCount":
+      // A mode, not an answer: it decides what the NEXT arrow will be and
+      // changes nothing a grader reads about the arrows already drawn.
       if (draft.electrons === command.electrons) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, electrons: command.electrons }));
+      return changed(Object.freeze({ ...draft, electrons: command.electrons }), "inspected");
 
     case "setPredictedState": {
       if (draft.predicted === command.state) return unchanged(draft);
@@ -153,17 +155,18 @@ export function applyToMechanism(
       if (duplicated.length > 0) {
         return refused(draft, [
           notice(
-            "external_structure_duplicate_atom_ids",
+            "predicted_state_duplicate_atom_ids",
             "refused",
             `the predicted state carries atom id${duplicated.length === 1 ? "" : "s"} ${duplicated.join(", ")} in more than one species, so edits by id would be ambiguous. Fix the ids and hand it over again`,
           ),
         ]);
       }
-      return changed(Object.freeze({ ...draft, predicted: command.state }));
+      // The predicted product IS part of the answer, so this is a commit.
+      return changed(Object.freeze({ ...draft, predicted: command.state }), "committed");
     }
 
     case "submit":
-      return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };
+      return emitted(draft, [{ kind: "submitAttempt", draft }]);
 
     default:
       return refused(draft, [
@@ -186,18 +189,19 @@ function selectTarget(draft: MechanismDraft, target: HitTarget): ShapeOutcome<Me
         ...draft,
         revealedHydrogens: toggleId(draft.revealedHydrogens, target.atomId),
       }),
+      "inspected",
     );
   }
 
   if (target.kind === "empty") {
     if (draft.armed === null) return unchanged(draft);
-    return changed(withArmed(draft, null));
+    return changed(withArmed(draft, null), "disarmed");
   }
 
   // Tapping the armed thing again lets it go. Also what a drag that wanders off
   // and comes back to its own source amounts to.
   if (draft.armed !== null && sameTarget(target, draft.armed.target)) {
-    return changed(withArmed(draft, null));
+    return changed(withArmed(draft, null), "disarmed");
   }
 
   if (draft.armed === null) {
@@ -228,6 +232,7 @@ function armFrom(draft: MechanismDraft, target: HitTarget): ShapeOutcome<Mechani
           ...draft,
           revealedLonePairs: toggleId(draft.revealedLonePairs, target.atomId),
         }),
+        "inspected",
       );
     case "betweenAtomsSite":
       return refused(draft, [
@@ -256,7 +261,7 @@ function armed(
   target: HitTarget,
   pivotAtomId: AtomId | null,
 ): ShapeOutcome<MechanismDraft> {
-  return changed(withArmed(draft, { source, target, pivotAtomId }), [haptic("selection")]);
+  return changed(withArmed(draft, { source, target, pivotAtomId }), "armed", [haptic("selection")]);
 }
 
 function commit(
@@ -298,6 +303,10 @@ function commit(
     );
   }
 
+  // Both halves of "the sink consumed the arming" in one word. See the
+  // one value, not a set argument in outcome.ts: the arming this command ate
+  // was never a state the student could act on afterwards, so `committed` is
+  // the whole truth rather than half of it.
   return changed(
     Object.freeze({
       ...draft,
@@ -305,6 +314,7 @@ function commit(
       armed: null,
       nextArrowNumber: draft.nextArrowNumber + 1,
     }),
+    "committed",
     [haptic("commit")],
   );
 }

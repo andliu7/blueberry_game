@@ -65,8 +65,36 @@ export type NoticeId =
    * more than one species. Every command that edits by atom id would silently
    * resolve to whichever species is found first, making the other atom
    * permanently unreachable, so the handover is refused whole.
+   *
+   * THIS ID NAMES ONE ENTRY POINT, `acceptExternalStructure`, and the two ids
+   * below name the other two. They were one id until the Phase 2 pass four
+   * adversary pointed out that this file's own header promises student copy is
+   * "keyed by these ids", and three entry points sharing one key means the copy
+   * can only ever say the vaguest of the three things. Splitting them costs two
+   * union members and lets packages/feedback tell a student to fix the editor,
+   * fix the product they drew, or report a broken problem, which are three
+   * different sentences.
    */
   | "external_structure_duplicate_atom_ids"
+  /**
+   * `setPredictedState` was handed a product state carrying the same atom id in
+   * more than one species. Same hazard as above, different entry point: this one
+   * is the product the student drew being attached to a mechanism draft, not a
+   * structure being imported into the editor.
+   */
+  | "predicted_state_duplicate_atom_ids"
+  /**
+   * `setShape` was asked to install a draft whose starting state carries the
+   * same atom id in more than one species.
+   *
+   * `createMechanismDraft` throws on this, because a constructor has no notice
+   * channel and a problem authored that way is an authoring defect. `setShape`
+   * is a live command that does have a channel, and it is the route a restored
+   * session takes: a draft deserialised from storage or an offline queue never
+   * passed through the constructor, so the throw guarded nothing on that path.
+   * Found by the Phase 2 pass four adversary.
+   */
+  | "restored_draft_duplicate_atom_ids"
   | "backgrounded_mid_drag"
   | "drag_ended_on_its_own_source"
   | "target_was_ambiguous"
@@ -125,6 +153,8 @@ export const ALL_NOTICE_IDS: readonly NoticeId[] = [
   "revise_refused_newer_work",
   "release_ignored_newer_work",
   "external_structure_duplicate_atom_ids",
+  "predicted_state_duplicate_atom_ids",
+  "restored_draft_duplicate_atom_ids",
   "backgrounded_mid_drag",
   "drag_ended_on_its_own_source",
   "target_was_ambiguous",

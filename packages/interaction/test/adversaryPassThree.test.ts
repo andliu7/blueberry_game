@@ -480,9 +480,20 @@ describe("FINDING: the duplicate-id refusal covers acceptExternalStructure only,
     // No notice at all: setPredictedState's own handler only checks
     // reference equality against the current `predicted` value, nothing
     // about the state's internal integrity.
-    // FIXED: refused by the same notice as acceptExternalStructure, and the
-    // prediction is not attached.
-    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(true);
+    // FIXED: refused, and the prediction is not attached.
+    //
+    // The id changed in the pass four fix cycle and the assertion moved with
+    // it. This refusal was minted as external_structure_duplicate_atom_ids, the
+    // id acceptExternalStructure already used, and pass four finding 3 recorded
+    // that as a collision: notices.ts promises student copy is keyed by id, and
+    // one id shared by two entry points can only ever carry the vaguer of the
+    // two sentences. setPredictedState now has predicted_state_duplicate_atom_ids
+    // of its own. Nothing about the BEHAVIOUR this test pins moved: the refusal
+    // still fires, still names the ids, and the prediction is still not
+    // attached. Both ids are asserted, so the split cannot silently become a
+    // rename that leaves acceptExternalStructure reporting the wrong one.
+    expect(d.sawNotice("predicted_state_duplicate_atom_ids")).toBe(true);
+    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(false);
     expect(mechanismDraftOf(d).predicted).toBeNull();
 
     // The same shape of input that acceptExternalStructure refuses by name
@@ -608,6 +619,7 @@ describe("the id guards name every offender and null still clears", () => {
     expect(mechanismDraftOf(d).predicted).toBe(clean);
     d.send({ kind: "command", command: { kind: "setPredictedState", state: null } });
     expect(mechanismDraftOf(d).predicted).toBeNull();
+    expect(d.sawNotice("predicted_state_duplicate_atom_ids")).toBe(false);
     expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(false);
   });
 
@@ -617,7 +629,7 @@ describe("the id guards name every offender and null still clears", () => {
       kind: "command",
       command: { kind: "setPredictedState", state: twoSpeciesSharing(["X1", "X2"]) },
     });
-    const refusal = d.notices.find((n) => n.id === "external_structure_duplicate_atom_ids");
+    const refusal = d.notices.find((n) => n.id === "predicted_state_duplicate_atom_ids");
     expect(refusal?.detail).toContain("ids X1, X2");
     expect(mechanismDraftOf(d).predicted).toBeNull();
   });

@@ -105,9 +105,37 @@
  * The one exception is a pen arriving during a touch drag, which is a hand
  * resting on an iPad while the Pencil comes down. The pen wins, and the touch it
  * displaces is cancelled by R3 rather than committed. See D11.
+ *
+ * WHAT THIS FILE IS TOLD, AND WHAT IT WORKS OUT FOR ITSELF.
+ *
+ * Two different questions get answered two different ways here, and mixing them
+ * up cost Phase 2 four adversary passes.
+ *
+ *   "did the document move at all"      answered by reference identity, here
+ *   "what did that command actually do" answered by the reducer that did it
+ *
+ * The first is a property of this file's own bookkeeping. Every DocumentState is
+ * frozen and replaced rather than mutated, and a command that changes nothing
+ * returns the document it was given, so `a === b` is exact rather than a
+ * heuristic. R3's rollback guard, R2's release guard and the in flight guide all
+ * rest on it and none of them has ever produced a finding.
+ *
+ * The second is not a property of anything this file can see. It used to be
+ * guessed from `hasSelection(draft)` after the fact, which is an OR over every
+ * selection field a shape happens to have, and the guess is wrong the moment a
+ * shape has two of them. Every reducer now states its own answer in
+ * `ShapeOutcome.report`, and this file reads the statement. `dropSession` has
+ * always worked that way with `rolledBack`; the shapes do now too.
  */
 
-import { applyToShape, armedHintFor, hasSelection, type ShapeDraft } from "./shapes/index.js";
+import {
+  applyToShape,
+  armedHintFor,
+  hasSelection,
+  installRefusalFor,
+  type ShapeDraft,
+  type ShapeReport,
+} from "./shapes/index.js";
 import { commitDraft, createDocument, resetDocument, undoDocument, type DocumentState } from "./document.js";
 import type { InteractionCommand } from "./commands.js";
 import type { InteractionEffect } from "./effects.js";
@@ -206,6 +234,19 @@ export interface Transition {
   readonly state: InteractionState;
   readonly notices: readonly InteractionNotice[];
   readonly effects: readonly InteractionEffect[];
+  /**
+   * What the shape reducer said the command behind this event did, or null when
+   * no shape reducer ran.
+   *
+   * Null covers three cases and they are all "do not ask a shape about this":
+   * an event that applied no command at all (a move, a cancel, an ignored
+   * pointer's press), a document operation the shapes have no opinion on (undo,
+   * setShape), and a refusal this file minted itself. Machine level refusals
+   * already carry a named notice, so nothing is lost by not also calling them
+   * `refused` here, and conflating "the shape refused" with "the machine
+   * refused" would be the same class of mistake this field exists to end.
+   */
+  readonly report: ShapeReport | null;
 }
 
 export function createInteractionState(draft: ShapeDraft): InteractionState {
@@ -280,6 +321,7 @@ function onPointerDown(
       state: addSession(working, buildSession(working, pointer, "ignored", emptyAt(pointer.point))),
       notices,
       effects: [],
+      report: null,
     };
   }
 
@@ -313,6 +355,7 @@ function onPointerDown(
         state: addSession(working, buildSession(working, pointer, "ignored", hit.primary)),
         notices,
         effects: [],
+        report: null,
       };
     }
   }
@@ -333,16 +376,20 @@ function onPointerDown(
     Object.freeze({ ...session, documentAfterOwnPress: applied.state.doc }),
   );
 
-  // A contested press that changed the document AND left something armed opens
-  // the revise window: this is the moment target_was_ambiguous fires and the
-  // "did you mean" affordance becomes honest to offer. The arming condition is
-  // the pass three fix: a contested toggle OFF also changes the document, and a
-  // window opened on it would make revise undo the disarm, resurrect the
-  // original wrong guess, and evaluate the corrected target as a sink against
-  // it. Refusing to open the window there means revise refuses by name instead
-  // of corrupting, and the student re-taps, which is the honest degradation.
+  // A contested press that ARMED something opens the revise window: this is the
+  // moment target_was_ambiguous fires and the "did you mean" affordance becomes
+  // honest to offer, because revise is undo plus reapply and that only
+  // reproduces what the student meant when the thing being corrected was an
+  // arming. Correcting a disarm resurrects the very selection the student just
+  // cancelled; correcting a commit undoes work.
+  //
+  // One reducer statement, no projection. The condition used to be "the document
+  // moved AND something is armed now", and the second half is what four adversary
+  // passes kept getting through: in the structure shape an unrelated armed
+  // palette element made a disarm read as an arming, and revise then silently
+  // bonded two atoms. See adversaryPassFour.test.ts finding 1.
   const withWindow =
-    isContested(hit) && applied.state.doc !== working.doc && hasSelection(applied.state.doc.draft)
+    isContested(hit) && applied.report === "armed"
       ? Object.freeze({ ...pressed, reviseWindow: applied.state.doc })
       : pressed;
 
@@ -350,6 +397,7 @@ function onPointerDown(
     state: withWindow,
     notices: [...notices, ...ambiguityNotices(hit, applied.state.commandSeq), ...applied.notices],
     effects: applied.effects,
+    report: applied.report,
   };
 }
 
@@ -364,6 +412,7 @@ function onPointerMove(
       state,
       notices: [unknownPointer(pointer.pointerId, "move")],
       effects: [],
+      report: null,
     };
   }
 
@@ -392,7 +441,7 @@ function onPointerMove(
     lastTimestampMs: pointer.timestampMs,
   });
 
-  return { state: replaceSession(state, updated), notices, effects: [] };
+  return { state: replaceSession(state, updated), notices, effects: [], report: null };
 }
 
 function onPointerUp(
@@ -402,7 +451,7 @@ function onPointerUp(
 ): Transition {
   const session = findSession(state, pointer.pointerId);
   if (session === undefined) {
-    return { state, notices: [unknownPointer(pointer.pointerId, "up")], effects: [] };
+    return { state, notices: [unknownPointer(pointer.pointerId, "up")], effects: [], report: null };
   }
 
   const notices: InteractionNotice[] = [];
@@ -420,11 +469,14 @@ function onPointerUp(
   const working = dropSession(state, session, { rollback: false }).state;
 
   if (session.role !== "owner") {
-    return { state: working, notices, effects: [] };
+    return { state: working, notices, effects: [], report: null };
   }
 
   // R2. Same target as the press means the press already said everything.
   if (sameTarget(hit.primary, session.downTarget)) {
+    // `hasSelection` is the right tool here and stays. This is the present tense
+    // question, "is something armed now", asked on a path that applies no
+    // command at all and so has no report to read.
     if (session.leftDownTarget && hasSelection(working.doc.draft)) {
       notices.push(
         notice(
@@ -434,7 +486,7 @@ function onPointerUp(
         ),
       );
     }
-    return { state: working, notices, effects: [] };
+    return { state: working, notices, effects: [], report: null };
   }
 
   // A drag's release continues what its own press started, and nothing else.
@@ -451,26 +503,32 @@ function onPointerUp(
         `pointer ${pointer.pointerId} released over a new target, but the document changed mid drag, so the release was ignored`,
       ),
     );
-    return { state: working, notices, effects: [] };
+    return { state: working, notices, effects: [], report: null };
   }
 
   const applied = applyCommand(working, { kind: "selectTarget", target: hit.primary }, env);
-  // Same arming condition as R1's window, for the same pass three reason.
+  // Same arming condition as R1's window, read from the same statement.
   const withWindow =
-    isContested(hit) && applied.state.doc !== working.doc && hasSelection(applied.state.doc.draft)
+    isContested(hit) && applied.report === "armed"
       ? Object.freeze({ ...applied.state, reviseWindow: applied.state.doc })
       : applied.state;
   return {
     state: withWindow,
     notices: [...notices, ...ambiguityNotices(hit, applied.state.commandSeq), ...applied.notices],
     effects: applied.effects,
+    report: applied.report,
   };
 }
 
 function onPointerCancel(state: InteractionState, pointer: PointerInput): Transition {
   const session = findSession(state, pointer.pointerId);
   if (session === undefined) {
-    return { state, notices: [unknownPointer(pointer.pointerId, "cancel")], effects: [] };
+    return {
+      state,
+      notices: [unknownPointer(pointer.pointerId, "cancel")],
+      effects: [],
+      report: null,
+    };
   }
 
   // R3. This session's own press goes back, history included, and nothing else
@@ -489,12 +547,12 @@ function onPointerCancel(state: InteractionState, pointer: PointerInput): Transi
           ...dropped.notices,
         ]
       : [];
-  return { state: dropped.state, notices, effects: [] };
+  return { state: dropped.state, notices, effects: [], report: null };
 }
 
 function onBackgrounded(state: InteractionState): Transition {
   if (state.sessions.length === 0) {
-    return { state, notices: [], effects: [] };
+    return { state, notices: [], effects: [], report: null };
   }
 
   // Every live session is cancelled. Only the owner can have a rollback, because
@@ -518,6 +576,7 @@ function onBackgrounded(state: InteractionState): Transition {
       ...dropped.notices,
     ],
     effects: [],
+    report: null,
   };
 }
 
@@ -540,12 +599,18 @@ function applyCommand(
           state: bumpSeq(state, seq),
           notices: [stamp(notice("nothing_to_undo", "info", "the draft is already at its start"), seq)],
           effects: [],
+          report: null,
         };
       }
+      // Null, not a report. An undo can put back an arming, take back an arrow,
+      // or hide a lone pair, and which of those it did is a question about the
+      // draft that came off the stack, not about anything a reducer said. This
+      // file will not guess, which is the whole point of the field.
       return {
         state: Object.freeze({ ...state, doc: undone, commandSeq: seq, reviseWindow: null }),
         notices: [],
         effects: [],
+        report: null,
       };
     }
 
@@ -588,6 +653,7 @@ function applyCommand(
             ),
           ],
           effects: [],
+          report: null,
         };
       }
       const rolled = Object.freeze({ ...state, doc: undone, reviseWindow: null });
@@ -609,8 +675,29 @@ function applyCommand(
       // package whose every other decision is reference based; the fix is shell
       // side memoisation. Argued in full in adversaryPassThree.test.ts.
       if (command.draft === state.doc.draft) {
-        return { state: bumpSeq(state, seq), notices: [], effects: [] };
+        return { state: bumpSeq(state, seq), notices: [], effects: [], report: null };
       }
+
+      // A draft arriving here has not necessarily been through its own
+      // constructor. A restored session, an offline queue replay, or a JSON
+      // round trip all produce a plain object, and `createMechanismDraft`'s
+      // duplicate id throw guarded only the constructor, so this was the way in
+      // for exactly the state that throw exists to keep out. Pass four finding 2.
+      //
+      // A refusal rather than a throw, because unlike a constructor this is a
+      // live command with a notice channel. The question of which drafts carry a
+      // MechanismState is asked in shapes/index.ts, so no shape name appears in
+      // this file.
+      const refusal = installRefusalFor(command.draft);
+      if (refusal !== null) {
+        return {
+          state: bumpSeq(state, seq),
+          notices: [stamp(refusal, seq)],
+          effects: [],
+          report: null,
+        };
+      }
+
       return {
         state: Object.freeze({
           ...state,
@@ -620,6 +707,7 @@ function applyCommand(
         }),
         notices: [],
         effects: [],
+        report: null,
       };
     }
 
@@ -629,11 +717,17 @@ function applyCommand(
       // Any change to the document closes the revise window. A command is never
       // a contested hit, so only the pointer handlers reopen it, after this
       // returns. A command that changed nothing leaves the window alone.
+      // Reference identity, deliberately kept. This asks whether the document
+      // MOVED, which is exactly what identity answers, and it is the same
+      // property R3 and R2 guard on. Asking the report instead would work only
+      // while every reducer is honest, and this line is one of the things that
+      // makes a dishonest report harmless rather than catastrophic.
       const reviseWindow = doc === state.doc ? state.reviseWindow : null;
       return {
         state: Object.freeze({ ...state, doc, commandSeq: seq, reviseWindow }),
         notices: outcome.notices.map((n) => stamp(n, seq)),
         effects: outcome.effects,
+        report: outcome.report,
       };
     }
   }

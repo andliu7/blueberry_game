@@ -23,7 +23,7 @@ import type { CandidateId, ReasonId } from "../ids.js";
 import { notice } from "../notices.js";
 import type { HitTarget } from "../targets.js";
 import { move } from "./reagents.js";
-import { changed, refused, unchanged, type ShapeOutcome } from "./outcome.js";
+import { changed, emitted, refused, unchanged, type ShapeOutcome } from "./outcome.js";
 
 export interface RankingDraft {
   readonly shape: "ranking";
@@ -59,13 +59,13 @@ export function applyToRanking(
 
     case "clearSelection":
       if (draft.armed === null) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, armed: null }));
+      return changed(Object.freeze({ ...draft, armed: null }), "disarmed");
 
     case "setReason":
       return setReason(draft, command.reasonId);
 
     case "submit":
-      return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };
+      return emitted(draft, [{ kind: "submitAttempt", draft }]);
 
     default:
       return refused(draft, [
@@ -88,7 +88,7 @@ function selectTarget(draft: RankingDraft, target: HitTarget): ShapeOutcome<Rank
 
     case "empty":
       if (draft.armed === null) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, armed: null }));
+      return changed(Object.freeze({ ...draft, armed: null }), "disarmed");
 
     default:
       return refused(draft, [
@@ -115,20 +115,22 @@ function candidateStep(draft: RankingDraft, candidateId: CandidateId): ShapeOutc
   }
 
   if (draft.armed === null) {
-    return changed(Object.freeze({ ...draft, armed: candidateId }), [haptic("selection")]);
+    return changed(Object.freeze({ ...draft, armed: candidateId }), "armed", [haptic("selection")]);
   }
   if (draft.armed === candidateId) {
-    return changed(Object.freeze({ ...draft, armed: null }));
+    return changed(Object.freeze({ ...draft, armed: null }), "disarmed");
   }
 
   const from = draft.order.indexOf(draft.armed);
   if (from < 0) {
     // The armed candidate left the list somehow. Drop the selection rather than
-    // moving something arbitrary.
-    return changed(Object.freeze({ ...draft, armed: null }));
+    // moving something arbitrary. A disarm and nothing else: the order is
+    // untouched, so no work was committed.
+    return changed(Object.freeze({ ...draft, armed: null }), "disarmed");
   }
   return changed(
     Object.freeze({ ...draft, order: move(draft.order, from, index), armed: null }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -144,5 +146,7 @@ function setReason(draft: RankingDraft, reasonId: ReasonId | null): ShapeOutcome
     ]);
   }
   if (draft.reason === reasonId) return unchanged(draft);
-  return changed(Object.freeze({ ...draft, reason: reasonId }), [haptic("commit")]);
+  // The reason is half the answer on this shape, per the header, so choosing one
+  // is a commit rather than a mode change.
+  return changed(Object.freeze({ ...draft, reason: reasonId }), "committed", [haptic("commit")]);
 }

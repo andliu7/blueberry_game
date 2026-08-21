@@ -29,7 +29,7 @@ import { haptic } from "../effects.js";
 import type { ReagentId } from "../ids.js";
 import { notice } from "../notices.js";
 import type { HitTarget } from "../targets.js";
-import { changed, refused, unchanged, type ShapeOutcome } from "./outcome.js";
+import { changed, emitted, refused, unchanged, type ShapeOutcome } from "./outcome.js";
 
 export interface ReagentsDraft {
   readonly shape: "reagents";
@@ -59,11 +59,21 @@ export function applyToReagents(
 
     case "clearSelection":
       if (draft.armedSlot === null) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, armedSlot: null }));
+      return changed(Object.freeze({ ...draft, armedSlot: null }), "disarmed");
 
-    case "setReagentsOrdered":
+    case "setReagentsOrdered": {
       if (draft.ordered === command.ordered) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, ordered: command.ordered, armedSlot: null }));
+      // Two things at once, so the precedence in outcome.ts decides. The flag
+      // itself is a mode: it says whether position carries meaning, which is
+      // authored by the problem rather than by the student, so on its own it is
+      // an inspection. Dropping a live selection outranks it, because that is
+      // the half the student can see and the half a later command depends on.
+      const report = draft.armedSlot === null ? "inspected" : "disarmed";
+      return changed(
+        Object.freeze({ ...draft, ordered: command.ordered, armedSlot: null }),
+        report,
+      );
+    }
 
     case "removeReagentAt": {
       if (!isSlotInRange(draft, command.index)) {
@@ -75,11 +85,12 @@ export function applyToReagents(
           chosen: Object.freeze(draft.chosen.filter((_, index) => index !== command.index)),
           armedSlot: null,
         }),
+        "committed",
       );
     }
 
     case "submit":
-      return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };
+      return emitted(draft, [{ kind: "submitAttempt", draft }]);
 
     default:
       return refused(draft, [
@@ -102,7 +113,7 @@ function selectTarget(draft: ReagentsDraft, target: HitTarget): ShapeOutcome<Rea
 
     case "empty":
       if (draft.armedSlot === null) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, armedSlot: null }));
+      return changed(Object.freeze({ ...draft, armedSlot: null }), "disarmed");
 
     default:
       return refused(draft, [
@@ -138,6 +149,7 @@ function addReagent(draft: ReagentsDraft, reagentId: ReagentId): ShapeOutcome<Re
       chosen: Object.freeze([...draft.chosen, reagentId]),
       armedSlot: null,
     }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -157,14 +169,16 @@ function slotStep(draft: ReagentsDraft, index: number): ShapeOutcome<ReagentsDra
   }
 
   if (draft.armedSlot === null) {
-    return changed(Object.freeze({ ...draft, armedSlot: index }), [haptic("selection")]);
+    return changed(Object.freeze({ ...draft, armedSlot: index }), "armed", [haptic("selection")]);
   }
   if (draft.armedSlot === index) {
-    return changed(Object.freeze({ ...draft, armedSlot: null }));
+    return changed(Object.freeze({ ...draft, armedSlot: null }), "disarmed");
   }
-  return changed(Object.freeze({ ...draft, chosen: move(draft.chosen, draft.armedSlot, index), armedSlot: null }), [
-    haptic("commit"),
-  ]);
+  return changed(
+    Object.freeze({ ...draft, chosen: move(draft.chosen, draft.armedSlot, index), armedSlot: null }),
+    "committed",
+    [haptic("commit")],
+  );
 }
 
 function isSlotInRange(draft: ReagentsDraft, index: number): boolean {

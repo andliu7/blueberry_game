@@ -22,6 +22,16 @@
  * structure that came from Ketcher has been through Indigo's sanitiser and one
  * built here has not, and a grader may reasonably care.
  *
+ * WHY NOTHING IN THIS FILE EVER REPORTS `inspected`.
+ *
+ * `inspected` is for a change to the document that a grader never reads: the
+ * mechanism shape's lone pair and hydrogen reveals are display state, held only
+ * so they survive a cancelled drag. In THIS shape, building the molecule is the
+ * answer, so the same taps edit real counts on real atoms and every one of them
+ * is a commit. Same target, two modes, two meanings, which is the whole argument
+ * for shapes being modes. shapeReports.test.ts pins the absence so it stays a
+ * decision rather than an oversight.
+ *
  * SCREEN POSITIONS LIVE HERE AND NOWHERE IN CHEM-CORE.
  *
  * chem-core's `Point3` is molecular geometry in angstroms and answers questions
@@ -57,7 +67,7 @@ import { haptic } from "../effects.js";
 import { notice } from "../notices.js";
 import type { Point2 } from "../pointer.js";
 import type { HitTarget } from "../targets.js";
-import { changed, refused, unchanged, type ShapeOutcome } from "./outcome.js";
+import { changed, emitted, refused, unchanged, type ShapeOutcome } from "./outcome.js";
 
 /** Where an atom sits on the canvas. Layout, not chemistry. */
 export interface AtomPlacement {
@@ -102,7 +112,10 @@ export function applyToStructure(
 
     case "clearSelection":
       if (draft.palette === null && draft.pendingBondFrom === null) return unchanged(draft);
-      return changed(Object.freeze({ ...draft, palette: null, pendingBondFrom: null }));
+      return changed(
+        Object.freeze({ ...draft, palette: null, pendingBondFrom: null }),
+        "disarmed",
+      );
 
     case "adjustCharge":
       return patchAtomCount(draft, command.atomId, "formalCharge", command.delta, -4, 4);
@@ -140,11 +153,12 @@ export function applyToStructure(
           pendingBondFrom: null,
           origin: "externalEditor" as const,
         }),
+        "committed",
       );
     }
 
     case "submit":
-      return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };
+      return emitted(draft, [{ kind: "submitAttempt", draft }]);
 
     default:
       return refused(draft, [
@@ -161,9 +175,11 @@ function selectTarget(draft: StructureDraft, target: HitTarget): ShapeOutcome<St
   switch (target.kind) {
     case "paletteElement":
       if (draft.palette === target.element) {
-        return changed(Object.freeze({ ...draft, palette: null }));
+        return changed(Object.freeze({ ...draft, palette: null }), "disarmed");
       }
-      return changed(Object.freeze({ ...draft, palette: target.element }), [haptic("selection")]);
+      return changed(Object.freeze({ ...draft, palette: target.element }), "armed", [
+        haptic("selection"),
+      ]);
 
     case "empty":
       return placeAtom(draft, target.point);
@@ -214,6 +230,11 @@ function placeAtom(draft: StructureDraft, point: Point2): ShapeOutcome<Structure
   const speciesId = `ss${draft.nextNumber}`;
   const species = createSpecies({ id: speciesId, atoms: [createAtom({ id: atomId, element })] });
 
+  // The palette stays armed on purpose, so a student can place five carbons with
+  // five taps. It was armed by an EARLIER command though, so this one reports
+  // what it itself did, which is commit an atom. That distinction is the whole
+  // pass four finding 1 fix: the report is about the act, not about which fields
+  // happen to be set afterwards.
   return changed(
     Object.freeze({
       ...draft,
@@ -221,6 +242,7 @@ function placeAtom(draft: StructureDraft, point: Point2): ShapeOutcome<Structure
       placements: Object.freeze([...draft.placements, { atomId, point }]),
       nextNumber: draft.nextNumber + 1,
     }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -233,11 +255,16 @@ function bondStep(draft: StructureDraft, atomId: AtomId): ShapeOutcome<Structure
   }
 
   if (draft.pendingBondFrom === null) {
-    return changed(Object.freeze({ ...draft, pendingBondFrom: atomId }), [haptic("selection")]);
+    return changed(Object.freeze({ ...draft, pendingBondFrom: atomId }), "armed", [
+      haptic("selection"),
+    ]);
   }
 
   if (draft.pendingBondFrom === atomId) {
-    return changed(Object.freeze({ ...draft, pendingBondFrom: null }));
+    // A disarm, and it says so even while `palette` is still armed. Under the
+    // old hasSelection reading the palette made this look like an arming and
+    // reopened the revise window on it. See adversaryPassFour.test.ts.
+    return changed(Object.freeze({ ...draft, pendingBondFrom: null }), "disarmed");
   }
 
   return bondAtoms(draft, draft.pendingBondFrom, atomId);
@@ -275,6 +302,7 @@ function bondAtoms(
         state: withReplacedSpecies(draft.state, withBondOrder(from.species, existing.id, raised)),
         pendingBondFrom: null,
       }),
+      "committed",
       [haptic("commit")],
       [
         notice(
@@ -297,6 +325,7 @@ function bondAtoms(
         pendingBondFrom: null,
         nextNumber: draft.nextNumber + 1,
       }),
+      "committed",
       [haptic("commit")],
     );
   }
@@ -317,6 +346,7 @@ function bondAtoms(
       pendingBondFrom: null,
       nextNumber: draft.nextNumber + 1,
     }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -334,6 +364,7 @@ function cycleBondOrder(draft: StructureDraft, bondId: string): ShapeOutcome<Str
       ...draft,
       state: withReplacedSpecies(draft.state, withBondOrder(found.species, bondId, order)),
     }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -363,6 +394,7 @@ function cycleImplicitHydrogens(
         withAtomPatch(found.species, atomId, { implicitHydrogens: next }),
       ),
     }),
+    "committed",
     [haptic("commit")],
   );
 }
@@ -383,6 +415,7 @@ function toggleRadical(draft: StructureDraft, atomId: AtomId): ShapeOutcome<Stru
         withAtomPatch(found.species, atomId, { unpairedElectrons: next }),
       ),
     }),
+    "committed",
   );
 }
 
@@ -410,6 +443,7 @@ function patchAtomCount(
       ...draft,
       state: withReplacedSpecies(draft.state, withAtomPatch(found.species, atomId, patch)),
     }),
+    "committed",
   );
 }
 
@@ -432,6 +466,10 @@ function removeAtom(draft: StructureDraft, atomId: AtomId): ShapeOutcome<Structu
       ? withoutMember(draft.state, found.species.id)
       : withReplacedSpecies(draft.state, remaining);
 
+  // Removing the atom that was armed for a bond drops that arming too, so this
+  // is the compound case argued in outcome.ts. `committed` wins the precedence:
+  // the answer changed, and the arming it took with it was for a bond to an atom
+  // that no longer exists.
   return changed(
     Object.freeze({
       ...draft,
@@ -439,5 +477,6 @@ function removeAtom(draft: StructureDraft, atomId: AtomId): ShapeOutcome<Structu
       placements: Object.freeze(draft.placements.filter((p) => p.atomId !== atomId)),
       pendingBondFrom: draft.pendingBondFrom === atomId ? null : draft.pendingBondFrom,
     }),
+    "committed",
   );
 }

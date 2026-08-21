@@ -2,11 +2,22 @@
  * Adversary pass FOUR, Phase 2. Branch phase-2, commit 94eb3bd.
  *
  * Scope: the pass three fixes specifically, plus anything untouched across
- * passes one through three. Three findings below, none fixed. Each test
- * asserts the CURRENT, real behaviour and is green today, per the convention
- * adversaryPassThree.test.ts set: a passing test that documents a defect
- * proves the defect exists rather than merely describing it. A future fix
- * pass inverts these in place, the same way it inverted the earlier ones.
+ * passes one through three. Three findings below.
+ *
+ * ALL THREE ARE NOW FIXED AND EVERY TEST BELOW IS INVERTED IN PLACE, per the
+ * convention adversarySnapshotIsolation.test.ts set and pass three followed:
+ * the scenario construction is the adversary's, untouched, and the assertions
+ * state what is true after the fix. The original findings are preserved in the
+ * comments as the record of what used to happen.
+ *
+ * The fix was structural rather than another patch, because these three were
+ * the fourth and fifth appearances of two root assumptions. See the blocker
+ * report in STATUS.md and the argument in src/shapes/outcome.ts. A shape
+ * reducer now REPORTS what its command did, `armed`, `disarmed`, `committed`,
+ * `inspected`, `refused` or `nothing`, and machine.ts reads that report instead
+ * of diffing `hasSelection` afterwards. Finding 1 stops being constructible: the
+ * structure shape's two arm fields no longer matter to the window, because the
+ * reducer itself says which effect happened.
  *
  * FINDING 1: the revise window's arming condition (`hasSelection` on the
  * post-command draft) is coarse enough to reopen on a disarm-only change
@@ -14,6 +25,8 @@
  * to be armed. The structure shape is the one shape with two such fields
  * (`palette` and `pendingBondFrom`), and reviseLastTarget's undo+reapply can
  * then silently create a bond the student never asked for.
+ * FIXED by the report: the window opens on `report === "armed"` and on nothing
+ * else, so a disarm closes it whatever else is armed.
  *
  * FINDING 2: createMechanismDraft's duplicate-id throw, added in pass three,
  * guards exactly one entry point: the constructor itself. `setShape` installs
@@ -21,6 +34,10 @@
  * no duplicate-id check of its own, so a MechanismDraft built any other way
  * (deserialised from storage, assembled by hand, round-tripped through JSON)
  * carries a duplicate-id starting state straight into a live session.
+ * FIXED: setShape validates the draft it installs and refuses by name. A
+ * refusal rather than a throw, because unlike the constructor it has a notice
+ * channel. The shape switch lives in shapes/index.ts so machine.ts still
+ * contains no shape name.
  *
  * FINDING 3: acceptExternalStructure and setPredictedState share one notice
  * id, `external_structure_duplicate_atom_ids`, for what notices.ts's own
@@ -30,6 +47,8 @@
  * yet, because packages/feedback does not consume interaction NoticeIds at
  * all today (grep confirms zero references) -- recorded as a latent
  * dead-on-arrival design gap for whenever that copy is authored.
+ * FIXED: three entry points, three ids. The third one is finding 2's own
+ * refusal, which would have been a fourth sharer of the same key.
  */
 
 import { describe, expect, it } from "vitest";
@@ -64,12 +83,12 @@ function mechanismDraftOf(d: Driver): MechanismDraft {
 // SECOND, unrelated armed field (the palette) keeps hasSelection true.
 // ---------------------------------------------------------------------------
 
-describe("FINDING: a contested atom re-tap that only disarms pendingBondFrom reopens the revise window, because the palette is independently armed", () => {
+describe("a contested atom re-tap that only disarms pendingBondFrom no longer reopens the revise window, whatever else is armed", () => {
   const atomPoint = { x: 1, y: 1 };
   const placementPointA = { x: 900, y: 900 };
   const placementPointB = { x: 901, y: 901 };
 
-  it("demonstrates the masked reopen and the silent unintended bond it produces through revise", () => {
+  it("closes the window on the disarm, so revise refuses by name instead of silently bonding two atoms", () => {
     // The atom id assigned by the first placement is deterministic
     // (createStructureDraft's own numbering), so the contested table entry
     // for the atom tap can be wired up front, in the same driver used for
@@ -103,32 +122,33 @@ describe("FINDING: a contested atom re-tap that only disarms pendingBondFrom reo
 
     const withTable = d;
 
-    // Tap 1: nothing pending, arms pendingBondFrom = sa1. Contested, doc
-    // changed, hasSelection true (both palette and pendingBondFrom are set
-    // now) -- a legitimate arm. The window opening here is correct.
+    // Tap 1: nothing pending, arms pendingBondFrom = sa1. Contested, and the
+    // reducer reports `armed`, which is a legitimate arm. The window opening
+    // here is correct, and it is now the report that says so rather than a
+    // reading of the fields afterwards.
     withTable.tap(atomPoint);
     expect(structureDraftOf(withTable).pendingBondFrom).toBe(sa1);
     expect(withTable.state.doc === withTable.state.reviseWindow).toBe(true);
 
     // Tap 2: same contested point, same atom. bondStep's toggle branch fires
     // (`draft.pendingBondFrom === atomId`) and disarms: pendingBondFrom -> null.
-    // This is a genuine document change and the hit is still contested, so
-    // machine.ts's arming condition asks `hasSelection(applied.state.doc.draft)`.
-    // For the mechanism shape (a single `armed` field) this would now be
-    // false and the window would close, exactly as adversaryPassThree.test.ts
-    // proved is FIXED there. For the structure shape it is NOT false: the
-    // palette is still "C", an entirely unrelated field this tap never
-    // touched, so hasSelection reads true and the window is reopened, now
-    // pointed at the DISARMED document.
+    //
+    // THE ORIGINAL VIOLATION: this is a genuine document change and the hit is
+    // still contested, so machine.ts asked `hasSelection(applied.state.doc.draft)`.
+    // For the mechanism shape (a single `armed` field) that read false and the
+    // window closed, exactly as adversaryPassThree.test.ts proved. For the
+    // structure shape it read TRUE: the palette was still "C", an entirely
+    // unrelated field this tap never touched, so the window reopened pointed at
+    // the DISARMED document.
+    //
+    // FIXED: bondStep's toggle branch reports `disarmed`, in its own words, and
+    // the window opens on `armed` alone. The palette is still armed and that is
+    // now irrelevant, which is the point of the structural fix rather than a
+    // fifth patch to the projection.
     withTable.tap(atomPoint);
     expect(structureDraftOf(withTable).pendingBondFrom).toBeNull();
     expect(structureDraftOf(withTable).palette).toBe("C");
-    // THE VIOLATION: per machine.ts's own documented invariant ("the arming
-    // condition is the pass three fix ... a window opened on [a toggle off]
-    // would make revise undo the disarm, resurrect the original wrong guess
-    // ... Refusing to open the window there means revise refuses by name
-    // instead of corrupting"), this window should be closed. It is not.
-    expect(withTable.state.doc === withTable.state.reviseWindow).toBe(true);
+    expect(withTable.state.doc === withTable.state.reviseWindow).toBe(false);
 
     // A "did you mean" affordance, driven by the second target_was_ambiguous
     // notice, offers the other atom the tap could plausibly have meant. The
@@ -141,24 +161,59 @@ describe("FINDING: a contested atom re-tap that only disarms pendingBondFrom reo
       command: { kind: "reviseLastTarget", target: { kind: "atom", atomId: sa2 } },
     });
 
-    // reviseLastTarget's guard passes (the window IS current), so it pops the
-    // undo stack's top entry -- the disarm -- which restores pendingBondFrom
-    // = sa1, the very selection the student's second tap just cancelled.
-    // `selectTarget(atom sa2)` is then applied against THAT resurrected
-    // state. Since pendingBondFrom is no longer null, bondStep does not arm
-    // sa2; it calls bondAtoms(sa1, sa2) and commits an actual bond, silently.
+    // THE ORIGINAL VIOLATION: reviseLastTarget's guard passed (the window WAS
+    // current), so it popped the undo stack's top entry -- the disarm -- which
+    // restored pendingBondFrom = sa1, the very selection the student's second
+    // tap had just cancelled. `selectTarget(atom sa2)` was then applied against
+    // THAT resurrected state, and since pendingBondFrom was no longer null,
+    // bondStep called bondAtoms(sa1, sa2) and committed a real bond, silently,
+    // with no notice naming it.
+    //
+    // FIXED: the window is closed, so revise refuses by name. Nothing is
+    // resurrected and no bond appears.
+    expect(withTable.sawNotice("revise_refused_newer_work")).toBe(true);
     const bond = findBondBetween(
       findAtomInState(structureDraftOf(withTable).state, sa1)!.species,
       sa1,
       sa2,
     );
-    expect(bond).toBeDefined();
+    expect(bond).toBeUndefined();
     expect(structureDraftOf(withTable).pendingBondFrom).toBeNull();
+    expect(structureDraftOf(withTable).palette).toBe("C");
+  });
 
-    // No notice at all names this as a correction that turned into a bond.
-    // "revise_refused_newer_work" never fires, because the staleness guard
-    // was satisfied -- the window really was current, just wrongly opened.
-    expect(withTable.sawNotice("revise_refused_newer_work")).toBe(false);
+  it("the arm that preceded it still opens the window, so the fix removed the false positive and not the feature", () => {
+    // The other half of the same claim, and the reason this is not simply "the
+    // window never opens in the structure shape": an arm reported as an arm,
+    // with the palette in exactly the same state, still opens it and revise
+    // still corrects the selection.
+    const contestedAtomEntries: TableEntry[] = [
+      { point: { x: 1, y: 1 }, target: { kind: "atom", atomId: "sa1" }, margin: 0.01 },
+    ];
+    const d = new Driver(createStructureDraft(), contestedAtomEntries);
+
+    d.send({
+      kind: "command",
+      command: { kind: "selectTarget", target: { kind: "paletteElement", element: "C" } },
+    });
+    d.tap(placementPointA);
+    d.tap(placementPointB);
+    const sa2 = structureDraftOf(d).placements[1]!.atomId;
+
+    d.tap({ x: 1, y: 1 });
+    expect(structureDraftOf(d).pendingBondFrom).toBe("sa1");
+    expect(d.state.doc === d.state.reviseWindow).toBe(true);
+
+    d.send({
+      kind: "command",
+      command: { kind: "reviseLastTarget", target: { kind: "atom", atomId: sa2 } },
+    });
+
+    // The arm was undone and reapplied against the corrected atom, which is
+    // what revise is for. sa2 is armed; nothing was bonded, because the undo
+    // put the draft back to "nothing pending" first.
+    expect(structureDraftOf(d).pendingBondFrom).toBe(sa2);
+    expect(d.sawNotice("revise_refused_newer_work")).toBe(false);
   });
 });
 
@@ -167,7 +222,7 @@ describe("FINDING: a contested atom re-tap that only disarms pendingBondFrom reo
 // of its own, bypassing createMechanismDraft's pass three throw entirely.
 // ---------------------------------------------------------------------------
 
-describe("FINDING: setShape is an unguarded duplicate-id entry point that bypasses createMechanismDraft's throw", () => {
+describe("setShape validates the draft it installs, so it is no longer an unguarded duplicate-id entry point", () => {
   function duplicateIdState(order: "carbon-first" | "nitrogen-first"): MechanismState {
     const carbon = createSpecies({
       id: "species-a",
@@ -190,11 +245,7 @@ describe("FINDING: setShape is an unguarded duplicate-id entry point that bypass
     return createState({ id: `dup-${order}`, members });
   }
 
-  it("createMechanismDraft still throws when called directly, confirming the guard exists at all", () => {
-    expect(() => createMechanismDraft(duplicateIdState("carbon-first"))).toThrow(/X1/);
-  });
-
-  it("a hand-built MechanismDraft carrying the same duplicate-id state sails through setShape with no throw and no notice", () => {
+  function handBuiltDraft(state: MechanismState): MechanismDraft {
     // This is exactly what a shell restoring a persisted or offline-queued
     // session would produce: a MechanismDraft object deserialised from JSON,
     // never having passed through createMechanismDraft, because
@@ -202,10 +253,9 @@ describe("FINDING: setShape is an unguarded duplicate-id entry point that bypass
     // called by the shell or a harness, never inside a reducer" -- setShape
     // IS a reducer-reachable path, and it is exactly where a restored draft
     // would be installed.
-    const dup = duplicateIdState("carbon-first");
-    const handBuilt: MechanismDraft = Object.freeze({
+    return Object.freeze({
       shape: "mechanism" as const,
-      state: dup,
+      state,
       arrows: Object.freeze([]),
       armed: null,
       electrons: 2,
@@ -214,39 +264,107 @@ describe("FINDING: setShape is an unguarded duplicate-id entry point that bypass
       predicted: null,
       nextArrowNumber: 1,
     });
+  }
 
-    const d = new Driver(createMechanismDraft(createState({ id: "seed", members: [] })), []);
+  it("createMechanismDraft still throws when called directly, confirming the guard exists at all", () => {
+    expect(() => createMechanismDraft(duplicateIdState("carbon-first"))).toThrow(/X1/);
+  });
+
+  it("a hand-built MechanismDraft carrying the same duplicate-id state is refused by name and never becomes the live draft", () => {
+    const dup = duplicateIdState("carbon-first");
+    const handBuilt = handBuiltDraft(dup);
+
+    const seed = createMechanismDraft(createState({ id: "seed", members: [] }));
+    const d = new Driver(seed, []);
     d.send({ kind: "command", command: { kind: "setShape", draft: handBuilt } });
 
-    // No refusal reaches the caller at all: setShape's own no-op guard only
-    // compares reference identity against the CURRENT draft, and its reset
-    // branch never calls duplicateAtomIds. Nothing in NoticeId's registry
-    // fires here.
-    expect(d.notices).toHaveLength(0);
-    expect(mechanismDraftOf(d).state).toBe(dup);
+    // THE ORIGINAL VIOLATION: no refusal reached the caller at all. setShape's
+    // no-op guard only compares reference identity against the CURRENT draft,
+    // and its reset branch never called duplicateAtomIds, so nothing in
+    // NoticeId's registry fired and `dup` became the live state.
+    //
+    // FIXED: refused by name, with the offending id in the detail, and the
+    // document is untouched.
+    const refusal = d.notices.find((n) => n.id === "restored_draft_duplicate_atom_ids");
+    expect(refusal).toBeDefined();
+    expect(refusal?.severity).toBe("refused");
+    expect(refusal?.detail).toContain("X1");
+    expect(mechanismDraftOf(d).state).not.toBe(dup);
+    expect(d.state.doc.draft).toBe(seed);
 
-    // The exact hazard createMechanismDraft's throw exists to prevent is now
-    // live in a running session: the same atom id "X1" resolves to whichever
-    // species is listed first, silently, and there is no species id on
-    // HitTarget for the interaction layer to disambiguate with.
+    // The exact hazard createMechanismDraft's throw exists to prevent is what
+    // was live in a running session: the same atom id "X1" resolves to
+    // whichever species is listed first, silently, and there is no species id
+    // on HitTarget for the interaction layer to disambiguate with.
     const otherOrder = duplicateIdState("nitrogen-first");
     expect(findAtomInState(dup, "X1")?.atom.element).toBe("C");
     expect(findAtomInState(otherOrder, "X1")?.atom.element).toBe("N");
   });
+
+  it("a hand-built draft with clean ids still installs, so the guard refuses the hazard and not the restore", () => {
+    // The restore path is a real feature and this fix must not close it. Same
+    // construction, ids that do not collide.
+    const clean = createState({
+      id: "restored",
+      members: [
+        {
+          species: createSpecies({
+            id: "species-a",
+            atoms: [createAtom({ id: "X1", element: "C", formalCharge: 0 })],
+          }),
+          role: "substrate" as const,
+        },
+        {
+          species: createSpecies({
+            id: "species-b",
+            atoms: [createAtom({ id: "X2", element: "N", formalCharge: 0 })],
+          }),
+          role: "nucleophile" as const,
+        },
+      ],
+    });
+    const handBuilt = handBuiltDraft(clean);
+
+    const d = new Driver(createMechanismDraft(createState({ id: "seed", members: [] })), []);
+    d.send({ kind: "command", command: { kind: "setShape", draft: handBuilt } });
+
+    expect(d.notices).toHaveLength(0);
+    expect(d.state.doc.draft).toBe(handBuilt);
+    expect(d.state.doc.past).toHaveLength(0);
+  });
+
+  it("a restored draft whose PREDICTED product carries the duplicates is refused too, naming which state it was", () => {
+    // setPredictedState guards the live route. A restored draft carries the
+    // predicted state in the same object as the starting state, so a guard that
+    // checked only `state` would leave the second half of the same draft
+    // unguarded, which is the shape of this whole finding repeated one level
+    // down.
+    const d = new Driver(createMechanismDraft(createState({ id: "seed", members: [] })), []);
+    const withBadPrediction: MechanismDraft = Object.freeze({
+      ...handBuiltDraft(createState({ id: "clean-start", members: [] })),
+      predicted: duplicateIdState("carbon-first"),
+    });
+
+    d.send({ kind: "command", command: { kind: "setShape", draft: withBadPrediction } });
+
+    const refusal = d.notices.find((n) => n.id === "restored_draft_duplicate_atom_ids");
+    expect(refusal?.detail).toContain("the predicted state");
+    expect(d.state.doc.draft).not.toBe(withBadPrediction);
+  });
 });
 
 // ---------------------------------------------------------------------------
-// FINDING 3: acceptExternalStructure and setPredictedState share a notice id
+// FINDING 3: acceptExternalStructure and setPredictedState shared a notice id
 // with no field to tell them apart, contradicting notices.ts's own stated
 // contract that student copy is "authored in packages/feedback, keyed by
-// these ids". Not exploitable today: packages/feedback does not yet consume
+// these ids". Not exploitable at the time: packages/feedback did not consume
 // any interaction NoticeId (confirmed by grep across packages/feedback/src),
-// so no live code branches on this collision yet. Recorded because the
-// collision will still be there the day that copy is written, and nothing in
-// this package's types would stop it from being wired up wrong.
+// so no live code branched on the collision. Recorded because the collision
+// would still have been there the day that copy was written, and nothing in
+// this package's types would have stopped it from being wired up wrong.
 // ---------------------------------------------------------------------------
 
-describe("FINDING (latent): external_structure_duplicate_atom_ids does not distinguish its two entry points", () => {
+describe("the duplicate atom id refusal names which entry point produced it", () => {
   function duplicateIdState(): MechanismState {
     const carbon = createSpecies({
       id: "species-a",
@@ -265,16 +383,14 @@ describe("FINDING (latent): external_structure_duplicate_atom_ids does not disti
     });
   }
 
-  it("the structure shape's acceptExternalStructure refusal and the mechanism shape's setPredictedState refusal are identical in id and shape, distinguishable only by parsing the free-text detail string", () => {
+  it("the three routes a whole state can arrive by carry three distinct ids, so copy keyed on id can say three different things", () => {
     const structureDriver = new Driver(createStructureDraft(), []);
     structureDriver.send({
       kind: "command",
       command: { kind: "acceptExternalStructure", state: duplicateIdState() },
     });
-    const fromStructure = structureDriver.notices.find(
-      (n) => n.id === "external_structure_duplicate_atom_ids",
-    );
-    expect(fromStructure).toBeDefined();
+    const fromStructure = structureDriver.notices.find((n) => n.severity === "refused");
+    expect(fromStructure?.id).toBe("external_structure_duplicate_atom_ids");
 
     const mechanismDriver = new Driver(
       createMechanismDraft(createState({ id: "seed", members: [] })),
@@ -284,24 +400,46 @@ describe("FINDING (latent): external_structure_duplicate_atom_ids does not disti
       kind: "command",
       command: { kind: "setPredictedState", state: duplicateIdState() },
     });
-    const fromMechanism = mechanismDriver.notices.find(
-      (n) => n.id === "external_structure_duplicate_atom_ids",
-    );
-    expect(fromMechanism).toBeDefined();
+    const fromMechanism = mechanismDriver.notices.find((n) => n.severity === "refused");
+    expect(fromMechanism?.id).toBe("predicted_state_duplicate_atom_ids");
 
-    // Same id, same severity. InteractionNotice's optional fields (`target`,
-    // `candidates`, `legality`) carry nothing that names which entry point
-    // fired: there is no `origin` or `source` field for this id the way
-    // `arrow_refused_by_legality` carries chem-core's own findings. A
-    // consumer keyed purely on `id`, which is the contract notices.ts's own
-    // header describes for packages/feedback, cannot tell these two apart,
-    // and the only difference on the wire is the wording of `detail`, a
-    // string documented in this same file as "engine facing... never shown
-    // to a student."
-    expect(fromStructure!.id).toBe(fromMechanism!.id);
-    expect(fromStructure!.severity).toBe(fromMechanism!.severity);
-    expect(fromStructure!.detail).not.toBe(fromMechanism!.detail);
-    expect((fromStructure as unknown as Record<string, unknown>).origin).toBeUndefined();
-    expect((fromMechanism as unknown as Record<string, unknown>).origin).toBeUndefined();
+    // The third route, which finding 2's fix added. Had it reused either id
+    // above, this fix would have made the collision worse rather than closing
+    // it: a restored session is neither an editor handover nor a drawn product.
+    const restoreDriver = new Driver(
+      createMechanismDraft(createState({ id: "seed", members: [] })),
+      [],
+    );
+    restoreDriver.send({
+      kind: "command",
+      command: {
+        kind: "setShape",
+        draft: Object.freeze({
+          shape: "mechanism" as const,
+          state: duplicateIdState(),
+          arrows: Object.freeze([]),
+          armed: null,
+          electrons: 2,
+          revealedLonePairs: Object.freeze([]),
+          revealedHydrogens: Object.freeze([]),
+          predicted: null,
+          nextArrowNumber: 1,
+        }),
+      },
+    });
+    const fromRestore = restoreDriver.notices.find((n) => n.severity === "refused");
+    expect(fromRestore?.id).toBe("restored_draft_duplicate_atom_ids");
+
+    // THE ORIGINAL VIOLATION: the first two were the same id and the same
+    // severity, and InteractionNotice's optional fields (`target`,
+    // `candidates`, `legality`) carried nothing naming which entry point fired.
+    // The only difference on the wire was the wording of `detail`, a string
+    // documented in notices.ts itself as "engine facing... never shown to a
+    // student." A consumer keyed purely on `id`, which is the contract that
+    // file describes for packages/feedback, could not tell them apart.
+    //
+    // FIXED: three ids, all distinct, all in ALL_NOTICE_IDS.
+    const ids = [fromStructure?.id, fromMechanism?.id, fromRestore?.id];
+    expect(new Set(ids).size).toBe(3);
   });
 });
