@@ -23,13 +23,21 @@
  * Mechanism cycles are unlockables on this track. The trainer's demo step is
  * linked from the first organic topic that has mechanisms, so the pathway
  * leads into the crown jewel rather than around it.
+ *
+ * THE LOOK. docs/reference/competitors/inspirations/duolingo path or track.png
+ * and progress & buttons.png are the bar for the track itself: large round
+ * lesson buttons with a visible 3D edge that depress on press, a floating
+ * START tag over the current one, unit banners cutting the track into acts.
+ * The button styling lives in pathway.css beside this file.
  */
 
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import {
+  ACTS,
   prerequisiteClosure,
   probeTopicIdsForCourse,
   topicDefinition,
+  type ActId,
   type CourseId,
   type TopicId,
 } from "@blueberry/curriculum";
@@ -41,6 +49,7 @@ import { useProgress } from "../../app/hooks";
 import { progress, type ProgressSnapshot } from "../../app/progress";
 import { Berry } from "../../mascot/Berry";
 import { COURSE_LABEL, problemsForTopic } from "../courses/CoursesTab";
+import "./pathway.css";
 
 export type NodeState = "done" | "current" | "open" | "review" | "locked";
 
@@ -94,12 +103,53 @@ export function derivePathway(course: CourseId, snapshot: ProgressSnapshot): rea
   });
 }
 
-const NODE_CLASS: Record<NodeState, string> = {
-  done: "bg-good text-white border-good",
-  current: "bg-primary text-primary-foreground border-primary ring-4 ring-primary/25",
-  open: "bg-card text-primary border-primary",
-  review: "bg-card text-not-requested border-not-requested border-dashed",
-  locked: "bg-muted text-muted-foreground border-border",
+/* ------------------------------------------------------------------------- */
+/* Rendering. Everything below is presentation over the nodes derived above.  */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * A unit of the track: one act's worth of nodes under one banner. Only
+ * orgo_2 topics carry an act, so every other course renders as a single unit
+ * named after the course. Pure, like derivePathway, and it never reorders:
+ * nodes keep the order the curriculum gave them, units are cut where the act
+ * changes.
+ */
+export interface PathwayUnit {
+  readonly key: string;
+  readonly title: string;
+  readonly subtitle: string;
+  readonly act: ActId | null;
+  readonly nodes: readonly PathwayNode[];
+}
+
+export function groupIntoUnits(course: CourseId, nodes: readonly PathwayNode[]): readonly PathwayUnit[] {
+  const units: PathwayUnit[] = [];
+  for (const node of nodes) {
+    const act = topicDefinition(node.topic).act ?? null;
+    const last = units[units.length - 1];
+    if (last !== undefined && last.act === act) {
+      units[units.length - 1] = { ...last, nodes: [...last.nodes, node] };
+      continue;
+    }
+    const definition = act === null ? null : ACTS[act];
+    units.push({
+      key: act ?? `course-${units.length}`,
+      title: definition === null ? COURSE_LABEL[course] : definition.label,
+      subtitle: definition === null ? "Unit 1" : definition.id === "act_0" ? "On every exam" : `Act ${definition.id.slice(-1)}`,
+      act,
+      nodes: [node],
+    });
+  }
+  return units;
+}
+
+/** Banner colour per act. White text clears WCAG AA on each. */
+const BANNER_COLOUR: Record<ActId | "course", string> = {
+  course: "var(--primary)",
+  act_0: "var(--primary)",
+  act_1: "#4f46e5",
+  act_2: "#0f766e",
+  act_3: "#be185d",
 };
 
 const LEGEND: readonly { readonly state: NodeState; readonly label: string }[] = [
@@ -109,6 +159,125 @@ const LEGEND: readonly { readonly state: NodeState; readonly label: string }[] =
   { state: "review", label: "Review" },
   { state: "locked", label: "Locked" },
 ];
+
+const STAR_PATH = "M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.7L12 17.5l-5.9 3.3 1.3-6.7L2.5 9.5l6.6-.8z";
+
+/** The glyph on the face. SVG so it scales and never depends on a font's emoji. */
+function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index: number }) {
+  switch (state) {
+    case "done":
+      return (
+        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
+          <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case "review":
+    case "current":
+      return (
+        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
+          <path d={STAR_PATH} fill="currentColor" />
+        </svg>
+      );
+    case "locked":
+      return (
+        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+          <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" />
+          <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+        </svg>
+      );
+    default:
+      return <span className="text-scale-lg font-extrabold">{index + 1}</span>;
+  }
+}
+
+function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly course: CourseId }) {
+  const colour = BANNER_COLOUR[unit.act ?? "course"];
+  return (
+    <header className="path-banner flex items-stretch overflow-hidden" style={{ "--banner": colour } as CSSProperties}>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 px-4 py-3">
+        <span className="text-scale-xs font-bold uppercase tracking-wider opacity-90">{unit.subtitle}</span>
+        <span className="text-scale-base font-bold leading-tight">{unit.title}</span>
+      </div>
+      <a
+        href={hrefForTab("courses", course)}
+        className="path-banner__guide press flex min-h-11 min-w-14 items-center justify-center px-3 text-white"
+        aria-label={`Guidebook for ${unit.title}`}
+        title="Guidebook"
+      >
+        <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
+          <path d="M5 4.5h9.5a2.5 2.5 0 0 1 2.5 2.5v12.5H7.5A2.5 2.5 0 0 1 5 17z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M8.5 9h5M8.5 12.5h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </a>
+    </header>
+  );
+}
+
+/** Horizontal wander of node i on the track: a gentle sine, left then right. */
+function trackOffset(index: number): number {
+  return Math.round(Math.sin(index * 0.95) * 64);
+}
+
+function TrackNode({
+  node,
+  index,
+  course,
+}: {
+  readonly node: PathwayNode;
+  readonly index: number;
+  readonly course: CourseId;
+}) {
+  const clickable = node.state !== "locked" && node.problemCount > 0;
+  const faceClass = `path-node path-node--${node.state} ${clickable ? "path-node--press" : ""}`;
+  const detail =
+    node.state === "locked"
+      ? "Locked until the topics before it are done"
+      : node.problemCount === 0
+        ? "Not yet authored"
+        : `${node.problemCount} problem${node.problemCount === 1 ? "" : "s"}`;
+
+  const face = (
+    <>
+      {node.state === "current" ? <span className="path-halo" aria-hidden /> : null}
+      {node.state === "current" ? (
+        <span className="path-start" aria-hidden>
+          START
+        </span>
+      ) : null}
+      <NodeGlyph state={node.state} index={index} />
+    </>
+  );
+
+  return (
+    <li className="relative flex w-full items-center gap-4 py-4" style={{ transform: `translateX(${trackOffset(index)}px)` }}>
+      <div className="relative shrink-0">
+        {clickable ? (
+          <a
+            href={hrefForTab("courses", course, node.topic)}
+            aria-current={node.state === "current" ? "step" : undefined}
+            aria-label={`${node.label}. ${detail}`}
+            className={faceClass}
+          >
+            {face}
+          </a>
+        ) : (
+          <span className={faceClass} role="img" aria-label={`${node.label}. ${detail}`}>
+            {face}
+          </span>
+        )}
+      </div>
+      <div className="flex min-w-0 flex-col" aria-hidden>
+        <span className={`text-scale-sm font-semibold leading-tight ${node.state === "locked" ? "text-muted-foreground" : "text-foreground"}`}>
+          {node.label}
+        </span>
+        <span className="text-scale-xs text-muted-foreground">
+          {node.homeCourse !== course ? `Detour into ${COURSE_LABEL[node.homeCourse]} · ` : ""}
+          {node.state === "locked" ? "locked" : detail.toLowerCase()}
+        </span>
+      </div>
+    </li>
+  );
+}
 
 function CoursePicker() {
   return (
@@ -136,10 +305,14 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
   const snapshot = useProgress();
   const course = snapshot.course;
   const nodes = useMemo(() => (course === null ? [] : derivePathway(course, snapshot)), [course, snapshot]);
+  const units = useMemo(() => (course === null ? [] : groupIntoUnits(course, nodes)), [course, nodes]);
 
   if (course === null) return <CoursePicker />;
 
   const doneCount = nodes.filter((node) => node.state === "done").length;
+  // Node numbering runs over the whole track, so the sine offset and the
+  // number on an open face both count from the first node, not per unit.
+  let running = 0;
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4 p-4 md:p-6">
@@ -153,51 +326,22 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
         <Berry mood={doneCount === nodes.length && nodes.length > 0 ? "proud" : "curious"} reducedMotion={reducedMotion} sizePx={56} />
       </header>
 
-      <ol className="relative flex flex-col gap-1 py-2" aria-label="Pathway">
-        {nodes.map((node, index) => {
-          // The winding track: a gentle sine across the column, as the
-          // reference does, so the eye follows a path rather than a list.
-          const offset = Math.round(Math.sin(index * 0.9) * 36);
-          const clickable = node.state !== "locked" && node.problemCount > 0;
-          const inner = (
-            <>
-              <span
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-scale-sm font-bold ${NODE_CLASS[node.state]}`}
-                aria-hidden
-              >
-                {node.state === "done" ? "✓" : node.state === "review" ? "★" : index + 1}
-              </span>
-              <span className="flex flex-col">
-                <span className={`text-scale-sm font-semibold ${node.state === "locked" ? "text-muted-foreground" : "text-foreground"}`}>
-                  {node.label}
-                </span>
-                <span className="text-scale-xs text-muted-foreground">
-                  {node.homeCourse !== course ? `Detour into ${COURSE_LABEL[node.homeCourse]} · ` : ""}
-                  {node.problemCount === 0 ? "not yet authored" : `${node.problemCount} problem${node.problemCount === 1 ? "" : "s"}`}
-                </span>
-              </span>
-            </>
-          );
+      <div className="flex flex-col gap-2" role="region" aria-label="Pathway">
+        {units.map((unit) => {
+          const first = running;
+          running += unit.nodes.length;
           return (
-            <li key={node.topic} className="relative" style={{ transform: `translateX(${offset}px)` }}>
-              {index > 0 ? <span className="absolute left-6 -top-3 h-3 w-0.5 bg-border" aria-hidden /> : null}
-              {clickable ? (
-                <a
-                  href={hrefForTab("courses", course, node.topic)}
-                  aria-current={node.state === "current" ? "step" : undefined}
-                  className="press flex min-h-14 items-center gap-3 rounded-2xl px-2 py-1"
-                >
-                  {inner}
-                </a>
-              ) : (
-                <div className="flex min-h-14 items-center gap-3 rounded-2xl px-2 py-1" aria-disabled>
-                  {inner}
-                </div>
-              )}
-            </li>
+            <section key={unit.key} className="flex flex-col gap-3" aria-label={unit.title}>
+              <UnitBanner unit={unit} course={course} />
+              <ol className="mx-auto flex w-full max-w-sm flex-col items-start py-4">
+                {unit.nodes.map((node, i) => (
+                  <TrackNode key={node.topic} node={node} index={first + i} course={course} />
+                ))}
+              </ol>
+            </section>
           );
         })}
-      </ol>
+      </div>
 
       <Card className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
@@ -216,7 +360,10 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
       <ul className="flex flex-wrap gap-3 text-scale-xs text-muted-foreground" aria-label="Legend">
         {LEGEND.map((entry) => (
           <li key={entry.state} className="flex items-center gap-1.5">
-            <span className={`inline-block h-3 w-3 rounded-full border ${NODE_CLASS[entry.state]}`} aria-hidden />
+            <span
+              className={`path-node path-node--${entry.state} path-node--swatch`}
+              aria-hidden
+            />
             {entry.label}
           </li>
         ))}
