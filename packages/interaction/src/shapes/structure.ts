@@ -214,6 +214,38 @@ function selectTarget(draft: StructureDraft, target: HitTarget): ShapeOutcome<St
   }
 }
 
+/**
+ * The first number from the counter onward whose minted ids collide with nothing
+ * in the state.
+ *
+ * `nextNumber` is plain draft data, and a restored session can carry a stale one:
+ * a JSON round trip defaulting a missing field, or an offline replay snapshotting
+ * the state while restarting the counter. Trusting it made `placeAtom` hand
+ * chem-core a colliding species id, and chem-core's `withMember` THROWS on that,
+ * uncaught, straight out of `reduce()` and a shell's event handler. Found by the
+ * Phase 2 verification pass, which also showed `installRefusalFor` cannot catch
+ * it: the collision is latent in the counter, not present in the state at
+ * install time. So the counter is a hint and the state is the authority, which
+ * is the same reducers-guard-rather-than-throw discipline the rest of this file
+ * already follows.
+ */
+function freeNumber(draft: StructureDraft): number {
+  let n = draft.nextNumber;
+  const taken = (candidate: number): boolean => {
+    const atomId = `sa${candidate}`;
+    const speciesId = `ss${candidate}`;
+    const bondId = `sb${candidate}`;
+    return draft.state.members.some(
+      (member) =>
+        member.species.id === speciesId ||
+        member.species.atoms.some((atom) => atom.id === atomId) ||
+        member.species.bonds.some((bond) => bond.id === bondId),
+    );
+  };
+  while (taken(n)) n += 1;
+  return n;
+}
+
 function placeAtom(draft: StructureDraft, point: Point2): ShapeOutcome<StructureDraft> {
   const element = draft.palette;
   if (element === null) {
@@ -226,8 +258,9 @@ function placeAtom(draft: StructureDraft, point: Point2): ShapeOutcome<Structure
     ]);
   }
 
-  const atomId = `sa${draft.nextNumber}`;
-  const speciesId = `ss${draft.nextNumber}`;
+  const mint = freeNumber(draft);
+  const atomId = `sa${mint}`;
+  const speciesId = `ss${mint}`;
   const species = createSpecies({ id: speciesId, atoms: [createAtom({ id: atomId, element })] });
 
   // The palette stays armed on purpose, so a student can place five carbons with
@@ -240,7 +273,7 @@ function placeAtom(draft: StructureDraft, point: Point2): ShapeOutcome<Structure
       ...draft,
       state: withMember(draft.state, { species, role: "product" }),
       placements: Object.freeze([...draft.placements, { atomId, point }]),
-      nextNumber: draft.nextNumber + 1,
+      nextNumber: mint + 1,
     }),
     "committed",
     [haptic("commit")],
@@ -314,7 +347,8 @@ function bondAtoms(
     );
   }
 
-  const bond = createBond({ id: `sb${draft.nextNumber}`, a: fromAtomId, b: toAtomId, order: 1 });
+  const bondMint = freeNumber(draft);
+  const bond = createBond({ id: `sb${bondMint}`, a: fromAtomId, b: toAtomId, order: 1 });
 
   // Same molecule: just add the bond.
   if (from.species.id === to.species.id) {
@@ -323,7 +357,7 @@ function bondAtoms(
         ...draft,
         state: withReplacedSpecies(draft.state, withAddedBond(from.species, bond)),
         pendingBondFrom: null,
-        nextNumber: draft.nextNumber + 1,
+        nextNumber: bondMint + 1,
       }),
       "committed",
       [haptic("commit")],
@@ -344,7 +378,7 @@ function bondAtoms(
       ...draft,
       state: withReplacedSpecies(withoutSecond, merged),
       pendingBondFrom: null,
-      nextNumber: draft.nextNumber + 1,
+      nextNumber: bondMint + 1,
     }),
     "committed",
     [haptic("commit")],

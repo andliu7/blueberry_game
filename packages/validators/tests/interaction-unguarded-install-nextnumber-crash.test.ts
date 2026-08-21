@@ -133,15 +133,21 @@ describe("the unguarded createInteractionState install path", () => {
     expect((state.doc.draft as any).nextNumber).toBe(1);
   });
 
-  it("crashes reduce() on the very next atom placement, uncaught", () => {
+  it("FIXED: the next atom placement mints past the stale counter instead of crashing", () => {
+    // Used to throw "already has a species" out of reduce(), uncaught, because
+    // placeAtom trusted nextNumber. The counter is now a hint and the state is
+    // the authority: minting scans forward to the first genuinely free number.
     const state = createInteractionState(staleNextNumberDraft());
-    expect(() =>
-      reduce(
-        state,
-        { kind: "command", command: { kind: "selectTarget", target: { kind: "empty", point: { x: 20, y: 20 } } } },
-        ENV,
-      ),
-    ).toThrow(/already has a species/);
+    const placed = reduce(
+      state,
+      { kind: "command", command: { kind: "selectTarget", target: { kind: "empty", point: { x: 20, y: 20 } } } },
+      ENV,
+    );
+    const draft = placed.state.doc.draft as any;
+    const ids = draft.state.members.map((m: any) => m.species.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("ss3");
+    expect(draft.nextNumber).toBe(4);
   });
 
   it("the package's own createInteractionStore reproduces the crash end to end", () => {
@@ -152,12 +158,15 @@ describe("the unguarded createInteractionState install path", () => {
       initialDraft: staleNextNumberDraft(),
       environment: ENV,
     });
+    // FIXED: the documented entry point survives the same restore.
     expect(() =>
       store.dispatch({
         kind: "command",
         command: { kind: "selectTarget", target: { kind: "empty", point: { x: 20, y: 20 } } },
       }),
-    ).toThrow(/already has a species/);
+    ).not.toThrow();
+    const ids = (store.getSnapshot().doc.draft as any).state.members.map((m: any) => m.species.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 
@@ -170,16 +179,19 @@ describe("the guarded setShape path does not catch this class of defect either",
     expect(installed.state.doc.draft).toBe(bad);
   });
 
-  it("still crashes one command later, because installRefusalFor checks state shape, not the nextNumber invariant placeAtom depends on", () => {
+  it("FIXED: one command later the mint self heals, which is why the zero notice install above is now acceptable", () => {
+    // installRefusalFor still cannot see a latent counter, and no longer needs
+    // to: the collision it would have caused cannot be constructed, because
+    // minting consults the state rather than trusting the counter.
     const clean = createInteractionState(createStructureDraft());
     const bad = staleNextNumberDraft();
     const installed = reduce(clean, { kind: "command", command: { kind: "setShape", draft: bad } }, ENV);
-    expect(() =>
-      reduce(
-        installed.state,
-        { kind: "command", command: { kind: "selectTarget", target: { kind: "empty", point: { x: 20, y: 20 } } } },
-        ENV,
-      ),
-    ).toThrow(/already has a species/);
+    const placed = reduce(
+      installed.state,
+      { kind: "command", command: { kind: "selectTarget", target: { kind: "empty", point: { x: 20, y: 20 } } } },
+      ENV,
+    );
+    const ids = (placed.state.doc.draft as any).state.members.map((m: any) => m.species.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

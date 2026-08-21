@@ -207,6 +207,18 @@ export interface DeclaredExternalPackage {
  */
 export const EXTERNAL_DATA: readonly DeclaredExternalPackage[] = [
   {
+    specifier: "@blueberry/interaction",
+    role: "subject-under-test",
+    reason:
+      "Adversary tests for the interaction layer live in this package's tests/ directory, " +
+      "because CLAUDE.md's git discipline confines an adversary's diff to fixtures/ and tests/ " +
+      "here. Those tests import the interaction package to grade it, which makes it a subject " +
+      "under test by exactly the chem-core reasoning above: fingerprinting the thing the tests " +
+      "exist to attack would report the evidence inadmissible every time it is edited. Nothing " +
+      "in this package reads interaction as an answer key. Orchestrator ruling, Phase 2 " +
+      "verification pass, after the census correctly refused to let the import in undeclared.",
+  },
+  {
     specifier: "@blueberry/chem-core",
     role: "subject-under-test",
     reason:
