@@ -39,6 +39,7 @@
 
 import {
   arrowLegalityFindings,
+  duplicateAtomIds,
   createArrow,
   fromBond,
   fromLonePair,
@@ -91,6 +92,18 @@ export interface MechanismDraft {
 }
 
 export function createMechanismDraft(state: MechanismState): MechanismDraft {
+  // A constructor cannot emit a notice, so this is the one place the duplicate
+  // id hazard is a thrown contract violation rather than a refusal. It runs at
+  // problem load, called by the shell or a harness, never inside a reducer, and
+  // a problem authored with duplicate ids is a defect to surface at authoring
+  // time, not a state a student should ever be handed. Found by the Phase 2
+  // pass three adversary; resolution by id is member order dependent otherwise.
+  const duplicated = duplicateAtomIds(state);
+  if (duplicated.length > 0) {
+    throw new Error(
+      `createMechanismDraft: atom id${duplicated.length === 1 ? "" : "s"} ${duplicated.join(", ")} appear in more than one species. Every by-id lookup would resolve to whichever species is first`,
+    );
+  }
   return Object.freeze({
     shape: "mechanism" as const,
     state,
@@ -129,9 +142,25 @@ export function applyToMechanism(
       if (draft.electrons === command.electrons) return unchanged(draft);
       return changed(Object.freeze({ ...draft, electrons: command.electrons }));
 
-    case "setPredictedState":
+    case "setPredictedState": {
       if (draft.predicted === command.state) return unchanged(draft);
+      // Same hazard, same refusal as acceptExternalStructure: a whole state
+      // arrives at once, often from a Ketcher round trip, and a duplicate atom
+      // id would make every later by-id lookup land on whichever species is
+      // found first. Found by the Phase 2 pass three adversary after the pass
+      // two fix covered only the structure shape's entry point.
+      const duplicated = command.state === null ? [] : duplicateAtomIds(command.state);
+      if (duplicated.length > 0) {
+        return refused(draft, [
+          notice(
+            "external_structure_duplicate_atom_ids",
+            "refused",
+            `the predicted state carries atom id${duplicated.length === 1 ? "" : "s"} ${duplicated.join(", ")} in more than one species, so edits by id would be ambiguous. Fix the ids and hand it over again`,
+          ),
+        ]);
+      }
       return changed(Object.freeze({ ...draft, predicted: command.state }));
+    }
 
     case "submit":
       return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };

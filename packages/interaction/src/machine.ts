@@ -333,11 +333,16 @@ function onPointerDown(
     Object.freeze({ ...session, documentAfterOwnPress: applied.state.doc }),
   );
 
-  // A contested press that changed the document opens the revise window: this
-  // is the moment target_was_ambiguous fires and the "did you mean" affordance
-  // becomes honest to offer.
+  // A contested press that changed the document AND left something armed opens
+  // the revise window: this is the moment target_was_ambiguous fires and the
+  // "did you mean" affordance becomes honest to offer. The arming condition is
+  // the pass three fix: a contested toggle OFF also changes the document, and a
+  // window opened on it would make revise undo the disarm, resurrect the
+  // original wrong guess, and evaluate the corrected target as a sink against
+  // it. Refusing to open the window there means revise refuses by name instead
+  // of corrupting, and the student re-taps, which is the honest degradation.
   const withWindow =
-    isContested(hit) && applied.state.doc !== working.doc
+    isContested(hit) && applied.state.doc !== working.doc && hasSelection(applied.state.doc.draft)
       ? Object.freeze({ ...pressed, reviseWindow: applied.state.doc })
       : pressed;
 
@@ -450,8 +455,9 @@ function onPointerUp(
   }
 
   const applied = applyCommand(working, { kind: "selectTarget", target: hit.primary }, env);
+  // Same arming condition as R1's window, for the same pass three reason.
   const withWindow =
-    isContested(hit) && applied.state.doc !== working.doc
+    isContested(hit) && applied.state.doc !== working.doc && hasSelection(applied.state.doc.draft)
       ? Object.freeze({ ...applied.state, reviseWindow: applied.state.doc })
       : applied.state;
   return {
@@ -595,6 +601,13 @@ function applyCommand(
       // nothing and made the rollback guard's reference check read "newer work
       // exists" when the content was identical, so a legitimate cancel was
       // skipped and its notice lied. Same reference in means same state out.
+      //
+      // Reference equality is the documented cost, not an oversight. A shell
+      // that rebuilds a content identical draft object on every render and
+      // dispatches it still wipes history. Deep equating a whole ShapeDraft on
+      // every setShape would be a second, drift prone notion of no change in a
+      // package whose every other decision is reference based; the fix is shell
+      // side memoisation. Argued in full in adversaryPassThree.test.ts.
       if (command.draft === state.doc.draft) {
         return { state: bumpSeq(state, seq), notices: [], effects: [] };
       }

@@ -89,7 +89,10 @@ describe("FINDING: two contested taps on the same point corrupt the next revise"
     // window -- pointing now at the DISARMED document.
     d.tap(P.oxygenLonePair);
     expect(mechanismDraftOf(d).armed).toBeNull();
-    expect(d.state.doc === d.state.reviseWindow).toBe(true);
+    // FIXED: the window only opens when the contested selection leaves
+    // something armed. A disarm changes the document but arms nothing, so the
+    // window stays pointed at the earlier arm, which the disarm made stale.
+    expect(d.state.doc === d.state.reviseWindow).toBe(false);
 
     // The student, or a "did you mean" affordance driven by the second
     // target_was_ambiguous notice, now asks to revise to the other slot.
@@ -121,13 +124,13 @@ describe("FINDING: two contested taps on the same point corrupt the next revise"
     // twice, so the last contested change was a disarm, and revise cannot
     // sensibly correct a disarm" -- the failure surfaces three steps removed
     // from its actual cause, as a chemistry-shaped refusal.
-    expect(d.sawNotice("revise_refused_newer_work")).toBe(false);
-    expect(d.sawNotice("arrow_refused_by_legality")).toBe(true);
-    expect(mechanismDraftOf(d).armed?.target).toEqual({
-      kind: "lonePair",
-      atomId: "O1",
-      slotIndex: 0,
-    });
+    // FIXED: the stale window means revise refuses by name. Nothing is
+    // resurrected, no self referential arrow is attempted, and the failure
+    // surfaces at its actual cause instead of three steps removed as a
+    // chemistry shaped refusal.
+    expect(d.sawNotice("revise_refused_newer_work")).toBe(true);
+    expect(d.sawNotice("arrow_refused_by_legality")).toBe(false);
+    expect(mechanismDraftOf(d).armed).toBeNull();
     expect(mechanismDraftOf(d).arrows).toHaveLength(0);
 
     // The rule violated: reviseLastTarget's own doc comment says it corrects
@@ -162,7 +165,9 @@ describe("FINDING: two contested taps on the same point corrupt the next revise"
     d.down(P.oxygenLonePair);
     d.up(P.oxygenLonePair);
     expect(mechanismDraftOf(d).armed).toBeNull();
-    expect(d.state.doc === d.state.reviseWindow).toBe(true);
+    // FIXED: same arming condition as the tap variant. The disarm closes
+    // rather than reopens the window.
+    expect(d.state.doc === d.state.reviseWindow).toBe(false);
 
     d.clearLog();
     d.send({
@@ -172,12 +177,10 @@ describe("FINDING: two contested taps on the same point corrupt the next revise"
         target: { kind: "lonePair", atomId: "O1", slotIndex: 1 },
       },
     });
-    expect(d.sawNotice("arrow_refused_by_legality")).toBe(true);
-    expect(mechanismDraftOf(d).armed?.target).toEqual({
-      kind: "lonePair",
-      atomId: "O1",
-      slotIndex: 0,
-    });
+    // FIXED: refused by name, nothing resurrected, through the drag route too.
+    expect(d.sawNotice("arrow_refused_by_legality")).toBe(false);
+    expect(d.sawNotice("revise_refused_newer_work")).toBe(true);
+    expect(mechanismDraftOf(d).armed).toBeNull();
   });
 });
 
@@ -450,8 +453,9 @@ describe("FINDING: the duplicate-id refusal covers acceptExternalStructure only,
     // reaching the same class of input through applyToShape and can refuse
     // it with a named notice.
     const state = duplicateIdState("carbon-first");
-    const draft = createMechanismDraft(state);
-    expect(draft.state).toBe(state);
+    // FIXED: a constructor has no notice channel, so the contract violation
+    // throws at problem load, at authoring time, naming the offending ids.
+    expect(() => createMechanismDraft(state)).toThrow(/X1/);
 
     // The resolution this unguarded state produces for atom id "X1" is
     // member-order dependent, exactly the failure mode chem-core's own
@@ -476,9 +480,10 @@ describe("FINDING: the duplicate-id refusal covers acceptExternalStructure only,
     // No notice at all: setPredictedState's own handler only checks
     // reference equality against the current `predicted` value, nothing
     // about the state's internal integrity.
-    expect(d.notices).toHaveLength(0);
-    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(false);
-    expect(mechanismDraftOf(d).predicted).toBe(dup);
+    // FIXED: refused by the same notice as acceptExternalStructure, and the
+    // prediction is not attached.
+    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(true);
+    expect(mechanismDraftOf(d).predicted).toBeNull();
 
     // The same shape of input that acceptExternalStructure refuses by name
     // in the structure shape is accepted silently here. Whatever consumes
@@ -561,5 +566,59 @@ describe("solid, with a caveat recorded rather than filed as a defect: onPointer
     d.move(P.oxygenLonePair);
     expect(d.state).not.toBe(before);
     expect(d.state.doc).toBe(before.doc);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Arms of the pass three fixes, covered with behaviour.
+// ---------------------------------------------------------------------------
+
+function twoSpeciesSharing(ids: readonly string[]): MechanismState {
+  return createState({
+    id: "two-species-sharing-ids",
+    members: [
+      {
+        species: createSpecies({
+          id: "species-a",
+          atoms: ids.map((id) => createAtom({ id, element: "C", formalCharge: 0 })),
+        }),
+        role: "product",
+      },
+      {
+        species: createSpecies({
+          id: "species-b",
+          atoms: ids.map((id) => createAtom({ id, element: "N", formalCharge: 0 })),
+        }),
+        role: "product",
+      },
+    ],
+  });
+}
+
+describe("the id guards name every offender and null still clears", () => {
+  it("createMechanismDraft with two duplicated ids throws naming both, plural", () => {
+    const state = twoSpeciesSharing(["X1", "X2"]);
+    expect(() => createMechanismDraft(state)).toThrow(/ids X1, X2 /);
+  });
+
+  it("setPredictedState(null) clears an existing prediction without a refusal", () => {
+    const d = mechanismDriver();
+    const clean = sn2StartingState();
+    d.send({ kind: "command", command: { kind: "setPredictedState", state: clean } });
+    expect(mechanismDraftOf(d).predicted).toBe(clean);
+    d.send({ kind: "command", command: { kind: "setPredictedState", state: null } });
+    expect(mechanismDraftOf(d).predicted).toBeNull();
+    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(false);
+  });
+
+  it("setPredictedState with two duplicated ids names both in the refusal, plural", () => {
+    const d = mechanismDriver();
+    d.send({
+      kind: "command",
+      command: { kind: "setPredictedState", state: twoSpeciesSharing(["X1", "X2"]) },
+    });
+    const refusal = d.notices.find((n) => n.id === "external_structure_duplicate_atom_ids");
+    expect(refusal?.detail).toContain("ids X1, X2");
+    expect(mechanismDraftOf(d).predicted).toBeNull();
   });
 });
