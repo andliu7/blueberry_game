@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 208,
-  "suiteHash": "3824e9fe1496af7bb050b8f8e6d4b968521378a948d052a7c32fe0d57df78a22",
+  "fileCount": 211,
+  "suiteHash": "57aa9f5d2e0cdbbcc1a2bcf0426567b61ddd2ae576f2cb45441477f6520afdcf",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -198,7 +198,7 @@
     "src/cli.ts": "96a367961173db80af185048957397093f4a219f09221d57ce3c21f71276da9f",
     "src/exit-codes.ts": "17643beda888adec07257e5675a6f5cb35121f72d282eec5c45d186cf436e0a6",
     "src/fixtures.ts": "0c27963546e2f3f71c27f6a837f8eaca25a5938c32aa6e7fac725b151b8a6d63",
-    "src/integrity.ts": "0be063800719b34c30e2b606f7d1f5b9f0630a9762add8f3816e2957a6e136c8",
+    "src/integrity.ts": "b82151062ca935087aed2852cfedd09962801714758c8431e9e5bd632e0be96b",
     "src/lock.ts": "8d79ef290ab9ed02053164114b59b6d0c85a7252ca1070fb94c0803b1acfd08d",
     "src/measure/banned.ts": "a128e0e50de0c42009b59032cd0f73274be293531744ba04210206db61757d98",
     "src/measure/bundle.ts": "ad68ee0ed9de88df7e4bfc81169a40a790404ee81f4333f26eac231a5b192697",
@@ -221,6 +221,9 @@
     "tests/external-data-census-misses-require-and-non-literal-dynamic-import.test.ts": "42d68b4dd5c7821f4a4b06ec98540b4d3d8162ac85b462896498486318ed561b",
     "tests/external-data-declaration.test.ts": "c4e57759d68b1ca443b7049e7099b36a64762ec2cf5ad99c7fa280cda9228c0c",
     "tests/feedback-copy-coverage.test.ts": "5ba1664764f01cd14a54bcfe4bb9475aa84367224dc7c0a3b442b2d2077e2253",
+    "tests/interaction-report-honesty-audit.test.ts": "de20f75f31f35590e5d8fa96178c7accddda036fd0affac05a309ed2be7a5099",
+    "tests/interaction-revise-window-and-precedence.test.ts": "468dc742d0b4dd7bcc87512a18c3dd4cf4d8c43eee1d6deb59617731481deab1",
+    "tests/interaction-unguarded-install-nextnumber-crash.test.ts": "bb906a9360eb2449582cd332bd70c30d9cfaaddc462e7255ee44ca7a4d328a9b",
     "tests/loader-refusal-cannot-claim-a-second-check.test.ts": "b90b050e1b99acd2102826f06f82204d8cdb965ebb7b650a29b9300df0f8872c",
     "tests/loader-refusal-is-declared-never-assumed.test.ts": "5b7bbb6fd032083c0657b6ee0026140f1b3b861e53c5cf790c996307f4cacea9",
     "tests/rate-comparison-competing-routes-not-locked.test.ts": "78913a8c6f48ed10992ddf97f14dd87132b224d8c1bdb278604483b5af3554c2",
@@ -233,11 +236,12 @@
     "declaredPackages": [
       "@blueberry/chem-core",
       "@blueberry/feedback",
+      "@blueberry/interaction",
       "esbuild",
       "vitest"
     ],
-    "entryCount": 24,
-    "externalHash": "585279c4751c784dcb19eadac7a13bcf55eb6e135cf663201740d29f5ee543cd",
+    "entryCount": 25,
+    "externalHash": "e7b92644b30ffbb6bb0c1935329f38b67611ebc653fe38f3ec5022bb5255b989",
     "entries": {
       "@blueberry/chem-core package role": "subject-under-test",
       "@blueberry/feedback binding causeCopy": "subject-under-test",
@@ -261,6 +265,7 @@
       "@blueberry/feedback source packages/feedback/src/copy/sterics.ts": "read",
       "@blueberry/feedback source packages/feedback/src/copy/success.ts": "read",
       "@blueberry/feedback source packages/feedback/src/copy/valence.ts": "read",
+      "@blueberry/interaction package role": "subject-under-test",
       "esbuild package role": "no-data",
       "vitest package role": "no-data"
     }
