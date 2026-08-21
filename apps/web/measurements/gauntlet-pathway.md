@@ -115,3 +115,39 @@ the mid capture and removed after; the real `:active` behaviour was verified sep
 Open for the critic: the open face (#ddd6fe) is pale against the cream ground; if it reads as
 washed out the fix is a darker face, not a highlight. Locked nodes are warm grey on purpose so
 they sit on the cream.
+
+## 2026-08-21, pathway-track-3d-buttons, round 4
+
+Files: apps/web/src/tabs/pathway/pathway.css, one comment line in PathwayTab.tsx.
+derivePathway unchanged.
+
+Critic's gap: the band measured about 4 px and low contrast (pale lilac on lilac, warm grey on
+grey), so the nodes read as flat discs on a drop shadow; locked nodes lost the edge almost
+entirely; and no capture showed the depressed state.
+
+What changed
+
+- Edge height 6 px to 10 px (`--node-edge-h`), face 64 px to 68 px. Node measures 68 by 78.
+- Every edge is now at least three steps darker on its own hue, saturated, never a tint of the
+  ground: done #22c55e on #166534, current #7c3aed on #3b0764, open #a78bfa on #5b21b6 (the open
+  face itself moved from pale #ddd6fe to #a78bfa with #2e1065 ink), review #facc15 on #854d0e,
+  locked #d6d3d1 on #57534e. Locked keeps the full band so the button signal holds where the
+  track is longest. Dark variant repicked to the same rule.
+- A top face highlight: `inset 0 4px 0 0 rgba(255,255,255,0.38)`, zero blur, the reference's
+  lighter upper face. Not a gloss crescent; a hard band.
+- `:active` drops the face the full 10 px and thins the highlight to 2 px, transform and
+  box-shadow only, 80 ms. Measured in Chrome: `a.matches(":active")` true synchronously inside
+  the pointerdown listener on a real click.
+- Banner band 5 px to 6 px and darker to match. Pitch about 96 px per node.
+
+Suite: npm run validate 30 of 30, integrity unmodified. npx tsc -b apps/web clean. Console: no
+errors on #/pathway.
+
+Screenshots: apps/web/measurements/gauntlet-shots/pathway-track-3d-buttons-r4-mid.jpg (current
+node pressed, face flush on the floor, highlight thinned) and pathway-track-3d-buttons-r4-end.jpg
+(one screen down into Act 1: locked, open nodes, all with the full band). As before the browser
+tool cannot hold a pointer across a screenshot, so the two pressed declarations were applied
+inline for the mid capture and removed after; the real `:active` behaviour was verified separately.
+
+Open for the critic: the open face (#a78bfa) now sits close to the current face (#7c3aed); the
+halo, START tag and star are what separate them.

@@ -22,17 +22,29 @@
  * the same hue. The edge band is the only thing that says "3D", and the
  * press is the face covering it.
  *
+ * Round 4: the critic measured round 3's band at about 4px of low contrast
+ * (pale lilac on lilac, warm grey on grey) and read the nodes as flat discs
+ * on a drop shadow. The reference's band is about 10px of clearly darker,
+ * saturated colour under a face with a lighter top band. So: the edge is
+ * 10px, every edge colour is at least three steps darker on the same hue
+ * (locked included, because most of a long track is locked and that is
+ * exactly where the button signal was vanishing), and the face carries one
+ * hard inset highlight band along its top, an inset box-shadow with zero
+ * blur, not a gloss. On :active the face drops the full 10px and the
+ * highlight band thins, so the pressed frame reads as compression.
+ *
  * Colours per state come in through --node-face, --node-edge and --node-ink,
  * set by a state class on the node. One rule for the geometry, five colour
  * blocks, and the dark variant only swaps the blocks.
  */
 
 .path-node {
-  --node-edge-h: 6px;
-  --node-size: 4rem;
-  --node-face: #ede9fe;
-  --node-edge: #a78bfa;
-  --node-ink: var(--primary);
+  --node-edge-h: 10px;
+  --node-size: 4.25rem;
+  --node-face: #a78bfa;
+  --node-edge: #5b21b6;
+  --node-ink: #2e1065;
+  --node-shine: rgba(255, 255, 255, 0.38);
   position: relative;
   display: block;
   width: var(--node-size);
@@ -66,18 +78,26 @@
   height: var(--node-size);
   border-radius: 9999px;
   background: var(--node-face);
+  /* The top highlight band: a hard inset step, no blur, the reference's
+     lighter upper face. */
+  box-shadow: inset 0 4px 0 0 var(--node-shine);
   display: flex;
   align-items: center;
   justify-content: center;
   transform: translateY(0);
-  transition: transform 80ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 80ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 80ms cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* The press: the face drops onto the floor, the same frame as pointer down.
-   Transform only; the band disappears because the face now covers it. */
+/* The press: the face drops the full edge height onto the floor, the same
+   frame as pointer down, and the highlight band thins as the key compresses.
+   Transform and box-shadow only, so no layout and no JavaScript in the path.
+   The band disappears because the face now covers it. */
 .path-node--press:active .path-node__face {
   transform: translateY(var(--node-edge-h));
+  box-shadow: inset 0 2px 0 0 var(--node-shine);
 }
 
 .path-node:focus-visible {
@@ -85,59 +105,69 @@
   outline-offset: 5px;
 }
 
-/* Face and edge are two steps apart on the same hue, the reference's
-   green-on-darker-green, so the band is unmistakably part of the button. */
+/* Face and edge are at least three steps apart on the same hue, the
+   reference's green-on-darker-green, so the band is unmistakably part of the
+   button. Every edge is saturated, never a tint of the ground. */
 .path-node--done {
   --node-face: #22c55e;
-  --node-edge: #15803d;
+  --node-edge: #166534;
   --node-ink: #ffffff;
 }
 .path-node--current {
   --node-face: #7c3aed;
-  --node-edge: #4c1d95;
+  --node-edge: #3b0764;
   --node-ink: #ffffff;
 }
 .path-node--open {
-  --node-face: #ddd6fe;
-  --node-edge: #8b5cf6;
-  --node-ink: #5b21b6;
+  --node-face: #a78bfa;
+  --node-edge: #5b21b6;
+  --node-ink: #2e1065;
 }
 .path-node--review {
   --node-face: #facc15;
-  --node-edge: #a16207;
+  --node-edge: #854d0e;
   --node-ink: #713f12;
 }
+/* Locked is still a key: a mid grey face on a clearly darker grey floor,
+   the reference's grey lock buttons, not a washed out disc. */
 .path-node--locked {
   --node-face: #d6d3d1;
-  --node-edge: #78716c;
-  --node-ink: #57534e;
+  --node-edge: #57534e;
+  --node-ink: #44403c;
+  --node-shine: rgba(255, 255, 255, 0.5);
   cursor: not-allowed;
 }
 
 .dark .path-node--done {
   --node-face: #34d399;
-  --node-edge: #047857;
+  --node-edge: #065f46;
   --node-ink: #052e16;
 }
 .dark .path-node--current {
-  --node-edge: #5b21b6;
+  --node-face: #8b5cf6;
+  --node-edge: #3b0764;
 }
 .dark .path-node--open {
-  --node-face: #4c1d95;
+  --node-face: #6d28d9;
   --node-edge: #2e1065;
-  --node-ink: #ddd6fe;
+  --node-ink: #ede9fe;
+  --node-shine: rgba(255, 255, 255, 0.22);
 }
 .dark .path-node--locked {
-  --node-face: #57534e;
-  --node-edge: #292524;
-  --node-ink: #d6d3d1;
+  --node-face: #78716c;
+  --node-edge: #1c1917;
+  --node-ink: #f5f5f4;
+  --node-shine: rgba(255, 255, 255, 0.2);
 }
 
 /* The legend dot: the same two discs at swatch size, no highlight, no press. */
 .path-node--swatch {
-  --node-edge-h: 3px;
+  --node-edge-h: 4px;
   --node-size: 0.875rem;
   cursor: default;
+}
+.path-node--swatch .path-node__face {
+  box-shadow: none;
 }
 
 /* The halo around the current node: the ring the reference draws to say
@@ -206,9 +236,9 @@
 .path-row {
   --wind: 0;
   --wind-step: min(64px, 11vw);
-  /* Pitch. 64px face, 6px edge, 10px either side: about 90px per node, so a
-     phone viewport shows six nodes and the path reads as a track. */
-  padding: 10px 0;
+  /* Pitch. 68px face, 10px edge, 9px either side: about 96px per node, so a
+     phone viewport still shows six nodes and the path reads as a track. */
+  padding: 9px 0;
   /* Three columns with the slab pinned in the middle, so wind 0 is dead
      centre of the track and every swing is measured from there regardless
      of how long the lesson name beside it is. The name takes the column on
@@ -241,8 +271,8 @@
   background: var(--banner);
   color: #ffffff;
   border-radius: 1rem;
-  /* The banner is the same slab idiom: a hard 5px band, no blur. */
-  box-shadow: 0 5px 0 0 color-mix(in srgb, var(--banner) 65%, #000);
+  /* The banner is the same slab idiom: a hard 6px band, no blur. */
+  box-shadow: 0 6px 0 0 color-mix(in srgb, var(--banner) 55%, #000);
 }
 .path-banner__guide {
   border-left: 2px solid rgba(255, 255, 255, 0.35);

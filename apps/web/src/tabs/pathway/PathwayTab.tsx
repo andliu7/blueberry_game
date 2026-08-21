@@ -26,7 +26,7 @@
  *
  * THE LOOK. docs/reference/competitors/inspirations/duolingo path or track.png
  * and progress & buttons.png are the bar for the track itself: large round
- * lesson buttons, a flat face on a hard 6px edge band, that depress on press,
+ * lesson buttons, a flat face on a hard 10px edge band, that depress on press,
  * a floating START tag over the current one, unit banners cutting the track
  * into acts, and a pitch tight enough that six nodes fit a phone screen. The
  * button styling and the pitch live in pathway.css beside this file.
