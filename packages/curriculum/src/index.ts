@@ -40,7 +40,10 @@
  *   answer.ts          The spec against state distinction. Read this one early.
  *   problem.ts         The authored problem, and the constructor that refuses.
  *   grading.ts         The result type, the tier order, and the counters.
- *   corpus/            Sixteen authored problems with real distractors.
+ *   corpus/            The authored problems, one file per topic block, every
+ *                      one carrying real distractors. Weighted to Act 0 and Act 1
+ *                      of `docs/COURSE-OUTLINE-ORGO2.md`, which is where the
+ *                      pathway opens. `corpusShape()` reports its size.
  *   reactions/         The reaction database. Data with a search function,
  *                      indexed by reagent token, substrate and product class,
  *                      and name. Seeded from the reagent vocabulary in
@@ -216,7 +219,8 @@ export { answerKind, createProblem, distractorCoverage } from "./problem.js";
 export type { Attempt, FeedbackTier, GradingResult, Tier3Entry, TierBreakdown } from "./grading.js";
 export { gradeAttempt, isWrong, tier3Entries, tierBreakdown } from "./grading.js";
 
-export { SEED_CORPUS, problemById } from "./corpus/index.js";
+export type { CorpusShape } from "./corpus/index.js";
+export { SEED_CORPUS, corpusShape, problemById } from "./corpus/index.js";
 
 export type {
   ChemicalClass,

@@ -1,11 +1,17 @@
 /**
- * Spectroscopy interpretation and degrees of unsaturation. One multiple choice
- * and one numeric.
+ * Infrared interpretation and degrees of unsaturation, Act 0.
  *
- * The numeric one is the corpus's example of `sigFigPolicy: "ignore"`. A degree
+ * The numeric ones are the corpus's example of `sigFigPolicy: "ignore"`. A degree
  * of unsaturation is a count, so significant figures do not apply to it, and the
  * tolerance is deliberately tighter than the default half digit window because
- * an answer between two integers is not a rounding of either.
+ * an answer between two integers is not a rounding of either. On the heteroatom
+ * problem below that tightness is load bearing twice over: the mistake it catches
+ * lands exactly half a unit away.
+ *
+ * `docs/COURSE-OUTLINE-ORGO2.md` D1 puts this material at pathway start rather
+ * than at topic 6, because roughly 37 of 46 slides of the delivered first lecture
+ * are infrared, degrees of unsaturation and NMR, and structure determination is
+ * exactly 10 points on 6 of 6 exams. NMR itself lives in `nmr.ts` next door.
  */
 
 import { createMultipleChoiceAnswer } from "../answers/choice.js";
@@ -147,5 +153,146 @@ export const SPECTROSCOPY_PROBLEMS: readonly Problem[] = Object.freeze([
       },
     ],
     tags: ["formula-analysis"],
+  }),
+
+  createProblem({
+    id: "org2-ir-region-identification",
+    course: "orgo_2",
+    topic: "spectroscopy_ir",
+    difficulty: 800,
+    prompt:
+      "An infrared spectrum shows a very broad absorption running from about 2500 to 3300 " +
+      "reciprocal centimetres, overlapping the C-H stretches, together with a strong band at 1710. " +
+      "Which functional group accounts for both features?",
+    answer: createMultipleChoiceAnswer({
+      options: [
+        { id: "carboxylic-acid", text: "A carboxylic acid" },
+        { id: "alcohol", text: "An alcohol" },
+        { id: "ketone", text: "A ketone" },
+        { id: "primary-amine", text: "A primary amine" },
+      ],
+      correctOptionId: "carboxylic-acid",
+    }),
+    solution: {
+      whatHappened:
+        "A carboxylic acid. It is the one group that produces both the very broad low hanging O-H " +
+        "and the strong carbonyl band together.",
+      why:
+        "A carboxylic acid exists largely as a hydrogen bonded dimer, two molecules holding each " +
+        "other by O-H to O. That hydrogen bonding is far stronger than an alcohol's, so the O-H " +
+        "stretch is both broader and pushed to lower wavenumber, down into the C-H region. The 1710 " +
+        "band is the carbon to oxygen double bond that the same group carries.",
+      lookAt:
+        "Use the LOW edge of the broad band as the discriminator. An alcohol's hump starts around " +
+        "3200; a band that reaches down to 2500 belongs to an acid.",
+    },
+    distractors: [
+      {
+        id: "picked-alcohol",
+        state: { kind: "multiple_choice", optionId: "alcohol" },
+        explanation: {
+          whatHappened: "This reads the broad band as an alcohol O-H and leaves the 1710 band unexplained.",
+          why:
+            "An alcohol does give a broad O-H, and it sits between about 3200 and 3600 rather than " +
+            "reaching down to 2500, and an alcohol has no carbon to oxygen double bond to produce a " +
+            "strong band at 1710 at all. A reading that accounts for one feature and not the other " +
+            "is only half an answer.",
+          lookAt:
+            "Account for every strong band in the spectrum before settling on a group. The 1710 " +
+            "band is the one an alcohol cannot explain.",
+        },
+      },
+      {
+        id: "picked-ketone",
+        state: { kind: "multiple_choice", optionId: "ketone" },
+        explanation: {
+          whatHappened: "This reads the 1710 band as a ketone and leaves the broad band unexplained.",
+          why:
+            "A ketone does absorb near 1715, so half the evidence fits. What a ketone cannot produce " +
+            "is an O-H stretch of any kind, and the broad feature here is far too wide and too " +
+            "intense to be C-H stretching alone.",
+          lookAt:
+            "Compare the width of the 2500 to 3300 feature against the sharp C-H peaks a ketone " +
+            "would show there. Width is the signal that hydrogen bonding is present.",
+        },
+      },
+      {
+        id: "picked-primary-amine",
+        state: { kind: "multiple_choice", optionId: "primary-amine" },
+        explanation: {
+          whatHappened: "This reads the high wavenumber feature as N-H stretching.",
+          why:
+            "A primary amine shows TWO fairly sharp bands near 3300 and 3400, one for the " +
+            "symmetric and one for the antisymmetric N-H stretch, not one broad hump reaching to " +
+            "2500. Nitrogen hydrogen bonds more weakly than oxygen, which is why its bands stay " +
+            "narrow.",
+          lookAt:
+            "Count the peaks in the 3300 region. Two sharp ones point at a primary amine and one " +
+            "broad one points at an O-H.",
+        },
+      },
+    ],
+    tags: ["infrared", "region-identification"],
+  }),
+
+  createProblem({
+    id: "org2-dou-with-nitrogen",
+    course: "orgo_2",
+    topic: "degrees_of_unsaturation",
+    difficulty: 1200,
+    prompt: "How many degrees of unsaturation does a compound of formula C8H9NO2 have?",
+    answer: createNumericAnswer({
+      text: "5",
+      sigFigPolicy: "ignore",
+      // A count, so the window is narrow on purpose, and here it is doing real
+      // work: the mistake this problem is about lands exactly half a unit away.
+      tolerance: { kind: "absolute", value: 0.25 },
+    }),
+    solution: {
+      whatHappened:
+        "Five. Each nitrogen adds one hydrogen to the saturated formula and each oxygen adds none, " +
+        "so the saturated comparison is C8H19NO2 and the deficit of ten hydrogens is five degrees.",
+      why:
+        "A nitrogen is trivalent, so inserting one into a chain lets the molecule carry one more " +
+        "hydrogen than the carbons alone would. An oxygen is divalent, so inserting one changes the " +
+        "hydrogen count not at all. That gives 2n plus 2 plus the nitrogen count, and oxygen simply " +
+        "does not appear in the expression.",
+      lookAt:
+        "Five or more degrees is the instructor's own signal to look for an aromatic ring, which is " +
+        "four on its own. Here that leaves one more degree for a ring substituent or a carbonyl.",
+    },
+    distractors: [
+      {
+        id: "nitrogen-left-out",
+        state: { kind: "numeric", text: "4.5", unit: null },
+        explanation: {
+          whatHappened:
+            "This leaves the nitrogen out of the saturated formula, comparing against C8H18 and getting nine over two.",
+          why:
+            "A non integer result is the tell that a heteroatom was mishandled, because rings and pi " +
+            "bonds each cost exactly two hydrogens and can never produce a half. Adding one " +
+            "hydrogen per nitrogen is what makes the arithmetic come out whole.",
+          lookAt:
+            "Treat a fractional answer as a signal to recount rather than as something to round. " +
+            "Nitrogen adds one to the saturated hydrogen count, oxygen adds nothing.",
+        },
+      },
+      {
+        id: "oxygens-subtracted",
+        state: { kind: "numeric", text: "3", unit: null },
+        explanation: {
+          whatHappened:
+            "This treats the two oxygens as though each one cost the molecule two hydrogens, taking four off the count.",
+          why:
+            "An oxygen has two bonds and slots into a chain between two atoms that were already " +
+            "bonded, so nothing is displaced and no hydrogen is lost. That is why ethanol, C2H6O, " +
+            "has the same hydrogen count as ethane and zero degrees of unsaturation.",
+          lookAt:
+            "Test the handling of oxygen on ethanol before applying it. C2H6O has to return zero, " +
+            "and subtracting for the oxygen would return one.",
+        },
+      },
+    ],
+    tags: ["formula-analysis", "heteroatoms"],
   }),
 ]);
