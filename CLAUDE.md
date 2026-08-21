@@ -365,6 +365,16 @@ correct step says why it was right, because a student who guesses correctly has 
 
 Three tiers, in this order. A tier is only reached when the one above it has nothing to say.
 
+Refinement, orchestrator ruling at Phase 3 after the curriculum builder escalated it: within the
+two free tiers, SPECIFICITY wins over tier number. A notation cause where the chemistry was right,
+sig figs, units, ambiguity, pre-empts distractor matching, because telling a student their correct
+chemistry matched a wrong answer distractor would be false. But a generic diagnostic cause does not
+pre-empt a specific authored distractor: the distractor's explanation was written for the exact
+mistake, and the feedback axis is won on specificity. So the order is notation causes, then
+authored distractors, then diagnostic causes, then the logged tail. Read literally, tier one
+pre-empting everything would let the vaguest sentence beat the most specific one, which inverts the
+axis this table exists to win.
+
 **The voice, owner direction recorded 2026-08-20.** Accuracy was never the problem; tone was. The
 copy must uplift and encourage, never condescend. The reader is stressed, and the product is meant to
 be one they want to return to, so the voice is a coach who is on the student's side: name what

@@ -254,10 +254,14 @@ export const feedbackNamedCauses: Check = {
       {
         property: "Tier 2, the anticipated distractor, in the resolution rate",
         reason:
-          "packages/curriculum does not exist, so no authored problem carries a predicted " +
-          "wrong answer and there is nothing to match against. The Budgets row covers Tier 1 " +
-          "and Tier 2 together; the number above is Tier 1 alone and is therefore a lower " +
-          "bound on it, never the budget itself.",
+          "packages/curriculum now exists and carries authored distractors, but no check in " +
+          "this suite reads its corpus yet, so Tier 2 resolution is measured only by that " +
+          "package's own tests and only against inputs authors wrote, which is a corpus " +
+          "invariant rather than a field measurement. The Budgets row covers Tier 1 and " +
+          "Tier 2 together; the number above is Tier 1 alone and is therefore a lower bound " +
+          "on it, never the budget itself. A curriculum corpus check belongs in this suite, " +
+          "and the field measurement needs attempts from outside the corpus, which arrive " +
+          "with Phases 5 and 6.",
       },
       {
         property: "causes outside the conservation and electron flow families",
