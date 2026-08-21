@@ -1,78 +1,113 @@
 /*
  * The pathway track: the Duolingo button, in Blueberry's palette.
  *
- * THE 3D FACE. Each lesson node is a round face sitting on a 6px darker edge.
- * The edge is a box-shadow with no blur, so it is one paint and stays sharp.
- * On :active the face drops onto the edge (translateY by the edge height) and
- * the shadow collapses to zero, which is what "depresses" means. Transform and
- * box-shadow only, so the browser paints the pressed frame on pointer down
+ * THE 3D SLAB. Each lesson node is two stacked discs. The EDGE is a real
+ * element, a darker disc of the same hue sitting 8px lower than the face, so
+ * there is a solid floor under every face and it is painted as a fill, never
+ * as a blurred shadow. The FACE is the lighter disc on top. On :active the
+ * face translates down by the edge height and lands on the floor, which is
+ * what "depresses" means; on release it pops back. The face moves by
+ * transform only, so the browser paints the pressed frame on pointer down
  * before any JavaScript runs. That is the press contract in CLAUDE.md, held
- * here at button scale.
+ * at button scale.
  *
- * Colours per state come in through two custom properties, --node-face and
- * --node-edge, set by a state class. One rule for the face, five small colour
+ * Round 1 used a zero blur box-shadow for the edge. It was sharp, but the edge
+ * colours sat too close to the cream ground (#cbd5e1 under a white face), so
+ * the band read as a soft drop shadow and the collapse was not legible. Round
+ * 2 makes the edge a disc and picks an edge colour with real contrast against
+ * its own face for every state.
+ *
+ * Colours per state come in through --node-face, --node-edge and --node-ink,
+ * set by a state class on the node. One rule for the geometry, five colour
  * blocks, and the dark variant only swaps the blocks.
  */
 
 .path-node {
-  --node-edge-h: 6px;
-  --node-face: var(--card);
-  --node-edge: #cbd5e1;
+  --node-edge-h: 8px;
+  --node-size: 4.5rem;
+  --node-face: #ede9fe;
+  --node-edge: #b197f5;
   --node-ink: var(--primary);
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.25rem;
-  height: 4.25rem;
+  display: block;
+  width: var(--node-size);
+  height: calc(var(--node-size) + var(--node-edge-h));
   border-radius: 9999px;
-  background: var(--node-face);
   color: var(--node-ink);
-  box-shadow: 0 var(--node-edge-h) 0 var(--node-edge);
-  margin-bottom: var(--node-edge-h);
-  transition:
-    transform 90ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 90ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  cursor: pointer;
 }
-.path-node--press:active {
-  transform: translateY(var(--node-edge-h));
-  box-shadow: 0 0 0 var(--node-edge);
+
+/* The floor: a darker disc offset down by the edge height. Painted as a fill. */
+.path-node__edge {
+  position: absolute;
+  left: 0;
+  top: var(--node-edge-h);
+  width: var(--node-size);
+  height: var(--node-size);
+  border-radius: 9999px;
+  background: var(--node-edge);
 }
-.path-node:focus-visible {
-  outline: 3px solid var(--ring);
-  outline-offset: 4px;
+
+/* The face: the lighter disc on top, the one that moves. */
+.path-node__face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--node-size);
+  height: var(--node-size);
+  border-radius: 9999px;
+  background: var(--node-face);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(0);
+  transition: transform 80ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
-/* A lighter top highlight so the face reads as a lit dome, the reference look. */
-.path-node::before {
+/* A lit crescent along the top so the face reads as a dome, the reference look. */
+.path-node__face::before {
   content: "";
   position: absolute;
-  inset: 4px 10px auto 10px;
-  height: 30%;
+  left: 16%;
+  right: 16%;
+  top: 9%;
+  height: 26%;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.28);
   pointer-events: none;
 }
-.path-node--locked::before {
-  background: rgba(255, 255, 255, 0.45);
+
+/* The press: the face drops onto the floor, the same frame as pointer down. */
+.path-node--press:active .path-node__face {
+  transform: translateY(var(--node-edge-h));
+}
+.path-node--press:active .path-node__face::before {
+  opacity: 0.5;
+}
+
+.path-node:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 5px;
 }
 
 .path-node--done {
-  --node-face: var(--good);
-  --node-edge: #065f46;
+  --node-face: #10b981;
+  --node-edge: #047857;
   --node-ink: #ffffff;
 }
 .path-node--current {
   --node-face: var(--primary);
-  --node-edge: #5b21b6;
+  --node-edge: #4c1d95;
   --node-ink: #ffffff;
 }
 .path-node--open {
-  --node-face: var(--card);
-  --node-edge: #cbd5e1;
-  --node-ink: var(--primary);
+  --node-face: #ede9fe;
+  --node-edge: #b197f5;
+  --node-ink: #6d28d9;
 }
 .path-node--review {
   --node-face: #fbbf24;
@@ -80,45 +115,52 @@
   --node-ink: #78350f;
 }
 .path-node--locked {
-  --node-face: #e2e8f0;
-  --node-edge: #cbd5e1;
-  --node-ink: #64748b;
+  --node-face: #e7e5e4;
+  --node-edge: #a8a29e;
+  --node-ink: #78716c;
   cursor: not-allowed;
 }
 
 .dark .path-node--done {
+  --node-face: #34d399;
   --node-edge: #047857;
   --node-ink: #052e16;
 }
 .dark .path-node--current {
-  --node-edge: #6d28d9;
+  --node-edge: #5b21b6;
 }
 .dark .path-node--open {
-  --node-edge: #57534e;
+  --node-face: #4c1d95;
+  --node-edge: #2e1065;
+  --node-ink: #ddd6fe;
 }
 .dark .path-node--locked {
-  --node-face: #44403c;
+  --node-face: #57534e;
   --node-edge: #292524;
-  --node-ink: #a8a29e;
+  --node-ink: #d6d3d1;
 }
 
-/* The legend dot: the same face at swatch size, no highlight, no press. */
+/* The legend dot: the same two discs at swatch size, no highlight, no press. */
 .path-node--swatch {
-  --node-edge-h: 2px;
-  width: 0.875rem;
-  height: 0.875rem;
+  --node-edge-h: 3px;
+  --node-size: 0.875rem;
+  cursor: default;
 }
-.path-node--swatch::before {
+.path-node--swatch .path-node__face::before {
   display: none;
 }
 
 /* The halo around the current node: the ring the reference draws to say
-   "you are here". Outside the face so it does not move with the press. */
+   "you are here". It wraps the whole slab and stays put while the face
+   drops, which is what makes the drop legible against a fixed reference. */
 .path-halo {
   position: absolute;
-  inset: -7px;
+  left: -9px;
+  right: -9px;
+  top: -9px;
+  bottom: -9px;
   border-radius: 9999px;
-  border: 4px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  border: 5px solid color-mix(in srgb, var(--primary) 30%, transparent);
   pointer-events: none;
 }
 
@@ -126,16 +168,16 @@
 .path-start {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 14px);
+  bottom: calc(100% + 16px);
   transform: translateX(-50%);
-  padding: 0.375rem 0.875rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 0.75rem;
   background: var(--card);
   color: var(--primary);
   border: 2px solid var(--primary);
   font-weight: 800;
   font-size: var(--text-scale-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
   animation: path-start-bob 1.6s ease-in-out infinite;
   pointer-events: none;
@@ -148,7 +190,7 @@
   width: 12px;
   height: 12px;
   margin-left: -6px;
-  margin-top: -6px;
+  margin-top: -7px;
   background: var(--card);
   border-right: 2px solid var(--primary);
   border-bottom: 2px solid var(--primary);
@@ -160,8 +202,35 @@
     transform: translate(-50%, 0);
   }
   50% {
-    transform: translate(-50%, -5px);
+    transform: translate(-50%, -6px);
   }
+}
+
+/* The winding. Each row carries --wind in -2..2 and slides by that many
+   steps; the step shrinks with the viewport so the far nodes never leave a
+   phone screen. */
+.path-row {
+  --wind: 0;
+  --wind-step: min(64px, 11vw);
+  /* Three columns with the slab pinned in the middle, so wind 0 is dead
+     centre of the track and every swing is measured from there regardless
+     of how long the lesson name beside it is. The name takes the column on
+     the side the node swung away from. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1rem;
+  transform: translateX(calc(var(--wind) * var(--wind-step)));
+}
+.path-row__slab {
+  grid-column: 2;
+}
+.path-row__label {
+  grid-column: 3;
+}
+.path-row__label--left {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 /* Unit banners: the coloured header that divides the track into acts. */
@@ -170,17 +239,18 @@
   background: var(--banner);
   color: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--banner) 70%, #000);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--banner) 65%, #000);
 }
 .path-banner__guide {
   border-left: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0 1rem 1rem 0;
 }
 .path-banner__guide:active {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .path-node {
+  .path-node__face {
     transition-duration: 1ms;
   }
   .path-start {

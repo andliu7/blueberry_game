@@ -213,9 +213,15 @@ function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly cou
   );
 }
 
-/** Horizontal wander of node i on the track: a gentle sine, left then right. */
-function trackOffset(index: number): number {
-  return Math.round(Math.sin(index * 0.95) * 64);
+/**
+ * Horizontal wander of node i on the track, in steps of -2..2. The reference
+ * path swings a full node width or more either side of centre, so the cycle
+ * is centre, right, far right, right, centre, left, far left, left. The step
+ * size lives in pathway.css (.path-row) so it can shrink with the viewport.
+ */
+const WIND_CYCLE: readonly number[] = [0, 1, 2, 1, 0, -1, -2, -1];
+export function trackWind(index: number): number {
+  return WIND_CYCLE[index % WIND_CYCLE.length] ?? 0;
 }
 
 function TrackNode({
@@ -228,7 +234,7 @@ function TrackNode({
   readonly course: CourseId;
 }) {
   const clickable = node.state !== "locked" && node.problemCount > 0;
-  const faceClass = `path-node path-node--${node.state} ${clickable ? "path-node--press" : ""}`;
+  const slabClass = `path-node path-node--${node.state} ${clickable ? "path-node--press" : ""}`;
   const detail =
     node.state === "locked"
       ? "Locked until the topics before it are done"
@@ -236,37 +242,47 @@ function TrackNode({
         ? "Not yet authored"
         : `${node.problemCount} problem${node.problemCount === 1 ? "" : "s"}`;
 
-  const face = (
+  // The slab: a floor disc, then the face that drops onto it. The glyph rides
+  // on the face so it moves with the press.
+  const slab = (
     <>
-      {node.state === "current" ? <span className="path-halo" aria-hidden /> : null}
-      {node.state === "current" ? (
-        <span className="path-start" aria-hidden>
-          START
-        </span>
-      ) : null}
-      <NodeGlyph state={node.state} index={index} />
+      <span className="path-node__edge" aria-hidden />
+      <span className="path-node__face">
+        <NodeGlyph state={node.state} index={index} />
+      </span>
     </>
   );
 
+  const wind = trackWind(index);
+  // The label sits on the side the node swung away from, so a far right node
+  // keeps its name inside the column instead of off the edge of a phone.
+  const labelLeft = wind > 0;
+
   return (
-    <li className="relative flex w-full items-center gap-4 py-4" style={{ transform: `translateX(${trackOffset(index)}px)` }}>
-      <div className="relative shrink-0">
+    <li className="path-row relative w-full py-5" style={{ "--wind": wind } as CSSProperties}>
+      <div className="path-row__slab relative">
+        {node.state === "current" ? <span className="path-halo" aria-hidden /> : null}
+        {node.state === "current" ? (
+          <span className="path-start" aria-hidden>
+            START
+          </span>
+        ) : null}
         {clickable ? (
           <a
             href={hrefForTab("courses", course, node.topic)}
             aria-current={node.state === "current" ? "step" : undefined}
             aria-label={`${node.label}. ${detail}`}
-            className={faceClass}
+            className={slabClass}
           >
-            {face}
+            {slab}
           </a>
         ) : (
-          <span className={faceClass} role="img" aria-label={`${node.label}. ${detail}`}>
-            {face}
+          <span className={slabClass} role="img" aria-label={`${node.label}. ${detail}`}>
+            {slab}
           </span>
         )}
       </div>
-      <div className="flex min-w-0 flex-col" aria-hidden>
+      <div className={`path-row__label flex min-w-0 flex-col ${labelLeft ? "path-row__label--left items-end text-right" : ""}`} aria-hidden>
         <span className={`text-scale-sm font-semibold leading-tight ${node.state === "locked" ? "text-muted-foreground" : "text-foreground"}`}>
           {node.label}
         </span>
@@ -310,7 +326,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
   if (course === null) return <CoursePicker />;
 
   const doneCount = nodes.filter((node) => node.state === "done").length;
-  // Node numbering runs over the whole track, so the sine offset and the
+  // Node numbering runs over the whole track, so the wind offset and the
   // number on an open face both count from the first node, not per unit.
   let running = 0;
 
@@ -333,7 +349,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
           return (
             <section key={unit.key} className="flex flex-col gap-3" aria-label={unit.title}>
               <UnitBanner unit={unit} course={course} />
-              <ol className="mx-auto flex w-full max-w-sm flex-col items-start py-4">
+              <ol className="path-track mx-auto flex w-full max-w-md flex-col py-6">
                 {unit.nodes.map((node, i) => (
                   <TrackNode key={node.topic} node={node} index={first + i} course={course} />
                 ))}
@@ -360,10 +376,10 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
       <ul className="flex flex-wrap gap-3 text-scale-xs text-muted-foreground" aria-label="Legend">
         {LEGEND.map((entry) => (
           <li key={entry.state} className="flex items-center gap-1.5">
-            <span
-              className={`path-node path-node--${entry.state} path-node--swatch`}
-              aria-hidden
-            />
+            <span className={`path-node path-node--${entry.state} path-node--swatch`} aria-hidden>
+              <span className="path-node__edge" />
+              <span className="path-node__face" />
+            </span>
             {entry.label}
           </li>
         ))}
