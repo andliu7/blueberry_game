@@ -43,10 +43,27 @@
 
 import { useCallback, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { AtomId, ElectronFlowArrow, MechanismStep } from "@blueberry/chem-core";
-import type { HitTarget, InFlightGuide, InteractionEvent, MechanismDraft, PointerInput, PointerKind, Point2 } from "@blueberry/interaction";
+import { inferSink, targetAtomId, type ArmedElectronSource, type HitTarget, type InFlightGuide, type InteractionEvent, type MechanismDraft, type PointerInput, type PointerKind, type Point2 } from "@blueberry/interaction";
 import type { StepScene } from "../../render/layout/stepScene";
 import { AtomSphere, BondCapsule, ChargeBadge, DepthDefs, HydrogenArc, SHADOW_FILTER_ID } from "../../render/svg/depth";
-import { PX, atomCentre, atomRadius, bondIdFor, createHitTester, lonePairSlots, mix, speciesOf, toPx, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
+import {
+  PX,
+  atomCentre,
+  atomRadius,
+  bondMidpoint,
+  bowAwayFrom,
+  createHitTester,
+  lonePairSlots,
+  mix,
+  nearestLonePairSlot,
+  rimPoint,
+  sceneCentroid,
+  speciesOf,
+  targetAnchor,
+  toPx,
+  type DrawTarget,
+  type SpeciesOffsets,
+} from "./hitLayout";
 
 /** Pixels of travel before a press on an atom body becomes a carry. */
 const DRAG_START_PX = 6;
@@ -85,46 +102,111 @@ function sameTargetLoose(a: HitTarget, b: HitTarget | undefined): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function arrowEndpoints(step: MechanismStep, scene: StepScene, arrow: ElectronFlowArrow): { from: Point2; to: Point2 } {
+/** How far a curve's control point sits off its chord, in px. */
+const BOW_PX = 34;
+/** Clearance between an arrowhead's tip and the surface it points at. */
+const LAND_GAP = 3;
+/** How far the armed lone pair dots glide toward the pointer, at most. */
+const LP_GLIDE_PX = 7;
+
+/**
+ * A sink resolved to geometry. An atom sink lands on that atom's SURFACE, on
+ * the side the curve arrives from. A between-atoms sink is a forming bond: a
+ * dashed stub between the two atom surfaces, and the arrow lands on its middle.
+ * `ring` is where a drop-site highlight is drawn and how big.
+ */
+interface SinkGeometry {
+  readonly landing: Point2;
+  readonly stub: { readonly a: Point2; readonly b: Point2 } | null;
+  readonly ring: { readonly centre: Point2; readonly r: number };
+}
+
+function elementRadius(scene: StepScene, atomId: AtomId): number {
+  return atomRadius(scene.atoms.find((atom) => atom.id === atomId)?.element ?? "C");
+}
+
+function atomSinkGeometry(scene: StepScene, atomId: AtomId, from: Point2, centroid: Point2): SinkGeometry {
+  const centre = atomCentre(scene, atomId);
+  const r = elementRadius(scene, atomId);
+  // The curve arrives along the control point to centre direction, so the
+  // landing is the rim point facing the control point, not facing the source.
+  const ctrl = bowAwayFrom(from, centre, centroid, BOW_PX);
+  return { landing: rimPoint(centre, ctrl, r + LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
+}
+
+function bondSinkGeometry(scene: StepScene, atomIds: readonly [AtomId, AtomId]): SinkGeometry {
+  const ca = atomCentre(scene, atomIds[0]);
+  const cb = atomCentre(scene, atomIds[1]);
+  const a = rimPoint(ca, cb, elementRadius(scene, atomIds[0]) + 1);
+  const b = rimPoint(cb, ca, elementRadius(scene, atomIds[1]) + 1);
+  const landing = mix(a, b, 0.5);
+  return { landing, stub: { a, b }, ring: { centre: landing, r: 11 } };
+}
+
+/** Committed arrow: source anchor from the slot or bond it left, sink per the rules above. */
+function committedArrowGeometry(step: MechanismStep, scene: StepScene, arrow: ElectronFlowArrow, centroid: Point2): { from: Point2; sink: SinkGeometry } {
+  const sinkCentre =
+    arrow.sink.kind === "atom"
+      ? atomCentre(scene, arrow.sink.atomId)
+      : mix(atomCentre(scene, arrow.sink.atomIds[0]), atomCentre(scene, arrow.sink.atomIds[1]), 0.5);
   let from: Point2;
   switch (arrow.source.kind) {
     case "lonePair":
-    case "singleElectron": {
-      const slots = lonePairSlots(scene, arrow.source.atomId);
-      from = slots[0] ?? atomCentre(scene, arrow.source.atomId);
+    case "singleElectron":
+      // The committed arrow does not remember which slot was tapped; the slot
+      // facing the sink is the one the electrons left from.
+      from = nearestLonePairSlot(scene, arrow.source.atomId, sinkCentre);
       break;
-    }
-    case "bond": {
-      const bondId = arrow.source.bondId;
-      let found: Point2 | null = null;
-      for (const bond of scene.bonds) {
-        if (bondIdFor(step, bond.a, bond.b) === bondId) {
-          found = mix(atomCentre(scene, bond.a), atomCentre(scene, bond.b), 0.5);
-        }
-      }
-      from = found ?? { x: 0, y: 0 };
+    case "bond":
+      from = bondMidpoint(step, scene, arrow.source.bondId) ?? sinkCentre;
       break;
-    }
     default: {
       const unreachable: never = arrow.source;
       from = unreachable;
     }
   }
-  const to =
-    arrow.sink.kind === "atom"
-      ? atomCentre(scene, arrow.sink.atomId)
-      : mix(atomCentre(scene, arrow.sink.atomIds[0]), atomCentre(scene, arrow.sink.atomIds[1]), 0.5);
-  return { from, to };
+  const sink = arrow.sink.kind === "atom" ? atomSinkGeometry(scene, arrow.sink.atomId, from, centroid) : bondSinkGeometry(scene, arrow.sink.atomIds);
+  return { from, sink };
 }
 
-function curve(from: Point2, to: Point2, bow: number): string {
-  const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const nx = (-dy / len) * bow;
-  const ny = (dx / len) * bow;
-  return `M ${from.x} ${from.y} Q ${mid.x + nx} ${mid.y + ny} ${to.x} ${to.y}`;
+/** The atom a committed arrow's electrons leave from: the lone pair's atom, or the first atom of the bond. */
+function sourceAtomId(step: MechanismStep, arrow: ElectronFlowArrow): AtomId | null {
+  if (arrow.source.kind !== "bond") return arrow.source.atomId;
+  for (const member of step.from.members) {
+    for (const bond of member.species.bonds) if (bond.id === arrow.source.bondId) return bond.a;
+  }
+  return null;
+}
+
+function curveAway(from: Point2, to: Point2, centroid: Point2): string {
+  const ctrl = bowAwayFrom(from, to, centroid, BOW_PX);
+  return `M ${from.x} ${from.y} Q ${ctrl.x} ${ctrl.y} ${to.x} ${to.y}`;
+}
+
+/**
+ * The in flight guide, resolved: where it starts, where it ends, and what it
+ * would land on. The landing is whatever the machine's own inference says a
+ * release on `snappedTo` would make (a lone pair dropped on an atom forms a
+ * bond to it, so the arrow lands on the forming bond's stub, not the atom's
+ * centre), so the preview and the committed arrow cannot disagree. `hovered`
+ * is the atom under the pointer, for a halo, when the landing is not on it.
+ */
+function guideGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, armed: ArmedElectronSource | null, centroid: Point2): { from: Point2; to: Point2; sink: SinkGeometry | null; hovered: AtomId | null; away: Point2 } {
+  const from = targetAnchor(step, scene, guide.anchor) ?? guide.from;
+  const snapped = guide.snappedTo;
+  const overOwnSource = sameTargetLoose(snapped, guide.anchor) || (snapped.kind !== "empty" && targetAtomId(snapped) !== null && targetAtomId(snapped) === targetAtomId(guide.anchor));
+  const inferred = armed === null || overOwnSource ? null : inferSink(armed, snapped, step.from);
+  if (inferred !== null && inferred.ok) {
+    const hovered = snapped.kind === "atom" ? snapped.atomId : null;
+    if (inferred.sink.kind === "atom") {
+      const sink = atomSinkGeometry(scene, inferred.sink.atomId, from, centroid);
+      return { from, to: sink.landing, sink, hovered: null, away: centroid };
+    }
+    const sink = bondSinkGeometry(scene, inferred.sink.atomIds);
+    return { from, to: sink.landing, sink, hovered, away: centroid };
+  }
+  // Over nothing the machine would accept: the head rides the finger, per x01.
+  return { from, to: guide.to, sink: null, hovered: null, away: centroid };
 }
 
 interface Carry {
@@ -256,6 +338,30 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
   const wobbling = failure?.kind === "wobble" ? new Set(failure.atomIds) : new Set<AtomId>();
   const snapping = failure?.kind === "snapBack";
 
+  // Arrow geometry from the LIVE scene, because arrows span species and must
+  // follow a carried molecule. A curve bows away from the centroid of the
+  // species its electrons LEAVE, so it arcs outward from that molecule rather
+  // than across it; the whole scene's centroid is the fallback when the source
+  // atom is unknown.
+  const awayFrom = (atomId: AtomId | null): Point2 => {
+    const speciesId = atomId === null ? undefined : owner.get(atomId);
+    if (speciesId === undefined) return sceneCentroid(live);
+    return sceneCentroid({ ...live, atoms: live.atoms.filter((atom) => owner.get(atom.id) === speciesId) });
+  };
+  const inFlight = guide === null ? null : guideGeometry(step, live, guide, draft.armed, awayFrom(targetAtomId(guide.anchor)));
+  // The armed lone pair's dots glide a little toward the pointer while it
+  // drags, so the electrons visibly start to move. The halo stays put: the
+  // dots are the electrons, the halo is the slot.
+  const glideOf = (slot: Point2): Point2 => {
+    if (guide === null) return { x: 0, y: 0 };
+    const dx = guide.to.x - slot.x;
+    const dy = guide.to.y - slot.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 1) return { x: 0, y: 0 };
+    const k = Math.min(LP_GLIDE_PX, len * 0.15) / len;
+    return { x: dx * k, y: dy * k };
+  };
+
   // Species groups. Each species draws its atoms and attachments in AUTHORED
   // coordinates inside a <g> translated by its offset, so the carry is one
   // transform per group and the attachments' lag is one transition per group.
@@ -319,11 +425,16 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                   {revealed
                     ? lonePairSlots(scene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
+                        // Glide is measured against the live slot (the lag group is
+                        // in authored coordinates, so the offset is species local either way).
+                        const glide = armedSlot ? glideOf(lonePairSlots(live, atom.id)[index] ?? slot) : { x: 0, y: 0 };
                         return (
                           <g key={index}>
                             <circle cx={slot.x} cy={slot.y} r={12} fill={armedSlot ? "var(--primary)" : "var(--card)"} stroke="var(--primary)" strokeWidth={1.5} opacity={armedSlot ? 0.9 : 0.5} />
-                            <circle cx={slot.x - 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
-                            <circle cx={slot.x + 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
+                            <g style={{ transform: `translate(${glide.x}px, ${glide.y}px)`, transition: reducedMotion ? "none" : "transform 60ms ease-out" }}>
+                              <circle cx={slot.x - 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
+                              <circle cx={slot.x + 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
+                            </g>
                           </g>
                         );
                       })
@@ -362,11 +473,11 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
             .map((atom) => {
               const c = toPx(atom.from.pos);
               const r = atomRadius(atom.element);
-              const armedHere = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id;
+              // The armed lone pair slot already fills solid; a ring around the
+              // whole atom would read as a drop site, which it is not.
               const badgeAt = { x: c.x + (r + 6) * Math.cos(-atom.from.badgeAngle), y: c.y + (r + 6) * Math.sin(-atom.from.badgeAngle) };
               return (
                 <g key={atom.id} className={wobbling.has(atom.id) ? "wobble" : undefined} style={{ cursor: "grab" }}>
-                  {armedHere ? <circle cx={c.x} cy={c.y} r={r + 8} fill="none" stroke="var(--primary)" strokeWidth={2} strokeDasharray="4 4" /> : null}
                   <AtomSphere centre={c} r={r} element={atom.element} />
                   <ChargeBadge at={badgeAt} charge={atom.fromCharge} />
                 </g>
@@ -375,45 +486,58 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
         </g>
       ))}
 
-      {/* Between atom sites, offered while a source is armed. */}
+      {/* Between atom sites, offered while a source is armed: the forming bond
+          a drop there would make, as a faint stub between the two surfaces. */}
       {targets
         .filter((entry) => entry.target.kind === "betweenAtomsSite")
-        .map((entry) => (
-          <circle key={JSON.stringify(entry.target)} cx={entry.centre.x} cy={entry.centre.y} r={entry.radius} fill="var(--primary)" opacity={0.18} stroke="var(--primary)" strokeDasharray="3 3" />
-        ))}
+        .map((entry) => {
+          if (entry.target.kind !== "betweenAtomsSite") return null;
+          const { stub } = bondSinkGeometry(live, entry.target.atomIds);
+          if (stub === null) return null;
+          return <line key={JSON.stringify(entry.target)} x1={stub.a.x} y1={stub.a.y} x2={stub.b.x} y2={stub.b.y} stroke="var(--primary)" strokeWidth={2.5} strokeDasharray="3 6" strokeLinecap="round" opacity={0.22} />;
+        })}
 
-      {/* The student's arrows, from live positions because they span species. */}
-      {draft.arrows.map((arrow, index) => {
-        const { from, to } = arrowEndpoints(step, live, arrow);
-        const bow = (index % 2 === 0 ? 1 : -1) * 28;
+      {/* The student's arrows, from live positions because they span species.
+          Each starts on its source (lone pair slot or bond middle) and ends on
+          its sink's surface, or on the dashed stub of the bond it forms. */}
+      {draft.arrows.map((arrow) => {
+        const centroid = awayFrom(sourceAtomId(step, arrow));
+        const { from, sink } = committedArrowGeometry(step, live, arrow, centroid);
+        const to = sink.landing;
         return (
-          <path
-            key={arrow.id}
-            d={curve(from, to, bow)}
-            fill="none"
-            stroke="var(--primary)"
-            strokeWidth={3}
-            strokeLinecap="round"
-            markerEnd="url(#draw-arrowhead)"
-            className={snapping ? "snap-back" : undefined}
-            style={snapping ? ({ "--snap-dx": `${(to.x - from.x) * 0.6}px`, "--snap-dy": `${(to.y - from.y) * 0.6}px` } as CSSProperties) : undefined}
-          />
+          <g key={arrow.id} className={snapping ? "snap-back" : undefined} style={snapping ? ({ "--snap-dx": `${(to.x - from.x) * 0.6}px`, "--snap-dy": `${(to.y - from.y) * 0.6}px` } as CSSProperties) : undefined}>
+            {sink.stub !== null ? <line x1={sink.stub.a.x} y1={sink.stub.a.y} x2={sink.stub.b.x} y2={sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.7} /> : null}
+            <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--primary)" strokeWidth={3} strokeLinecap="round" markerEnd="url(#draw-arrowhead)" />
+          </g>
         );
       })}
 
-      {/* The dashed in flight guide, per capture x01. */}
-      {guide !== null ? (
-        <line
-          x1={guide.from.x}
-          y1={guide.from.y}
-          x2={guide.to.x}
-          y2={guide.to.y}
-          stroke="var(--primary)"
-          strokeWidth={2.5}
-          strokeDasharray={reducedMotion ? undefined : "6 6"}
-          strokeLinecap="round"
-          opacity={0.8}
-        />
+      {/* The dashed in flight guide, per capture x01: starts on the source,
+          head at the finger, or on the drop site once the release would land
+          there. The site itself gets a ring so the student sees the landing
+          before letting go. The machine's snappedTo decides which; this only draws it. */}
+      {inFlight !== null ? (
+        <g style={{ pointerEvents: "none" }}>
+          {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
+          {inFlight.hovered !== null ? <circle cx={atomCentre(live, inFlight.hovered).x} cy={atomCentre(live, inFlight.hovered).y} r={elementRadius(live, inFlight.hovered) + 6} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.45} /> : null}
+          {inFlight.sink !== null ? (
+            <>
+              {inFlight.sink.stub === null ? <circle cx={inFlight.sink.ring.centre.x} cy={inFlight.sink.ring.centre.y} r={inFlight.sink.ring.r + 2} fill="var(--primary)" opacity={0.12} /> : null}
+              <circle cx={inFlight.sink.ring.centre.x} cy={inFlight.sink.ring.centre.y} r={inFlight.sink.ring.r} fill="none" stroke="var(--primary)" strokeWidth={inFlight.sink.stub === null ? 3 : 2.5} opacity={0.95} />
+            </>
+          ) : null}
+          <path
+            d={curveAway(inFlight.from, inFlight.to, inFlight.away)}
+            fill="none"
+            stroke="var(--primary)"
+            strokeWidth={2.5}
+            strokeDasharray={reducedMotion ? undefined : "6 6"}
+            strokeLinecap="round"
+            markerEnd="url(#draw-arrowhead)"
+            opacity={0.85}
+          />
+          <circle cx={inFlight.from.x} cy={inFlight.from.y} r={3} fill="var(--primary)" />
+        </g>
       ) : null}
       <text x={maxX + PAD - 8} y={minY - PAD + 14} textAnchor="end" fontSize={9} fill="var(--scene-faint)">
         {PX} px per bond

@@ -227,6 +227,25 @@ export function rimPoint(centre: Point2, toward: Point2, r: number): Point2 {
   return { x: centre.x + (dx / len) * r, y: centre.y + (dy / len) * r };
 }
 
+/**
+ * The control point of a quadratic curve from `from` to `to` that bows AWAY
+ * from `away` (the scene centroid), so an arrow arcs around the molecule
+ * rather than across it. Of the two perpendicular candidates the one farther
+ * from `away` wins; a degenerate (zero length) chord bows upward.
+ */
+export function bowAwayFrom(from: Point2, to: Point2, away: Point2, magnitude: number): Point2 {
+  const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1) return { x: mid.x, y: mid.y - magnitude };
+  const nx = (-dy / len) * magnitude;
+  const ny = (dx / len) * magnitude;
+  const a = { x: mid.x + nx, y: mid.y + ny };
+  const b = { x: mid.x - nx, y: mid.y - ny };
+  return distance(a, away) >= distance(b, away) ? a : b;
+}
+
 /** Centroid of every drawn atom, the side a curve should bow away from. */
 export function sceneCentroid(scene: StepScene): Point2 {
   let x = 0;
