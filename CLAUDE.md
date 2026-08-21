@@ -46,6 +46,26 @@ side from attempts, never client reported. And the privacy floor: assume minors,
 a chosen display name never a real one, opt out exists, and no profile is reachable from a
 leaderboard row beyond that display name.
 
+## Deployment, the end goal of every phase
+
+Owner direction, recorded 2026-08-21. The phases end in a deployed product that does not crash, and
+every phase is measured against that rather than against its own green suite.
+
+- **iOS first.** The App Store is the primary target. `apps/mobile` is Expo / React Native per the
+  repository layout, built and submitted through EAS. The app's display name on the home screen is
+  "Blueberry" and the bundle identifier is an owner decision recorded before Phase 9 submits
+- **Android second, verified in an emulator.** The Android build targets SDK 35 (the Play Store's
+  current minimum target API), and the app manifest carries the label "Blueberry" so the name lands
+  on the launcher. Verification is a clean install and launch in an Android emulator, not a claim
+- **Web stays.** `apps/web` deploys on push through GitHub Actions, per D1, and is the surface the
+  gauntlet loops judge against the bars
+- **Not Flutter.** A Flutter note (3.38.9, Dart 3.10) exists in the owner's notes; it is recorded
+  here so the question is settled. Flutter cannot import the TypeScript engines this repo is built
+  on, so a Flutter shell would mean rewriting chem-core, interaction and curriculum in Dart.
+  Reopening this needs the cost stated first
+- **Crash free is measured.** Phase 9 adds crash reporting and a release checklist; a release with
+  a crash in the first session on either reference device does not ship
+
 ## Monetisation
 
 Owner direction, recorded 2026-08-20. The subscription is priced as a fraction of a real course
@@ -449,6 +469,12 @@ yourself.
 Phase 5 carries the onboarding funnel and the free lessons, which are the highest leverage copy in
 the product. That makes it a human gate, not a loop. There is no exit condition for "this lesson
 converts."
+
+**Owner ruling, 2026-08-21, after reviewing the Phase 5 build:** four surfaces loop after all, on a
+blind comparison against a committed capture rather than on taste: the trainer's arrow drawing and
+feedback against the Alchemie captures, and the pathway, leaderboard tabs and language picker against
+`docs/reference/competitors/inspirations/`. The exit is a fresh-context critic picking ours blind,
+and the five iteration cap still applies per piece. The onboarding copy stays a human gate.
 
 ## Suite integrity
 
