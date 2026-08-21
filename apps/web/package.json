@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "measure:headless": "node measurements/measure-headless.mjs",
-    "measure:device": "node measurements/measure-device.mjs"
+    "measure:device": "node measurements/measure-device.mjs",
+    "preview:single": "node scripts/build-single.mjs"
   },
   "dependencies": {
     "@blueberry/chem-core": "*",

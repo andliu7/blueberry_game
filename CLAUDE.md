@@ -93,6 +93,23 @@ mined and synthesised into `docs/COURSE-OUTLINE-ORGO2.md`, which is the authorit
 Chemistry I is generated from the topic scope already recorded and reviewed at the same human gate
 as other authored content.
 
+**Real world application lessons, owner direction recorded 2026-08-21.** Duolingo teaches "how to
+date in this language" beside the grammar; Blueberry teaches where the chemistry shows up in the
+world beside the mechanism. Each topic block carries at least one application lesson, authored and
+interactive rather than a reading: HOMO and LUMO, Diels Alder and conjugated systems explain why
+fruit, leaves and pigments have the colours they do, and the lesson is a small game about that
+(lengthen the conjugated chain, watch the absorbed wavelength move, predict the colour). These are
+side and enrichment material on the pathway, never on the exam weighted spine, and they follow the
+same authored problem schema so they are graded and counted like everything else.
+
+**Learning science, owner direction recorded 2026-08-21.** Product decisions cite evidence where it
+exists. The reading list lives in `docs/LEARNING-SCIENCE.md` and grows; the starting entries are the
+ChemRxiv study on mechanism learning the owner supplied and the AAMC Post-MCAT Questionnaire's
+2020 to 2024 self study data (flashcard use up from 67.4 to 71.4 percent, free online flashcard
+programs from 37.3 to 50.2 percent), which is evidence for the Anki style retention scheduler and
+for a flashcard surface the product does not yet have. A decision that contradicts a cited finding
+says why.
+
 Most of the curriculum is not mechanism chemistry. Gas laws, thermodynamics, kinetics, titration
 curves, stoichiometry, and spectroscopy interpretation do not touch `chem-core` at all. They need an
 authored problem and answer checking engine, which is a second system alongside the first, not an

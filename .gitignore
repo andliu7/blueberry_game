@@ -78,3 +78,6 @@ tsbuild/
 # is committed evidence; the full Stryker report is a large machine artifact and is not.
 .stryker-tmp/
 packages/chem-core/mutation/stryker-report.json
+
+# Single file preview build, never committed
+dist-single/

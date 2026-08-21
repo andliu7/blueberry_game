@@ -1,0 +1,49 @@
+# Deploys apps/web to GitHub Pages on every push to main or a phase branch.
+# Per docs/INHERITED-DECISIONS.md D1: build on push, never commit build output.
+#
+# One-time setup the workflow cannot do for itself: in the repository settings,
+# Pages, set Source to "GitHub Actions". Until then this job builds and the
+# deploy step fails with a clear message.
+
+name: Deploy web
+
+on:
+  push:
+    branches: [main, "phase-*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run typecheck
+      - run: npm run build -w @blueberry/web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
