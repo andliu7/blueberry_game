@@ -39,7 +39,7 @@ Ten phases since the restructure to a learning platform. `BUILD-PROMPT.md` is au
 | 0 Contracts and validators | Gauntlet loop | DONE, merged into `phase-1` history |
 | 1 Mechanism core | Gauntlet loop | DONE, human gate passed, merged to `main` |
 | 2 Interaction layer | Gauntlet loop | DONE, authorized structural cycle plus verification, merged to `main` |
-| 3 Curriculum engine and placement quiz | Gauntlet loop | IN PROGRESS, branch `phase-3` |
+| 3 Curriculum engine and placement quiz | Gauntlet loop | IN PROGRESS, waves 1 to 3 done, adversary pass next |
 | 4 Rendering | Single pass, human gate | Not started |
 | 5 App shell, tabs, periodic table, onboarding | Single pass, human gate | Not started |
 | 6 Auth, data, free tier | Gauntlet loop | Not started |
@@ -184,6 +184,34 @@ class cannot be constructed. Five crash tests inverted as guards.
 Final: 377 interaction tests, 86 validators tests, branch coverage 100 on every non geometry file,
 tap only completion 44 of 44 good fixtures replayed through the real machine, mis tap 1.04 percent
 at the tightest handle spacing against the bar's measured 21.24.
+
+## Phase 3 checkpoint, written for continuation across a context compaction
+
+Branch `phase-3`. Suite: 30 checks green. Tests: chem-core 414, interaction 377, curriculum 154,
+validators 86. Everything below is committed; nothing depends on conversation memory.
+
+Done this phase, in commit order: the curriculum engine (five answer kinds, grading, 16 problem
+seed corpus, 36 distractors); the real CHEM 241 course mined by three agents and synthesised into
+`docs/COURSE-OUTLINE-ORGO2.md` (46 topics, three acts plus spectroscopy Act 0, prerequisite edges,
+the six slot exam template, [EQ] equivalence groups); TOPICS grown 13 to 46 with ACTS, CONCEPTS and
+an import time soundness assertion; stereoLabels and the pKa ladder reserved in the schema; the
+curriculum-corpus check (16 problems, 100 percent distractor coverage, all five kinds); the
+reaction database (73 rows, 22 equivalence groups, ten near miss pairs as negative tests); the
+placement quiz (pure reducer, bounded at 8 questions and modelled 180 seconds, worst case measured
+5 questions and 165 seconds, deterministic by seed) with the curriculum-quiz check.
+
+Owner rulings this phase, all recorded in CLAUDE.md or the outline: exams are not exhaustive, side
+content stays with weighting not exclusion; 2024 to 2026 materials outweigh older when semesters
+disagree; question FORM inspiration sanctioned, content copying never; course materials stay in the
+gitignored `reference images/` folder, mined for structure only.
+
+Artifacts: build order 08bfb9d3, named causes 01410d95, cue card dc2c1184, course outline 78e3deaa
+(rewritten chemistry first for the PhD reviewer, awaiting their ruling on ten questions).
+
+Still open to exit Phase 3: the adversary pass this looped phase requires, and the PhD ruling is
+the content human gate. Known gaps recorded honestly: 16 problems against a 46 topic registry
+(authoring wave needed), the reaction table has no chem-core join, sig fig broken fixture set from
+BUILD-PROMPT Phase 3 exit not yet a validator fixture family.
 
 ## Done outside the phase plan## Done outside the phase plan
 
