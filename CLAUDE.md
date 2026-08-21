@@ -280,12 +280,14 @@ device.
 
 ### Graded chemistry, not boolean chemistry
 
-The named fixtures below are ENGINE TEST FIXTURES, not content seeds. Mining the owner's real
-Organic Chemistry 2 course showed none of them appears as a question on any of six exams across
-three semesters: SN1, SN2, E1 and E2 never stand alone in that course, they are assumed
-prerequisites embedded inside multistep sequences. The course's actual centre of mass is
-aromaticity, EAS directing effects, the acyl reactivity ladder, and enolates. Seed content from
-`docs/COURSE-OUTLINE-ORGO2.md`, never from this list.
+The named fixtures below are engine test fixtures first. Mining the owner's real Organic
+Chemistry 2 course showed none of them appears standalone on any of six exams across three
+semesters, and the course's centre of mass is aromaticity, EAS directing effects, the acyl
+reactivity ladder, and enolates, so `docs/COURSE-OUTLINE-ORGO2.md` is the authoritative seed for
+exam facing content and its weighting. Owner ruling, recorded 2026-08-21: the exams are NOT
+exhaustive, so this material is still authored as content too, placed as side and enrichment
+material rather than on the exam weighted spine. More coverage beats less; weighting, not
+exclusion, is how the exam signal is honoured.
 
 - Neopentyl systems are strongly disfavored for SN2, roughly 10^-5 relative to ethyl. **Not blocked.**
   The engine says "strongly disfavored, competing pathway likely" and names the competing pathway,
