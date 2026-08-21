@@ -1,5 +1,18 @@
 # Organic Chemistry II course outline
 
+## Owner rulings since synthesis, recorded 2026-08-21
+
+- **Recency weighting.** The most recent materials, 2024 through 2026, weigh slightly heavier than
+  older ones when semesters disagree. The 2019 exams are corroboration, never a tiebreaker. This
+  formalises what the mining already leaned toward.
+- **Question style inspiration is sanctioned.** Authors take inspiration from the FORMS and
+  STRUCTURE of the real exam and worksheet questions, the slot shapes, the three direction
+  prediction block, the carbon count constrained synthesis, the underlined proton pKa opener,
+  while never copying a specific question. The form census in this document is the palette.
+- **Exams are not exhaustive.** Coverage exceeds the exam; weighting, not exclusion, honours the
+  exam signal.
+
+
 The authoritative course structure for `orgo_2`. Everything in `packages/curriculum/src/placement.ts`
 under the `orgo_2` course, and everything a later wave authors as Orgo 2 content, traces to this file.
 
