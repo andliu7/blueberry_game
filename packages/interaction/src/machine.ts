@@ -169,6 +169,17 @@ export interface InteractionState {
   readonly sessions: readonly PointerSession[];
   /** Increments once per command applied. Stamped onto notices so they can be traced. */
   readonly commandSeq: CommandSeq;
+  /**
+   * The document produced by the most recent CONTESTED pointer selection, and
+   * null the moment anything else changes the document. Revise exists for one
+   * flow only, the "did you mean" affordance that follows target_was_ambiguous,
+   * so this window opens exactly when that notice fires and closes on any other
+   * change. reviseLastTarget may undo only while the document is still this
+   * object. Undoing blind was silent, unrecoverable data loss, because there is
+   * no redo stack for a destroyed commit to come back from, and an unambiguous
+   * selection never shows the affordance in the first place.
+   */
+  readonly reviseWindow: DocumentState | null;
 }
 
 export type InteractionEvent =
@@ -202,6 +213,7 @@ export function createInteractionState(draft: ShapeDraft): InteractionState {
     doc: createDocument(draft),
     sessions: Object.freeze([]),
     commandSeq: 0,
+    reviseWindow: null,
   });
 }
 
@@ -321,8 +333,16 @@ function onPointerDown(
     Object.freeze({ ...session, documentAfterOwnPress: applied.state.doc }),
   );
 
+  // A contested press that changed the document opens the revise window: this
+  // is the moment target_was_ambiguous fires and the "did you mean" affordance
+  // becomes honest to offer.
+  const withWindow =
+    isContested(hit) && applied.state.doc !== working.doc
+      ? Object.freeze({ ...pressed, reviseWindow: applied.state.doc })
+      : pressed;
+
   return {
-    state: pressed,
+    state: withWindow,
     notices: [...notices, ...ambiguityNotices(hit, applied.state.commandSeq), ...applied.notices],
     effects: applied.effects,
   };
@@ -412,9 +432,30 @@ function onPointerUp(
     return { state: working, notices, effects: [] };
   }
 
+  // A drag's release continues what its own press started, and nothing else.
+  // If the document changed under the drag, the armed source belongs to another
+  // input path, and completing an arrow from a source this pointer never
+  // touched is the completion half of the guide defect. The tap path is
+  // untouched: a press is its own selection under R1, which is exactly how
+  // arming by command and tapping the sink works.
+  if (state.doc !== session.documentAfterOwnPress) {
+    notices.push(
+      notice(
+        "release_ignored_newer_work",
+        "info",
+        `pointer ${pointer.pointerId} released over a new target, but the document changed mid drag, so the release was ignored`,
+      ),
+    );
+    return { state: working, notices, effects: [] };
+  }
+
   const applied = applyCommand(working, { kind: "selectTarget", target: hit.primary }, env);
+  const withWindow =
+    isContested(hit) && applied.state.doc !== working.doc
+      ? Object.freeze({ ...applied.state, reviseWindow: applied.state.doc })
+      : applied.state;
   return {
-    state: applied.state,
+    state: withWindow,
     notices: [...notices, ...ambiguityNotices(hit, applied.state.commandSeq), ...applied.notices],
     effects: applied.effects,
   };
@@ -495,34 +536,89 @@ function applyCommand(
           effects: [],
         };
       }
-      return { state: Object.freeze({ ...state, doc: undone, commandSeq: seq }), notices: [], effects: [] };
+      return {
+        state: Object.freeze({ ...state, doc: undone, commandSeq: seq, reviseWindow: null }),
+        notices: [],
+        effects: [],
+      };
     }
 
     case "reviseLastTarget": {
       // "No, I meant that one." Built from undo rather than from a special case
       // in the pointer layer, so it works the same whether the mis-hit came from
       // a tap, a drag, or a keyboard.
-      const undone = undoDocument(state.doc);
-      const rolled = undone === null ? state : Object.freeze({ ...state, doc: undone });
+      //
+      // The undo is guarded, not blind. Revise corrects one specific thing: the
+      // last target selection. If anything else has changed the document since,
+      // the top of the undo stack is somebody else's work, there is no redo
+      // stack for it to come back from, and undoing it here would be silent
+      // permanent loss. Worse, the wrong guess would still be armed underneath,
+      // so the corrected target would commit as a sink against it and be
+      // refused. Refusing the revise by name is strictly better on both counts.
+      // One nullable carries the whole decision. The window only opens on a
+      // contested selection that changed the document, so while it is open the
+      // undo stack cannot be empty and undoDocument cannot return null. A
+      // closed or stale window short circuits to null here, which folds the
+      // impossible arm into the two real ones instead of leaving dead code.
+      const undone = state.doc === state.reviseWindow ? undoDocument(state.doc) : null;
+      if (undone === null) {
+        // On an empty undo stack nothing can be lost, so revise degrades to a
+        // plain selection, which is what it always did on a fresh draft. With
+        // history present, the top of the stack is somebody else's work and the
+        // refusal is the whole point.
+        if (state.doc.past.length === 0) {
+          return applyCommand(state, { kind: "selectTarget", target: command.target }, env);
+        }
+        return {
+          state: bumpSeq(state, seq),
+          notices: [
+            stamp(
+              notice(
+                "revise_refused_newer_work",
+                "info",
+                "the document has changed since that selection, so revising it now would undo somebody else's work. Tap the intended target instead",
+              ),
+              seq,
+            ),
+          ],
+          effects: [],
+        };
+      }
+      const rolled = Object.freeze({ ...state, doc: undone, reviseWindow: null });
       return applyCommand(rolled, { kind: "selectTarget", target: command.target }, env);
     }
 
-    case "setShape":
+    case "setShape": {
+      // The one command that used to skip the no-op discipline every shape
+      // reducer follows. Redispatching the active draft (a re-mount, a retried
+      // dispatch) minted a fresh DocumentState, which wiped undo history for
+      // nothing and made the rollback guard's reference check read "newer work
+      // exists" when the content was identical, so a legitimate cancel was
+      // skipped and its notice lied. Same reference in means same state out.
+      if (command.draft === state.doc.draft) {
+        return { state: bumpSeq(state, seq), notices: [], effects: [] };
+      }
       return {
         state: Object.freeze({
           ...state,
           doc: resetDocument(command.draft),
           commandSeq: seq,
+          reviseWindow: null,
         }),
         notices: [],
         effects: [],
       };
+    }
 
     default: {
       const outcome = applyToShape(state.doc.draft, command);
       const doc = commitDraft(state.doc, outcome.draft);
+      // Any change to the document closes the revise window. A command is never
+      // a contested hit, so only the pointer handlers reopen it, after this
+      // returns. A command that changed nothing leaves the window alone.
+      const reviseWindow = doc === state.doc ? state.reviseWindow : null;
       return {
-        state: Object.freeze({ ...state, doc, commandSeq: seq }),
+        state: Object.freeze({ ...state, doc, commandSeq: seq, reviseWindow }),
         notices: outcome.notices.map((n) => stamp(n, seq)),
         effects: outcome.effects,
       };
@@ -560,6 +656,11 @@ export function inFlightGuide(state: InteractionState): InFlightGuide | null {
   const owner = ownerSession(state);
   if (owner === undefined) return null;
   if (!hasSelection(state.doc.draft)) return null;
+  // The selection must be the owner's own. If the document has changed since
+  // this pointer pressed, whatever is armed was armed by somebody else, and a
+  // guide drawn from this pointer's press point to a source it never touched is
+  // two parts of one screen disagreeing about what is being dragged.
+  if (state.doc !== owner.documentAfterOwnPress) return null;
   return {
     anchor: owner.downTarget,
     from: owner.downPoint,

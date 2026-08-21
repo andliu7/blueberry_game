@@ -45,6 +45,28 @@ export type NoticeId =
    * work it did not do. See machine.ts, "WHAT R3 MAY AND MAY NOT TAKE BACK".
    */
   | "rollback_skipped_newer_work"
+  /**
+   * "No, I meant that one" was refused because the last thing that changed the
+   * document was not the target selection it corrects. Undoing blind here is
+   * how a revise destroys somebody else's commit, and with no redo stack that
+   * loss would be silent and permanent. The wrong guess stays armed; the
+   * student taps the intended target instead.
+   */
+  | "revise_refused_newer_work"
+  /**
+   * A drag's release landed on a new target, but the document changed under the
+   * drag while it was in flight, so the release was ignored rather than allowed
+   * to complete an arrow from a source this pointer never armed. The press to
+   * sink tap path is unaffected: a press is its own selection under R1.
+   */
+  | "release_ignored_newer_work"
+  /**
+   * An external editor handed over a structure carrying the same atom id in
+   * more than one species. Every command that edits by atom id would silently
+   * resolve to whichever species is found first, making the other atom
+   * permanently unreachable, so the handover is refused whole.
+   */
+  | "external_structure_duplicate_atom_ids"
   | "backgrounded_mid_drag"
   | "drag_ended_on_its_own_source"
   | "target_was_ambiguous"
@@ -100,6 +122,9 @@ export const ALL_NOTICE_IDS: readonly NoticeId[] = [
   "timestamp_went_backwards",
   "drag_cancelled",
   "rollback_skipped_newer_work",
+  "revise_refused_newer_work",
+  "release_ignored_newer_work",
+  "external_structure_duplicate_atom_ids",
   "backgrounded_mid_drag",
   "drag_ended_on_its_own_source",
   "target_was_ambiguous",

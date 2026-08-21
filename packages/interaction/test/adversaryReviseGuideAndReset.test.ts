@@ -9,11 +9,18 @@
  * positive for the very staleness guard the pass-one fix introduced), plus one
  * finding in `acceptExternalStructure`.
  *
- * NONE OF THESE ARE INVERTED. Unlike adversarySnapshotIsolation.test.ts, which
- * documents a fixed bug with the fixed assertions, every test below asserts
- * the CURRENT, BROKEN behaviour and is expected to pass against commit
- * c2efd02. When one of these is fixed, invert it in place, the same way pass
- * one's four tests were inverted, and say so in the commit that does it.
+ * ALL FOUR ARE NOW FIXED AND EVERY TEST BELOW IS INVERTED IN PLACE, per the
+ * same convention as adversarySnapshotIsolation.test.ts: the scenario
+ * construction is the adversary's, untouched, and the assertions state what is
+ * true after the fix. The original findings are preserved in the comments as
+ * the record of what used to happen.
+ *
+ * The fixes: reviseLastTarget corrects only the selection the "did you mean"
+ * affordance refers to, tracked as a revise window that opens on a contested
+ * pointer selection and closes on any other document change; inFlightGuide and
+ * the R2 release both require the current document to be the owner's own
+ * press result; setShape with the active draft is a no op; and
+ * acceptExternalStructure refuses a state carrying duplicate atom ids.
  */
 
 import { describe, expect, it } from "vitest";
@@ -118,11 +125,11 @@ describe("reviseLastTarget undoes whatever is on top of the stack, not its own a
     // dropSession's staleness guard exists to prevent for the pointer path,
     // applied to a second, unguarded path that reaches the same undo stack.
     //
-    // THE FINDING: the hydrogen reveal is gone, and unlike a skipped
-    // rollback, nothing said so. There is no `rollback_skipped_newer_work`
-    // equivalent for this path; there is no notice about it whatsoever.
-    expect(mechanismDraftOf(d).revealedHydrogens).toEqual([]);
-    expect(d.notices.some((n) => n.id === "rollback_skipped_newer_work")).toBe(false);
+    // THE FINDING, FIXED: the reveal changed the document after the contested
+    // tap, which closed the revise window. The revise is refused by name, the
+    // hydrogen reveal survives, and nothing is popped off the undo stack.
+    expect(d.sawNotice("revise_refused_newer_work")).toBe(true);
+    expect(mechanismDraftOf(d).revealedHydrogens).toEqual(["C1"]);
   });
 
   it("also fails at its one job: the corrected target is not what ends up armed", () => {
@@ -165,12 +172,17 @@ describe("reviseLastTarget undoes whatever is on top of the stack, not its own a
     // (slot 0) armed. The student asked to correct the guess to slot 1 and
     // got slot 0 back, plus a legality refusal that has nothing to do with
     // what they did.
+    // FIXED: the revise is refused outright, so the original guess stays armed
+    // and no self referential arrow is ever attempted. The student re-taps the
+    // intended slot instead of receiving a legality refusal about an arrow they
+    // never drew.
     expect(mechanismDraftOf(d).armed?.target).toEqual({
       kind: "lonePair",
       atomId: "O1",
       slotIndex: 0,
     });
-    expect(d.sawNotice("arrow_refused_by_legality")).toBe(true);
+    expect(d.sawNotice("revise_refused_newer_work")).toBe(true);
+    expect(d.sawNotice("arrow_refused_by_legality")).toBe(false);
   });
 });
 
@@ -210,8 +222,11 @@ describe("inFlightGuide draws from a live pointer's press point even when that p
     // this session is the one that produced the arming. The touch pointer
     // sitting on the glass at the carbon atom did not arm anything; the
     // command did.
+    // FIXED: the guide requires the document to still be this pointer's own
+    // press result. The command changed it, so there is no guide at all, and a
+    // renderer draws the armed source highlight alone, which is the truth.
     const guide = inFlightGuide(d.state);
-    expect(guide).not.toBeNull();
+    expect(guide).toBeNull();
 
     // THE FINDING, renderer facing: the guide claims to anchor at the carbon
     // atom, which has no armed electron source at all. A renderer following
@@ -225,9 +240,6 @@ describe("inFlightGuide draws from a live pointer's press point even when that p
     // sits at a different position entirely. A student sees a highlighted
     // lone pair on oxygen and a dashed line originating from carbon: two
     // pieces of the same screen disagreeing about what is being dragged.
-    expect(guide?.anchor).toEqual({ kind: "atom", atomId: "C1" });
-    expect(guide?.anchor).not.toEqual(mechanismDraftOf(d).armed?.target);
-    expect(guide?.from).toEqual(P.carbonAtom);
   });
 
   it("lets a touch pointer that pressed on one atom complete an arrow whose source it never touched", () => {
@@ -256,9 +268,13 @@ describe("inFlightGuide draws from a live pointer's press point even when that p
     // touch pointer completed a gesture using a source it visually never
     // touched, driven entirely by document-global state the guide had
     // already been misrepresenting to the student.
+    // FIXED: the release is ignored by name, because the document changed
+    // under the drag. The command armed source stays armed for its own
+    // input path to finish, and no arrow this pointer never drew appears.
     const draft = mechanismDraftOf(d);
-    const consumedTheCommandArmedSource = draft.armed === null || draft.arrows.length > 0;
-    expect(consumedTheCommandArmedSource).toBe(true);
+    expect(d.sawNotice("release_ignored_newer_work")).toBe(true);
+    expect(draft.arrows).toHaveLength(0);
+    expect(draft.armed?.target).toEqual({ kind: "lonePair", atomId: "O1", slotIndex: 0 });
   });
 });
 
@@ -288,11 +304,10 @@ describe("setShape always mints a fresh DocumentState, even for a no-op reselect
     // checks explicitly before writing.
     d.send({ kind: "command", command: { kind: "setShape", draft: currentDraft } });
 
-    // The draft itself is byte for byte (indeed reference) identical. The
-    // history is gone anyway, because resetDocument always calls
-    // createDocument, which always starts `past` at `[]`.
+    // FIXED: same reference in means same state out. The history survives a
+    // redispatch of the draft that is already active.
     expect(d.state.doc.draft).toBe(currentDraft);
-    expect(d.state.doc.past).toEqual([]);
+    expect(d.state.doc.past.length).toBeGreaterThan(0);
   });
 
   it("makes a legitimate cancel wrongly report newer work and strand the student's own arming", () => {
@@ -324,8 +339,12 @@ describe("setShape always mints a fresh DocumentState, even for a no-op reselect
     // here, since there is no such work; content is identical to what
     // rolling back would have produced anyway, only with a needless
     // surviving arming as the visible difference.
-    expect(d.sawNotice("rollback_skipped_newer_work")).toBe(true);
-    expect(mechanismDraftOf(d).armed).not.toBeNull();
+    // FIXED: the no op setShape returned the same state object, so the
+    // reference guard still recognises this pointer's press as the last thing
+    // that happened. The cancel rolls back honestly and the arming is cleared,
+    // exactly as R3 promises for a lone pointer.
+    expect(d.sawNotice("rollback_skipped_newer_work")).toBe(false);
+    expect(mechanismDraftOf(d).armed).toBeNull();
 
     // Contrast with the ordinary case (pointerRules.test.ts / the "ordinary
     // case the guard must not break" describe block in
@@ -369,7 +388,10 @@ describe("acceptExternalStructure accepts a state with a duplicate atom id acros
 
     const d = new Driver(createStructureDraft(), []);
     d.send({ kind: "command", command: { kind: "acceptExternalStructure", state: imported } });
-    expect(structureDraftOf(d).origin).toBe("externalEditor");
+    // FIXED: the handover is refused whole, naming the duplicated id, before
+    // the state can become a draft where one atom is unreachable.
+    expect(d.sawNotice("external_structure_duplicate_atom_ids")).toBe(true);
+    expect(structureDraftOf(d).origin).not.toBe("externalEditor");
 
     // A student intending to raise the formal charge on the nitrogen (species
     // b) sends the only identifier the command shape carries: the atom id.
@@ -392,8 +414,10 @@ describe("acceptExternalStructure accepts a state with a duplicate atom id acros
     // ambiguous. There is no way to address the second X1 through this
     // command shape at all; it is permanently unreachable by id once the
     // first is in the state ahead of it.
-    expect(carbonMember?.species.atoms[0]?.formalCharge).toBe(1);
-    expect(nitrogenMember?.species.atoms[0]?.formalCharge).toBe(0);
+    // FIXED: the import never happened, so the adjust lands on the empty
+    // default draft and neither species exists to be corrupted.
+    expect(carbonMember).toBeUndefined();
+    expect(nitrogenMember).toBeUndefined();
   });
 });
 
@@ -464,5 +488,81 @@ describe("a second pointer interleaved with the owner's cancel, probed and found
     expect(d.state.sessions[0]?.pointerId).toBe(2);
     expect(d.state.sessions[0]?.role).toBe("owner");
     expect(mechanismDraftOf(d).armed).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Coverage of the fix's own new arms, with behaviour rather than execution.
+// ---------------------------------------------------------------------------
+
+describe("the revise window also opens on a contested drag release", () => {
+  it("a drag ending on a contested hit can be revised, same as a contested tap", () => {
+    const d = mechanismDriver([
+      ...sn2Targets().filter((entry) => entry.point !== P.oxygenLonePair),
+      {
+        point: P.oxygenLonePair,
+        target: { kind: "lonePair", atomId: "O1", slotIndex: 0 },
+        margin: 0.01,
+      },
+    ]);
+
+    // A drag: press on empty space, release over the contested lone pair. R2
+    // fires on the different target, the hit is contested, the window opens.
+    d.down(P.elsewhere);
+    d.up(P.oxygenLonePair);
+    expect(d.sawNotice("target_was_ambiguous")).toBe(true);
+    expect(mechanismDraftOf(d).armed?.target).toEqual({
+      kind: "lonePair",
+      atomId: "O1",
+      slotIndex: 0,
+    });
+
+    d.send({
+      kind: "command",
+      command: {
+        kind: "reviseLastTarget",
+        target: { kind: "lonePair", atomId: "O1", slotIndex: 1 },
+      },
+    });
+    expect(mechanismDraftOf(d).armed?.target).toEqual({
+      kind: "lonePair",
+      atomId: "O1",
+      slotIndex: 1,
+    });
+  });
+});
+
+describe("the duplicate id refusal names every id, plural included", () => {
+  it("two ids duplicated across species are both named in one refusal", () => {
+    const first = createSpecies({
+      id: "species-a",
+      atoms: [
+        createAtom({ id: "X1", element: "C", formalCharge: 0 }),
+        createAtom({ id: "X2", element: "O", formalCharge: 0 }),
+      ],
+    });
+    const second = createSpecies({
+      id: "species-b",
+      atoms: [
+        createAtom({ id: "X1", element: "N", formalCharge: 0 }),
+        createAtom({ id: "X2", element: "S", formalCharge: 0 }),
+      ],
+    });
+    const imported: MechanismState = createState({
+      id: "imported-with-two-duplicate-ids",
+      members: [
+        { species: first, role: "product" },
+        { species: second, role: "product" },
+      ],
+    });
+
+    const d = new Driver(createStructureDraft(), []);
+    d.send({ kind: "command", command: { kind: "acceptExternalStructure", state: imported } });
+
+    const refusal = d.notices.find((n) => n.id === "external_structure_duplicate_atom_ids");
+    expect(refusal).toBeDefined();
+    expect(refusal?.detail).toContain("X1");
+    expect(refusal?.detail).toContain("X2");
+    expect(refusal?.detail).toContain("ids");
   });
 });

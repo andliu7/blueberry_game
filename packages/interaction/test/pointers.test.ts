@@ -211,8 +211,20 @@ describe("contested hits", () => {
   });
 
   it("reviseLastTarget swaps the guess for the other candidate", () => {
-    const d = driver();
+    // The tap must be contested: revise exists for the "did you mean"
+    // affordance, which only appears after target_was_ambiguous, and since the
+    // pass two fix the machine enforces that precondition rather than trusting
+    // any caller with a blind undo. Same contested table as the test above.
+    const d = new Driver(createMechanismDraft(sn2StartingState()), [
+      ...sn2Targets().filter((entry) => entry.point !== P.oxygenLonePair),
+      {
+        point: P.oxygenLonePair,
+        target: { kind: "lonePair", atomId: "O1", slotIndex: 0 },
+        margin: 0.01,
+      },
+    ]);
     d.tap(P.oxygenLonePair);
+    expect(d.sawNotice("target_was_ambiguous")).toBe(true);
     expect(draftOf(d).armed?.target).toEqual({ kind: "lonePair", atomId: "O1", slotIndex: 0 });
 
     d.send({

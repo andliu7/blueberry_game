@@ -32,6 +32,7 @@
 
 import {
   createAtom,
+  duplicateAtomIds,
   createBond,
   createSpecies,
   createState,
@@ -112,7 +113,24 @@ export function applyToStructure(
     case "removeAtom":
       return removeAtom(draft, command.atomId);
 
-    case "acceptExternalStructure":
+    case "acceptExternalStructure": {
+      // The one entry point that takes a whole state wholesale, from a Ketcher
+      // round trip. Every editing command in this shape resolves atoms by id
+      // alone, because HitTarget never reports a species. A state carrying the
+      // same atom id in two species would make one of them permanently
+      // unreachable, with each edit silently landing on whichever species is
+      // found first. Refused whole, naming the ids, rather than accepted into
+      // that condition.
+      const duplicated = duplicateAtomIds(command.state);
+      if (duplicated.length > 0) {
+        return refused(draft, [
+          notice(
+            "external_structure_duplicate_atom_ids",
+            "refused",
+            `the external structure carries atom id${duplicated.length === 1 ? "" : "s"} ${duplicated.join(", ")} in more than one species, so edits by id would be ambiguous. Fix the ids in the editor and hand it over again`,
+          ),
+        ]);
+      }
       return changed(
         Object.freeze({
           ...draft,
@@ -123,6 +141,7 @@ export function applyToStructure(
           origin: "externalEditor" as const,
         }),
       );
+    }
 
     case "submit":
       return { draft, notices: [], effects: [{ kind: "submitAttempt", draft }] };
