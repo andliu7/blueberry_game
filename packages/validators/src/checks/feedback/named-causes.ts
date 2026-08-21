@@ -254,10 +254,14 @@ export const feedbackNamedCauses: Check = {
       {
         property: "Tier 2, the anticipated distractor, in the resolution rate",
         reason:
-          "packages/curriculum does not exist, so no authored problem carries a predicted " +
-          "wrong answer and there is nothing to match against. The Budgets row covers Tier 1 " +
-          "and Tier 2 together; the number above is Tier 1 alone and is therefore a lower " +
-          "bound on it, never the budget itself.",
+          "curriculum-corpus now reports Tier 2 COVERAGE on every run, meaning what percentage " +
+          "of authored problems could resolve at Tier 2 at all. That is not the same number as " +
+          "this one and the two must not be added together: this is a rate over wrong attempts " +
+          "in the mechanism fixture corpus, and that is a proportion of problems in a different " +
+          "corpus with a different answer shape. Neither is the Budgets row, which covers Tier 1 " +
+          "and Tier 2 together over attempts arriving from outside any corpus. The rate above is " +
+          "Tier 1 alone and remains a lower bound on it. The field measurement needs real student " +
+          "attempts, which arrive with Phases 5 and 6.",
       },
       {
         property: "causes outside the conservation and electron flow families",

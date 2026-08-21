@@ -229,6 +229,24 @@ export const EXTERNAL_DATA: readonly DeclaredExternalPackage[] = [
       "score STALE on any byte change and forces a fresh measurement.",
   },
   {
+    specifier: "@blueberry/curriculum",
+    role: "subject-under-test",
+    reason:
+      "curriculum-corpus grades the authored problem corpus and the reaction table, so this is a " +
+      "subject by the same chem-core reasoning above: fingerprinting it would report the evidence " +
+      "inadmissible every time a problem is authored, when the correct reaction to a new problem " +
+      "is to re-run the checks. Authoring is the expected daily activity in this package, so a " +
+      "MODIFIED verdict on it would fire more often than any other and be ignored fastest. " +
+      "Nothing in this suite reads curriculum as an answer key. The check does call the package's " +
+      "own checkAnswer over the package's own distractors, which is the subject grading itself, " +
+      "and that is stated in the check's header rather than hidden here: what it establishes is " +
+      "that the corpus and its checker are consistent plus a set of counts, never that the " +
+      "chemistry is right. The chemistry is a human review gate per CLAUDE.md, and the RDKit " +
+      "oracle, the one thing here that grades against an outside implementation, does not reach " +
+      "this package. Orchestrator ruling, Phase 3 wave two, after the census correctly refused to " +
+      "let the import in undeclared.",
+  },
+  {
     specifier: "@blueberry/feedback",
     role: "mixed",
     reason:

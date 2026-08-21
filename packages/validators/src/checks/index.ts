@@ -4,6 +4,7 @@ import { conservationChecks } from "./conservation/index.ts";
 import { budgetChecks } from "./budgets/index.ts";
 import { oracleChecks } from "./oracle/index.ts";
 import { feedbackChecks } from "./feedback/index.ts";
+import { curriculumChecks } from "./curriculum/index.ts";
 import { mutationChecks } from "./mutation/index.ts";
 
 /**
@@ -24,5 +25,6 @@ export const checks: readonly Check[] = [
   ...budgetChecks,
   ...oracleChecks,
   ...feedbackChecks,
+  ...curriculumChecks,
   ...mutationChecks,
 ];

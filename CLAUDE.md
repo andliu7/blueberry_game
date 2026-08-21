@@ -63,7 +63,13 @@ embedded in lessons, never autoplaying with sound, always skippable, transcript 
 video for accessibility and search. Video hosting and egress are a Phase 9 cost item; nothing in
 the free tier depends on video being present, so lessons must stand without them.
 
-Curriculum content scope: Organic Chemistry II exists as a full breakdown from the owner. Organic
+Spectroscopy is pathway start, not a later wave. Lesson 1 of the flagship course is IR, DOU and
+NMR, and structure determination is exactly 10 points on six of six real exams, so curriculum's
+numeric and structure determination forms are needed the day the pathway opens. This does not move
+spectroscopy into chem-core; it moves it up the schedule.
+
+Curriculum content scope: Organic Chemistry II exists as a full breakdown from the owner, now
+mined and synthesised into `docs/COURSE-OUTLINE-ORGO2.md`, which is the authoritative structure. Organic
 Chemistry I is generated from the topic scope already recorded and reviewed at the same human gate
 as other authored content.
 
@@ -274,6 +280,15 @@ device.
 
 ### Graded chemistry, not boolean chemistry
 
+The named fixtures below are engine test fixtures first. Mining the owner's real Organic
+Chemistry 2 course showed none of them appears standalone on any of six exams across three
+semesters, and the course's centre of mass is aromaticity, EAS directing effects, the acyl
+reactivity ladder, and enolates, so `docs/COURSE-OUTLINE-ORGO2.md` is the authoritative seed for
+exam facing content and its weighting. Owner ruling, recorded 2026-08-21: the exams are NOT
+exhaustive, so this material is still authored as content too, placed as side and enrichment
+material rather than on the exam weighted spine. More coverage beats less; weighting, not
+exclusion, is how the exam signal is honoured.
+
 - Neopentyl systems are strongly disfavored for SN2, roughly 10^-5 relative to ethyl. **Not blocked.**
   The engine says "strongly disfavored, competing pathway likely" and names the competing pathway,
   because the methyl shift to a tertiary cation is the actual lesson. A boolean reject deletes it
@@ -364,6 +379,16 @@ Every step in the Mechanism Trainer gives feedback and an explanation. Not only 
 correct step says why it was right, because a student who guesses correctly has learned nothing.
 
 Three tiers, in this order. A tier is only reached when the one above it has nothing to say.
+
+Refinement, orchestrator ruling at Phase 3 after the curriculum builder escalated it: within the
+two free tiers, SPECIFICITY wins over tier number. A notation cause where the chemistry was right,
+sig figs, units, ambiguity, pre-empts distractor matching, because telling a student their correct
+chemistry matched a wrong answer distractor would be false. But a generic diagnostic cause does not
+pre-empt a specific authored distractor: the distractor's explanation was written for the exact
+mistake, and the feedback axis is won on specificity. So the order is notation causes, then
+authored distractors, then diagnostic causes, then the logged tail. Read literally, tier one
+pre-empting everything would let the vaguest sentence beat the most specific one, which inverts the
+axis this table exists to win.
 
 **The voice, owner direction recorded 2026-08-20.** Accuracy was never the problem; tone was. The
 copy must uplift and encourage, never condescend. The reader is stressed, and the product is meant to

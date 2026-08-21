@@ -15,5 +15,9 @@
     "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../chem-core" }, { "path": "../feedback" }]
+  "references": [
+    { "path": "../chem-core" },
+    { "path": "../curriculum" },
+    { "path": "../feedback" }
+  ]
 }

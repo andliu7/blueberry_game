@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@blueberry/chem-core": "*",
+    "@blueberry/curriculum": "*",
     "@blueberry/feedback": "*"
   },
   "devDependencies": {
