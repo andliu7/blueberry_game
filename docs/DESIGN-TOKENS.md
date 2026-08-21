@@ -9,6 +9,21 @@ changed products.
 
 ## Color
 
+**OWNER DIVERGENCE, recorded 2026-08-20, and it wins over everything below.** The app is LIGHT MODE
+FIRST. The inherited Blueberry default of dark-unless-stored-light is reversed: default light, dark
+available as a choice. The palette moves toward Duolingo's brightness and saturation but purple led
+rather than green led: the primary is the purple family the existing indigo accent already points
+toward, roughly the #7c3aed to #8b5cf6 violet range as the working centre, with the indigo to
+fuchsia gradient kept as its natural companion. Cream and stone stay as the warm neutral ground so
+the sibling app is still recognisable. Exact values are set in Phase 4 and run through the contrast
+gate like everything else; what is fixed now is light first, purple led, Duolingo bright.
+
+The pre-paint theme script still ships, with its default flipped. The reason it exists, no flash of
+wrong theme, is unchanged.
+
+### Inherited palette, now the DARK variant and the source of the neutrals
+
+
 Class-based dark mode, not `prefers-color-scheme`. Tailwind v4 variant is repointed with
 `@custom-variant dark (&:where(.dark, .dark *));`. An inline script in `index.html` runs pre-paint,
 reads `localStorage['theme']`, and toggles `.dark` on `<html>`, defaulting to dark unless the

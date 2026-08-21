@@ -170,6 +170,23 @@ that cannot open or reach its assigned reference reports that and stops. It does
 reference from a description. `docs/reference/alchemie/OBSERVATIONS.md` records structured
 observations and is a supplement to the images, not a substitute for them.
 
+**Inspirations beyond the four bars, owner invited, recorded 2026-08-20.** The bars stay the bars:
+critics compare against them and nothing else. But design may draw on other named products where a
+specific mechanic fits, and each one carries what to take and what to leave:
+
+- **Anki, spaced repetition.** The single highest value borrow for DAT and MCAT prep: the pathway
+  resurfaces mechanisms at expanding intervals based on the attempt history it already keeps.
+  Retention is the product a test prep student is actually buying. Take the scheduler; leave the
+  interface entirely
+- **NYT Games, the daily ritual.** One daily mechanism, same for everyone, a small shareable result.
+  A reason to open the app that is an appointment rather than an obligation, and it feeds the daily
+  leaderboard. Take the ritual and the shareable moment; leave nothing, this one is clean
+- **chess.com Puzzle Rush.** A timed sprint of mechanisms rising in difficulty is the natural fuel
+  for leaderboards and the Elo like rating. Take the sprint format; leave the fail-out anxiety
+  framing, a run ending should feel like a score, not a death
+- **Brilliant.** Problem first lessons, where the lesson IS doing the thing. Already the shape of
+  our tutorial rule, real mechanisms not a UI tour, so this is confirmation more than borrowing
+
 **Duolingo is the bar for the reward moment only.** Take the large single number for a session
 result, the full bleed celebration distinct from the working state, and the tiered badge that means
 something because it was scarce. Do not take the streak loss anxiety loop. This is used before exams
@@ -347,6 +364,16 @@ Every step in the Mechanism Trainer gives feedback and an explanation. Not only 
 correct step says why it was right, because a student who guesses correctly has learned nothing.
 
 Three tiers, in this order. A tier is only reached when the one above it has nothing to say.
+
+**The voice, owner direction recorded 2026-08-20.** Accuracy was never the problem; tone was. The
+copy must uplift and encourage, never condescend. The reader is stressed, and the product is meant to
+be one they want to return to, so the voice is a coach who is on the student's side: name what
+happened plainly, treat the mistake as the normal step it is, and make the next action feel within
+reach. Concretely: no scolding constructions, no "you should have", no rhetorical questions, no
+faux patience. Warmth is allowed and wanted; condescension is the failure mode, and the test for it
+is whether the sentence would annoy a smart friend. Encouragement must be specific to what the
+student actually did, because generic praise reads as hollow and specific praise reads as seen.
+Chemistry claims stay exactly as accurate as they are.
 
 **Tier 1, the named cause.** `chem-core` resolves every attempt to a named cause in a closed union.
 The count is whatever `causeCount()` returns and is deliberately not written here, because a literal
