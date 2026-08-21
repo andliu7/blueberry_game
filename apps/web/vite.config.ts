@@ -31,7 +31,7 @@ export default defineConfig({
     outDir: singleFile ? "dist-single" : "dist",
     ...(singleFile
       ? {
-          rollupOptions: { output: { inlineDynamicImports: true } },
+          rollupOptions: { output: { inlineDynamicImports: true, format: "iife" } },
           assetsInlineLimit: 1024 * 1024 * 16,
           cssCodeSplit: false,
         }

@@ -18,14 +18,20 @@ let html = await readFile(path.join(dir, "index.html"), "utf8");
 const scriptTag = /<script type="module"[^>]*src="([^"]+)"[^>]*><\/script>/g;
 for (const match of [...html.matchAll(scriptTag)]) {
   const js = await readFile(path.join(dir, match[1].replace(/^\.\//, "")), "utf8");
-  // A closing script tag inside a string literal would end the inline block early.
-  html = html.replace(match[0], `<script type="module">${js.replace(/<\/script>/g, "<\\/script>")}</script>`);
+  // A classic script, not a module: some hosts rewrite module tags, and the
+  // bundle is built as an IIFE for this mode so it needs no module semantics.
+  // A closing script tag or an HTML comment opener inside the code would end
+  // or corrupt the inline block early, so both are escaped.
+  const safe = js.replace(/<\/script>/g, "<\\/script>").replace(/<!--/g, "<\\!--");
+  // A replacer FUNCTION, never a string: minified code is full of "$&" and
+  // "$1", which String.replace would expand as patterns and corrupt the bundle.
+  html = html.replace(match[0], () => `<script>${safe}</script>`);
 }
 
 const linkTag = /<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g;
 for (const match of [...html.matchAll(linkTag)]) {
   const css = await readFile(path.join(dir, match[1].replace(/^\.\//, "")), "utf8");
-  html = html.replace(match[0], `<style>${css}</style>`);
+  html = html.replace(match[0], () => `<style>${css}</style>`);
 }
 
 // Modulepreload hints point at files that no longer exist as separate chunks.
