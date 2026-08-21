@@ -25,7 +25,10 @@ for (const match of [...html.matchAll(scriptTag)]) {
   const safe = js.replace(/<\/script>/g, "<\\/script>").replace(/<!--/g, "<\\!--");
   // A replacer FUNCTION, never a string: minified code is full of "$&" and
   // "$1", which String.replace would expand as patterns and corrupt the bundle.
-  html = html.replace(match[0], () => `<script>${safe}</script>`);
+  // The tag sat in <head> as a deferred module; a classic inline script there
+  // would run before #root exists. Remove it and append at the end of <body>.
+  html = html.replace(match[0], "");
+  html = html.replace("</body>", () => `<script>${safe}</script></body>`);
 }
 
 const linkTag = /<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g;
