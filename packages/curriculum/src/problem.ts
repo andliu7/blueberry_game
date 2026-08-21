@@ -38,6 +38,8 @@ import type { CurriculumCauseId } from "./causes.js";
 import { createExplanation, type Explanation } from "./explanation.js";
 import type { DistractorId, LessonId, ProblemId } from "./ids.js";
 import type { AnswerKind } from "./kinds.js";
+import { pkaEntry, type PkaSiteReference } from "./pka.js";
+import { assertStereoLabelsValid, type StereoLabels } from "./stereo.js";
 import type { Tolerance } from "./answers/numeric.js";
 import {
   isValidDifficulty,
@@ -87,6 +89,24 @@ export interface Problem {
   readonly solution: Explanation;
   readonly lesson?: LessonId;
   readonly tags: readonly string[];
+  /**
+   * Precomputed CIP and prochiral face labels. See stereo.ts.
+   *
+   * Present only on problems that need a descriptor at runtime, which in the
+   * Organic Chemistry II outline is the prochirality topic and the handful of
+   * addition problems that turn on cis, trans or meso. Absent everywhere else,
+   * and its absence is the normal case rather than an omission.
+   */
+  readonly stereoLabels?: StereoLabels;
+  /**
+   * The pKa sites this problem's blanks refer to. See pka.ts.
+   *
+   * The exam's opening question underlines three protons and asks for a pKa for
+   * each, on 6 of 6 exams examined. Authored as references into the table rather
+   * than as numbers in the prompt, so the value a student is marked against and
+   * the value the table teaches cannot drift apart.
+   */
+  readonly pkaSites?: readonly PkaSiteReference[];
 }
 
 export interface ProblemInput {
@@ -100,6 +120,8 @@ export interface ProblemInput {
   readonly distractors?: readonly Distractor[];
   readonly lesson?: LessonId;
   readonly tags?: readonly string[];
+  readonly stereoLabels?: StereoLabels;
+  readonly pkaSites?: readonly PkaSiteReference[];
 }
 
 export function answerKind(problem: Problem): AnswerKind {
@@ -171,6 +193,13 @@ export function createProblem(input: ProblemInput): Problem {
 
   assertFiniteSpaceIsCovered(input.id, input.answer, distractors);
 
+  if (input.stereoLabels !== undefined) {
+    assertStereoLabelsValid(input.id, input.stereoLabels);
+  }
+  if (input.pkaSites !== undefined) {
+    assertPkaSitesValid(input.id, input.pkaSites);
+  }
+
   return Object.freeze({
     id: input.id,
     course: input.course,
@@ -182,7 +211,47 @@ export function createProblem(input: ProblemInput): Problem {
     solution,
     ...(input.lesson === undefined ? {} : { lesson: input.lesson }),
     tags: Object.freeze([...(input.tags ?? [])]),
+    ...(input.stereoLabels === undefined
+      ? {}
+      : { stereoLabels: Object.freeze({ ...input.stereoLabels }) }),
+    ...(input.pkaSites === undefined
+      ? {}
+      : { pkaSites: Object.freeze(input.pkaSites.map((site) => Object.freeze({ ...site }))) }),
   });
+}
+
+/**
+ * Every pKa site a problem names must resolve in the table, and no two blanks may
+ * share an anchor.
+ *
+ * The resolution check is the same discipline `topicDefinition` gets above: a
+ * reference into a registry that does not resolve is an authoring defect, and the
+ * moment to find it is when the corpus module is imported. The anchor check
+ * exists because a prompt that underlines two protons and calls both of them Ha
+ * has no correct answer.
+ */
+function assertPkaSitesValid(problemId: ProblemId, sites: readonly PkaSiteReference[]): void {
+  if (sites.length === 0) {
+    throw new Error(
+      `problem ${problemId} declares an empty pKa site list, which reads as a pKa question with ` +
+        `no sites in it`,
+    );
+  }
+  const anchors = new Set<string>();
+  for (const site of sites) {
+    if (site.anchor.trim() === "") {
+      throw new Error(`problem ${problemId} has a pKa site with no anchor naming it in the prompt`);
+    }
+    if (anchors.has(site.anchor)) {
+      throw new Error(
+        `problem ${problemId} uses the anchor ${site.anchor} for two different pKa sites, so the ` +
+          `prompt cannot say which one it is asking about`,
+      );
+    }
+    anchors.add(site.anchor);
+    // Throws on an unknown id. Keeps the corpus and the pKa ladder in step.
+    pkaEntry(site.siteId);
+  }
 }
 
 /**

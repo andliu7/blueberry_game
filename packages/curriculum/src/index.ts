@@ -20,8 +20,16 @@
  *
  *   kinds.ts           The five answer kinds, and why `mechanism` is not one.
  *   ids.ts             Identifier aliases, and why a ProblemId never changes.
- *   placement.ts       Course and topic taxonomy, and the difficulty scale the
- *                      Elo like rating moves against.
+ *   placement.ts       Course and topic taxonomy, the Organic Chemistry II tree
+ *                      and its prerequisite edges, the three acts, the cross
+ *                      cutting concepts, and the difficulty scale the Elo like
+ *                      rating moves against. `docs/COURSE-OUTLINE-ORGO2.md` is
+ *                      the authoritative structure and that file is its
+ *                      executable half.
+ *   pka.ts             The pKa ladder as data, and the Keq and leaving group
+ *                      rules the source course runs on it.
+ *   stereo.ts          Precomputed CIP and prochiral face labels. Authored, never
+ *                      derived on device, per CLAUDE.md's CIP section.
  *   explanation.ts     The three field authored copy shape, and the voice lint.
  *   causes.ts          The named cause registry. Countable by construction.
  *   answers/units.ts   A small unit registry. Case sensitive on purpose.
@@ -54,17 +62,57 @@ export { ANSWER_KINDS, answerKindCount } from "./kinds.js";
 
 export type { AttemptId, DistractorId, LessonId, OptionId, ProblemId } from "./ids.js";
 
-export type { CourseId, Difficulty, TopicDefinition, TopicId } from "./placement.js";
+export type {
+  ActDefinition,
+  ActId,
+  ConceptDefinition,
+  ConceptId,
+  CourseId,
+  Difficulty,
+  TopicDefinition,
+  TopicId,
+} from "./placement.js";
 export {
+  ACTS,
+  CONCEPTS,
   DIFFICULTY_MAX,
   DIFFICULTY_MIN,
   TOPICS,
+  allConceptIds,
   allTopicIds,
+  conceptCount,
+  conceptDefinition,
+  conceptIdsForTopic,
   isValidDifficulty,
+  prerequisiteClosure,
   topicCount,
   topicDefinition,
+  topicIdsForAct,
   topicIdsForCourse,
 } from "./placement.js";
+
+export type { PkaEntry, PkaSiteId, PkaSiteReference, PkaSource } from "./pka.js";
+export {
+  GOOD_LEAVING_GROUP_PKA_CEILING,
+  PKA_TABLE,
+  allPkaSiteIds,
+  isGoodLeavingGroup,
+  keqFromPka,
+  mostAcidicSites,
+  pkaEntry,
+  pkaValue,
+} from "./pka.js";
+
+export type {
+  ProchiralFace,
+  ProchiralFaceLabel,
+  SiteDescriptor,
+  StereoDescriptor,
+  StereoLabelSource,
+  StereoLabels,
+  StereocentreLabel,
+} from "./stereo.js";
+export { assertStereoLabelsValid } from "./stereo.js";
 
 export type { Explanation, VoiceViolation } from "./explanation.js";
 export { createExplanation, voiceViolations } from "./explanation.js";

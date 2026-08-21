@@ -63,7 +63,13 @@ embedded in lessons, never autoplaying with sound, always skippable, transcript 
 video for accessibility and search. Video hosting and egress are a Phase 9 cost item; nothing in
 the free tier depends on video being present, so lessons must stand without them.
 
-Curriculum content scope: Organic Chemistry II exists as a full breakdown from the owner. Organic
+Spectroscopy is pathway start, not a later wave. Lesson 1 of the flagship course is IR, DOU and
+NMR, and structure determination is exactly 10 points on six of six real exams, so curriculum's
+numeric and structure determination forms are needed the day the pathway opens. This does not move
+spectroscopy into chem-core; it moves it up the schedule.
+
+Curriculum content scope: Organic Chemistry II exists as a full breakdown from the owner, now
+mined and synthesised into `docs/COURSE-OUTLINE-ORGO2.md`, which is the authoritative structure. Organic
 Chemistry I is generated from the topic scope already recorded and reviewed at the same human gate
 as other authored content.
 
@@ -273,6 +279,13 @@ needed at runtime are precomputed at authoring time and stored on the problem, n
 device.
 
 ### Graded chemistry, not boolean chemistry
+
+The named fixtures below are ENGINE TEST FIXTURES, not content seeds. Mining the owner's real
+Organic Chemistry 2 course showed none of them appears as a question on any of six exams across
+three semesters: SN1, SN2, E1 and E2 never stand alone in that course, they are assumed
+prerequisites embedded inside multistep sequences. The course's actual centre of mass is
+aromaticity, EAS directing effects, the acyl reactivity ladder, and enolates. Seed content from
+`docs/COURSE-OUTLINE-ORGO2.md`, never from this list.
 
 - Neopentyl systems are strongly disfavored for SN2, roughly 10^-5 relative to ethyl. **Not blocked.**
   The engine says "strongly disfavored, competing pathway likely" and names the competing pathway,
