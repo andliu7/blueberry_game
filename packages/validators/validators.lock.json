@@ -17,8 +17,8 @@
   "excludedFileNames": [
     "validators.lock.json"
   ],
-  "fileCount": 214,
-  "suiteHash": "807814236d610c464b693d559fb342b0640fc972d00fb1389a8633085b03dc55",
+  "fileCount": 215,
+  "suiteHash": "ec3c416842c8523496f85595fc1c778c7a909654775c25b97fddc8f34d0123ef",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -178,7 +178,7 @@
     "src/checks/conservation/valence.ts": "953e6b393d47273b1e753b6595b7e32a8c8e6ad8b8a46b8d5b96648ee3181571",
     "src/checks/curriculum/corpus.ts": "c6bcb700f7d84260cb3061a2308078785db85398a6c1ddf43b21b5d595aad870",
     "src/checks/curriculum/index.ts": "656d011ad42dd18cfa949478578b50ba9c092531212742e713b38a6c75a9027f",
-    "src/checks/curriculum/quiz.ts": "170aaa1c1ea020f12e73fc4865b8f289735fedc0d2a459271b98da1e7f6b38af",
+    "src/checks/curriculum/quiz.ts": "4746bf62534c5206472d9ab80366a9368e5609bb4327e0c018ad01fb99327f41",
     "src/checks/feedback/copy-coverage.ts": "06598d016388a8c13f8d937e2874b82fdf00b613d779029b806257cb647b5bf3",
     "src/checks/feedback/index.ts": "8c4c35c0c45fe82ea6cfef009b9e69feac739b430f0f82c680a8d5c242d1733a",
     "src/checks/feedback/named-causes.ts": "ea535e071e0dbe92a0154b295d6b5307b1fe7dfce4625084dcc46b825f7785d0",
@@ -220,6 +220,7 @@
     "src/report.ts": "6a7e7a394279e64b16a479a28921bfcfea126a648995e384a3337b4e27885047",
     "tests/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "tests/annotation-binding-is-one-claim-one-occurrence.test.ts": "c1d9ed0f8c09941d3a2166fd99011cb1251629c68d05f1f4aeddcad1b99a7542",
+    "tests/curriculum-quiz-course-list-blind-spot.test.ts": "aa502b3e48040129e70d5c70b886c1c3a3d07c898ef4ae70722489a53ac409b7",
     "tests/external-data-census-barrel-export-blind-spot.test.ts": "aaff9dc619d46e9655b3b286d5469e041bb365c78f0e563504744860b8827f14",
     "tests/external-data-census-misses-require-and-non-literal-dynamic-import.test.ts": "42d68b4dd5c7821f4a4b06ec98540b4d3d8162ac85b462896498486318ed561b",
     "tests/external-data-declaration.test.ts": "08e725e3b0b4c3155703cff9b7241d00b96a180e0f795fdb4b7ef5188ea691f8",
