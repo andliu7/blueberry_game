@@ -49,34 +49,85 @@ export default function LeaderboardsTab() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
-      <div className="flex gap-2" role="tablist" aria-label="Leaderboard window">
-        {WINDOWS.map((w) => (
-          <button
-            key={w.id}
-            type="button"
-            role="tab"
-            aria-selected={window === w.id}
-            onPointerDown={() => setWindow(w.id)}
-            className={`press min-h-11 rounded-full px-4 text-scale-sm font-semibold ${
-              window === w.id ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
-            }`}
-          >
-            {w.label}
-          </button>
-        ))}
+      {/* A SEGMENTED CONTROL, not three loose pills. One track holding three
+          equal segments that span the content width, the way the owner's
+          leaderboard capture and every platform's own control do it: the group
+          reads as one switch with a position, rather than as three buttons of
+          which one happens to be filled. Roving tabindex plus arrow keys is
+          what the tablist role promises a keyboard, so it is wired. */}
+      <div
+        className="grid grid-cols-3 gap-1 rounded-full border border-border bg-muted p-1"
+        role="tablist"
+        aria-label="Leaderboard window"
+        onKeyDown={(event) => {
+          const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+          if (step === 0) return;
+          event.preventDefault();
+          const index = WINDOWS.findIndex((w) => w.id === window);
+          const next = WINDOWS[(index + step + WINDOWS.length) % WINDOWS.length];
+          if (next !== undefined) setWindow(next.id);
+        }}
+      >
+        {WINDOWS.map((w) => {
+          const selected = window === w.id;
+          return (
+            <button
+              key={w.id}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              tabIndex={selected ? 0 : -1}
+              onPointerDown={() => setWindow(w.id)}
+              className={`press min-h-11 rounded-full px-3 text-scale-sm font-bold ${
+                selected ? "bg-primary text-primary-foreground shadow-sm" : "bg-transparent text-muted-foreground"
+              }`}
+            >
+              {w.label}
+            </button>
+          );
+        })}
       </div>
 
       <Card>
-        <div className="flex items-center justify-between">
-          <h2 className="text-scale-lg font-semibold">Global, {WINDOWS.find((w) => w.id === window)?.label.toLowerCase()}</h2>
+        <div className="flex items-center gap-3">
+          {/* The tier badge the capture leads with: the league you are in, as a
+              shape, before any row of names. */}
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-b from-accent-from to-accent-to text-white shadow-sm" aria-hidden>
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 4h12v4a6 6 0 0 1-12 0zM6 6H3v1a4 4 0 0 0 3 3.9M18 6h3v1a4 4 0 0 1-3 3.9M9 20h6M12 14v6" />
+            </svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-scale-lg font-semibold leading-tight">Global</h2>
+            <p className="text-scale-xs text-muted-foreground">
+              {WINDOWS.find((w) => w.id === window)?.label}, everyone on Blueberry
+            </p>
+          </div>
           <Pill>Phase 6 data</Pill>
         </div>
         {standings.rows.length === 0 ? (
-          <p className="mt-3 text-scale-sm text-muted-foreground">
-            Standings are computed on the server from everyone&apos;s attempts, and that server
-            arrives in Phase 6. Nothing here is made up in the meantime: the table is empty
-            because there is no honest number to put in it yet.
-          </p>
+          <>
+            {/* The league card's SHAPE, with no invented people in it. Three
+                placeholder rows carry the real column rhythm (rank, avatar,
+                display name, score) so the layout can be judged now and so a
+                student sees what this becomes, and every one of them says it
+                is waiting rather than pretending to be a person. */}
+            <ol className="mt-3 divide-y divide-border" aria-hidden>
+              {[1, 2, 3].map((rank) => (
+                <li key={rank} className="flex items-center gap-3 py-2.5">
+                  <span className="w-6 text-center text-scale-sm font-bold text-muted-foreground tabular-nums">{rank}</span>
+                  <span className="h-9 w-9 shrink-0 rounded-full bg-muted" />
+                  <span className="skeleton h-4 flex-1 rounded-full" style={{ maxWidth: `${11 - rank}rem` }} />
+                  <span className="skeleton h-4 w-12 rounded-full" />
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-scale-sm text-muted-foreground">
+              Standings are computed on the server from everyone&apos;s attempts, and that server
+              arrives in Phase 6. Nothing here is made up in the meantime: the rows above are the
+              shape this takes, not people.
+            </p>
+          </>
         ) : (
           <ol className="mt-3 divide-y divide-border">
             {standings.rows.map((row) => (

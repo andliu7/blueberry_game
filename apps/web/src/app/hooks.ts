@@ -5,6 +5,7 @@
 
 import { useSyncExternalStore } from "react";
 import { progress, type ProgressSnapshot } from "./progress";
+import { languageStore } from "./i18n";
 
 function subscribeReducedMotion(onChange: () => void): () => void {
   const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,6 +25,11 @@ export function useReducedMotion(): boolean {
 /** The progress snapshot. Re-renders the caller when the store commits. */
 export function useProgress(): ProgressSnapshot {
   return useSyncExternalStore(progress.subscribe, progress.getSnapshot);
+}
+
+/** The chosen language code. See i18n.ts for what it does and does not cover. */
+export function useLanguage(): string {
+  return useSyncExternalStore(languageStore.subscribe, languageStore.getSnapshot);
 }
 
 function subscribeTheme(onChange: () => void): () => void {

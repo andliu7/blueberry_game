@@ -137,10 +137,14 @@ function elementRadius(scene: StepScene, atomId: AtomId): number {
 function atomSinkGeometry(scene: StepScene, atomId: AtomId, from: Point2, centroid: Point2): SinkGeometry {
   const centre = atomCentre(scene, atomId);
   const r = elementRadius(scene, atomId);
-  // The curve arrives along the control point to centre direction, so the
-  // landing is the rim point facing the control point, not facing the source.
-  const ctrl = bowAwayFrom(from, centre, centroid, BOW_PX);
-  return { landing: rimPoint(centre, ctrl, r + LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
+  // FACING THE SOURCE. Landing relative to the curve's control point put the
+  // head wherever the bow happened to throw it, which on a short chord, a bond
+  // midpoint to the atom right beside it, was off to one side and pointing
+  // into empty canvas: a blind critic read that arrow as saying the electrons
+  // leave the bond and go nowhere. The rim point facing the source always sits
+  // between the two, so the head is always on the line of travel.
+  void centroid;
+  return { landing: rimPoint(centre, from, r + LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
 }
 
 /**
@@ -649,7 +653,11 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
         const to = sink.landing;
         return (
           <g key={arrow.id} className={snapping ? "snap-back" : undefined} style={snapping ? ({ "--snap-dx": `${(to.x - from.x) * 0.6}px`, "--snap-dy": `${(to.y - from.y) * 0.6}px` } as CSSProperties) : undefined}>
-            {sink.stub !== null ? <line x1={sink.stub.a.x} y1={sink.stub.a.y} x2={sink.stub.b.x} y2={sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.7} /> : null}
+            {/* The bond this arrow makes, as the SAME rod every other bond is,
+                segmented because it does not exist yet. A hairline dash of a
+                different colour and a third the width is a measurement guide,
+                not a bond, which is how a blind critic read it. */}
+            {sink.stub !== null ? <BondCapsule a={sink.stub.a} b={sink.stub.b} rA={0} rB={0} opacity={0.75} forming /> : null}
             {/* A halo in the canvas colour under the stroke. An arrow that
                 crosses a hydrogen letter or a lone pair otherwise appears cut
                 into pieces by them, which is what a blind critic saw. */}
@@ -686,7 +694,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               opacity={stretch.existing ? 0.9 : 0.5}
             />
           ) : null}
-          {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
+          {inFlight.sink?.stub && stretch === null ? <BondCapsule a={inFlight.sink.stub.a} b={inFlight.sink.stub.b} rA={0} rB={0} opacity={0.6} forming /> : null}
           {inFlight.hovered !== null ? <circle cx={atomCentre(live, inFlight.hovered).x} cy={atomCentre(live, inFlight.hovered).y} r={elementRadius(live, inFlight.hovered) + 6} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.45} /> : null}
           {inFlight.sink !== null ? (
             <>

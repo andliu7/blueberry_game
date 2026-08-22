@@ -13,10 +13,11 @@
  * are the loading contract: never a blank rectangle.
  */
 
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
 import { TabSkeleton } from "./ui/Skeleton";
 import { useProgress, useReducedMotion, useTheme, setTheme } from "./hooks";
+import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
 import { BlueberryMark } from "../mascot/BlueberryMark";
 import { TrainerTab } from "../tabs/trainer/TrainerTab";
 import { TabIcon } from "./ui/TabIcon";
@@ -110,6 +111,7 @@ function Outlet({ route }: { readonly route: Route }) {
 
 export function Shell({ route, children }: { readonly route: Route; readonly children?: ReactNode }) {
   const snapshot = useProgress();
+  const [languageOpen, setLanguageOpen] = useState(false);
   const activeTab = route.kind === "tab" ? route.tab : null;
   const label = activeTab === null ? "the page" : tabDefinition(activeTab).label;
 
@@ -137,6 +139,7 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
           <h1 className="hidden text-scale-lg font-semibold text-foreground md:block">{label}</h1>
           <div className="flex items-center gap-2">
             <DiamondBadge count={snapshot.diamonds} />
+            <LanguageButton onOpen={() => setLanguageOpen(true)} />
             <ThemeToggle />
           </div>
         </header>
@@ -149,6 +152,8 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
           )}
         </main>
       </div>
+
+      <LanguageSheet open={languageOpen} onClose={() => setLanguageOpen(false)} />
     </div>
   );
 }
