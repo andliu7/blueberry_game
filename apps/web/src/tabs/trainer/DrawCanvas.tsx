@@ -244,9 +244,12 @@ interface Stretch {
 
 function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, sink: SinkGeometry | null, sinkAtom: AtomId | null): Stretch | null {
   const anchor = guide.anchor;
-  // Inset the far end by the receiving atom's radius when there is one, so the
-  // rod stops on ITS surface too; at a free pointer the rod ends at the finger.
-  const toRadius = sinkAtom === null ? 0 : elementRadius(scene, sinkAtom);
+  // ZERO, always. `head` below is already a point ON a surface: a bond sink
+  // gives the far atom's rim, an atom sink gives its rim plus the land gap.
+  // Passing the atom's radius as well inset the rod a second time and left it
+  // stopping a whole radius short of the atom it was supposed to attach to.
+  void sinkAtom;
+  const toRadius = 0;
   // NO ROD UNLESS IT LANDS ON AN ATOM. A bond is a claim that two atoms are
   // joined, so a rod whose far end floats in the canvas is a claim about
   // nothing; a blind critic called it exactly that, a capsule terminating in
