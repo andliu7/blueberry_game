@@ -64,10 +64,17 @@ export function DepthDefs() {
   return (
     <>
       {Object.entries(ELEMENT_FILL).map(([element, base]) => (
-        <radialGradient key={element} id={sphereGradientId(element)} cx="36%" cy="30%" r="72%">
-          <stop offset="0%" stopColor={mixHex(base, 0xff, 0.5)} />
-          <stop offset="45%" stopColor={base} />
-          <stop offset="100%" stopColor={mixHex(base, 0x00, 0.38)} />
+        // A TIGHT specular hotspot rather than a wide wash. Widening the
+        // highlight brightens the whole sphere including the ground under the
+        // white element letter, which costs contrast; pulling it into a small
+        // bright spot up and left, and deepening the far rim, raises the
+        // apparent brightness AND the modelling while the letter keeps sitting
+        // on the base colour that was measured against it.
+        <radialGradient key={element} id={sphereGradientId(element)} cx="33%" cy="27%" r="66%">
+          <stop offset="0%" stopColor={mixHex(base, 0xff, 0.66)} />
+          <stop offset="26%" stopColor={mixHex(base, 0xff, 0.16)} />
+          <stop offset="58%" stopColor={base} />
+          <stop offset="100%" stopColor={mixHex(base, 0x00, 0.46)} />
         </radialGradient>
       ))}
       <radialGradient id={BADGE_GRADIENT_ID} cx="36%" cy="30%" r="72%">
@@ -139,9 +146,14 @@ export function BondCapsule({
       {offsets.map((off) => {
         const oa = { x: a.x + px * off, y: a.y + py * off };
         const ob = { x: b.x + px * off, y: b.y + py * off };
-        // Inset so the capsule's round end meets the sphere's skin, not its core.
-        const start = rimPoint(oa, ob, rA - 2);
-        const end = rimPoint(ob, oa, rB - 2);
+        // ON the skin, not inside it. A two pixel inset puts the capsule's
+        // round end under the sphere's front face, and a rod that overlaps the
+        // ball it joins is the line-poking-into-a-circle look the capture does
+        // not have: there, the rod stops at the silhouette and a ball joint
+        // sits exactly on it. Half the stroke width is added back so the round
+        // cap's OUTER edge, not its centre, lands on the rim.
+        const start = rimPoint(oa, ob, rA + width / 2 - 1);
+        const end = rimPoint(ob, oa, rB + width / 2 - 1);
         return (
           <g key={off}>
             <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="var(--bond-stroke)" strokeWidth={width} strokeLinecap="round" />
@@ -155,6 +167,14 @@ export function BondCapsule({
               strokeWidth={width * 0.34}
               strokeLinecap="round"
             />
+            {/* Ball joints, sitting ON each silhouette. In the capture these
+                are what make a bond read as a rod socketed into a ball rather
+                than a stripe laid across two circles. Drawn a touch brighter
+                than the rod so the joint catches the same light the spheres do. */}
+            <circle cx={start.x} cy={start.y} r={width * 0.42} fill="var(--bond-stroke)" />
+            <circle cx={end.x} cy={end.y} r={width * 0.42} fill="var(--bond-stroke)" />
+            <circle cx={start.x - 0.8} cy={start.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.5} />
+            <circle cx={end.x - 0.8} cy={end.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.5} />
           </g>
         );
       })}
@@ -173,19 +193,34 @@ export function HydrogenArc({ centre, openAngle, count, r }: { centre: Point2; o
   // Hugging the sphere, thin, short. An arc set far out with a big label reads
   // as a mouth under the atom rather than as an annotation on it; the capture
   // keeps the hydrogens tight against the skin and quiet.
-  const arcR = r + 6;
-  const HALF = 0.52;
+  // One small H per hydrogen, spaced along a thin arc that hugs the sphere,
+  // the way the capture draws a CH3. A single "H3" beside a 60 degree arc
+  // reads as a parenthesis with a subscript next to it; three H's ON the arc
+  // read as three hydrogens, which is what they are. Above four the count
+  // wins, because seven H's on an arc is a smear.
+  const arcR = r + 7;
+  const HALF = count <= 1 ? 0.34 : 0.3 + count * 0.16;
   const a0 = -(openAngle - HALF);
   const a1 = -(openAngle + HALF);
   const start = { x: centre.x + arcR * Math.cos(a0), y: centre.y + arcR * Math.sin(a0) };
   const end = { x: centre.x + arcR * Math.cos(a1), y: centre.y + arcR * Math.sin(a1) };
-  const label = { x: centre.x + (arcR + 8) * Math.cos(-openAngle), y: centre.y + (arcR + 8) * Math.sin(-openAngle) };
+  const letters =
+    count <= 4
+      ? Array.from({ length: count }, (_, i) => {
+          // Spread across the arc, and a single hydrogen sits on its middle.
+          const t = count === 1 ? 0.5 : i / (count - 1);
+          const angle = -(openAngle - HALF + t * 2 * HALF);
+          return { key: i, x: centre.x + (arcR + 6) * Math.cos(angle), y: centre.y + (arcR + 6) * Math.sin(angle), text: "H" };
+        })
+      : [{ key: 0, x: centre.x + (arcR + 7) * Math.cos(-openAngle), y: centre.y + (arcR + 7) * Math.sin(-openAngle), text: `H${SUBSCRIPTS[count] ?? `×${count}`}` }];
   return (
     <g>
-      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.5} strokeLinecap="round" opacity={0.75} />
-      <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill="var(--scene-faint)">
-        H{SUBSCRIPTS[count] ?? `×${count}`}
-      </text>
+      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.4} strokeLinecap="round" opacity={0.6} />
+      {letters.map((letter) => (
+        <text key={letter.key} x={letter.x} y={letter.y} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={600} fill="var(--scene-faint)">
+          {letter.text}
+        </text>
+      ))}
     </g>
   );
 }

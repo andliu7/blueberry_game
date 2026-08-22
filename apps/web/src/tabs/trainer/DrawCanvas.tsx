@@ -105,8 +105,16 @@ function sameTargetLoose(a: HitTarget, b: HitTarget | undefined): boolean {
 
 /** How far a curve's control point sits off its chord, in px. */
 const BOW_PX = 34;
-/** Clearance between an arrowhead's tip and the surface it points at. */
-const LAND_GAP = 3;
+/**
+ * Clearance between an arrowhead and the surface it points at.
+ *
+ * The head is a marker 7 units wide on a 3px stroke, so it occupies roughly
+ * 20px along the path BEHIND its tip. A 3px gap therefore seated the tip just
+ * off the sphere while the body of the triangle lay across the element letter,
+ * which a blind critic read as the destination atom being hidden by the very
+ * mark meant to point at it. The gap is the whole head plus air.
+ */
+const LAND_GAP = 16;
 /** How far the armed lone pair dots glide toward the pointer, at most. */
 const LP_GLIDE_PX = 7;
 
@@ -485,9 +493,14 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                         // Glide is measured against the live slot (the lag group is
                         // in authored coordinates, so the offset is species local either way).
                         const glide = armedSlot ? glideOf(lonePairSlots(live, atom.id)[index] ?? slot) : { x: 0, y: 0 };
+                        // Once one pair is armed the others step back, so the
+                        // source of the gesture is unambiguous. Before anything
+                        // is armed they are equal: all are equally choosable.
+                        const anyArmedHere = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id;
+                        const dimmed = anyArmedHere && !armedSlot;
                         return (
-                          <g key={index}>
-                            <circle cx={slot.x} cy={slot.y} r={12} fill={armedSlot ? "var(--primary)" : "var(--card)"} stroke="var(--primary)" strokeWidth={1.5} opacity={armedSlot ? 0.9 : 0.5} />
+                          <g key={index} opacity={dimmed ? 0.3 : 1}>
+                            <circle cx={slot.x} cy={slot.y} r={12} fill={armedSlot ? "var(--primary)" : "var(--card)"} stroke="var(--primary)" strokeWidth={armedSlot ? 2.5 : 1.5} opacity={armedSlot ? 0.95 : 0.5} />
                             <g style={{ transform: `translate(${glide.x}px, ${glide.y}px)`, transition: reducedMotion ? "none" : "transform 60ms ease-out" }}>
                               <circle cx={slot.x - 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
                               <circle cx={slot.x + 3.2} cy={slot.y} r={2.4} fill={armedSlot ? "#fff" : "var(--bond-stroke)"} />
@@ -498,8 +511,14 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                     : lonePairSlots(scene, atom.id).map((slot, index) => (
                         // At rest the pairs are DRAWN, faintly, not described in
                         // words: "3 pairs" is a caption, and a student aims at
-                        // dots. Tapping the atom promotes these to targets.
-                        <g key={index} opacity={0.4}>
+                        // dots. Same lobe-around-two-dots shape as the revealed
+                        // state, just quiet: a blind critic praised the lobe for
+                        // making a pair countable, then caught us using naked
+                        // dots on some atoms and lobes on others, which is two
+                        // visual languages for one idea. Tapping the atom
+                        // promotes these to targets.
+                        <g key={index} opacity={0.45}>
+                          <circle cx={slot.x} cy={slot.y} r={11} fill="none" stroke="var(--scene-faint)" strokeWidth={1.2} />
                           <circle cx={slot.x - 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
                           <circle cx={slot.x + 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
                         </g>
@@ -620,11 +639,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
             d={curveAway(inFlight.from, inFlight.to, inFlight.away)}
             fill="none"
             stroke="var(--primary)"
-            strokeWidth={2.5}
-            strokeDasharray={reducedMotion ? undefined : "6 6"}
+            // The guide carries the same weight and saturation as its head. A
+            // thin translucent line under a solid arrowhead reads as two
+            // different marks rather than one gesture, which is what a blind
+            // critic saw: the head looked placed and the tail looked like a
+            // hint. One stroke, one opacity.
+            strokeWidth={3.5}
+            strokeDasharray={reducedMotion ? undefined : "7 6"}
             strokeLinecap="round"
             markerEnd="url(#draw-arrowhead)"
-            opacity={0.85}
           />
           <circle cx={inFlight.from.x} cy={inFlight.from.y} r={3} fill="var(--primary)" />
         </g>
