@@ -406,10 +406,36 @@ computed styles had neither: flat fill, zero blur, verified by reading `getCompu
 page. Some of round two and three's pathway work was therefore spent chasing a compression
 artifact. Capture lossless when the thing being judged is an edge.
 
-**Open at this checkpoint.** The leaderboard segmented control and the language picker have not
-been built; both were queued behind the pathway when the subagent run died on usage limits. The
-trainer has been judged mid-drag, never on a released-and-committed arrow. `/generate` is
-blocked: no image provider key is set in `C:\Users\zeusa\.claude\.env`.
+**The two queued surfaces are now built.**
+
+- **Language picker.** `app/i18n.ts`: the twelve most spoken languages by endonym, an external
+  store in the same shape as `progress.ts`, and a `t()` table wired through the shell strings.
+  The table is English only, deliberately: wiring the CALLS is the part that is expensive to
+  retrofit, because a string typed inline in JSX is invisible to a later extraction pass, and a
+  second column is cheap once they exist. The picker says so rather than implying a translation
+  that is not there. Chemistry never goes through `t()`: a mistranslated "periplanar" teaches
+  wrong chemistry, and `packages/feedback` was reviewed by a person in one language. The sheet is
+  a native `<dialog>`, so modality, focus trapping and Escape are the browser's, not ours. First
+  run reads `navigator.language` rather than asking what the device already knows
+- **Leaderboard.** The three window buttons are one segmented control: a single track holding
+  three equal segments, roving tabindex and arrow keys as the `tablist` role promises. The card
+  gained the capture's tier badge and the ranked-row rhythm, drawn as rows that are visibly
+  waiting rather than invented people, because a fake name on a leaderboard is worse than an
+  empty one and CLAUDE.md forbids client-reported standings either way
+
+**The trainer, judged on a COMPLETED answer.** The bar still won, and the verdict was worth
+having: it found two defects a mid-drag capture could not show. The bond-breaking arrow's head
+terminated in empty background pointing away from bromine, because `atomSinkGeometry` placed the
+landing relative to the curve's control point rather than relative to the source, so on a short
+chord the bow threw it to one side. And a committed forming bond was a hairline dashed line at a
+third the width of a real bond, which reads as a measurement guide rather than a bond. Both
+fixed: landings now face the source, forming bonds are the same rod with a segmented body, and a
+short arrow keeps a minimum arc so it is not skipped beside a long one.
+
+**Open at this checkpoint.** The trainer has not yet won its blind comparison; five rounds of
+verdicts are recorded above and every one named a real defect rather than a preference, so the
+loop is converging rather than thrashing. `/generate` is blocked: no image provider key is set in
+`C:\Users\zeusa\.claude\.env`.
 
 ## Done outside the phase plan
 
