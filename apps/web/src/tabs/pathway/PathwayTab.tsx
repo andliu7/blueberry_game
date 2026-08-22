@@ -220,7 +220,15 @@ function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly cou
  * is centre, right, far right, right, centre, left, far left, left. The step
  * size lives in pathway.css (.path-row) so it can shrink with the viewport.
  */
-const WIND_CYCLE: readonly number[] = [0, 1, 2, 1, 0, -1, -2, -1];
+/**
+ * Period four, not eight. An eight step cycle is a mathematically nicer sine,
+ * and it is the wrong shape here: five nodes is about what a viewport holds,
+ * so a reader almost always sees one limb of the wave and nothing else, which
+ * is a monotonic diagonal drift. A blind critic read exactly that, an indented
+ * list rather than a path. At period four every screen contains a turn, so the
+ * track reads as a track from any scroll position.
+ */
+const WIND_CYCLE: readonly number[] = [0, 1.7, 0, -1.7];
 export function trackWind(index: number): number {
   return WIND_CYCLE[index % WIND_CYCLE.length] ?? 0;
 }
