@@ -242,7 +242,12 @@ interface Stretch {
 
 function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, sink: SinkGeometry | null): Stretch | null {
   const anchor = guide.anchor;
-  const head = sink === null ? guide.to : sink.landing;
+  // The rod reaches the far ATOM, not the arrow's landing point. The arrow
+  // lands in the middle of the bond it forms, which is where the electrons go;
+  // the bond itself spans the whole gap and attaches. Stopping the rod at the
+  // landing left the new bond visibly half built, hanging in the space between
+  // the two atoms instead of joining them.
+  const head = sink === null ? guide.to : (sink.stub?.b ?? sink.landing);
 
   if (anchor.kind === "bondEndHandle") {
     for (const bond of scene.bonds) {
@@ -458,8 +463,14 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
     >
       <defs>
         <DepthDefs />
-        <marker id="draw-arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary)" />
+        {/* markerUnits="userSpaceOnUse" pins the head to scene units. The
+            default, strokeWidth, multiplied a 7 unit marker by a 3.5px stroke
+            into a 24 unit triangle: larger than the 21 unit atoms it points
+            at, which is why it read as a shape parked on the molecule rather
+            than as the tip of an arrow. A head is now about two thirds of an
+            atom radius whatever the stroke does. */}
+        <marker id="draw-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
+          <path d="M 0 0.6 L 10 5 L 0 9.4 z" fill="var(--primary)" />
         </marker>
       </defs>
 
@@ -589,6 +600,10 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
         return (
           <g key={arrow.id} className={snapping ? "snap-back" : undefined} style={snapping ? ({ "--snap-dx": `${(to.x - from.x) * 0.6}px`, "--snap-dy": `${(to.y - from.y) * 0.6}px` } as CSSProperties) : undefined}>
             {sink.stub !== null ? <line x1={sink.stub.a.x} y1={sink.stub.a.y} x2={sink.stub.b.x} y2={sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.7} /> : null}
+            {/* A halo in the canvas colour under the stroke. An arrow that
+                crosses a hydrogen letter or a lone pair otherwise appears cut
+                into pieces by them, which is what a blind critic saw. */}
+            <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--card)" strokeWidth={7} strokeLinecap="round" opacity={0.9} />
             <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--primary)" strokeWidth={3} strokeLinecap="round" markerEnd="url(#draw-arrowhead)" />
           </g>
         );
@@ -635,6 +650,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               <circle cx={inFlight.sink.ring.centre.x} cy={inFlight.sink.ring.centre.y} r={inFlight.sink.ring.r} fill="none" stroke="var(--primary)" strokeWidth={inFlight.sink.stub === null ? 3 : 2.5} opacity={0.95} />
             </>
           ) : null}
+          <path d={curveAway(inFlight.from, inFlight.to, inFlight.away)} fill="none" stroke="var(--card)" strokeWidth={8} strokeLinecap="round" opacity={0.9} />
           <path
             d={curveAway(inFlight.from, inFlight.to, inFlight.away)}
             fill="none"

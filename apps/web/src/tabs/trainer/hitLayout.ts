@@ -244,8 +244,15 @@ export function bowAwayFrom(from: Point2, to: Point2, away: Point2, magnitude: n
   const dy = to.y - from.y;
   const len = Math.hypot(dx, dy);
   if (len < 1) return { x: mid.x, y: mid.y - magnitude };
-  const nx = (-dy / len) * magnitude;
-  const ny = (dx / len) * magnitude;
+  // The bow is capped against the chord. A fixed 34px offset on a 60px chord
+  // throws the control point out past the end, and a quadratic whose control
+  // point sits beyond its endpoint has a tangent there pointing BACK along the
+  // curve: the arrowhead ends up aimed away from the thing it is landing on.
+  // Above about a third of the chord the curve stops reading as a push and
+  // starts reading as a loop, so that is the ceiling.
+  const bow = Math.min(magnitude, len * 0.32);
+  const nx = (-dy / len) * bow;
+  const ny = (dx / len) * bow;
   const a = { x: mid.x + nx, y: mid.y + ny };
   const b = { x: mid.x - nx, y: mid.y - ny };
   return distance(a, away) >= distance(b, away) ? a : b;
