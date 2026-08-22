@@ -1,17 +1,17 @@
 {
-  "measured": "2026-08-21T23:34:08.987Z",
+  "measured": "2026-08-22T00:08:30.099Z",
   "environment": "headless Chromium on the development machine. Upper bound, not a device number.",
   "viewport": "412x915 at 2x, a Pixel-class logical size",
   "windowMs": 6000,
   "wholeRunIncludingLoad": {
-    "frames": 365,
-    "averageFps": 56.3,
-    "worstFrameGapMs": 433.5,
-    "framesOver20ms": 1,
-    "droppedFramePercent": 0.27
+    "frames": 364,
+    "averageFps": 56.8,
+    "worstFrameGapMs": 350,
+    "framesOver20ms": 2,
+    "droppedFramePercent": 0.55
   },
   "steadyStateAfterWarmup": {
-    "frames": 329,
+    "frames": 324,
     "averageFps": 60,
     "worstFrameGapMs": 17.2,
     "framesOver20ms": 0,

@@ -50,6 +50,7 @@ import {
   PX,
   atomCentre,
   atomRadius,
+  bondIdFor,
   bondMidpoint,
   bowAwayFrom,
   createHitTester,
@@ -209,6 +210,61 @@ function guideGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGui
   return { from, to: guide.to, sink: null, hovered: null, away: centroid };
 }
 
+/**
+ * The bond that stretches while you drag, per docs/reference/alchemie/extra/x02.
+ *
+ * Two cases, one shape. Pulling a bond's end handle stretches THAT bond: the
+ * end you did not grab stays put on its atom and the other end follows the
+ * finger. Pulling a lone pair stretches the bond you are ABOUT to make: it
+ * reaches out of the atom the electrons are leaving. Either way a student sees
+ * a physical thing being pulled rather than a line being specified, which is
+ * the whole difference between this and a diagram.
+ *
+ * Returns null when the gesture is not one that stretches a bond.
+ */
+interface Stretch {
+  readonly from: Point2;
+  readonly to: Point2;
+  readonly rFrom: number;
+  /** True while the release would land somewhere the machine accepts. */
+  readonly landing: boolean;
+  /** A bond being pulled apart, rather than one being formed. */
+  readonly existing: boolean;
+}
+
+function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, sink: SinkGeometry | null): Stretch | null {
+  const anchor = guide.anchor;
+  const head = sink === null ? guide.to : sink.landing;
+
+  if (anchor.kind === "bondEndHandle") {
+    for (const bond of scene.bonds) {
+      if (bondIdFor(step, bond.a, bond.b) !== anchor.bondId) continue;
+      // The end that stays is the one you did not grab.
+      const anchoredAt = bond.a === anchor.atomId ? bond.b : bond.a;
+      return {
+        from: atomCentre(scene, anchoredAt),
+        to: head,
+        rFrom: elementRadius(scene, anchoredAt),
+        landing: sink !== null,
+        existing: true,
+      };
+    }
+    return null;
+  }
+
+  if (anchor.kind === "lonePair" || anchor.kind === "unpairedElectron") {
+    return {
+      from: atomCentre(scene, anchor.atomId),
+      to: head,
+      rFrom: elementRadius(scene, anchor.atomId),
+      landing: sink !== null,
+      existing: false,
+    };
+  }
+
+  return null;
+}
+
 interface Carry {
   readonly pointerId: number;
   readonly speciesId: string;
@@ -349,6 +405,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
     return sceneCentroid({ ...live, atoms: live.atoms.filter((atom) => owner.get(atom.id) === speciesId) });
   };
   const inFlight = guide === null ? null : guideGeometry(step, live, guide, draft.armed, awayFrom(targetAtomId(guide.anchor)));
+  const stretch = guide === null || inFlight === null ? null : stretchGeometry(step, live, guide, inFlight.sink);
   // The armed lone pair's dots glide a little toward the pointer while it
   // drags, so the electrons visibly start to move. The halo stays put: the
   // dots are the electrons, the halo is the slot.
@@ -524,6 +581,33 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
           before letting go. The machine's snappedTo decides which; this only draws it. */}
       {inFlight !== null ? (
         <g style={{ pointerEvents: "none" }}>
+          {/* The bond being pulled. Drawn UNDER the guide and the stub so the
+              arrow stays the thing you read first. An existing bond keeps its
+              own colour as it stretches; a forming one arrives in the accent,
+              faint until the release would actually land. */}
+          {stretch !== null ? (
+            <g opacity={stretch.landing ? 0.95 : 0.55}>
+              <line
+                x1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).x}
+                y1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).y}
+                x2={stretch.to.x}
+                y2={stretch.to.y}
+                stroke={stretch.existing ? "var(--bond-stroke)" : "var(--primary)"}
+                strokeWidth={stretch.existing ? 11 : 8}
+                strokeLinecap="round"
+              />
+              <line
+                x1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).x - 1.2}
+                y1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).y - 1.6}
+                x2={stretch.to.x - 1.2}
+                y2={stretch.to.y - 1.6}
+                stroke="#ffffff"
+                strokeOpacity={0.4}
+                strokeWidth={stretch.existing ? 3.6 : 2.6}
+                strokeLinecap="round"
+              />
+            </g>
+          ) : null}
           {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
           {inFlight.hovered !== null ? <circle cx={atomCentre(live, inFlight.hovered).x} cy={atomCentre(live, inFlight.hovered).y} r={elementRadius(live, inFlight.hovered) + 6} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.45} /> : null}
           {inFlight.sink !== null ? (
