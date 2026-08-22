@@ -126,6 +126,7 @@ export function BondCapsule({
   rB,
   order = 1,
   opacity = 1,
+  forming = false,
 }: {
   a: Point2;
   b: Point2;
@@ -133,6 +134,13 @@ export function BondCapsule({
   rB: number;
   order?: number;
   opacity?: number;
+  /**
+   * A bond that does not exist yet. Same rod, same diameter, same joints, so
+   * the canvas keeps ONE bond language; only the body is segmented, which is
+   * how a chemist already writes a partial bond. Drawing a forming bond as a
+   * solid rod asserts the sigma bond the student is being asked to make.
+   */
+  forming?: boolean;
 }) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
@@ -156,7 +164,16 @@ export function BondCapsule({
         const end = rimPoint(ob, oa, rB + width / 2 - 1);
         return (
           <g key={off}>
-            <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="var(--bond-stroke)" strokeWidth={width} strokeLinecap="round" />
+            <line
+              x1={start.x}
+              y1={start.y}
+              x2={end.x}
+              y2={end.y}
+              stroke="var(--bond-stroke)"
+              strokeWidth={width}
+              strokeLinecap="round"
+              strokeDasharray={forming ? "9 7" : undefined}
+            />
             <line
               x1={start.x - 1.2}
               y1={start.y - 1.6}
@@ -231,8 +248,13 @@ export function ChargeBadge({ at, charge, opacity = 1 }: { at: Point2; charge: n
   const sign = charge > 0 ? "+" : "−";
   const magnitude = Math.abs(charge);
   return (
-    <g opacity={opacity} filter={`url(#${SHADOW_FILTER_ID})`}>
-      <circle cx={at.x} cy={at.y} r={10} fill={`url(#${BADGE_GRADIENT_ID})`} />
+    // FLAT, and deliberately not a sphere. Rendered in the same shaded material
+    // as an atom it reads as a bonded fourth atom sitting off the oxygen, which
+    // is what a blind critic saw. A charge is an annotation, so it is a flat
+    // disc with a hairline ring and no highlight and no shadow: the only flat
+    // filled circle on a canvas where every physical object is modelled.
+    <g opacity={opacity}>
+      <circle cx={at.x} cy={at.y} r={10} fill="var(--card)" stroke="var(--bond-stroke)" strokeWidth={1.6} />
       <text x={at.x} y={at.y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700} fill="#ffffff">
         {magnitude > 1 ? `${magnitude}${sign}` : sign}
       </text>

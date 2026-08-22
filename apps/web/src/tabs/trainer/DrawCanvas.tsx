@@ -247,12 +247,16 @@ function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightG
   // Inset the far end by the receiving atom's radius when there is one, so the
   // rod stops on ITS surface too; at a free pointer the rod ends at the finger.
   const toRadius = sinkAtom === null ? 0 : elementRadius(scene, sinkAtom);
+  // NO ROD UNLESS IT LANDS ON AN ATOM. A bond is a claim that two atoms are
+  // joined, so a rod whose far end floats in the canvas is a claim about
+  // nothing; a blind critic called it exactly that, a capsule terminating in
+  // empty space. While the pointer is over nothing the machine would accept,
+  // the dashed guide alone carries the gesture and no bond is asserted.
+  if (sink === null) return null;
   // The rod reaches the far ATOM, not the arrow's landing point. The arrow
   // lands in the middle of the bond it forms, which is where the electrons go;
-  // the bond itself spans the whole gap and attaches. Stopping the rod at the
-  // landing left the new bond visibly half built, hanging in the space between
-  // the two atoms instead of joining them.
-  const head = sink === null ? guide.to : (sink.stub?.b ?? sink.landing);
+  // the bond itself spans the whole gap and attaches.
+  const head = sink.stub?.b ?? sink.landing;
 
   if (anchor.kind === "bondEndHandle") {
     for (const bond of scene.bonds) {
@@ -649,7 +653,8 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               b={stretch.to}
               rA={stretch.rFrom}
               rB={stretch.toRadius}
-              opacity={stretch.landing ? 0.85 : 0.45}
+              opacity={0.9}
+              forming={!stretch.existing}
             />
           ) : null}
           {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
