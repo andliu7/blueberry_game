@@ -385,10 +385,31 @@ Verdict captures live in `apps/web/measurements/gauntlet-shots/`, and the two pr
 - The wind cycle had period eight, so the five nodes a viewport holds were all one limb of the
   wave and the track read as a diagonal list. Period four puts a turn on every screen
 
+**Round four, and where each piece stands.**
+
+PATHWAY: **EXIT MET.** A fresh-context critic, handed our track and the Duolingo capture blind
+with the labels stripped, picked ours. What it held against the BAR is worth recording, because
+it is the opposite of the note that started this piece: the reference's own node faces carry a
+sheen band and a rim light, where ours are one flat colour meeting the wall at a hard step.
+
+TRAINER: four rounds, not yet won. Every verdict so far has named a real defect rather than a
+preference, and the last one is the sharpest: the forming bond and the arrow were both dashed on
+the same axis, so a student could not tell the electrons from the bond, and the head arrived
+along that axis pointing back at the nucleophile, reading as electrons flowing OUT of the bond.
+The arrow now lands perpendicular to the forming bond on the side the electrons come from, and
+the rod is never dashed, so the arrow is the only dashed mark on the canvas.
+
+**A METHOD ERROR WORTH NOT REPEATING.** Rounds one to three judged the pathway from JPEG
+captures. At 68px on a near-black ground, JPEG smears the hard face-to-wall terminator into what
+two independent critics separately described as a radial gradient and a soft outer bloom. The
+computed styles had neither: flat fill, zero blur, verified by reading `getComputedStyle` in the
+page. Some of round two and three's pathway work was therefore spent chasing a compression
+artifact. Capture lossless when the thing being judged is an edge.
+
 **Open at this checkpoint.** The leaderboard segmented control and the language picker have not
-been built; both were queued behind the pathway when the run died. The trainer has never been
-judged on a released-and-committed arrow, only mid-drag. `/generate` is blocked: no image
-provider key is set in `C:\Users\zeusa\.claude\.env`.
+been built; both were queued behind the pathway when the subagent run died on usage limits. The
+trainer has been judged mid-drag, never on a released-and-committed arrow. `/generate` is
+blocked: no image provider key is set in `C:\Users\zeusa\.claude\.env`.
 
 ## Done outside the phase plan
 
