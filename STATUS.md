@@ -345,6 +345,51 @@ Gaps found while building, none of them shell bugs, each needing an owner or a l
 - Structure answers cannot be drawn in the shell (Ketcher is lazy by budget and not wired);
   a structure problem is skipped without penalty and says why
 
+## Phase 5 gauntlet loop, running. 2026-08-21
+
+Owner ruling recorded in CLAUDE.md: four Phase 5 surfaces loop against a committed capture
+instead of stopping at the human gate, because "single pass" produced a shell that worked and
+did not feel like the bar. The exit is a fresh-context critic picking ours blind, five rounds
+per piece.
+
+**The bars.** Trainer: `docs/reference/alchemie/01-mechanism-canvas-full.png` and `extra/x01`,
+`extra/x02`. Pathway, leaderboard, language picker: `docs/reference/competitors/inspirations/`,
+the owner's own Duolingo, Memrise and Quizlet captures. Live pages a critic can also open are
+listed in `docs/reference/competitors/WEB-INSPIRATION.md`.
+
+**Rounds so far.** Three builder rounds on the pathway button and two on the trainer ran as
+subagent workflows before both runs died on usage limits; the remaining work was done inline.
+Blind verdicts: round one, the bar beat us on BOTH surfaces. Round two ran after the fixes below.
+Verdict captures live in `apps/web/measurements/gauntlet-shots/`, and the two progress logs are
+`gauntlet-trainer.md` and `gauntlet-pathway.md` beside them.
+
+**What the critics actually caught, worth knowing because each was a real defect and not taste:**
+
+- The bond capsule inset 2px INTO each sphere, so a rod overlapped the ball it joined. It ends
+  on the rim now, plus half its own stroke, with a ball joint on the silhouette
+- The arrowhead used the default `markerUnits`, `strokeWidth`, so a 7 unit marker on a 3.5px
+  stroke rendered 24 units long, larger than the 21 unit atoms it pointed at. Pinned to user
+  space, and the land gap now clears the whole head rather than just its tip
+- `bowAwayFrom` used a flat 34px offset. On a short chord that puts the control point past the
+  endpoint, and a quadratic whose control point is beyond its end has a backwards tangent there:
+  the head aimed away from its target. Capped at a third of the chord
+- The stretched forming bond stopped at the arrow's landing, the middle of the new bond, so the
+  bond looked half built. It spans to the far atom and attaches
+- Lone pairs were lobes where revealed and naked dots elsewhere, two languages for one idea. The
+  lobe is the resting shape too, and arming one dims its siblings
+- Hydrogens were a 60 degree arc with an H3 beside it, which reads as a parenthesis with a
+  subscript. One small H per hydrogen along the arc, the count only above four
+- The pathway's side wall was invisible in dark mode: locked had an edge of `#1c1917` on a
+  `#0c0a09` page, the same value as the ground, so a node with a real 10px wall still read as a
+  flat disc. Dark edges are mid tones now
+- The wind cycle had period eight, so the five nodes a viewport holds were all one limb of the
+  wave and the track read as a diagonal list. Period four puts a turn on every screen
+
+**Open at this checkpoint.** The leaderboard segmented control and the language picker have not
+been built; both were queued behind the pathway when the run died. The trainer has never been
+judged on a released-and-committed arrow, only mid-drag. `/generate` is blocked: no image
+provider key is set in `C:\Users\zeusa\.claude\.env`.
+
 ## Done outside the phase plan
 
 **Reference material filed.** 28 raw captures triaged. 10 into the required manifest slots, 9 more
