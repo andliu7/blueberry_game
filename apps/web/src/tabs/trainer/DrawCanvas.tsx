@@ -160,14 +160,23 @@ function bondSinkGeometry(scene: StepScene, atomIds: readonly [AtomId, AtomId], 
   const a = rimPoint(ca, cb, elementRadius(scene, atomIds[0]) + 1);
   const b = rimPoint(cb, ca, elementRadius(scene, atomIds[1]) + 1);
   const mid = mix(a, b, 0.5);
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const perp = { x: -dy / len, y: dx / len };
-  // Toward the source when there is one, else above the bond.
-  const side = from === undefined ? -1 : Math.sign(perp.x * (from.x - mid.x) + perp.y * (from.y - mid.y)) || -1;
-  const landing = { x: mid.x + perp.x * side * LAND_GAP, y: mid.y + perp.y * side * LAND_GAP };
-  return { landing, stub: { a, b }, ring: { centre: mid, r: 11 } };
+  // The arrow points at the ATOM BEING ATTACKED, not at the midpoint of the
+  // bond that will form there. Formally the electrons end up in the middle of
+  // the new bond, and that is what the earlier version drew; but every
+  // textbook, and the owner's own course keys, draw the nucleophile's arrow
+  // landing on the electrophilic atom, and a head parked in the empty space
+  // between two atoms reads as an arrow that stopped short. Which atom: the
+  // one further from the source, because the near one is where the electrons
+  // are leaving from.
+  const far = from === undefined
+    ? atomIds[1]
+    : Math.hypot(ca.x - from.x, ca.y - from.y) >= Math.hypot(cb.x - from.x, cb.y - from.y)
+      ? atomIds[0]
+      : atomIds[1];
+  const farCentre = atomCentre(scene, far);
+  const source = from ?? mid;
+  const landing = rimPoint(farCentre, source, elementRadius(scene, far) + LAND_GAP);
+  return { landing, stub: { a, b }, ring: { centre: farCentre, r: elementRadius(scene, far) + 7 } };
 }
 
 /** Committed arrow: source anchor from the slot or bond it left, sink per the rules above. */
