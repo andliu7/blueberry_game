@@ -234,14 +234,19 @@ interface Stretch {
   readonly from: Point2;
   readonly to: Point2;
   readonly rFrom: number;
+  /** Radius to inset the far end by: the receiving atom's, or 0 at a free pointer. */
+  readonly toRadius: number;
   /** True while the release would land somewhere the machine accepts. */
   readonly landing: boolean;
   /** A bond being pulled apart, rather than one being formed. */
   readonly existing: boolean;
 }
 
-function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, sink: SinkGeometry | null): Stretch | null {
+function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGuide, sink: SinkGeometry | null, sinkAtom: AtomId | null): Stretch | null {
   const anchor = guide.anchor;
+  // Inset the far end by the receiving atom's radius when there is one, so the
+  // rod stops on ITS surface too; at a free pointer the rod ends at the finger.
+  const toRadius = sinkAtom === null ? 0 : elementRadius(scene, sinkAtom);
   // The rod reaches the far ATOM, not the arrow's landing point. The arrow
   // lands in the middle of the bond it forms, which is where the electrons go;
   // the bond itself spans the whole gap and attaches. Stopping the rod at the
@@ -258,6 +263,7 @@ function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightG
         from: atomCentre(scene, anchoredAt),
         to: head,
         rFrom: elementRadius(scene, anchoredAt),
+        toRadius,
         landing: sink !== null,
         existing: true,
       };
@@ -270,6 +276,7 @@ function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightG
       from: atomCentre(scene, anchor.atomId),
       to: head,
       rFrom: elementRadius(scene, anchor.atomId),
+      toRadius,
       landing: sink !== null,
       existing: false,
     };
@@ -418,7 +425,16 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
     return sceneCentroid({ ...live, atoms: live.atoms.filter((atom) => owner.get(atom.id) === speciesId) });
   };
   const inFlight = guide === null ? null : guideGeometry(step, live, guide, draft.armed, awayFrom(targetAtomId(guide.anchor)));
-  const stretch = guide === null || inFlight === null ? null : stretchGeometry(step, live, guide, inFlight.sink);
+  const sinkAtomForStretch =
+    inFlight === null || inFlight.sink === null
+      ? null
+      : inFlight.sink.stub !== null && guide !== null
+        ? (() => {
+            const snapped = guide.snappedTo;
+            return snapped.kind === "atom" ? snapped.atomId : (targetAtomId(snapped) ?? null);
+          })()
+        : inFlight.hovered;
+  const stretch = guide === null || inFlight === null ? null : stretchGeometry(step, live, guide, inFlight.sink, sinkAtomForStretch);
   // The armed lone pair's dots glide a little toward the pointer while it
   // drags, so the electrons visibly start to move. The halo stays put: the
   // dots are the electrons, the halo is the slot.
@@ -619,28 +635,22 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               arrow stays the thing you read first. An existing bond keeps its
               own colour as it stretches; a forming one arrives in the accent,
               faint until the release would actually land. */}
+          {/* THE SAME ROD as every other bond, not a bar of a different colour
+              laid over the atoms. A blind critic put it plainly: the canvas was
+              speaking two bond languages at once, a shaded cylinder with joints
+              for the real bond and a flat purple rectangle for the forming one,
+              and the flat one crossed both spheres instead of meeting them. A
+              forming bond is the same object in a provisional STATE, so it is
+              a BondCapsule at reduced opacity: same shading, same ball joints
+              on the same surfaces. Purple now belongs to the arrow alone. */}
           {stretch !== null ? (
-            <g opacity={stretch.landing ? 0.95 : 0.55}>
-              <line
-                x1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).x}
-                y1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).y}
-                x2={stretch.to.x}
-                y2={stretch.to.y}
-                stroke={stretch.existing ? "var(--bond-stroke)" : "var(--primary)"}
-                strokeWidth={stretch.existing ? 11 : 8}
-                strokeLinecap="round"
-              />
-              <line
-                x1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).x - 1.2}
-                y1={rimPoint(stretch.from, stretch.to, stretch.rFrom - 2).y - 1.6}
-                x2={stretch.to.x - 1.2}
-                y2={stretch.to.y - 1.6}
-                stroke="#ffffff"
-                strokeOpacity={0.4}
-                strokeWidth={stretch.existing ? 3.6 : 2.6}
-                strokeLinecap="round"
-              />
-            </g>
+            <BondCapsule
+              a={stretch.from}
+              b={stretch.to}
+              rA={stretch.rFrom}
+              rB={stretch.toRadius}
+              opacity={stretch.landing ? 0.85 : 0.45}
+            />
           ) : null}
           {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
           {inFlight.hovered !== null ? <circle cx={atomCentre(live, inFlight.hovered).x} cy={atomCentre(live, inFlight.hovered).y} r={elementRadius(live, inFlight.hovered) + 6} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.45} /> : null}

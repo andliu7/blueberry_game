@@ -78,9 +78,15 @@
   height: var(--node-size);
   border-radius: 9999px;
   background: var(--node-face);
-  /* The top highlight band: a hard inset step, no blur, the reference's
-     lighter upper face. */
-  box-shadow: inset 0 4px 0 0 var(--node-shine);
+  /* NO highlight band. Round four added an inset white step meaning to echo
+     the reference's lighter upper face; two independent blind critics then
+     described these nodes as having "a soft radial gradient, lighter at the
+     upper-left" and read them as glossy marbles. At 68px, a 4px translucent
+     white inset does not read as a facet, it reads as a sheen, and a sheen is
+     the one thing that stops a disc reading as a flat key. The face is one
+     uniform colour, and the ONLY value break in the node is the hard
+     terminator where the face meets its wall. */
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,7 +103,6 @@
    The band disappears because the face now covers it. */
 .path-node--press:active .path-node__face {
   transform: translateY(var(--node-edge-h));
-  box-shadow: inset 0 2px 0 0 var(--node-shine);
 }
 
 .path-node:focus-visible {
