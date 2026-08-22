@@ -250,7 +250,12 @@ export function bowAwayFrom(from: Point2, to: Point2, away: Point2, magnitude: n
   // curve: the arrowhead ends up aimed away from the thing it is landing on.
   // Above about a third of the chord the curve stops reading as a push and
   // starts reading as a loop, so that is the ceiling.
-  const bow = Math.min(magnitude, len * 0.32);
+  // Capped against the chord, but never flat. A bond-to-atom arrow travels only
+  // from the bond's middle to the atom beside it, perhaps 40px; at 32 percent
+  // that is a 13px bow, and the result is a stub a student's eye skips over
+  // entirely next to the long sweep of a nucleophile arrow. The floor keeps a
+  // short arrow readable as an arc; the cap keeps a long one from looping.
+  const bow = Math.min(magnitude, Math.max(18, len * 0.32));
   const nx = (-dy / len) * bow;
   const ny = (dx / len) * bow;
   const a = { x: mid.x + nx, y: mid.y + ny };
