@@ -143,13 +143,31 @@ function atomSinkGeometry(scene: StepScene, atomId: AtomId, from: Point2, centro
   return { landing: rimPoint(centre, ctrl, r + LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
 }
 
-function bondSinkGeometry(scene: StepScene, atomIds: readonly [AtomId, AtomId]): SinkGeometry {
+/**
+ * A forming bond as a sink. The arrow lands OFF the bond axis, on the side the
+ * electrons arrive from, not on the axis itself.
+ *
+ * Landing on the midpoint put the arrowhead on the same line as the rod that
+ * is forming there, so the head had to arrive along that line and a blind
+ * critic read the whole gesture as running backwards, out of the bond and into
+ * the nucleophile. Offsetting the landing perpendicular gives the head a
+ * direction that points AT the new bond from outside it, which is how the
+ * notation is drawn on paper, and it keeps the arrow clear of the rod.
+ */
+function bondSinkGeometry(scene: StepScene, atomIds: readonly [AtomId, AtomId], from?: Point2): SinkGeometry {
   const ca = atomCentre(scene, atomIds[0]);
   const cb = atomCentre(scene, atomIds[1]);
   const a = rimPoint(ca, cb, elementRadius(scene, atomIds[0]) + 1);
   const b = rimPoint(cb, ca, elementRadius(scene, atomIds[1]) + 1);
-  const landing = mix(a, b, 0.5);
-  return { landing, stub: { a, b }, ring: { centre: landing, r: 11 } };
+  const mid = mix(a, b, 0.5);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const perp = { x: -dy / len, y: dx / len };
+  // Toward the source when there is one, else above the bond.
+  const side = from === undefined ? -1 : Math.sign(perp.x * (from.x - mid.x) + perp.y * (from.y - mid.y)) || -1;
+  const landing = { x: mid.x + perp.x * side * LAND_GAP, y: mid.y + perp.y * side * LAND_GAP };
+  return { landing, stub: { a, b }, ring: { centre: mid, r: 11 } };
 }
 
 /** Committed arrow: source anchor from the slot or bond it left, sink per the rules above. */
@@ -174,7 +192,7 @@ function committedArrowGeometry(step: MechanismStep, scene: StepScene, arrow: El
       from = unreachable;
     }
   }
-  const sink = arrow.sink.kind === "atom" ? atomSinkGeometry(scene, arrow.sink.atomId, from, centroid) : bondSinkGeometry(scene, arrow.sink.atomIds);
+  const sink = arrow.sink.kind === "atom" ? atomSinkGeometry(scene, arrow.sink.atomId, from, centroid) : bondSinkGeometry(scene, arrow.sink.atomIds, from);
   return { from, sink };
 }
 
@@ -211,7 +229,7 @@ function guideGeometry(step: MechanismStep, scene: StepScene, guide: InFlightGui
       const sink = atomSinkGeometry(scene, inferred.sink.atomId, from, centroid);
       return { from, to: sink.landing, sink, hovered: null, away: centroid };
     }
-    const sink = bondSinkGeometry(scene, inferred.sink.atomIds);
+    const sink = bondSinkGeometry(scene, inferred.sink.atomIds, from);
     return { from, to: sink.landing, sink, hovered, away: centroid };
   }
   // Over nothing the machine would accept: the head rides the finger, per x01.
@@ -656,8 +674,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               b={stretch.to}
               rA={stretch.rFrom}
               rB={stretch.toRadius}
-              opacity={0.9}
-              forming={!stretch.existing}
+              opacity={stretch.existing ? 0.9 : 0.5}
             />
           ) : null}
           {inFlight.sink?.stub ? <line x1={inFlight.sink.stub.a.x} y1={inFlight.sink.stub.a.y} x2={inFlight.sink.stub.b.x} y2={inFlight.sink.stub.b.y} stroke="var(--primary)" strokeWidth={3.5} strokeDasharray="4 5" strokeLinecap="round" opacity={0.8} /> : null}
