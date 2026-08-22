@@ -438,11 +438,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                           </g>
                         );
                       })
-                    : atom.fromLonePairs > 0 && (
-                        <text x={c.x} y={c.y - r - 12} textAnchor="middle" fontSize={11} fill="var(--scene-faint)">
-                          {atom.fromLonePairs} pair{atom.fromLonePairs === 1 ? "" : "s"}
-                        </text>
-                      )}
+                    : lonePairSlots(scene, atom.id).map((slot, index) => (
+                        // At rest the pairs are DRAWN, faintly, not described in
+                        // words: "3 pairs" is a caption, and a student aims at
+                        // dots. Tapping the atom promotes these to targets.
+                        <g key={index} opacity={0.4}>
+                          <circle cx={slot.x - 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
+                          <circle cx={slot.x + 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
+                        </g>
+                      ))}
                 </g>
               );
             })}
@@ -457,11 +461,13 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
             key={JSON.stringify(entry.target)}
             cx={entry.centre.x}
             cy={entry.centre.y}
-            // Drawn as the capsule's end cap, a bead smaller than its hit circle (entry.radius), so the bond stays visible.
-            r={sameTargetLoose(entry.target, armedTarget) ? 8 : 6.5}
-            fill="var(--card)"
-            stroke={sameTargetLoose(entry.target, armedTarget) ? "var(--primary)" : "var(--bond-stroke)"}
-            strokeWidth={sameTargetLoose(entry.target, armedTarget) ? 3 : 2}
+            // A ball joint on the atom's skin, the way the capture draws it:
+            // filled and light, the same family as the capsule, so it reads as
+            // the end of the bond rather than as a ring floating over it.
+            r={sameTargetLoose(entry.target, armedTarget) ? 8 : 6}
+            fill={sameTargetLoose(entry.target, armedTarget) ? "var(--primary)" : "var(--bond-stroke)"}
+            stroke={sameTargetLoose(entry.target, armedTarget) ? "var(--primary)" : "none"}
+            strokeWidth={sameTargetLoose(entry.target, armedTarget) ? 3 : 0}
           />
         ))}
 
@@ -539,9 +545,6 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
           <circle cx={inFlight.from.x} cy={inFlight.from.y} r={3} fill="var(--primary)" />
         </g>
       ) : null}
-      <text x={maxX + PAD - 8} y={minY - PAD + 14} textAnchor="end" fontSize={9} fill="var(--scene-faint)">
-        {PX} px per bond
-      </text>
     </svg>
   );
 }

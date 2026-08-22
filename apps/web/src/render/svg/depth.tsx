@@ -170,16 +170,20 @@ const SUBSCRIPTS = ["", "", "₂", "₃", "₄"];
  */
 export function HydrogenArc({ centre, openAngle, count, r }: { centre: Point2; openAngle: number; count: number; r: number }) {
   if (count <= 0) return null;
-  const arcR = r + 13;
-  const a0 = -(openAngle - 0.7);
-  const a1 = -(openAngle + 0.7);
+  // Hugging the sphere, thin, short. An arc set far out with a big label reads
+  // as a mouth under the atom rather than as an annotation on it; the capture
+  // keeps the hydrogens tight against the skin and quiet.
+  const arcR = r + 6;
+  const HALF = 0.52;
+  const a0 = -(openAngle - HALF);
+  const a1 = -(openAngle + HALF);
   const start = { x: centre.x + arcR * Math.cos(a0), y: centre.y + arcR * Math.sin(a0) };
   const end = { x: centre.x + arcR * Math.cos(a1), y: centre.y + arcR * Math.sin(a1) };
-  const label = { x: centre.x + (arcR + 12) * Math.cos(-openAngle), y: centre.y + (arcR + 12) * Math.sin(-openAngle) };
+  const label = { x: centre.x + (arcR + 8) * Math.cos(-openAngle), y: centre.y + (arcR + 8) * Math.sin(-openAngle) };
   return (
     <g>
-      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={2.5} strokeLinecap="round" />
-      <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight={600} fill="var(--scene-faint)">
+      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.5} strokeLinecap="round" opacity={0.75} />
+      <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill="var(--scene-faint)">
         H{SUBSCRIPTS[count] ?? `×${count}`}
       </text>
     </g>

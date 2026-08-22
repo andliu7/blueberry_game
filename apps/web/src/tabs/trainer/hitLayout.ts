@@ -145,8 +145,13 @@ export function buildTargets(
     if (bondId === null) continue;
     const a = atomCentre(scene, bond.a);
     const b = atomCentre(scene, bond.b);
-    const handleA = mix(a, b, 0.32);
-    const handleB = mix(a, b, 0.68);
+    // ON the atom's rim, where the capsule meets the sphere, which is where the
+    // Alchemie capture (extra/x02) puts the ball joint you grab. Anywhere along
+    // the middle reads as two loose circles floating on the bond instead.
+    const rA = atomRadius(scene.atoms.find((atom) => atom.id === bond.a)?.element ?? "C");
+    const rB = atomRadius(scene.atoms.find((atom) => atom.id === bond.b)?.element ?? "C");
+    const handleA = rimPoint(a, b, rA);
+    const handleB = rimPoint(b, a, rB);
     targets.push({ target: { kind: "bondEndHandle", bondId, atomId: bond.a }, centre: handleA, radius: 11 });
     targets.push({ target: { kind: "bondEndHandle", bondId, atomId: bond.b }, centre: handleB, radius: 11 });
   }

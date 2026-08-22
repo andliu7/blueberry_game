@@ -28,7 +28,7 @@
  * load the default route and this is it.
  */
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { causeCopyEntry } from "@blueberry/feedback";
 import {
   createInteractionStore,
@@ -328,16 +328,101 @@ function isContestedNotice(notice: InteractionNotice): boolean {
   return notice.id === "target_was_ambiguous";
 }
 
+/**
+ * The plain English line, per arrow legality rule. Authored copy, held to the
+ * voice contract in CLAUDE.md: it names what happened in the drawing, treats
+ * the mistake as the normal step it is, and points at the next thing to look
+ * at. The subject is the arrow, never the student.
+ *
+ * These are deliberately NOT the registry's `whatYouDid`, which is a paragraph.
+ * This is the one sentence a stressed student reads in two seconds; the
+ * paragraph is one press away under Show more.
+ */
+const PLAIN_BY_RULE: Record<string, string> = {
+  source_has_no_lone_pair: "That arrow starts on an atom with no lone pair to give.",
+  source_has_no_unpaired_electron: "A fishhook needs a single unpaired electron to start from, and that atom has none.",
+  single_electron_source_moved_a_pair: "A fishhook moves one electron; that arrow moved a pair.",
+  source_bond_overdrawn: "That bond is being asked for more electrons than it holds.",
+  lone_pairs_overdrawn: "That atom is being asked for more lone pair electrons than it has.",
+  unpaired_electrons_overdrawn: "That atom is being asked for more unpaired electrons than it has.",
+  endpoints_share_no_atom: "The arrow's start and finish are not connected, so the electrons have nowhere to travel.",
+  sink_bonds_an_atom_to_itself: "That arrow would bond an atom to itself.",
+  arrow_declares_no_change: "That arrow ends where it started, so nothing moves.",
+  source_atom_not_in_state: "That arrow starts on something that is not in this reaction.",
+  source_bond_not_in_state: "That arrow starts on a bond that is not in this reaction.",
+  sink_atom_not_in_state: "That arrow points at something that is not in this reaction.",
+};
+
+/** One sentence per verdict. The headline, and often all a student needs. */
+function plainLine(verdict: DrawVerdict): string {
+  switch (verdict.kind) {
+    case "correct":
+      return "Back-side attack: the hydroxide lone pair forms the new C–O bond as the bromide leaves.";
+    case "invalid":
+      return PLAIN_BY_RULE[verdict.finding.rule] ?? "That arrow cannot move electrons the way it is drawn.";
+    case "not_requested":
+      return verdict.missing > 0
+        ? "Every arrow you drew is legal, and the bromide still has no reason to leave."
+        : "Every arrow you drew is legal, and together they describe a different transformation.";
+    case "incomplete":
+      return `${verdict.drawn} of ${verdict.needed} arrows, both legal so far. One more: something has to break.`;
+    default: {
+      const unreachable: never = verdict;
+      return unreachable;
+    }
+  }
+}
+
+/**
+ * The detail, behind one press. `<details>` is the native disclosure: it is
+ * keyboard operable and screen reader announced without any state of ours, and
+ * the summary carries the press class so the acknowledgement paints on pointer
+ * down like every other control.
+ */
+function ShowMore({ children }: { readonly children: ReactNode }) {
+  return (
+    <details className="mt-2 group">
+      <summary className="press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-scale-sm font-semibold text-primary">
+        <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+        <span className="group-open:hidden">Show more</span>
+        <span className="hidden group-open:inline">Show less</span>
+      </summary>
+      <div className="mt-1 flex flex-col gap-2">{children}</div>
+    </details>
+  );
+}
+
+function Detail({ label, text }: { readonly label: string; readonly text: string }) {
+  return (
+    <div>
+      <h4 className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h4>
+      <p className="text-scale-sm text-foreground">{text}</p>
+    </div>
+  );
+}
+
 function VerdictCard({ verdict }: { readonly verdict: DrawVerdict }) {
+  const line = plainLine(verdict);
+
   switch (verdict.kind) {
     case "correct": {
       const copy = causeCopyEntry(verdict.cause);
       return (
         <section className="fade-in rounded-2xl border border-good/40 bg-good-soft p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-good-ink">Correct, by the requested route.</h3>
-          <p className="mt-1 text-scale-sm text-foreground">{copy.whatYouDid}</p>
-          <p className="mt-1 text-scale-sm text-muted-foreground">{copy.why}</p>
-          <p className="mt-1 text-scale-sm text-muted-foreground">{copy.lookAt}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">
+              S<sub>N</sub>2
+            </span>
+            <span className="text-scale-xs font-semibold text-good-ink">back-side attack</span>
+          </div>
+          <p className="mt-1.5 text-scale-lg font-semibold leading-snug text-good-ink">{line}</p>
+          <ShowMore>
+            <Detail label="What you did" text={copy.whatYouDid} />
+            <Detail label="Why" text={copy.why} />
+            <Detail label="Look at" text={copy.lookAt} />
+          </ShowMore>
         </section>
       );
     }
@@ -345,34 +430,50 @@ function VerdictCard({ verdict }: { readonly verdict: DrawVerdict }) {
       const copy = causeCopyEntry(verdict.cause);
       return (
         <section className="fade-in rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">That arrow cannot be drawn there.</h3>
-          <p className="mt-1 text-scale-sm text-foreground">{copy.whatYouDid}</p>
-          <p className="mt-1 text-scale-sm text-muted-foreground">{copy.why}</p>
-          <p className="mt-1 text-scale-sm text-muted-foreground">{copy.lookAt}</p>
+          <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
+          <ShowMore>
+            <Detail label="What you did" text={copy.whatYouDid} />
+            <Detail label="Why" text={copy.why} />
+            <Detail label="Look at" text={copy.lookAt} />
+          </ShowMore>
         </section>
       );
     }
     case "not_requested":
       return (
         <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-not-requested">Every arrow is legal, and this is not the S<sub>N</sub>2 step.</h3>
-          <p className="mt-1 text-scale-sm text-foreground">
-            {verdict.missing > 0 ? `${verdict.missing} of the requested arrows ${verdict.missing === 1 ? "is" : "are"} not drawn` : ""}
-            {verdict.missing > 0 && verdict.extra > 0 ? ", and " : ""}
-            {verdict.extra > 0 ? `${verdict.extra} arrow${verdict.extra === 1 ? "" : "s"} go${verdict.extra === 1 ? "es" : ""} somewhere the step does not` : ""}.
-          </p>
-          <p className="mt-1 text-scale-sm text-muted-foreground">
-            The engine cannot yet name which transformation these arrows describe; that resolver is an open item in chem-core. What it can say is that the bromide has not been given a reason to leave.
-          </p>
+          <p className="text-scale-lg font-semibold leading-snug text-not-requested">{line}</p>
+          <ShowMore>
+            <Detail
+              label="What you did"
+              text={
+                [
+                  verdict.missing > 0 ? `${verdict.missing} of the arrows this step needs ${verdict.missing === 1 ? "is" : "are"} not drawn` : "",
+                  verdict.extra > 0 ? `${verdict.extra} arrow${verdict.extra === 1 ? "" : "s"} go${verdict.extra === 1 ? "es" : ""} somewhere this step does not` : "",
+                ]
+                  .filter((part) => part !== "")
+                  .join(", and ") + "."
+              }
+            />
+            <Detail
+              label="Why"
+              text="An S(N)2 is one concerted step: the nucleophile arrives as the leaving group departs. Carbon cannot hold five bonds even for an instant, so the bond to bromine has to break in the same step the bond to oxygen forms."
+            />
+            <Detail
+              label="Look at"
+              text="The C–Br bond. Grab its handle on the bromine side and send those electrons onto bromine, which leaves as bromide."
+            />
+          </ShowMore>
         </section>
       );
     case "incomplete":
       return (
         <section className="fade-in rounded-2xl border border-border bg-muted p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">Good so far.</h3>
-          <p className="mt-1 text-scale-sm text-muted-foreground">
-            {verdict.drawn} of {verdict.needed} arrows, every one of them legal. The step needs {verdict.needed - verdict.drawn} more.
-          </p>
+          <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
+          <ShowMore>
+            <Detail label="Why" text="Every arrow you have drawn holds up on its own. The step is not finished until the electrons that were holding the leaving group have somewhere to go." />
+            <Detail label="Look at" text="Which bond has to break for this product to exist, and which atom keeps those electrons." />
+          </ShowMore>
         </section>
       );
     default: {
