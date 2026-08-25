@@ -23,3 +23,25 @@ A critic compares against the artifact it can reach, never against a memory of t
 `inspirations/` in this folder: the path, the leaderboard, progress and buttons, rewards and the
 guidebook, the blocked node, the animation focus state, Memrise's UI, the tutor finder, Quizlet's
 subscription plan page.
+
+## Reference clones, source you can read
+
+Owner supplied three repository URLs, 2026-08-24, for the same surfaces the Phase 5 loop is
+judging. Cloned shallow into `repos/` and **gitignored**: 5.9 MB of third party code under their
+own licences, not ours to vendor, and D1 is about repository size. Re-clone with
+`git clone --depth 1 <url>` into `docs/reference/competitors/repos/<name>`.
+
+These are reference for STRUCTURE, never for the blind comparison. The bars in `CLAUDE.md` stay
+the bars: a critic judging our pathway compares against the committed capture in `inspirations/`,
+not against someone's clone of it. What a clone is good for is the question a still cannot answer,
+which is how the thing is assembled.
+
+| Repo | Stack | Read it for |
+|---|---|---|
+| `repos/duolingo-clone` (sanidhyy) | Next.js app router, Drizzle, Clerk | `app/(main)/learn/lesson-button.tsx` is the node geometry problem we solved differently, and `unit.tsx` / `unit-banner.tsx` are how a track groups into units. `app/lesson/` is a whole lesson player: `quiz.tsx`, `challenge.tsx`, `footer.tsx`, `result-card.tsx`. `app/(main)/leaderboard/` and `app/(main)/quests/` |
+| `repos/ludolang` (jokerhutt) | Vite + React + TanStack Query | `src/features/SectionPath/UnitPath.tsx` and `SectionPage.tsx`, the track laid out from a flat tree (`src/Types/Catalog/FlatSectionTree.ts`, `src/Hooks/Logic/Catalog/useSectionTree.tsx`). `src/features/Leaderboard/`, `src/Effects/ModalSheet/` beside our native `<dialog>` picker, and `src/features/Lesson/LessonComplete/` for the reward moment |
+| `repos/ludolang-backend` (jokerhutt) | Kotlin, Spring Boot, Postgres | The half our non-negotiables care about: `leaderboard/app/service/LeaderboardService.kt` computes standings server side rather than accepting them from a client. Phase 6 reading, not Phase 5 |
+
+Both ludolang repos are one author's non commercial portfolio project, stated in their README. The
+duolingo-clone repo is a tutorial build. Neither is a shipped product, so their choices are worth
+understanding and are not evidence about what works at scale. Our four bars are.

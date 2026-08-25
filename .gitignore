@@ -81,3 +81,14 @@ packages/chem-core/mutation/stryker-report.json
 
 # Single file preview build, never committed
 dist-single/
+
+# Reference clones, local only. Three third party repos pulled for the Phase 5
+# surfaces: sanidhyy/duolingo-clone, jokerhutt/ludolang, jokerhutt/ludolang-backend.
+# 5.9 MB of someone else's code and their licences, not ours to vendor, and D1 is
+# about repo size. Re-clone from the URLs in
+# docs/reference/competitors/WEB-INSPIRATION.md.
+docs/reference/competitors/repos/
+
+# Agent worktrees. A full checkout of this repo inside itself; committing it
+# would nest the tree in its own history.
+.claude/worktrees/

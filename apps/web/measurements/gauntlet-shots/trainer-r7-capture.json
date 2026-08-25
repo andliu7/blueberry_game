@@ -1,0 +1,20 @@
+{
+  "tag": "r7",
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "deviceScaleFactor": 2
+  },
+  "results": [
+    {
+      "theme": "light",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r7-light-committed.png",
+      "arrows": 2
+    },
+    {
+      "theme": "dark",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r7-dark-committed.png",
+      "arrows": 2
+    }
+  ]
+}

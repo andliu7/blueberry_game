@@ -255,7 +255,12 @@ export function ChargeBadge({ at, charge, opacity = 1 }: { at: Point2; charge: n
     // filled circle on a canvas where every physical object is modelled.
     <g opacity={opacity}>
       <circle cx={at.x} cy={at.y} r={10} fill="var(--card)" stroke="var(--bond-stroke)" strokeWidth={1.6} />
-      <text x={at.x} y={at.y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700} fill="#ffffff">
+      {/* --foreground, never a literal. #ffffff here made the sign INVISIBLE in
+          light mode: the disc is --card, which is near white, so hydroxide read
+          as neutral and the whole step lost its charge. Formal charge is
+          chemistry, and the light and dark captures side by side are what
+          showed it, because dark mode alone looked correct. */}
+      <text x={at.x} y={at.y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700} fill="var(--foreground)">
         {magnitude > 1 ? `${magnitude}${sign}` : sign}
       </text>
     </g>

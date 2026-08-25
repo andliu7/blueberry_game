@@ -54,6 +54,13 @@
      floor on the cream ground; the faint variant is for the hydrogen arc. */
   --bond-stroke: #64748b;
   --scene-faint: rgba(71, 85, 105, 0.5);
+  /* The canvas GROUND, distinct from --card. Atoms are modelled objects and a
+     modelled object needs a surface to sit on: the reference canvas is a lit
+     gradient, and against a flat ground the darkest atom (carbon) loses its
+     lower edge, which a blind critic caught. Two stops, a few percent apart,
+     lighter at the top like the light on the spheres. */
+  --scene-ground-top: #fbfaf7;
+  --scene-ground-bottom: #eceae3;
   /* The gap docs/DESIGN-TOKENS.md names: success and the two non-binary
      outcomes need tokens of their own, and none of them is red. --good is
      emerald-700 (4.6:1 on white, 4.4:1 on cream for large text only, so body
@@ -87,6 +94,10 @@
   --grid-line: rgba(255, 255, 255, 0.035);
   --bond-stroke: #a8a29e;
   --scene-faint: rgba(168, 162, 158, 0.55);
+  /* Lifted well clear of the page's #0c0a09, or a near-black carbon has
+     nothing to be seen against. */
+  --scene-ground-top: #2a2724;
+  --scene-ground-bottom: #1a1817;
   --good: #34d399;
   --good-ink: #6ee7b7;
   --good-soft: rgba(52, 211, 153, 0.16);

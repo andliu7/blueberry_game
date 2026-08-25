@@ -437,6 +437,59 @@ verdicts are recorded above and every one named a real defect rather than a pref
 loop is converging rather than thrashing. `/generate` is blocked: no image provider key is set in
 `C:\Users\zeusa\.claude\.env`.
 
+## Round seven, 2026-08-25. The capture is reproducible and it found two defects
+
+Full entry in `apps/web/measurements/gauntlet-trainer.md`. The short version.
+
+**`measurements/capture-trainer.mjs` exists.** Every earlier round's shots were improvised through a
+browser tool that then died on usage limits, which is why the JPEG method error above was possible
+at all. The capture is a committed script now: it serves `dist/`, drives the five taps of the answer
+through real PointerEvents, writes PNG in BOTH themes, and exits nonzero unless two arrowheads
+committed, so a shot of an empty canvas can never reach a critic. It needed one new measurement hook,
+`window.__blueberryTargets` behind `?targets=1`, in the same family as `window.__blueberryFrames`.
+
+**Two defects, from pairing light and dark in one run.**
+
+- The formal charge sign was drawn in a literal `#ffffff` on a `--card` disc. Correct in dark, and in
+  light mode white on near-white, so hydroxide rendered as a blank circle and the step lost its
+  charge. Judging one theme was judging half the product
+- The leaving group arrow never reached bromine. A flat 16 unit landing clearance, subtracted from a
+  38 unit distance with a 21 unit radius inside it, left a 0.8 unit chord, and `bowAwayFrom` bows a
+  degenerate chord straight up: a vertical stub over the bond, pointing back at it, reading as
+  electrons flowing INTO the bond. The clearance is budgeted against the available room now, and a
+  landing that would still be too short swings around the rim away from the molecule until the chord
+  is drawable. Inert where there was already room, which has its own test
+
+`landingOnRim` moved into `hitLayout.ts` with `test/arrowLanding.test.ts`, six cases.
+
+**Still open.** The trainer has not been judged blind on these captures; that is the next step and it
+needs a fresh-context critic. Known and unfixed: the forming O-C bond's segmented body reads as a
+chain of beads rather than a rod under construction.
+
+**A validator environment gotcha, cost half an hour.** `npm run validate` reported 25 of 30 with the
+five oracle checks failing `ModuleNotFoundError: No module named 'rdkit'`. Nothing was wrong with the
+suite. Bare `python` on this machine resolves to the Windows Store stub, 3.11.9 with no RDKit, which
+shadows the 3.13.9 anaconda interpreter the preflight recorded, and `py` does not exist here. The
+sidecar already honours `BLUEBERRY_PYTHON` for exactly this, so:
+
+```
+$env:BLUEBERRY_PYTHON = "C:\Users\zeusa\anaconda3\python.exe"
+npm run validate
+```
+
+30 of 30. Recorded in `second-brain/OS/memory/environment.md` too, because it will bite any project
+here, not only this one.
+
+## Reference clones filed, 2026-08-25
+
+Owner supplied three repository URLs for the surfaces the Phase 5 loop is judging:
+`sanidhyy/duolingo-clone`, `jokerhutt/ludolang`, `jokerhutt/ludolang-backend`. Cloned shallow into
+`docs/reference/competitors/repos/` and gitignored, 5.9 MB of third party code under their own
+licences and D1 is about repository size. What each is worth reading for is a table in
+`docs/reference/competitors/WEB-INSPIRATION.md`. They are reference for STRUCTURE and never for the
+blind comparison: the bars in CLAUDE.md stay the bars, and a critic judging our pathway compares
+against the committed capture, not against someone else's clone of the same product.
+
 ## Done outside the phase plan
 
 **Reference material filed.** 28 raw captures triaged. 10 into the required manifest slots, 9 more

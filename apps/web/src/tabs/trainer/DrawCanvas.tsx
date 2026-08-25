@@ -53,6 +53,7 @@ import {
   bondIdFor,
   bondMidpoint,
   bowAwayFrom,
+  landingOnRim,
   createHitTester,
   lonePairSlots,
   mix,
@@ -130,6 +131,26 @@ interface SinkGeometry {
   readonly ring: { readonly centre: Point2; readonly r: number };
 }
 
+/**
+ * Where an atom's implicit hydrogens sit.
+ *
+ * layout.ts puts them opposite the mean of an atom's bonds, which is right for
+ * a spectator and WRONG for a reaction centre. Bromomethane's carbon has one
+ * bond, to bromine on the right, so "opposite the bonds" is dead left, which
+ * is precisely where the nucleophile arrives: the three H glyphs land in the
+ * attack path and the arrow has to cross them. A blind critic hit this twice,
+ * once as an arrow cut into pieces by the H labels and once as a crowded band
+ * left of the carbon.
+ *
+ * It is also chemically wrong to draw them there. In a backside attack the
+ * three hydrogens lie in the plane PERPENDICULAR to the O-C-Br axis, which is
+ * the plane that inverts as the step proceeds. So at a reaction centre the arc
+ * turns a quarter turn: less clutter and a truer picture, from one rule.
+ */
+function hydrogenAngle(step: MechanismStep, atomId: AtomId, openAngle: number): number {
+  return step.identity.reactionCenters.includes(atomId) ? openAngle + Math.PI / 2 : openAngle;
+}
+
 function elementRadius(scene: StepScene, atomId: AtomId): number {
   return atomRadius(scene.atoms.find((atom) => atom.id === atomId)?.element ?? "C");
 }
@@ -137,14 +158,7 @@ function elementRadius(scene: StepScene, atomId: AtomId): number {
 function atomSinkGeometry(scene: StepScene, atomId: AtomId, from: Point2, centroid: Point2): SinkGeometry {
   const centre = atomCentre(scene, atomId);
   const r = elementRadius(scene, atomId);
-  // FACING THE SOURCE. Landing relative to the curve's control point put the
-  // head wherever the bow happened to throw it, which on a short chord, a bond
-  // midpoint to the atom right beside it, was off to one side and pointing
-  // into empty canvas: a blind critic read that arrow as saying the electrons
-  // leave the bond and go nowhere. The rim point facing the source always sits
-  // between the two, so the head is always on the line of travel.
-  void centroid;
-  return { landing: rimPoint(centre, from, r + LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
+  return { landing: landingOnRim(centre, r, from, centroid, LAND_GAP), stub: null, ring: { centre, r: r + 7 } };
 }
 
 /**
@@ -179,7 +193,10 @@ function bondSinkGeometry(scene: StepScene, atomIds: readonly [AtomId, AtomId], 
       : atomIds[1];
   const farCentre = atomCentre(scene, far);
   const source = from ?? mid;
-  const landing = rimPoint(farCentre, source, elementRadius(scene, far) + LAND_GAP);
+  // Same rule as an atom sink: a source close to the far atom would otherwise
+  // land on top of itself. Inert where there is already room, which is every
+  // nucleophile arrow in the corpus today.
+  const landing = landingOnRim(farCentre, elementRadius(scene, far), source, sceneCentroid(scene), LAND_GAP);
   return { landing, stub: { a, b }, ring: { centre: farCentre, r: elementRadius(scene, far) + 7 } };
 }
 
@@ -551,7 +568,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               const revealed = draft.revealedLonePairs.includes(atom.id);
               return (
                 <g key={atom.id}>
-                  <HydrogenArc centre={c} openAngle={atom.from.openAngle} count={atom.fromImplicitH} r={r} />
+                  <HydrogenArc centre={c} openAngle={hydrogenAngle(step, atom.id, atom.from.openAngle)} count={atom.fromImplicitH} r={r} />
                   {revealed
                     ? lonePairSlots(scene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;

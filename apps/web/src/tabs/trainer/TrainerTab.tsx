@@ -62,6 +62,24 @@ const params = new URLSearchParams(window.location.search);
 const AUTO_LOOP = params.get("auto") === "1";
 const START_3D = params.get("renderer") === "3d";
 const SHOW_STATS = params.get("stats") === "1";
+/**
+ * Publish the drop sites on `window` for the capture script.
+ *
+ * The same family as `window.__blueberryFrames` in useStepProgress.ts, and it
+ * exists for the same reason: the thing a measurement needs is inside React and
+ * nothing in the DOM carries it. Every drop site here is drawn into one SVG
+ * with no element of its own, so a script has no selector to click and no way
+ * to derive the geometry without reimplementing layout.ts.
+ *
+ * Behind a flag, so a student's run never publishes it.
+ */
+const EXPOSE_TARGETS = params.get("targets") === "1";
+
+declare global {
+  interface Window {
+    __blueberryTargets?: readonly DrawTarget[];
+  }
+}
 const STEP_DURATION_MS = 2000;
 
 function StatsOverlay() {
@@ -152,6 +170,9 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const onSpeciesMove = useCallback((speciesId: string, offset: Point2) => setOffsets((prev) => ({ ...prev, [speciesId]: offset })), []);
   const targets = useMemo(() => buildTargets(step, live, mechanism.revealedLonePairs, armedAtom), [step, live, mechanism.revealedLonePairs, armedAtom]);
   targetsRef.current = targets;
+  useEffect(() => {
+    if (EXPOSE_TARGETS) window.__blueberryTargets = targets;
+  }, [targets]);
   const guide = inFlightGuide(state);
 
   // Backgrounding ends any gesture, per the machine's appBackgrounded event.
@@ -253,7 +274,17 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         </ol>
       ) : null}
 
-      <section className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm" style={{ minHeight: "20rem" }}>
+      <section
+        // The canvas gets its own GROUND, not the card colour: a modelled atom
+        // needs a surface to sit on, and the darkest atom loses its lower edge
+        // against a flat one. Lighter at the top, matching the light on the
+        // spheres.
+        className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border border-border shadow-sm"
+        style={{
+          minHeight: "20rem",
+          background: "linear-gradient(180deg, var(--scene-ground-top), var(--scene-ground-bottom))",
+        }}
+      >
         {mode === "draw" ? (
           <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} draft={mechanism} guide={guide} targets={targets} dispatch={store.dispatch} failure={failure} reducedMotion={reducedMotion} />
         ) : renderer === "2d" ? (

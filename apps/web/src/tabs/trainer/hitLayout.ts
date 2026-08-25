@@ -263,6 +263,57 @@ export function bowAwayFrom(from: Point2, to: Point2, away: Point2, magnitude: n
   return distance(a, away) >= distance(b, away) ? a : b;
 }
 
+/** Shortest chord an arrow can have and still read as an arrow rather than a tick. */
+const MIN_CHORD = 34;
+
+/**
+ * Where an arrow lands on an atom's rim.
+ *
+ * The obvious answer, the rim point facing the source, is right whenever the
+ * source is far away and CATASTROPHIC when it is close. The leaving group arrow
+ * is the case: it starts at the C-Br bond's midpoint, 38 units from bromine's
+ * centre, and bromine's radius is 21 with a 16 unit clearance on top, so the
+ * landing came out 0.8 units from where the arrow started. bowAwayFrom treats a
+ * chord under 1 as degenerate and bows straight up, so the committed arrow was
+ * a vertical stub over the middle of the bond pointing back down at it: it did
+ * not touch bromine, and it read as electrons flowing INTO the bond rather than
+ * out of it with the leaving group. Both captures, light and dark, showed it.
+ *
+ * So the landing SWINGS around the rim instead. The clearance is budgeted
+ * against the room actually available rather than spent flat, and the landing
+ * rotates away from the molecule until the chord is long enough to draw, which
+ * is also how the arrow is drawn on paper: out, over, and down onto the atom
+ * that is leaving. Where there is already room the swing is zero and nothing
+ * about a long arrow changes.
+ */
+export function landingOnRim(centre: Point2, r: number, from: Point2, centroid: Point2, landGap: number): Point2 {
+  const dx = from.x - centre.x;
+  const dy = from.y - centre.y;
+  const reach = Math.hypot(dx, dy) || 1;
+  // Air between the head and the sphere is affordable only out of the gap
+  // between the source and the rim. Half of it, so the arrow always keeps a
+  // body at least as long as its clearance.
+  const gap = Math.min(landGap, Math.max(2, (reach - r) / 2));
+  const rr = r + gap;
+  // Law of cosines for the swing that makes the chord MIN_CHORD. Above 1 the
+  // chord cannot reach it from any angle, so take the best available, 180
+  // degrees; at or below -1 the straight landing is already long enough.
+  const cos = (reach * reach + rr * rr - MIN_CHORD * MIN_CHORD) / (2 * reach * rr);
+  const swing = Math.min(Math.acos(Math.max(-1, Math.min(1, cos))), 1.75);
+  if (!(swing > 0.01)) return rimPoint(centre, from, rr);
+  // Swing to the side away from the rest of the molecule, the same side
+  // bowAwayFrom arcs to, so the curve and its landing agree.
+  const base = Math.atan2(dy, dx);
+  const pick = (sign: number): Point2 => ({
+    x: centre.x + Math.cos(base + sign * swing) * rr,
+    y: centre.y + Math.sin(base + sign * swing) * rr,
+  });
+  const a = pick(1);
+  const b = pick(-1);
+  const far = (p: Point2): number => Math.hypot(p.x - centroid.x, p.y - centroid.y);
+  return far(a) >= far(b) ? a : b;
+}
+
 /** Centroid of every drawn atom, the side a curve should bow away from. */
 export function sceneCentroid(scene: StepScene): Point2 {
   let x = 0;

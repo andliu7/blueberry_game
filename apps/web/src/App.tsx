@@ -24,7 +24,7 @@ const Onboarding = lazy(() => import("./onboarding/Onboarding"));
 
 const params = new URLSearchParams(window.location.search);
 /** The measurement scripts need the canvas with no onboarding in front of it. */
-const MEASURING = params.get("auto") === "1" || params.get("stats") === "1";
+const MEASURING = params.get("auto") === "1" || params.get("stats") === "1" || params.get("targets") === "1";
 
 export default function App() {
   const route = useHashRoute();
