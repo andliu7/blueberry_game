@@ -410,7 +410,9 @@ function OrgoMapTrack() {
             </ol>
 
             {branches.length > 0 ? (
-              <div className="mx-auto w-full max-w-md">
+              <div className="cloud-veil mx-auto w-full max-w-md" role="group" aria-label="Side quests, tap to part the clouds">
+                <span className="cloud-puff cloud-puff--a" aria-hidden />
+                <span className="cloud-puff cloud-puff--b" aria-hidden />
                 <p className="mb-1 text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">Side quests</p>
                 <div className="flex flex-wrap gap-1.5">
                   {branches.map((node) =>

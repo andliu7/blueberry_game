@@ -414,3 +414,47 @@ body {
     animation-delay: 0ms;
   }
 }
+
+
+/* -------------------------------------------------------------------------
+   The pathway's clouds. Owner direction 2026-08-26: side quests sit behind
+   light clouds like a world map's unexplored edge, inviting rather than
+   hiding; the page gains gentle motion as you scroll. Pure CSS: two soft
+   white puffs drift slowly across the side-quest group and thin to nothing
+   on hover or tap-focus within, so looking at the quests parts the clouds.
+   Reduced motion pins the puffs still. */
+.cloud-veil {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+.cloud-puff {
+  position: absolute;
+  pointer-events: none;
+  width: 55%;
+  height: 130%;
+  top: -15%;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.55) 60%, transparent 100%);
+  filter: blur(6px);
+  transition: opacity 400ms ease;
+  animation: cloud-drift 14s ease-in-out infinite alternate;
+}
+:root:not([data-theme="light"]) .cloud-puff {
+  background: radial-gradient(closest-side, rgba(200, 205, 215, 0.5), rgba(200, 205, 215, 0.28) 60%, transparent 100%);
+}
+.cloud-puff--a { left: -10%; }
+.cloud-puff--b { right: -10%; animation-delay: -7s; animation-duration: 18s; }
+.cloud-veil:hover .cloud-puff,
+.cloud-veil:focus-within .cloud-puff,
+.cloud-veil:active .cloud-puff {
+  opacity: 0.15;
+}
+@keyframes cloud-drift {
+  from { transform: translateX(-6%); }
+  to { transform: translateX(14%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cloud-puff { animation: none; }
+}

@@ -69,11 +69,12 @@ export function TrainerTools({ step, scene, progress, reducedMotion, history, on
         </button>
         {open ? (
           <div className="fade-in flex flex-col items-end gap-2">
-            <ToolButton label="Scratchpaper" onPick={() => pick("scratchpad")} />
-            <ToolButton label="Periodic table" onPick={() => pick("periodic")} />
-            <ToolButton label="3D view" onPick={() => pick("three")} />
-            <ToolButton label={`Feedback history${history.length > 0 ? ` (${history.length})` : ""}`} onPick={() => pick("history")} />
+            <ToolButton icon="/icons/scratch.png" label="Scratchpaper" onPick={() => pick("scratchpad")} />
+            <ToolButton icon="/icons/periodic.png" label="Periodic table" onPick={() => pick("periodic")} />
+            <ToolButton icon="/icons/cube3d.png" label="3D view" onPick={() => pick("three")} />
+            <ToolButton icon="/icons/history.png" label={`Feedback history${history.length > 0 ? ` (${history.length})` : ""}`} onPick={() => pick("history")} />
             <ToolButton
+              icon="/icons/recenter.png"
               label="Re-centre view"
               onPick={() => {
                 onRecenter();
@@ -169,9 +170,13 @@ function ZoomPan({ children }: { readonly children: ReactNode }) {
   );
 }
 
-function ToolButton({ label, onPick }: { readonly label: string; readonly onPick: () => void }) {
+function ToolButton({ label, onPick, icon }: { readonly label: string; readonly onPick: () => void; readonly icon?: string }) {
   return (
-    <button type="button" className="press min-h-11 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-md" onPointerDown={onPick}>
+    <button type="button" className="press flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-md" onPointerDown={onPick}>
+      {/* Generated icon set (fal.ai Nano Banana Lite, owner-specified motifs);
+          sized to the adjacent text per the design rules, alt empty because
+          the label beside it IS the name. */}
+      {icon !== undefined ? <img src={icon} alt="" className="h-5 w-5 rounded object-cover" /> : null}
       {label}
     </button>
   );
@@ -280,9 +285,11 @@ function Scratchpad({ onClose }: { readonly onClose: () => void }) {
         <button
           type="button"
           aria-pressed={eraser}
-          className={"press min-h-11 rounded-full border px-4 text-scale-sm font-semibold text-white " + (eraser ? "border-white bg-white/25" : "border-white/30 bg-white/10")}
+          className={"press flex min-h-11 items-center gap-2 rounded-full border px-4 text-scale-sm font-semibold text-white " + (eraser ? "border-white bg-white/25" : "border-white/30 bg-white/10")}
           onPointerDown={() => setEraser((prev) => !prev)}
+          title="Eraser: rub out strokes"
         >
+          <img src="/icons/eraser.png" alt="" className="h-5 w-5 rounded object-cover" />
           Eraser
         </button>
         <button

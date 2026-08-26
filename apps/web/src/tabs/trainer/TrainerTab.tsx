@@ -621,9 +621,14 @@ function plainLine(verdict: DrawVerdict, successLine: string): string {
     case "invalid":
       return PLAIN_BY_RULE[verdict.finding.rule] ?? "That arrow cannot move electrons the way it is drawn.";
     case "not_requested":
+      // NEUTRAL on purpose: this line shows for every reaction in the
+      // registry, and its first draft said "the bromide still has no reason
+      // to leave" to a student doing a Michael addition with no bromine on
+      // the canvas. The owner caught it live. Copy that names a species
+      // belongs to a distractor or a per-reaction hint, never here.
       return verdict.missing > 0
-        ? "Every arrow you drew is legal, and the bromide still has no reason to leave."
-        : "Every arrow you drew is legal, and together they describe a different transformation.";
+        ? "Every arrow you drew is legal, and the step is not finished: something this reaction needs has not moved yet."
+        : "Every arrow you drew is legal, and together they describe a different transformation than this one.";
     case "incomplete":
       return `${verdict.drawn} of ${verdict.needed} arrows, ${verdict.drawn === 1 ? "and it holds up" : "all legal so far"}. One more: something has to break.`;
     default: {
@@ -770,11 +775,11 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
             />
             <Detail
               label="Why"
-              text="An S(N)2 is one concerted step: the nucleophile arrives as the leaving group departs. Carbon cannot hold five bonds even for an instant, so the bond to bromine has to break in the same step the bond to oxygen forms."
+              text="Electrons are conserved: every bond that forms needs electrons from somewhere, and every atom keeps a legal count. When the drawn arrows are each fine alone but the step is wrong together, the mismatch is in what still has to move."
             />
             <Detail
               label="Look at"
-              text="The C–Br bond. Grab its handle on the bromine side and send those electrons onto bromine, which leaves as bromide."
+              text="The arrows this step still needs. Compare what changed between your drawing and the target: which bond has not broken yet, or which electrons went somewhere this reaction does not send them."
             />
           </ShowMore>
           <CardFooterRow footer={footer} />
@@ -786,7 +791,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
           <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
           <ShowMore>
-            <Detail label="Why" text="Every arrow you have drawn holds up on its own. The step is not finished until the electrons that were holding the leaving group have somewhere to go." />
+            <Detail label="Why" text="Every arrow you have drawn holds up on its own. A step is finished when every electron pair that has to move has moved, and at least one has not yet." />
             <Detail label="Look at" text="Which bond has to break for this product to exist, and which atom keeps those electrons." />
           </ShowMore>
           <CardFooterRow footer={footer} />
