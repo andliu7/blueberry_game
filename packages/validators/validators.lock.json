@@ -18,7 +18,7 @@
     "validators.lock.json"
   ],
   "fileCount": 215,
-  "suiteHash": "ec3c416842c8523496f85595fc1c778c7a909654775c25b97fddc8f34d0123ef",
+  "suiteHash": "cf5d2f6fb7c633de1348d33ae3a5d6c8025cf9c676212dd066eaf6f7b1364757",
   "files": {
     ".gitattributes": "138c48eb5ec97e02906ec871764e9b8aca172e6b8b81063c050199d58dd0680d",
     "fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -164,7 +164,7 @@
     "src/checks/conservation/electron-flow.ts": "b541f2a9c1a1bb060ebe14ad007cb602409bd78087b3ed74ddc5cc49efacc0e2",
     "src/checks/conservation/family.ts": "7c1e64179dc3ffe036806d8438e7a50292a724432f2aa4825b39d5e336d8076e",
     "src/checks/conservation/fixture-loading.ts": "64b16498714a96f80ab976ca520442e6d49f07d73c5f5f7b61fa9aa04f92d91f",
-    "src/checks/conservation/fixture-schema.ts": "027ee908056c01a440f61b877e69f8bfb142a2dcc040317ba49e13b0c8f907b3",
+    "src/checks/conservation/fixture-schema.ts": "531d2d8c3fd507532a1b3a57fe9bf3e23325cecc96672da97b78c5fff719f097",
     "src/checks/conservation/index.ts": "b8775889a62c60dcd2d96c36c98229db17d4781657477e6b161931e55fd95f91",
     "src/checks/conservation/mass.ts": "0588c3744a28d17222268d0a8c32e43a4276db3aa0a3dc1b106f011052b33c2e",
     "src/checks/conservation/periplanarity.ts": "476e048937af7b309fc7347e5c7499a008799a6ba6dac2d0a9d77e642a3a4d36",
