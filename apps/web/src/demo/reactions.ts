@@ -287,6 +287,163 @@ const ALKENE_PROTONATION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* E2 at 2-bromopropane: three arrows, one barrier. Unit 5 spine.       */
+/* ------------------------------------------------------------------ */
+
+const bromopropane = createSpecies({
+  id: "sp-2-bromopropane",
+  atoms: [
+    // The beta hydrogen is explicit: it is the atom the base takes.
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "hb", element: "H" }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "br1", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-c1hb", a: "c1", b: "hb" }),
+    createBond({ id: "b-c12", a: "c1", b: "c2" }),
+    createBond({ id: "b-c23", a: "c2", b: "c3" }),
+    createBond({ id: "b-c2br", a: "c2", b: "br1" }),
+  ],
+});
+
+const hydroxideE2 = createSpecies({
+  id: "sp-hydroxide-e2",
+  atoms: [
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "h1", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-oh", a: "o1", b: "h1" })],
+});
+
+const propeneOut = createSpecies({
+  id: "sp-propene-out",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-c12", a: "c1", b: "c2", order: 2 }), createBond({ id: "b-c23", a: "c2", b: "c3" })],
+});
+
+const waterE2 = createSpecies({
+  id: "sp-water-e2",
+  atoms: [
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h1", element: "H" }),
+    createAtom({ id: "hb", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-oh", a: "o1", b: "h1" }), createBond({ id: "b-ohb", a: "o1", b: "hb" })],
+});
+
+const bromideE2 = createSpecies({
+  id: "sp-bromide-e2",
+  atoms: [createAtom({ id: "br1", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const E2_ELIMINATION: MechanismStep = createStep({
+  id: "e2-2-bromopropane",
+  from: createState({
+    id: "e2-before",
+    members: [
+      { species: hydroxideE2, role: "base" },
+      { species: bromopropane, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "e2-after",
+    members: [
+      { species: propeneOut, role: "product" },
+      { species: waterE2, role: "byproduct" },
+      { species: bromideE2, role: "leaving_group" },
+    ],
+  }),
+  identity: {
+    elementaryStep: "concerted_elimination",
+    route: "e2",
+    reactionCenters: ["hb", "c2"],
+  },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("o1"), sink: toBondBetween("o1", "hb") }),
+    createArrow({ id: "a-pi", source: fromBond("b-c1hb"), sink: toBondBetween("c1", "c2") }),
+    createArrow({ id: "a-leave", source: fromBond("b-c2br"), sink: toAtom("br1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Cyanohydrin: cyanide attacks formaldehyde. Unit 7 branch, one step.  */
+/* ------------------------------------------------------------------ */
+
+const cyanide = createSpecies({
+  id: "sp-cyanide",
+  atoms: [
+    createAtom({ id: "c9", element: "C", formalCharge: -1, lonePairs: 1 }),
+    createAtom({ id: "n1", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [createBond({ id: "b-cn", a: "c9", b: "n1", order: 3 })],
+});
+
+const formaldehydeCy = createSpecies({
+  id: "sp-formaldehyde-cy",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ch2", a: "c1", b: "h2" }),
+    createBond({ id: "b-ch3", a: "c1", b: "h3" }),
+    createBond({ id: "b-co", a: "c1", b: "o1", order: 2 }),
+  ],
+});
+
+const cyanoalkoxide = createSpecies({
+  id: "sp-cyanoalkoxide",
+  atoms: [
+    createAtom({ id: "c9", element: "C" }),
+    createAtom({ id: "n1", element: "N", lonePairs: 1 }),
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cn", a: "c9", b: "n1", order: 3 }),
+    createBond({ id: "b-cc", a: "c9", b: "c1" }),
+    createBond({ id: "b-ch2", a: "c1", b: "h2" }),
+    createBond({ id: "b-ch3", a: "c1", b: "h3" }),
+    createBond({ id: "b-co", a: "c1", b: "o1" }),
+  ],
+});
+
+const CYANOHYDRIN_ATTACK: MechanismStep = createStep({
+  id: "cyanohydrin-attack",
+  from: createState({
+    id: "cy-before",
+    members: [
+      { species: cyanide, role: "nucleophile" },
+      { species: formaldehydeCy, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "cy-after",
+    members: [{ species: cyanoalkoxide, role: "product" }],
+  }),
+  identity: {
+    elementaryStep: "nucleophilic_attack",
+    route: "nucleophilic_addition_carbonyl",
+    reactionCenters: ["c1"],
+  },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("c9"), sink: toBondBetween("c9", "c1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-co"), sink: toAtom("o1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -381,6 +538,54 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       c2: { x: -1.15, y: -0.45 },
       c3: { x: -2.1, y: -0.95 },
       br1: { x: 1.6, y: 0.15 },
+    },
+  },
+  {
+    id: "e2",
+    title: "E2 elimination",
+    brief: "Three arrows, one moment: the base pulls, the π forms, the bromide leaves.",
+    successLine: "One concerted step: the base takes the β-hydrogen as its electrons become the π bond and bromide departs — anti-periplanar, all at once.",
+    step: E2_ELIMINATION,
+    fromHints: {
+      o1: { x: -2.6, y: 1.15 },
+      h1: { x: -3.35, y: 1.7 },
+      c1: { x: -1.05, y: 0.15 },
+      hb: { x: -1.75, y: 0.85 },
+      c2: { x: 0.0, y: -0.35 },
+      c3: { x: -0.25, y: -1.4 },
+      br1: { x: 1.2, y: 0.35 },
+    },
+    toHints: {
+      o1: { x: -2.6, y: 1.15 },
+      h1: { x: -3.35, y: 1.7 },
+      hb: { x: -1.95, y: 1.35 },
+      c1: { x: -1.05, y: 0.15 },
+      c2: { x: 0.0, y: -0.35 },
+      c3: { x: -0.25, y: -1.4 },
+      br1: { x: 1.75, y: 0.55 },
+    },
+  },
+  {
+    id: "cyanohydrin",
+    title: "Cyanohydrin attack",
+    brief: "Cyanide's carbon is the nucleophile. Two arrows.",
+    successLine: "The carbanion carbon attacks the carbonyl and the π electrons climb onto oxygen: one new C–C bond, and a nitrile handle for later chemistry.",
+    step: CYANOHYDRIN_ATTACK,
+    fromHints: {
+      c9: { x: -1.45, y: -0.35 },
+      n1: { x: -2.45, y: -0.7 },
+      c1: { x: 0, y: 0 },
+      h2: { x: -0.35, y: 0.94 },
+      h3: { x: 0.95, y: -0.35 },
+      o1: { x: 0.62, y: 0.78 },
+    },
+    toHints: {
+      c9: { x: -0.95, y: -0.3 },
+      n1: { x: -1.95, y: -0.65 },
+      c1: { x: 0, y: 0 },
+      h2: { x: -0.35, y: 0.94 },
+      h3: { x: 0.95, y: -0.35 },
+      o1: { x: 0.62, y: 0.78 },
     },
   },
 ];

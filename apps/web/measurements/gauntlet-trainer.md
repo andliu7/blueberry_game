@@ -495,3 +495,33 @@ a release burst, so the electrons visibly climb onto the oxygen.
 Suite 30 of 30 and payload within budget at every commit. Still queued in this loop: the arrowless
 multi-step mode, the resonance-hunt game mode where the drawn arrows live, /generate assets, and
 the spine coverage waves.
+
+## 2026-08-26, coverage wave 1 along the spine
+
+The owner called the gap plainly: eight playable steps against a map of 86 spine nodes is not the
+deliverable. This wave is pure authoring on the machine everything above built, and the machine
+held: every new step validated conservation at import and walked through the real interaction
+machine to a correct grade on the first run.
+
+New this wave, by pathway map unit:
+
+- **Unit 5 spine, E2**: hydroxide + 2-bromopropane, three arrows in one barrier, the beta hydrogen
+  explicit because it is the atom the base takes.
+- **Unit 5/7 spine, SN1 solvolysis · 2 steps**: unassisted ionisation to the flat tertiary cation,
+  then water's capture; the success copy carries the stereochemistry lesson SN1 exists to teach.
+- **Unit 7 branch, cyanohydrin**: cyanide's CARBON attacks, one new C-C bond and a nitrile handle.
+- **Unit 8 spine, acyl substitution · 2 steps**: addition to the tetrahedral intermediate, then the
+  collapse that reforms the pi bond and expels chloride: the reactivity ladder's own mechanism.
+- **Unit 9 spine, the aldol · 2 steps**: enolate formation (three arrows: base takes the alpha
+  proton, C-H electrons become the pi, the carbonyl pi steps onto oxygen) then the enolate carbon's
+  attack on formaldehyde (three arrows again, carbonyl reforming behind the attack). This is the
+  reaction the owner asked for by name when the resonance entries confused: real partners, a real
+  C-C bond formed.
+- Earlier in the same session: **propene replacing ethene**, so Markovnikov regiochemistry is real
+  and the mirror-answer symmetry trap is an authored anti-Markovnikov distractor instead.
+
+Playable inventory: 6 single-step reactions, 4 sequences holding 8 steps, 3 resonance finds:
+17 playable steps touching roughly 13 of the 86 spine nodes. The remaining spine runs through EAS
+(arenium chemistry needs an authored benzene and its sigma complex), the alcohol/epoxide block,
+Wittig, reductions, and the rest of Unit 9; those are the next waves, and each is now data plus
+hints plus tests, no component work.
