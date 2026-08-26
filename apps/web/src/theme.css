@@ -52,7 +52,12 @@
   --grid-line: rgba(15, 23, 42, 0.025);
   /* Mechanism canvas strokes. Slate-600-ish clears the 3:1 graphics contrast
      floor on the cream ground; the faint variant is for the hydrogen arc. */
-  --bond-stroke: #64748b;
+  /* Lighter than every atom it joins, per the video-frame critic: the bar's
+     rods are the LIGHT layer so they read as connectors you act on, and ours
+     inverted that figure-ground. The joint is lighter still: it is the grab
+     handle. */
+  --bond-stroke: #8e9aab;
+  --bond-joint: #c8d0da;
   /* The lone pair ring and dots. Raised from 0.5 alpha slate, which a blind
      critic measured as under any reasonable contrast floor on the warm off
      white ground: pale grey dots in a pale ring, and the lone pair is the one
@@ -79,9 +84,12 @@
      it is not drawn on is wrong in one theme by construction: --card is near
      white here and near black in dark, and the canvas ground is the opposite
      both times. Light chip, dark sign, both themes. */
-  --charge-chip: #ffffff;
-  --charge-ink: #1a1817;
-  --charge-ring: #57534e;
+  /* Filled dark disc, white sign: the bar's own chip. Round 9's light-chip
+     choice fixed dark mode and was then judged in light mode as "a
+     notification bubble"; the theme split below keeps both lessons. */
+  --charge-chip: #403c38;
+  --charge-ink: #ffffff;
+  --charge-ring: rgba(255, 255, 255, 0.35);
   /* The rejection triangle. Solid fill, not the translucent --warn-soft: it
      sits ON atoms of every colour and a translucent wash would change hue per
      atom behind it. */
@@ -122,7 +130,8 @@
   --input: #44403c;
   --ring: #818cf8;
   --grid-line: rgba(255, 255, 255, 0.035);
-  --bond-stroke: #a8a29e;
+  --bond-stroke: #b5aea8;
+  --bond-joint: #ddd6cf;
   --scene-faint: rgba(168, 162, 158, 0.55);
   /* Lifted well clear of the page's #0c0a09, or a near-black carbon has
      nothing to be seen against. */

@@ -41,7 +41,7 @@
  * and between-atom sites render only while a source is armed.
  */
 
-import { useCallback, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { AtomId, ElectronFlowArrow, MechanismStep } from "@blueberry/chem-core";
 import { inferSink, targetAtomId, type ArmedElectronSource, type HitTarget, type InFlightGuide, type InteractionEvent, type MechanismDraft, type PointerInput, type PointerKind, type Point2 } from "@blueberry/interaction";
 import type { StepScene } from "../../render/layout/stepScene";
@@ -172,24 +172,27 @@ interface SinkGeometry {
 }
 
 /**
- * Where an atom's implicit hydrogens sit.
- *
- * layout.ts puts them opposite the mean of an atom's bonds, which is right for
- * a spectator and WRONG for a reaction centre. Bromomethane's carbon has one
- * bond, to bromine on the right, so "opposite the bonds" is dead left, which
- * is precisely where the nucleophile arrives: the three H glyphs land in the
- * attack path and the arrow has to cross them. A blind critic hit this twice,
- * once as an arrow cut into pieces by the H labels and once as a crowded band
- * left of the carbon.
- *
- * It is also chemically wrong to draw them there. In a backside attack the
- * three hydrogens lie in the plane PERPENDICULAR to the O-C-Br axis, which is
- * the plane that inverts as the step proceeds. So at a reaction centre the arc
- * turns a quarter turn: less clutter and a truer picture, from one rule.
+ * Directions of every bond leaving an atom, forming bonds included, in scene
+ * radians (y up, as atom positions are stored). HydrogenArc distributes the
+ * implicit hydrogens in the gaps between these, the way the bar's videos
+ * place them. Forming bonds count: a nucleophile's corridor is a direction
+ * hydrogens must clear, which is what the old reaction-centre quarter-turn
+ * approximated with a hardcoded rotation.
  */
-function hydrogenAngle(step: MechanismStep, atomId: AtomId, openAngle: number): number {
-  return step.identity.reactionCenters.includes(atomId) ? openAngle + Math.PI / 2 : openAngle;
+function bondAnglesAt(scene: StepScene, atomId: AtomId): number[] {
+  const here = scene.atoms.find((atom) => atom.id === atomId);
+  if (here === undefined) return [];
+  const angles: number[] = [];
+  for (const bond of scene.bonds) {
+    if (bond.a !== atomId && bond.b !== atomId) continue;
+    const otherId = bond.a === atomId ? bond.b : bond.a;
+    const other = scene.atoms.find((atom) => atom.id === otherId);
+    if (other === undefined) continue;
+    angles.push(Math.atan2(other.from.pos.y - here.from.pos.y, other.from.pos.x - here.from.pos.x));
+  }
+  return angles;
 }
+
 
 /**
  * Which in flight primitive to draw. Round 8 of the trainer gauntlet is a blind
@@ -418,6 +421,15 @@ interface Carry {
 export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected }: DrawCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const carryRef = useRef<Carry | null>(null);
+  /**
+   * The active orbit, mirrored into state so it can RENDER. A video-frame
+   * critic put it plainly: the one frame whose whole job is "pointer held"
+   * showed nothing kinetic, so the swing read as three separate static
+   * molecules. While this is set the canvas draws the circle the atom rides
+   * (dashed, the path that exists only during the hold) and a halo on the
+   * swung atom. The ref stays the gesture's source of truth; this is display.
+   */
+  const [activeOrbit, setActiveOrbit] = useState<{ readonly atomId: AtomId; readonly neighbourId: AtomId; readonly radiusPx: number } | null>(null);
   const targetsRef = useRef(targets);
   targetsRef.current = targets;
   // The same hit tester the machine uses, over the same live targets, so the
@@ -519,7 +531,12 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     if (carry !== null && carry.pointerId === pointer.pointerId) {
       const dx = pointer.point.x - carry.down.point.x;
       const dy = pointer.point.y - carry.down.point.y;
-      if (!carry.active && Math.hypot(dx, dy) > DRAG_START_PX) carry.active = true;
+      if (!carry.active && Math.hypot(dx, dy) > DRAG_START_PX) {
+        carry.active = true;
+        if (carry.kind === "orbit" && carry.atomId !== null && carry.neighbourId !== null) {
+          setActiveOrbit({ atomId: carry.atomId, neighbourId: carry.neighbourId, radiusPx: carry.radiusPx });
+        }
+      }
       if (carry.active) {
         if (carry.kind === "orbit" && carry.atomId !== null && carry.neighbourId !== null) {
           // The neighbour is read LIVE, not from press time: if the molecule
@@ -542,6 +559,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     const carry = carryRef.current;
     if (carry !== null && carry.pointerId === pointer.pointerId) {
       carryRef.current = null;
+      setActiveOrbit(null);
       if (carry.active) {
         // The carry was the canvas's; the machine sees a tap where the press landed.
         dispatch({ kind: "pointerUp", pointer: { ...pointer, point: carry.down.point } });
@@ -554,7 +572,10 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
   const onPointerCancel = (event: ReactPointerEvent<SVGSVGElement>) => {
     const pointer = toInput(event);
     if (pointer === null) return;
-    if (carryRef.current?.pointerId === pointer.pointerId) carryRef.current = null;
+    if (carryRef.current?.pointerId === pointer.pointerId) {
+      carryRef.current = null;
+      setActiveOrbit(null);
+    }
     dispatch({ kind: "pointerCancel", pointer });
   };
 
@@ -704,7 +725,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
               const revealed = draft.revealedLonePairs.includes(atom.id);
               return (
                 <g key={atom.id}>
-                  <HydrogenArc centre={c} openAngle={hydrogenAngle(step, atom.id, atom.from.openAngle)} count={atom.fromImplicitH} r={r} expanded={revealed} />
+                  <HydrogenArc centre={c} openAngle={atom.from.openAngle} count={atom.fromImplicitH} r={r} expanded={revealed} bondAngles={bondAnglesAt(drawScene, atom.id)} />
                   {revealed
                     ? lonePairSlots(drawScene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
@@ -824,6 +845,23 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
           </g>
         );
       })}
+
+      {/* The orbit in progress: the circle the atom rides, dashed because it
+          exists only while the pointer holds it, and a halo on the swung atom
+          so the grabbed thing is visibly grabbed. */}
+      {activeOrbit !== null
+        ? (() => {
+            const centre = atomCentre(live, activeOrbit.neighbourId);
+            const swung = atomCentre(live, activeOrbit.atomId);
+            const r = elementRadius(live, activeOrbit.atomId);
+            return (
+              <g style={{ pointerEvents: "none" }}>
+                <circle cx={centre.x} cy={centre.y} r={activeOrbit.radiusPx} fill="none" stroke="var(--primary)" strokeWidth={1.6} strokeDasharray="4 7" opacity={0.4} />
+                <circle cx={swung.x} cy={swung.y} r={r + 6} fill="none" stroke="var(--primary)" strokeWidth={2.5} opacity={0.8} />
+              </g>
+            );
+          })()
+        : null}
 
       {/* The rejected arrow, frozen in warning colour with the bar's triangle
           on the atom it wrongly targeted. Stays until the next touch, so the

@@ -197,14 +197,20 @@ export function BondCapsule({
               strokeLinecap="round"
               strokeDasharray={forming ? "15 9" : undefined}
             />
-            {/* Ball joints, sitting ON each silhouette. In the capture these
-                are what make a bond read as a rod socketed into a ball rather
-                than a stripe laid across two circles. Drawn a touch brighter
-                than the rod so the joint catches the same light the spheres do. */}
-            <circle cx={start.x} cy={start.y} r={width * 0.42} fill="var(--bond-stroke)" />
-            <circle cx={end.x} cy={end.y} r={width * 0.42} fill="var(--bond-stroke)" />
-            <circle cx={start.x - 0.8} cy={start.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.5} />
-            <circle cx={end.x - 0.8} cy={end.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.5} />
+            {/* Ball joints, sitting ON each silhouette, SINGLE bonds only. On a
+                double bond the four end balls plus two highlight stripes read
+                as a ladder with rungs, which a video-frame critic called a
+                notation no chemistry uses: the bar draws a multiple bond as
+                two clean parallel sticks. The joints are also the bar's grab
+                handles, so they are brighter than the rod on purpose. */}
+            {order === 1 ? (
+              <>
+                <circle cx={start.x} cy={start.y} r={width * 0.42} fill="var(--bond-joint)" />
+                <circle cx={end.x} cy={end.y} r={width * 0.42} fill="var(--bond-joint)" />
+                <circle cx={start.x - 0.8} cy={start.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.7} />
+                <circle cx={end.x - 0.8} cy={end.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.7} />
+              </>
+            ) : null}
           </g>
         );
       })}
@@ -218,50 +224,93 @@ const SUBSCRIPTS = ["", "", "₂", "₃", "₄"];
  * The faint arc of implicit hydrogens, with an H-count glyph on it.
  * `openAngle` is in scene terms (y up); pixel y grows downward, so it negates.
  */
-export function HydrogenArc({ centre, openAngle, count, r, expanded = false }: { centre: Point2; openAngle: number; count: number; r: number; expanded?: boolean }) {
+export function HydrogenArc({
+  centre,
+  openAngle,
+  count,
+  r,
+  expanded = false,
+  bondAngles = [],
+}: {
+  centre: Point2;
+  openAngle: number;
+  count: number;
+  r: number;
+  expanded?: boolean;
+  /**
+   * Directions, in screen radians, of every bond leaving this atom, including
+   * forming ones. The hydrogens distribute themselves AROUND the atom in the
+   * gaps between these, which is how the bar's own videos place them
+   * (structure-1: a right-bonded carbon carries its three H at top, left and
+   * bottom, not stacked in one arc below). Empty means no bonds: a free
+   * circle, hydrogens evenly spaced.
+   */
+  bondAngles?: readonly number[];
+}) {
   if (count <= 0) return null;
   /* `expanded` is the owner's "click on it and it opens up", for carbons: at
      rest the hydrogens hug the sphere as quiet upright glyphs, and tapping the
-     atom (the same tap that reveals lone pairs) swings them further out, spreads
-     the arc, and lifts them to full ink so they read as countable atoms rather
-     than as an annotation. Oxygen never reaches this: its hydrogen is an
-     explicit atom in the species, the way the bar draws hydroxide. */
-  // Hugging the sphere, thin, short. An arc set far out with a big label reads
-  // as a mouth under the atom rather than as an annotation on it; the capture
-  // keeps the hydrogens tight against the skin and quiet.
-  // One small H per hydrogen, spaced along a thin arc that hugs the sphere,
-  // the way the capture draws a CH3. A single "H3" beside a 60 degree arc
-  // reads as a parenthesis with a subscript next to it; three H's ON the arc
-  // read as three hydrogens, which is what they are. Above four the count
-  // wins, because seven H's on an arc is a smear.
+     atom swings them further out and lifts them to full ink. */
   const arcR = r + (expanded ? 14 : 7);
-  const HALF = (count <= 1 ? 0.34 : 0.3 + count * 0.16) * (expanded ? 1.45 : 1);
-  const a0 = -(openAngle - HALF);
-  const a1 = -(openAngle + HALF);
-  const start = { x: centre.x + arcR * Math.cos(a0), y: centre.y + arcR * Math.sin(a0) };
-  const end = { x: centre.x + arcR * Math.cos(a1), y: centre.y + arcR * Math.sin(a1) };
-  const letters =
-    count <= 4
-      ? Array.from({ length: count }, (_, i) => {
-          // Spread across the arc, and a single hydrogen sits on its middle.
-          const t = count === 1 ? 0.5 : i / (count - 1);
-          const angle = -(openAngle - HALF + t * 2 * HALF);
-          return { key: i, x: centre.x + (arcR + 6) * Math.cos(angle), y: centre.y + (arcR + 6) * Math.sin(angle), text: "H" };
-        })
-      : [{ key: 0, x: centre.x + (arcR + 7) * Math.cos(-openAngle), y: centre.y + (arcR + 7) * Math.sin(-openAngle), text: `H${SUBSCRIPTS[count] ?? `×${count}`}` }];
+
+  /* Distribute `count` directions over the circle, excluding a keep-out cone
+     around every bond. Done on the circle rather than on one arc because a
+     single arc was judged twice: a blind critic read it as a bond joining the
+     outer hydrogens with the middle one dangling free, and the bar's frames
+     show the gaps-between-bonds placement. */
+  const KEEP_OUT = 0.9; /* half-angle of each bond's cone, ~52 degrees */
+  const TAU = Math.PI * 2;
+  const norm = (a: number) => ((a % TAU) + TAU) % TAU;
+  const cones = bondAngles.map((angle) => norm(-angle)); /* screen y is down; slots below negate too */
+  /* Walk the circle in fine steps, collecting allowed runs. Coarse but robust:
+     720 steps is exact to half a degree and immune to interval edge cases. */
+  const STEPS = 720;
+  const allowed: number[] = [];
+  for (let i = 0; i < STEPS; i += 1) {
+    const angle = (i / STEPS) * TAU;
+    const blocked = cones.some((cone) => {
+      const d = Math.abs(norm(angle - cone + Math.PI) - Math.PI);
+      return d < KEEP_OUT;
+    });
+    if (!blocked) allowed.push(angle);
+  }
+  const pool = allowed.length > 0 ? allowed : Array.from({ length: STEPS }, (_, i) => (i / STEPS) * TAU);
+  /* Anchor the spread so a bond-free atom still centres its fan on the open
+     angle rather than starting at zero. */
+  const anchor = cones.length === 0 ? norm(-(openAngle + Math.PI)) : 0;
+  const anchorIndex = cones.length === 0 ? Math.round((anchor / TAU) * pool.length) % pool.length : 0;
+  const letters = Array.from({ length: count }, (_, i) => {
+    const at = pool[(anchorIndex + Math.floor(((i + 0.5) / count) * pool.length)) % pool.length] ?? 0;
+    return {
+      key: i,
+      angle: at,
+      x: centre.x + (arcR + 6) * Math.cos(at),
+      y: centre.y + (arcR + 6) * Math.sin(at),
+    };
+  });
+  const TICK = 0.32; /* half-length of the small arc tick under each glyph */
   return (
     <g>
-      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.4} strokeLinecap="round" opacity={expanded ? 0.85 : 0.6} />
-      {letters.map((letter) => (
-        <text key={letter.key} x={letter.x} y={letter.y} textAnchor="middle" dominantBaseline="central" fontSize={expanded ? 12.5 : 10.5} fontWeight={600} fill={expanded ? "var(--foreground)" : "var(--scene-faint)"}>
-          {letter.text}
-        </text>
-      ))}
+      {letters.map((letter) => {
+        const a0 = letter.angle - TICK;
+        const a1 = letter.angle + TICK;
+        const start = { x: centre.x + arcR * Math.cos(a0), y: centre.y + arcR * Math.sin(a0) };
+        const end = { x: centre.x + arcR * Math.cos(a1), y: centre.y + arcR * Math.sin(a1) };
+        return (
+          <g key={letter.key}>
+            {/* One short tick per hydrogen, never one long arc: the long arc
+                read as a bond between the outer glyphs. */}
+            <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 1 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.4} strokeLinecap="round" opacity={expanded ? 0.85 : 0.6} />
+            <text x={letter.x} y={letter.y} textAnchor="middle" dominantBaseline="central" fontSize={expanded ? 12.5 : 10.5} fontWeight={600} fill={expanded ? "var(--foreground)" : "var(--scene-faint)"}>
+              H
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }
 
-/** Formal charge as a small shaded disc outside the silhouette. */
 export function ChargeBadge({ at, charge, opacity = 1 }: { at: Point2; charge: number; opacity?: number }) {
   if (charge === 0 || opacity <= 0.01) return null;
   const sign = charge > 0 ? "+" : "−";

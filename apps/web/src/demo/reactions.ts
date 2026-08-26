@@ -49,10 +49,26 @@ export interface TrainerReaction {
 /* step in the whole corpus.                                           */
 /* ------------------------------------------------------------------ */
 
+/**
+ * All three hydrogens EXPLICIT, not implicit. A blind critic on the video
+ * frames caught the inconsistency: HCl's hydrogen was a sphere on a stick and
+ * ammonia's were floating grey letters, one element in two languages in one
+ * scene. In the bar's own acid-base clips every hydrogen on an ACTOR species
+ * is a real sphere; ghost glyphs are for spectator CH3 groups.
+ */
 const ammonia = createSpecies({
   id: "sp-ammonia",
-  atoms: [createAtom({ id: "n1", element: "N", lonePairs: 1, implicitHydrogens: 3 })],
-  bonds: [],
+  atoms: [
+    createAtom({ id: "n1", element: "N", lonePairs: 1 }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
+    createAtom({ id: "h4", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-nh2", a: "n1", b: "h2" }),
+    createBond({ id: "b-nh3", a: "n1", b: "h3" }),
+    createBond({ id: "b-nh4", a: "n1", b: "h4" }),
+  ],
 });
 
 /** The acid's proton is explicit: it is the atom that MOVES. */
@@ -65,10 +81,18 @@ const hydrogenChloride = createSpecies({
 const ammonium = createSpecies({
   id: "sp-ammonium",
   atoms: [
-    createAtom({ id: "n1", element: "N", formalCharge: 1, lonePairs: 0, implicitHydrogens: 3 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1, lonePairs: 0 }),
     createAtom({ id: "h1", element: "H" }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
+    createAtom({ id: "h4", element: "H" }),
   ],
-  bonds: [createBond({ id: "b-nh", a: "n1", b: "h1" })],
+  bonds: [
+    createBond({ id: "b-nh", a: "n1", b: "h1" }),
+    createBond({ id: "b-nh2", a: "n1", b: "h2" }),
+    createBond({ id: "b-nh3", a: "n1", b: "h3" }),
+    createBond({ id: "b-nh4", a: "n1", b: "h4" }),
+  ],
 });
 
 const chloride = createSpecies({
@@ -185,14 +209,23 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     successLine: "The nitrogen lone pair takes the proton as the H–Cl bond's electrons settle onto chlorine.",
     step: PROTON_TRANSFER,
     fromHints: {
-      n1: { x: -1.7, y: 0 },
-      h1: { x: -0.45, y: 0 },
-      cl1: { x: 0.55, y: 0 },
+      // The three N-H bonds fan away from the acid so the lone pair side of
+      // the nitrogen FACES the proton it is about to take: the staged
+      // geometry must agree with the reaction, per the video-frame critic.
+      n1: { x: -1.6, y: 0 },
+      h2: { x: -2.45, y: 0.55 },
+      h3: { x: -2.55, y: -0.35 },
+      h4: { x: -1.85, y: -0.95 },
+      h1: { x: -0.35, y: 0 },
+      cl1: { x: 0.65, y: 0 },
     },
     toHints: {
       n1: { x: -1.35, y: 0 },
+      h2: { x: -2.2, y: 0.55 },
+      h3: { x: -2.3, y: -0.35 },
+      h4: { x: -1.6, y: -0.95 },
       h1: { x: -0.35, y: 0 },
-      cl1: { x: 1.7, y: 0 },
+      cl1: { x: 1.8, y: 0 },
     },
   },
   {
@@ -202,14 +235,17 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     successLine: "The lone pair forms the new C–O bond and the π electrons climb onto the carbonyl oxygen.",
     step: CARBONYL_ADDITION,
     fromHints: {
-      o1: { x: -1.9, y: 0 },
-      h1: { x: -2.6, y: -0.72 },
+      // Below-left of the carbon, so the approach vector aims at C and away
+      // from the carbonyl oxygen: the critic measured the old line landing
+      // nearer the O end of the C=O than the carbon it attacks.
+      o1: { x: -1.55, y: -0.5 },
+      h1: { x: -2.3, y: -1.15 },
       c1: { x: 0, y: 0 },
       o2: { x: 0.62, y: 0.78 },
     },
     toHints: {
-      o1: { x: -1.0, y: 0 },
-      h1: { x: -1.7, y: -0.72 },
+      o1: { x: -0.95, y: -0.45 },
+      h1: { x: -1.7, y: -1.1 },
       c1: { x: 0, y: 0 },
       o2: { x: 0.62, y: 0.78 },
     },
