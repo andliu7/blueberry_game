@@ -549,3 +549,16 @@ Playable inventory: 11 single-step reactions, 5 sequences holding 10 steps, 3 re
 24 playable steps, roughly 20 of the 86 spine nodes. The picker chip row is at its limit; wiring
 the pathway tab's nodes to open the trainer at their reaction is now the next structural task,
 scheduled before wave 3 per the owner conversation.
+
+## 2026-08-26, coverage wave 3: Wittig, the Michael's four arrows, the diene's 1,4
+
+Nine new steps, all conserving at import, all walking the machine to a correct grade first run,
+101 tests green. New: hydride reduction (the H- that NaBH4 delivers); alpha-bromination through
+the enolate, three arrows with the haloform foreshadowed in the copy; the Michael addition, four
+arrows moving as one down the conjugated chain; the Wittig as a two-step sequence, betaine then
+collapse, trimethyl on screen where the flask holds triphenyl and the brief says so; and HBr on
+butadiene protonating to the allyl cation then captured 1,4 at the far end, which is Unit 1's
+opening spine argument made playable.
+
+Map links updated: 20 spine nodes now carry playable entries. The pathway tab's Orgo II track and
+the trainer's browser both read the same ledger, so the coverage number on screen is the truth.

@@ -759,6 +759,213 @@ const IMINE_ATTACK: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 7 spine: hydride reduction, the H:- that NaBH4 delivers.        */
+/* ------------------------------------------------------------------ */
+
+const hydride = createSpecies({
+  id: "sp-hydride",
+  atoms: [createAtom({ id: "h9", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const formaldehydeH = createSpecies({
+  id: "sp-formaldehyde-h",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of", order: 2 }),
+  ],
+});
+
+const methoxideOut = createSpecies({
+  id: "sp-methoxide-out",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "h9", element: "H" }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfh9", a: "cf", b: "h9" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of" }),
+  ],
+});
+
+const HYDRIDE_REDUCTION: MechanismStep = createStep({
+  id: "hydride-reduction",
+  from: createState({
+    id: "hyd-before",
+    members: [
+      { species: hydride, role: "nucleophile" },
+      { species: formaldehydeH, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "hyd-after", members: [{ species: methoxideOut, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-hydride", source: fromLonePair("h9"), sink: toBondBetween("h9", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cfo"), sink: toAtom("of") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9 spine: alpha-bromination through the enolate, and the        */
+/* Michael addition, four arrows moving as one.                        */
+/* ------------------------------------------------------------------ */
+
+const enolateBr = createSpecies({
+  id: "sp-enolate-br",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const bromine = createSpecies({
+  id: "sp-bromine",
+  atoms: [
+    createAtom({ id: "bra", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "brb", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-brbr", a: "bra", b: "brb" })],
+});
+
+const bromoketone = createSpecies({
+  id: "sp-bromoketone",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "bra", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-1br", a: "c1", b: "bra" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const bromideAlpha = createSpecies({
+  id: "sp-bromide-alpha",
+  atoms: [createAtom({ id: "brb", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const ALPHA_BROMINATION: MechanismStep = createStep({
+  id: "alpha-bromination",
+  from: createState({
+    id: "ab-before",
+    members: [
+      { species: enolateBr, role: "nucleophile" },
+      { species: bromine, role: "electrophile" },
+    ],
+  }),
+  to: createState({
+    id: "ab-after",
+    members: [
+      { species: bromoketone, role: "product" },
+      { species: bromideAlpha, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "acid_base_proton_transfer", reactionCenters: ["c1", "bra"] },
+  arrows: [
+    createArrow({ id: "a-c-attacks", source: fromBond("b-12"), sink: toBondBetween("c1", "bra") }),
+    createArrow({ id: "a-reform", source: fromLonePair("o1"), sink: toBondBetween("o1", "c2") }),
+    createArrow({ id: "a-brbr", source: fromBond("b-brbr"), sink: toAtom("brb") }),
+  ],
+});
+
+const enolateMi = createSpecies({
+  id: "sp-enolate-mi",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const acrolein = createSpecies({
+  id: "sp-acrolein",
+  atoms: [
+    createAtom({ id: "cb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "ca", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "cc", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "oa", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ba", a: "cb", b: "ca", order: 2 }),
+    createBond({ id: "b-ac", a: "ca", b: "cc" }),
+    createBond({ id: "b-co", a: "cc", b: "oa", order: 2 }),
+  ],
+});
+
+const michaelAdduct = createSpecies({
+  id: "sp-michael-adduct",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "ca", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "cc", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "oa", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1b", a: "c1", b: "cb" }),
+    createBond({ id: "b-ba", a: "cb", b: "ca" }),
+    createBond({ id: "b-ac", a: "ca", b: "cc", order: 2 }),
+    createBond({ id: "b-co", a: "cc", b: "oa" }),
+  ],
+});
+
+const MICHAEL_ADDITION: MechanismStep = createStep({
+  id: "michael-addition",
+  from: createState({
+    id: "mi-before",
+    members: [
+      { species: enolateMi, role: "nucleophile" },
+      { species: acrolein, role: "electrophile" },
+    ],
+  }),
+  to: createState({ id: "mi-after", members: [{ species: michaelAdduct, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["c1", "cb"] },
+  arrows: [
+    createArrow({ id: "a-nu", source: fromBond("b-12"), sink: toBondBetween("c1", "cb") }),
+    createArrow({ id: "a-reform", source: fromLonePair("o1"), sink: toBondBetween("o1", "c2") }),
+    createArrow({ id: "a-shift", source: fromBond("b-ba"), sink: toBondBetween("ca", "cc") }),
+    createArrow({ id: "a-pi-off", source: fromBond("b-co"), sink: toAtom("oa") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1014,6 +1221,77 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       hf1: { x: -0.35, y: 0.94 },
       hf2: { x: 0.95, y: -0.35 },
       of: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "hydride-reduction",
+    title: "Hydride reduction",
+    brief: "The H⁻ that NaBH₄ delivers. Two arrows.",
+    successLine: "The hydride takes the carbonyl carbon and the π electrons climb onto oxygen: the alkoxide the workup will protonate to the alcohol.",
+    step: HYDRIDE_REDUCTION,
+    fromHints: {
+      h9: { x: -1.35, y: -0.3 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+    toHints: {
+      h9: { x: -0.85, y: -0.25 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "alpha-bromination",
+    title: "α-Bromination",
+    brief: "The enolate meets Br₂: three arrows.",
+    successLine: "The enolate's carbon attacks bromine, the carbonyl reforms behind it, and bromide leaves: the α-carbon is functionalised, and under base this would run again — which is the haloform story.",
+    step: ALPHA_BROMINATION,
+    fromHints: {
+      c1: { x: -1.0, y: 0.15 },
+      c2: { x: -1.95, y: -0.35 },
+      o1: { x: -2.05, y: 0.75 },
+      c3: { x: -2.9, y: -0.95 },
+      bra: { x: 0.35, y: -0.15 },
+      brb: { x: 1.55, y: -0.5 },
+    },
+    toHints: {
+      c1: { x: -1.0, y: 0.15 },
+      bra: { x: 0.1, y: -0.2 },
+      c2: { x: -1.95, y: -0.35 },
+      o1: { x: -2.05, y: 0.75 },
+      c3: { x: -2.9, y: -0.95 },
+      brb: { x: 1.95, y: -0.6 },
+    },
+  },
+  {
+    id: "michael-addition",
+    title: "Michael addition",
+    brief: "Soft nucleophile, 1,4. Four arrows move as one.",
+    successLine: "The enolate adds to the β-carbon, the enone's π system relays the charge down the chain, and it lands on the far oxygen: conjugate addition, the soft way in.",
+    step: MICHAEL_ADDITION,
+    fromHints: {
+      c1: { x: -1.35, y: 0.2 },
+      c2: { x: -2.3, y: -0.3 },
+      o1: { x: -2.4, y: 0.8 },
+      c3: { x: -3.25, y: -0.9 },
+      cb: { x: 0.05, y: -0.2 },
+      ca: { x: 1.05, y: 0.25 },
+      cc: { x: 2.05, y: -0.2 },
+      oa: { x: 3.0, y: 0.25 },
+    },
+    toHints: {
+      c1: { x: -1.35, y: 0.2 },
+      c2: { x: -2.3, y: -0.3 },
+      o1: { x: -2.4, y: 0.8 },
+      c3: { x: -3.25, y: -0.9 },
+      cb: { x: -0.35, y: -0.35 },
+      ca: { x: 0.65, y: 0.1 },
+      cc: { x: 1.65, y: -0.35 },
+      oa: { x: 2.6, y: 0.1 },
     },
   },
 ];

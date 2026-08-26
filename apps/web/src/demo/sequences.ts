@@ -682,6 +682,262 @@ const EAS_REAROMATIZE: MechanismStep = createStep({
   ],
 });
 
+/* ================= Wittig: betaine, then the collapse ================= */
+/* Trimethylphosphonium ylide on screen where the flask holds triphenyl:
+ * three CH3 groups keep the canvas readable and the electron accounting is
+ * identical. The brief says so out loud. */
+
+const ylide = createSpecies({
+  id: "sp-ylide",
+  atoms: [
+    createAtom({ id: "cy", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 2 }),
+    createAtom({ id: "p1", element: "P", formalCharge: 1 }),
+    createAtom({ id: "m1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cp", a: "cy", b: "p1" }),
+    createBond({ id: "b-pm1", a: "p1", b: "m1" }),
+    createBond({ id: "b-pm2", a: "p1", b: "m2" }),
+    createBond({ id: "b-pm3", a: "p1", b: "m3" }),
+  ],
+});
+
+const formaldehydeW = createSpecies({
+  id: "sp-formaldehyde-w",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of", order: 2 }),
+  ],
+});
+
+const betaine = createSpecies({
+  id: "sp-betaine",
+  atoms: [
+    createAtom({ id: "cy", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "p1", element: "P", formalCharge: 1 }),
+    createAtom({ id: "m1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cp", a: "cy", b: "p1" }),
+    createBond({ id: "b-pm1", a: "p1", b: "m1" }),
+    createBond({ id: "b-pm2", a: "p1", b: "m2" }),
+    createBond({ id: "b-pm3", a: "p1", b: "m3" }),
+    createBond({ id: "b-yf", a: "cy", b: "cf" }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of" }),
+  ],
+});
+
+const WITTIG_ATTACK: MechanismStep = createStep({
+  id: "wittig-attack",
+  from: createState({
+    id: "wit-a-before",
+    members: [
+      { species: ylide, role: "nucleophile" },
+      { species: formaldehydeW, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "wit-a-after", members: [{ species: betaine, role: "intermediate" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["cy", "cf"] },
+  arrows: [
+    createArrow({ id: "a-ylide", source: fromLonePair("cy"), sink: toBondBetween("cy", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cfo"), sink: toAtom("of") }),
+  ],
+});
+
+const ethene = createSpecies({
+  id: "sp-ethene-wittig",
+  atoms: [
+    createAtom({ id: "cy", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-yf", a: "cy", b: "cf", order: 2 }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+  ],
+});
+
+const phosphineOxide = createSpecies({
+  id: "sp-phosphine-oxide",
+  atoms: [
+    createAtom({ id: "p1", element: "P", formalCharge: 1 }),
+    createAtom({ id: "m1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "m3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-pm1", a: "p1", b: "m1" }),
+    createBond({ id: "b-pm2", a: "p1", b: "m2" }),
+    createBond({ id: "b-pm3", a: "p1", b: "m3" }),
+    createBond({ id: "b-po", a: "p1", b: "of" }),
+  ],
+});
+
+const WITTIG_COLLAPSE: MechanismStep = createStep({
+  id: "wittig-collapse",
+  from: createState({ id: "wit-b-before", members: [{ species: betaine, role: "intermediate" }] }),
+  to: createState({
+    id: "wit-b-after",
+    members: [
+      { species: ethene, role: "product" },
+      { species: phosphineOxide, role: "byproduct" },
+    ],
+  }),
+  identity: { elementaryStep: "ring_opening", route: "pericyclic", reactionCenters: ["cy", "p1"] },
+  arrows: [
+    createArrow({ id: "a-o-to-p", source: fromLonePair("of"), sink: toBondBetween("of", "p1") }),
+    createArrow({ id: "a-cp-to-pi", source: fromBond("b-cp"), sink: toBondBetween("cy", "cf") }),
+  ],
+});
+
+/* ================= HBr + butadiene: protonate, then 1,4 capture ================= */
+
+const butadiene = createSpecies({
+  id: "sp-butadiene",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-34", a: "c3", b: "c4", order: 2 }),
+  ],
+});
+
+const hbr = createSpecies({
+  id: "sp-hbr-diene",
+  atoms: [createAtom({ id: "hd", element: "H" }), createAtom({ id: "brd", element: "Br", lonePairs: 3 })],
+  bonds: [createBond({ id: "b-hbr", a: "hd", b: "brd" })],
+});
+
+const allylCation = createSpecies({
+  id: "sp-allyl-from-diene",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "hd", element: "H" }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-1h", a: "c1", b: "hd" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-34", a: "c3", b: "c4", order: 2 }),
+  ],
+});
+
+const bromideDiene = createSpecies({
+  id: "sp-bromide-diene",
+  atoms: [createAtom({ id: "brd", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const DIENE_PROTONATION: MechanismStep = createStep({
+  id: "diene-protonation",
+  from: createState({
+    id: "dp-before",
+    members: [
+      { species: butadiene, role: "nucleophile" },
+      { species: hbr, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "dp-after",
+    members: [
+      { species: allylCation, role: "intermediate" },
+      { species: bromideDiene, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_addition_alkene", reactionCenters: ["c1"] },
+  arrows: [
+    createArrow({ id: "a-pi-grab", source: fromBond("b-12"), sink: toBondBetween("c1", "hd") }),
+    createArrow({ id: "a-release", source: fromBond("b-hbr"), sink: toAtom("brd") }),
+  ],
+});
+
+const bromide14 = createSpecies({
+  id: "sp-bromide-14",
+  atoms: [createAtom({ id: "brd", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const allylCation2 = createSpecies({
+  id: "sp-allyl-from-diene-2",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "hd", element: "H" }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-1h", a: "c1", b: "hd" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-34", a: "c3", b: "c4", order: 2 }),
+  ],
+});
+
+const product14 = createSpecies({
+  id: "sp-14-product",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "hd", element: "H" }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "brd", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-1h", a: "c1", b: "hd" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3", order: 2 }),
+    createBond({ id: "b-34", a: "c3", b: "c4" }),
+    createBond({ id: "b-4br", a: "c4", b: "brd" }),
+  ],
+});
+
+const DIENE_CAPTURE_14: MechanismStep = createStep({
+  id: "diene-capture-14",
+  from: createState({
+    id: "dc-before",
+    members: [
+      { species: allylCation2, role: "intermediate" },
+      { species: bromide14, role: "nucleophile" },
+    ],
+  }),
+  to: createState({ id: "dc-after", members: [{ species: product14, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "electrophilic_addition_alkene", reactionCenters: ["c4"] },
+  arrows: [
+    createArrow({ id: "a-capture", source: fromLonePair("brd"), sink: toBondBetween("brd", "c4") }),
+    createArrow({ id: "a-allyl-shift", source: fromBond("b-34"), sink: toBondBetween("c2", "c3") }),
+  ],
+});
+
 import { TRAINER_REACTIONS } from "./reactions";
 
 const carbonyl = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
@@ -707,6 +963,114 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
         stepBrief: "Step 2 · The alkoxide takes a proton from hydronium.",
         fromHints: STEP2_FROM_HINTS,
         toHints: STEP2_TO_HINTS,
+      },
+    ],
+  },
+  {
+    id: "seq-wittig",
+    title: "Wittig olefination · 2 steps",
+    brief: "The ylide attacks, then the betaine collapses to the alkene. Trimethyl on screen where the flask holds triphenyl; the electrons do not care.",
+    successLine: "The Wittig whole: carbanion onto the carbonyl, then the alkoxide grabs phosphorus and the C–P bond becomes the new π. The alkene lands exactly where the carbonyl was, which is the whole point of the reaction.",
+    steps: [
+      {
+        step: WITTIG_ATTACK,
+        stepBrief: "Step 1 · The ylide's carbanion attacks the carbonyl.",
+        fromHints: {
+          cy: { x: -1.15, y: 0.15 },
+          p1: { x: -2.25, y: -0.25 },
+          m1: { x: -3.2, y: 0.35 },
+          m2: { x: -2.6, y: -1.35 },
+          m3: { x: -1.75, y: -1.05 },
+          cf: { x: 0.35, y: -0.2 },
+          hf1: { x: 0.1, y: -1.25 },
+          hf2: { x: 1.35, y: -0.45 },
+          of: { x: 0.85, y: 0.7 },
+        },
+        toHints: {
+          cy: { x: -0.85, y: 0.1 },
+          p1: { x: -1.95, y: -0.3 },
+          m1: { x: -2.9, y: 0.3 },
+          m2: { x: -2.3, y: -1.4 },
+          m3: { x: -1.45, y: -1.1 },
+          cf: { x: 0.35, y: -0.2 },
+          hf1: { x: 0.1, y: -1.25 },
+          hf2: { x: 1.35, y: -0.45 },
+          of: { x: 0.85, y: 0.7 },
+        },
+      },
+      {
+        step: WITTIG_COLLAPSE,
+        stepBrief: "Step 2 · The alkoxide takes phosphorus; the C–P electrons become the alkene.",
+        fromHints: {
+          cy: { x: -0.85, y: 0.1 },
+          p1: { x: -1.95, y: -0.3 },
+          m1: { x: -2.9, y: 0.3 },
+          m2: { x: -2.3, y: -1.4 },
+          m3: { x: -1.45, y: -1.1 },
+          cf: { x: 0.35, y: -0.2 },
+          hf1: { x: 0.1, y: -1.25 },
+          hf2: { x: 1.35, y: -0.45 },
+          of: { x: 0.85, y: 0.7 },
+        },
+        toHints: {
+          cy: { x: 0.0, y: 0.35 },
+          cf: { x: 1.05, y: 0.0 },
+          hf1: { x: 0.8, y: -1.05 },
+          hf2: { x: 2.05, y: -0.25 },
+          p1: { x: -2.15, y: -0.3 },
+          m1: { x: -3.1, y: 0.3 },
+          m2: { x: -2.5, y: -1.4 },
+          m3: { x: -1.65, y: -1.1 },
+          of: { x: -1.35, y: 0.55 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-diene",
+    title: "HBr + butadiene, 1,4 · 2 steps",
+    brief: "Protonate the diene, then the bromide arrives at the FAR end through the allyl system.",
+    successLine: "1,4-addition whole: the proton makes the allyl cation, and bromide captures the far end as the π slides over — the thermodynamic product, and Unit 1's whole argument about control.",
+    steps: [
+      {
+        step: DIENE_PROTONATION,
+        stepBrief: "Step 1 · The terminal π grabs the proton; the allyl cation is born.",
+        fromHints: {
+          c1: { x: -1.9, y: 0.35 },
+          c2: { x: -0.95, y: -0.15 },
+          c3: { x: 0.0, y: 0.35 },
+          c4: { x: 0.95, y: -0.15 },
+          hd: { x: -1.75, y: 1.6 },
+          brd: { x: -0.75, y: 2.1 },
+        },
+        toHints: {
+          c1: { x: -1.9, y: 0.35 },
+          hd: { x: -2.5, y: 1.15 },
+          c2: { x: -0.95, y: -0.15 },
+          c3: { x: 0.0, y: 0.35 },
+          c4: { x: 0.95, y: -0.15 },
+          brd: { x: 0.1, y: 2.3 },
+        },
+      },
+      {
+        step: DIENE_CAPTURE_14,
+        stepBrief: "Step 2 · Bromide takes C4 as the allyl π slides to the middle.",
+        fromHints: {
+          c1: { x: -1.9, y: 0.35 },
+          hd: { x: -2.5, y: 1.15 },
+          c2: { x: -0.95, y: -0.15 },
+          c3: { x: 0.0, y: 0.35 },
+          c4: { x: 0.95, y: -0.15 },
+          brd: { x: 2.15, y: 0.5 },
+        },
+        toHints: {
+          c1: { x: -1.9, y: 0.35 },
+          hd: { x: -2.5, y: 1.15 },
+          c2: { x: -0.95, y: -0.15 },
+          c3: { x: 0.0, y: 0.35 },
+          c4: { x: 0.95, y: -0.15 },
+          brd: { x: 1.75, y: 0.5 },
+        },
       },
     ],
   },
