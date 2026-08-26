@@ -61,6 +61,15 @@
      lighter at the top like the light on the spheres. */
   --scene-ground-top: #fbfaf7;
   --scene-ground-bottom: #eceae3;
+  /* The electrons in flight. Per the owner ruling of 2026-08-25 the dragged
+     mark is the electrons themselves, not an arrowhead, so they need their own
+     pair: a warm halo and a bright core. Warm on purpose, because the arrow,
+     the forming bond and every drop site are all --primary, and a second
+     purple mark in the same gesture would be one more thing to disambiguate.
+     Amber is the only warm hue on this canvas, so the electrons are the only
+     warm thing on it. */
+  --electron-glow: #f5b93d;
+  --electron-core: #fffdf6;
   /* The gap docs/DESIGN-TOKENS.md names: success and the two non-binary
      outcomes need tokens of their own, and none of them is red. --good is
      emerald-700 (4.6:1 on white, 4.4:1 on cream for large text only, so body
@@ -98,6 +107,10 @@
      nothing to be seen against. */
   --scene-ground-top: #2a2724;
   --scene-ground-bottom: #1a1817;
+  /* Brighter core on the dark ground: the halo carries on a light page but a
+     #fffdf6 core against #1a1817 needs no help, while the halo does. */
+  --electron-glow: #ffc756;
+  --electron-core: #ffffff;
   --good: #34d399;
   --good-ink: #6ee7b7;
   --good-soft: rgba(52, 211, 153, 0.16);

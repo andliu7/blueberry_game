@@ -49,6 +49,18 @@ const SETTLE_MS = 700;
 const tagIndex = process.argv.indexOf("--tag");
 const TAG = tagIndex === -1 ? "latest" : (process.argv[tagIndex + 1] ?? "latest");
 
+/**
+ * Which in flight primitive to capture. Round 8 is a blind A/B, so the same
+ * build has to produce both sets of shots: "electron" is the shipped default
+ * (lit sphere on a tether, no head until commit) and "arrow" restores the
+ * rounds 1 to 7 behaviour through DrawCanvas's ?primitive escape hatch.
+ */
+const primIndex = process.argv.indexOf("--primitive");
+const PRIMITIVE = primIndex === -1 ? "electron" : (process.argv[primIndex + 1] ?? "electron");
+if (PRIMITIVE !== "electron" && PRIMITIVE !== "arrow") {
+  throw new Error(`--primitive must be "electron" or "arrow", got "${PRIMITIVE}"`);
+}
+
 function findChrome() {
   const fromEnv = process.env.CHROME_PATH;
   if (fromEnv !== undefined && existsSync(fromEnv)) return fromEnv;
@@ -173,24 +185,81 @@ async function shoot(page, name) {
   return file;
 }
 
-async function captureTheme(browser, theme) {
+/**
+ * One held drag, screenshotted mid flight.
+ *
+ * Round 7 drove only to a committed answer, which was right for the defects it
+ * was hunting. Round 8 compares the IN FLIGHT primitive, and a committed shot
+ * cannot show it at all: the thing under judgement exists only while the pointer
+ * is down. So this presses on the armed lone pair, walks to the forming bond in
+ * steps so the machine sees real movement and resolves a sink, holds, and shoots
+ * before releasing.
+ */
+async function captureMidDrag(page, theme) {
+  await tapSite(page, `t.kind === "atom" && t.atomId === "o1"`);
+  const source = await siteAt(page, `t.kind === "lonePair" && t.atomId === "o1" && t.slotIndex === 0`);
+  // Drag toward the CARBON, not toward the forming bond's own site.
+  //
+  // betweenAtomsSite is only published once a source is armed, and arming it
+  // here would mean tapping the lone pair before pressing on it, which toggles
+  // it back off. The carbon is published from first paint, and the machine's
+  // inferSink resolves a lone pair dropped on C to the forming O-C bond anyway,
+  // so this drives the same sink the answer uses without depending on a target
+  // that does not exist yet.
+  const sink = await siteAt(page, `t.kind === "atom" && t.atomId === "c1"`);
+
+  await page.mouse.move(source.x, source.y);
+  await page.mouse.down();
+  // Several steps, not one jump: the interaction machine arms on movement and a
+  // single teleport can be swallowed as a tap.
+  for (let step = 1; step <= 6; step += 1) {
+    const t = step / 6;
+    await page.mouse.move(source.x + (sink.x - source.x) * t, source.y + (sink.y - source.y) * t);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+  }
+  await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
+
+  const file = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-${theme}-mid`);
+  await page.mouse.up();
+  await new Promise((resolve) => setTimeout(resolve, 160));
+  return file;
+}
+
+/**
+ * A page on the trainer, freshly loaded, in the wanted theme.
+ *
+ * One page per capture, never reused. The mid drag commits an arrow and leaves
+ * the oxygen's lone pairs revealed, and a second `goto` to the same URL is a
+ * same-document hash navigation that does NOT reload, so the committed pass
+ * inherited that state and its first tap un-revealed the lone pairs it was
+ * about to look for. A fresh page cannot inherit anything.
+ */
+async function openTrainer(browser, theme) {
   const page = await browser.newPage();
   await page.setViewport(VIEWPORT);
   await page.evaluateOnNewDocument((wanted) => {
     localStorage.setItem("theme", wanted);
     document.documentElement.classList.toggle("dark", wanted === "dark");
   }, theme);
-  await page.goto(`${origin}/?targets=1#/trainer`, { waitUntil: "networkidle0" });
+  await page.goto(`${origin}/?targets=1&primitive=${PRIMITIVE}#/trainer`, { waitUntil: "networkidle0" });
   await page.waitForFunction(() => (window.__blueberryTargets ?? []).length > 0, { timeout: 10_000 });
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
+  return page;
+}
 
+async function captureTheme(browser, theme) {
+  const midPage = await openTrainer(browser, theme);
+  const midFile = await captureMidDrag(midPage, theme);
+  await midPage.close();
+
+  const page = await openTrainer(browser, theme);
   await drawTheAnswer(page);
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
 
   const arrows = await page.evaluate(() => document.querySelectorAll('path[marker-end="url(#draw-arrowhead)"]').length);
-  const file = await shoot(page, `trainer-${TAG}-${theme}-committed`);
+  const file = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-${theme}-committed`);
   await page.close();
-  return { theme, file, arrows };
+  return { theme, file, midFile, arrows };
 }
 
 const browser = await puppeteer.launch({

@@ -138,3 +138,59 @@ Captures: `gauntlet-shots/trainer-r7-light-committed.png`, `trainer-r7-dark-comm
 Known and unfixed, recorded so a verdict is not needed to know it: the forming O-C bond's segmented
 body draws as overlapping round caps, so at this size it reads as a chain of beads rather than a rod
 under construction.
+
+## 2026-08-25, round 8: an A/B of the in flight primitive
+
+Bar: `docs/reference/alchemie/01-mechanism-canvas-full.png`, `extra/x01`, plus `IMG_1640` and
+`IMG_1645` from `reference images/`, which are the two captures that actually settle this.
+
+**Why this round is an A/B and not a fix.** Reading all 88 images in `reference images/` produced a
+finding that reframes rounds 1 through 7: **Alchemie never draws an arrowhead.** In every one of the
+29 mechanism captures, what the student drags is the ELECTRONS, drawn as a lit white sphere inside a
+warm halo on a dashed tether. There is no head anywhere in the folder, in flight or committed.
+
+Rounds 4 through 7 each produced exactly one verdict, and every one of them was a defect of the
+arrowhead: its size against the atoms (round 4), where it landed (round 5), which way it pointed
+(round 6), and a backwards tangent on a short chord (round 7). Those are not four unrelated bugs.
+They are four symptoms of drawing an oriented mark mid-drag, and a sphere has no orientation to get
+wrong.
+
+**Owner ruling, 2026-08-25: both.** No head in flight, a real curved arrow with a head on the
+committed step. The gesture matches the bar; the record matches what CHEM 241 grades on paper. So
+this round captures both primitives from one build and hands them to a blind critic rather than
+asserting the new one is better.
+
+**What changed.**
+
+- `DrawCanvas.tsx`: a module scope `PRIMITIVE`, `"electron"` by default and `"arrow"` under
+  `?primitive=arrow`, which restores the rounds 1 to 7 rendering. In `electron` the in flight path
+  drops its `markerEnd` and gains three concentric circles at the leading end: a 13 unit halo at
+  0.55, an 8.5 unit halo at 0.85, and a 5 unit core.
+- `theme.css`: `--electron-glow` and `--electron-core`, both themes. Amber on purpose. The arrow,
+  the forming bond, every drop site and the armed slot are all `--primary`, so a second purple mark
+  inside the same gesture would be one more thing to disambiguate. Amber is the only warm hue on the
+  canvas, which makes the electrons the only warm thing on it.
+- The committed rendering is untouched. The light committed PNGs for the two primitives are
+  byte-identical at 232396 bytes, which is the check that this change is confined to the drag.
+
+**What changed in the capture script**, because a committed shot cannot show a mid-drag primitive:
+
+- `--primitive electron|arrow`, threaded into the URL.
+- `captureMidDrag`: presses on the armed lone pair, walks to the sink in six steps so the machine
+  sees real movement rather than a teleport it would swallow as a tap, holds, and shoots before
+  releasing.
+- Two bugs found while writing it, both worth recording. `betweenAtomsSite` is only published once a
+  source is armed, so the drag targets the CARBON instead and lets `inferSink` resolve the forming
+  bond, which is what a finger does anyway. And a second `page.goto` to the same URL is a
+  same-document hash navigation that does not reload, so the committed pass was inheriting the mid
+  drag's state and its first tap un-revealed the lone pairs it was about to look for. One fresh page
+  per capture now.
+
+Measured: `npx tsc -b apps/web` clean. Eight PNGs, both primitives, both themes, mid and committed.
+Both committed captures report 2 arrows, so neither is a shot of an empty canvas.
+
+Captures: `gauntlet-shots/trainer-r8-{electron,arrow}-{light,dark}-{mid,committed}.png`.
+Blind copies for the critic, labels stripped: `blind-r8/candidate-{A,B}-{light,dark}.png`, where A is
+electron and B is arrow. That mapping is recorded here and not in the folder the critic reads.
+
+**Verdict: pending.** The critic is running as this is written.

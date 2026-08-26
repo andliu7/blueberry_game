@@ -151,6 +151,24 @@ function hydrogenAngle(step: MechanismStep, atomId: AtomId, openAngle: number): 
   return step.identity.reactionCenters.includes(atomId) ? openAngle + Math.PI / 2 : openAngle;
 }
 
+/**
+ * Which in flight primitive to draw. Round 8 of the trainer gauntlet is a blind
+ * A/B, so both have to be reachable from one build.
+ *
+ * "electron" is the shipped default per the owner ruling of 2026-08-25: the
+ * electrons ride the tether as a lit sphere, and the arrowhead appears only on
+ * the committed arrow. `?primitive=arrow` restores the round 1 to 7 behaviour so
+ * a critic can be handed both captures with the labels stripped.
+ *
+ * Read once at module scope rather than from a hook: it never changes within a
+ * session, and a prop would have to be threaded through four components that
+ * have no other reason to know about it.
+ */
+const PRIMITIVE: "electron" | "arrow" =
+  typeof window !== "undefined" && new URLSearchParams(window.location.search).get("primitive") === "arrow"
+    ? "arrow"
+    : "electron";
+
 function elementRadius(scene: StepScene, atomId: AtomId): number {
   return atomRadius(scene.atoms.find((atom) => atom.id === atomId)?.element ?? "C");
 }
@@ -732,8 +750,31 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
             strokeWidth={3.5}
             strokeDasharray={reducedMotion ? undefined : "7 6"}
             strokeLinecap="round"
-            markerEnd="url(#draw-arrowhead)"
+            // THE IN FLIGHT HEAD IS THE OWNER DECISION OF 2026-08-25.
+            //
+            // Alchemie draws no arrowhead at any point: what the student drags
+            // is the ELECTRONS, a lit sphere on a dashed tether (IMG_1640,
+            // IMG_1645). Rounds 4 to 7 of this loop each found a defect that
+            // was a property of drawing a head mid-drag: its size against the
+            // atoms, where it landed, which way it pointed, and a backwards
+            // tangent on a short chord. None of those exist if the leading end
+            // is a sphere, because a sphere has no orientation to get wrong.
+            //
+            // The ruling was BOTH: no head in flight, a real curved arrow with
+            // a head once the step is committed, so the gesture matches the bar
+            // and the record matches what CHEM 241 grades on paper.
+            markerEnd={PRIMITIVE === "arrow" ? "url(#draw-arrowhead)" : undefined}
           />
+          {PRIMITIVE === "arrow" ? null : (
+            <>
+              {/* The electrons in flight. A warm halo, then the sphere: the
+                  same two part mark the bar uses, sized to read at a glance
+                  beside a 21 unit atom without competing with it. */}
+              <circle cx={inFlight.to.x} cy={inFlight.to.y} r={13} fill="var(--electron-glow)" opacity={0.55} />
+              <circle cx={inFlight.to.x} cy={inFlight.to.y} r={8.5} fill="var(--electron-glow)" opacity={0.85} />
+              <circle cx={inFlight.to.x} cy={inFlight.to.y} r={5} fill="var(--electron-core)" />
+            </>
+          )}
           <circle cx={inFlight.from.x} cy={inFlight.from.y} r={3} fill="var(--primary)" />
         </g>
       ) : null}

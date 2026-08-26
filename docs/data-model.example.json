@@ -1,0 +1,386 @@
+{
+  "_comment": "Unit 0 of Orgo 2, filled in for real, as the shape check for docs/DATA-MODEL.md. Beat counts are short here to keep the file readable; a real lesson carries 6 to 10.",
+
+  "course": {
+    "courseId": "orgo2",
+    "title": "Organic Chemistry II",
+    "unitIds": ["u0-intro-carbonyls", "u1-conjugation-resonance-dienes", "u7-aldehydes-ketones"]
+  },
+
+  "units": [
+    {
+      "unitId": "u0-intro-carbonyls",
+      "courseId": "orgo2",
+      "title": "Intro to Carbonyls",
+      "description": "The functional group the rest of the course is built on.",
+      "orderIndex": 6.5,
+      "colour": "accent.purple",
+      "unlockPolicy": "early",
+      "unlockNote": "Bridging unit. Sits before Unit 7 in the path and unlocks after Unit 1.",
+      "trackIds": ["u0-concepts", "u0-mechanisms", "u0-synthesis"]
+    }
+  ],
+
+  "tracks": [
+    {
+      "trackId": "u0-concepts",
+      "unitId": "u0-intro-carbonyls",
+      "kind": "concepts",
+      "title": "Concepts",
+      "orderIndex": 1,
+      "prerequisites": [],
+      "lessonIds": ["u0-c1-resonance", "u0-c2-types", "u0-c3-alpha-carbon"]
+    },
+    {
+      "trackId": "u0-mechanisms",
+      "unitId": "u0-intro-carbonyls",
+      "kind": "mechanisms",
+      "title": "Mechanisms",
+      "orderIndex": 2,
+      "prerequisites": [{ "unitId": "u0-intro-carbonyls", "trackKind": "concepts", "throughLessonIndex": 1 }],
+      "lessonIds": ["u0-m1-nucleophilic-addition", "u0-m2-protonation"]
+    },
+    {
+      "trackId": "u0-synthesis",
+      "unitId": "u0-intro-carbonyls",
+      "kind": "synthesis",
+      "title": "Synthesis",
+      "orderIndex": 3,
+      "prerequisites": [
+        { "unitId": "u0-intro-carbonyls", "trackKind": "concepts" },
+        { "unitId": "u0-intro-carbonyls", "trackKind": "mechanisms" }
+      ],
+      "lessonIds": ["u0-s1-one-step-conversions"]
+    }
+  ],
+
+  "lessons": [
+    {
+      "lessonId": "u0-c1-resonance",
+      "trackId": "u0-concepts",
+      "title": "Resonance in the carbonyl",
+      "orderIndex": 1,
+      "kaiVideoId": "kai-u0-resonance",
+      "readingId": "read-u0-resonance",
+      "conceptIds": ["carbonyl-polarity", "ewg-effect", "resonance-contributor"],
+      "beatIds": ["b-u0-c1-01", "b-u0-c1-02", "b-u0-c1-03", "b-u0-c1-04", "b-u0-c1-05", "b-u0-c1-06"]
+    },
+    {
+      "lessonId": "u0-m1-nucleophilic-addition",
+      "trackId": "u0-mechanisms",
+      "title": "Nucleophilic addition, generic",
+      "orderIndex": 1,
+      "kaiVideoId": "kai-u0-nuc-addition",
+      "readingId": "read-u0-nuc-addition",
+      "conceptIds": ["nucleophilic-addition", "tetrahedral-intermediate", "alkoxide"],
+      "beatIds": ["b-u0-m1-01", "b-u0-m1-02", "b-u0-m1-03", "b-u0-m1-04", "b-u0-m1-05"]
+    }
+  ],
+
+  "beats": [
+    {
+      "beatId": "b-u0-c1-01",
+      "kind": "reading",
+      "conceptIds": ["carbonyl-polarity"],
+      "xp": 0,
+      "readingId": "read-u0-resonance",
+      "skippable": true
+    },
+    {
+      "beatId": "b-u0-c1-02",
+      "kind": "group_recognition",
+      "conceptIds": ["carbonyl-polarity"],
+      "xp": 10,
+      "prompt": "Is this a carbonyl?",
+      "moleculeId": "mol-acetone",
+      "answer": true,
+      "timed": true,
+      "parScoreMs": 3000,
+      "explanation": "Yes. A carbon double bonded to an oxygen is a carbonyl, and that is the whole definition.",
+      "distractors": []
+    },
+    {
+      "beatId": "b-u0-c1-03",
+      "kind": "matching",
+      "conceptIds": ["ewg-effect"],
+      "xp": 15,
+      "prompt": "Match each group to what it does to the carbonyl carbon",
+      "presentation": "connectors",
+      "pairs": [
+        { "leftId": "grp-cf3", "leftLabel": "-CF3", "rightId": "eff-more", "rightLabel": "More electrophilic" },
+        { "leftId": "grp-ch3", "leftLabel": "-CH3", "rightId": "eff-less", "rightLabel": "Less electrophilic" },
+        { "leftId": "grp-nh2", "leftLabel": "-NH2", "rightId": "eff-least", "rightLabel": "Least electrophilic" }
+      ],
+      "explanation": "Electron withdrawing groups pull density away from the carbonyl carbon, which leaves it hungrier for a nucleophile."
+    },
+    {
+      "beatId": "b-u0-c1-04",
+      "kind": "rank_order",
+      "conceptIds": ["ewg-effect", "carbonyl-reactivity-ladder"],
+      "xp": 20,
+      "prompt": "Order these by reactivity toward a nucleophile, most reactive first",
+      "criterion": "reactivity_nucleophilic_acyl",
+      "moleculeIds": ["mol-acyl-chloride", "mol-anhydride", "mol-ester", "mol-amide"],
+      "correctOrder": ["mol-acyl-chloride", "mol-anhydride", "mol-ester", "mol-amide"],
+      "sourceExam": "CHEM241 Fall 2023 Exam 2, front page",
+      "explanation": "This is the acyl reactivity ladder, and it tracks leaving group ability: chloride leaves easily, an amide anion does not.",
+      "distractors": [
+        {
+          "distractorId": "d-reverse-ladder",
+          "match": { "order": ["mol-amide", "mol-ester", "mol-anhydride", "mol-acyl-chloride"] },
+          "explanation": "That is the ladder read backwards. Ranking by how stable the molecule is gives the reverse of ranking by how fast it reacts."
+        }
+      ]
+    },
+    {
+      "beatId": "b-u0-c1-05",
+      "kind": "draw_molecule",
+      "conceptIds": ["ketone-structure"],
+      "xp": 20,
+      "prompt": "Draw a ketone",
+      "stage": "trace",
+      "targetMoleculeId": "mol-acetone",
+      "strokeOrder": [
+        { "index": 1, "fromAtom": "c1", "toAtom": "c2", "bondOrder": 1 },
+        { "index": 2, "fromAtom": "c2", "toAtom": "o1", "bondOrder": 2 },
+        { "index": 3, "fromAtom": "c2", "toAtom": "c3", "bondOrder": 1 }
+      ],
+      "snapToleranceDip": 44,
+      "explanation": "A ketone is a carbonyl with a carbon on each side. That is the only thing separating it from an aldehyde."
+    },
+    {
+      "beatId": "b-u0-c1-06",
+      "kind": "micro_quiz",
+      "conceptIds": ["carbonyl-polarity"],
+      "xp": 10,
+      "aboutMoleculeId": "mol-acetone",
+      "questions": [
+        {
+          "questionId": "mq-1",
+          "prompt": "Which atom carries the partial positive charge?",
+          "answerKind": "tap_atom",
+          "correctAtomIds": ["c2"],
+          "explanation": "Oxygen is more electronegative, so it pulls the shared electrons toward itself and leaves the carbon partially positive."
+        }
+      ]
+    },
+
+    {
+      "beatId": "b-u0-m1-01",
+      "kind": "video",
+      "conceptIds": ["nucleophilic-addition"],
+      "xp": 0,
+      "videoId": "kai-u0-nuc-addition",
+      "skippable": true,
+      "transcriptReadingId": "read-u0-nuc-addition"
+    },
+    {
+      "beatId": "b-u0-m1-02",
+      "kind": "species_roles",
+      "conceptIds": ["nucleophilic-addition"],
+      "xp": 15,
+      "prompt": "Name what each species is doing here",
+      "mechanismId": "mech-generic-nuc-addition",
+      "stepIndex": 0,
+      "assignments": [
+        { "speciesId": "sp-cyanide", "role": "nucleophile" },
+        { "speciesId": "sp-acetone", "role": "electrophile" },
+        { "speciesId": "sp-sodium", "role": "spectator" }
+      ],
+      "explanation": "Sodium is along for the ride. It balances charge and never bonds to anything, which is exactly what a spectator is."
+    },
+    {
+      "beatId": "b-u0-m1-03",
+      "kind": "draw_arrows",
+      "conceptIds": ["nucleophilic-addition", "tetrahedral-intermediate"],
+      "xp": 30,
+      "prompt": "Push the arrows for the first step",
+      "mechanismId": "mech-generic-nuc-addition",
+      "stepIndex": 0,
+      "streakEligible": true,
+      "explanation": "The cyanide lone pair attacks the carbonyl carbon, and the pi electrons go up onto the oxygen. Carbon cannot hold five bonds, so something has to move."
+    },
+    {
+      "beatId": "b-u0-m1-04",
+      "kind": "animation",
+      "conceptIds": ["tetrahedral-intermediate"],
+      "xp": 0,
+      "mechanismId": "mech-generic-nuc-addition",
+      "stepIndex": 0,
+      "unlockedBy": "b-u0-m1-03",
+      "controls": ["rewind", "replay", "speed"],
+      "note": "Never reachable before b-u0-m1-03 resolves. Anti-requirement 12.5."
+    },
+    {
+      "beatId": "b-u0-m1-05",
+      "kind": "draw_arrows",
+      "conceptIds": ["alkoxide", "protonation"],
+      "xp": 30,
+      "prompt": "Now work the alkoxide up",
+      "mechanismId": "mech-generic-nuc-addition",
+      "stepIndex": 1,
+      "streakEligible": true,
+      "explanation": "The alkoxide is a strong base sitting in acid. It grabs a proton and you have your alcohol."
+    }
+  ],
+
+  "molecules": [
+    {
+      "moleculeId": "mol-acetone",
+      "displayName": "Acetone",
+      "smiles": "CC(=O)C",
+      "molfile": null,
+      "card": {
+        "title": "Acetone",
+        "formula": "C3H6O",
+        "family": "Ketone",
+        "note": "The simplest ketone, and the solvent in nail polish remover."
+      },
+      "layoutHints": { "reactionCenters": ["c2"], "preferredOrientation": "carbonyl-up" },
+      "beMatrixCacheKey": "be:mol-acetone:v1"
+    },
+    {
+      "moleculeId": "mol-cyanide",
+      "displayName": "Cyanide",
+      "smiles": "[C-]#N",
+      "card": { "title": "Cyanide", "formula": "CN-", "family": "Nucleophile", "note": "Carbon is the nucleophilic end, not nitrogen." },
+      "layoutHints": { "reactionCenters": ["c1"] },
+      "beMatrixCacheKey": "be:mol-cyanide:v1"
+    }
+  ],
+
+  "mechanisms": [
+    {
+      "mechanismId": "mech-generic-nuc-addition",
+      "title": "Nucleophilic addition to a carbonyl",
+      "routeName": "nucleophilic_addition_carbonyl",
+      "reagentMoleculeIds": ["mol-cyanide"],
+      "substrateMoleculeIds": ["mol-acetone"],
+      "spectatorSpeciesIds": ["sp-sodium"],
+      "spectatorJustification": "Sodium is the counterion to cyanide. It is declared so conservation is asserted over the multiset that actually reacts.",
+      "steps": [
+        {
+          "stepIndex": 0,
+          "title": "Attack",
+          "delta": {
+            "bonds": [
+              { "between": ["sp-cyanide:c1", "sp-acetone:c2"], "from": 0, "to": 1 },
+              { "between": ["sp-acetone:c2", "sp-acetone:o1"], "from": 2, "to": 1 }
+            ],
+            "formalCharge": [
+              { "atom": "sp-cyanide:c1", "from": -1, "to": 0 },
+              { "atom": "sp-acetone:o1", "from": 0, "to": -1 }
+            ],
+            "lonePairs": [
+              { "atom": "sp-cyanide:c1", "from": 1, "to": 0 },
+              { "atom": "sp-acetone:o1", "from": 2, "to": 3 }
+            ]
+          },
+          "arrows": [
+            { "arrowId": "a1", "from": { "kind": "lonePair", "atom": "sp-cyanide:c1", "slot": 0 }, "to": { "kind": "atom", "atom": "sp-acetone:c2" } },
+            { "arrowId": "a2", "from": { "kind": "bond", "between": ["sp-acetone:c2", "sp-acetone:o1"] }, "to": { "kind": "atom", "atom": "sp-acetone:o1" } }
+          ],
+          "explanation": "Two arrows, and they have to happen together. Carbon takes a fourth bond only if the pi bond gets out of the way.",
+          "distractors": [
+            {
+              "distractorId": "d-attack-oxygen",
+              "match": { "arrows": [{ "from": { "kind": "lonePair", "atom": "sp-cyanide:c1" }, "to": { "kind": "atom", "atom": "sp-acetone:o1" } }] },
+              "causeId": "attacked_wrong_electrophilic_site",
+              "explanation": "The oxygen is the electron rich end here, so a nucleophile has no reason to go there. The carbon is the one short on density."
+            },
+            {
+              "distractorId": "d-no-pi-relief",
+              "match": { "arrows": [{ "arrowId": "a1" }], "missing": ["a2"] },
+              "causeId": "valence_exceeded",
+              "explanation": "That arrow alone gives the carbon five bonds. The pi electrons need somewhere to go, and the oxygen is happy to hold them."
+            }
+          ]
+        },
+        {
+          "stepIndex": 1,
+          "title": "Workup",
+          "delta": { "bonds": [], "formalCharge": [], "lonePairs": [] },
+          "arrows": [],
+          "explanation": "Placeholder for the protonation step. Filled when the acid is authored."
+        }
+      ]
+    }
+  ],
+
+  "reviewItems": [
+    {
+      "reviewItemId": "rev-0001",
+      "userId": "usr-demo",
+      "beatId": "b-u0-m1-03",
+      "conceptIds": ["nucleophilic-addition"],
+      "sourceAttemptId": "att-0042",
+      "origin": "missed",
+      "dueAt": "2026-08-27T14:00:00Z",
+      "intervalDays": 2,
+      "ease": 2.3,
+      "lapses": 1
+    },
+    {
+      "reviewItemId": "rev-0002",
+      "userId": "usr-demo",
+      "beatId": "b-u0-c1-04",
+      "conceptIds": ["carbonyl-reactivity-ladder"],
+      "sourceAttemptId": null,
+      "origin": "kept",
+      "dueAt": "2026-08-26T14:00:00Z",
+      "intervalDays": 1,
+      "ease": 2.5,
+      "lapses": 0
+    }
+  ],
+
+  "attempts": [
+    {
+      "attemptId": "att-0042",
+      "userId": "usr-demo",
+      "beatId": "b-u0-m1-03",
+      "submitted": {
+        "kind": "arrows",
+        "arrows": [{ "from": { "kind": "lonePair", "atom": "sp-cyanide:c1", "slot": 0 }, "to": { "kind": "atom", "atom": "sp-acetone:o1" } }]
+      },
+      "resolution": "invalid",
+      "causeId": "attacked_wrong_electrophilic_site",
+      "distractorId": "d-attack-oxygen",
+      "feedbackTier": 2,
+      "elapsedMs": 8400,
+      "createdAt": "2026-08-25T14:02:11Z"
+    }
+  ],
+
+  "progress": {
+    "_comment": "Server-derived. Never client-written. The client caches this exact shape behind ProgressSource.",
+    "userId": "usr-demo",
+    "courseId": "orgo2",
+    "xpTotal": 1340,
+    "rating": 1187,
+    "cash": 400,
+    "streak": { "current": 3, "longest": 11, "lastPractisedOn": "2026-08-25" },
+    "tracks": [
+      {
+        "trackId": "u0-concepts",
+        "unlocked": true,
+        "percentage": 66,
+        "completedLessonIds": ["u0-c1-resonance", "u0-c2-types"]
+      },
+      {
+        "trackId": "u0-mechanisms",
+        "unlocked": true,
+        "percentage": 20,
+        "completedLessonIds": []
+      },
+      {
+        "trackId": "u0-synthesis",
+        "unlocked": false,
+        "percentage": 0,
+        "completedLessonIds": [],
+        "lockedBecause": ["u0-concepts", "u0-mechanisms"]
+      }
+    ],
+    "reviewDue": 2
+  }
+}
