@@ -56,6 +56,20 @@ const SN2_DEMO_DISTRACTORS: Readonly<Record<string, TrainerDistractor>> = {
  */
 const DISTRACTORS_BY_STEP: Readonly<Record<string, Readonly<Record<string, TrainerDistractor>>>> = {
   "sn2-demo-step": SN2_DEMO_DISTRACTORS,
+  "epoxide-basic": {
+    "2e lp:om -> between:c2+om": {
+      what: "You attacked the more substituted carbon.",
+      why: "With a strong nucleophile and no acid this is a plain SN2, and SN2 cares about sterics: the CH₂ end is the open door, the CH end has a methyl group standing in it. Regiochemistry flips only when acid puts real positive charge on the substituted carbon.",
+      lookAt: "The CH₂ carbon of the ring — the less hindered one. Backside attack there, and the ring strain shoves the oxygen off.",
+    },
+  },
+  "epoxide-acidic": {
+    "2e lp:ow -> between:c1+ow": {
+      what: "You attacked the less substituted carbon.",
+      why: "That is the basic-conditions answer. Here the ring is protonated, so the C–O bonds are already letting go, and the MORE substituted carbon carries the bigger share of the positive charge — it is halfway to a carbocation, and that is where a weak nucleophile lands.",
+      lookAt: "The CH carbon, the one with the methyl. Under acid, charge beats sterics.",
+    },
+  },
   "alkene-protonation-hbr": {
     "2e bond:b-cc -> between:c2+h1": {
       what: "You protonated the middle carbon.",

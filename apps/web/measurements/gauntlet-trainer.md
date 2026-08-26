@@ -525,3 +525,27 @@ Playable inventory: 6 single-step reactions, 4 sequences holding 8 steps, 3 reso
 (arenium chemistry needs an authored benzene and its sigma complex), the alcohol/epoxide block,
 Wittig, reductions, and the rest of Unit 9; those are the next waves, and each is now data plus
 hints plus tests, no component work.
+
+## 2026-08-26, coverage wave 2: EAS lands, the alcohol block opens
+
+Seven new steps, every one conserving at import and walking the machine to a correct grade on the
+first run, 83 tests green.
+
+- **Unit 3 spine, EAS nitration · 2 steps.** The unit the pathway map calls the core of the course.
+  Benzene authored as one localised Kekulé structure, the same convention the fixture corpus uses
+  for the benzenonium sigma complex; the arenium's sp3 hydrogen explicit because step 2 takes it.
+  Attack (ring π onto nitronium, N=O relieving onto oxygen), then rearomatize (water takes the
+  proton, the C-H electrons buy aromaticity back). The success copy names the pattern every EAS
+  reaction shares.
+- **Unit 5 spine, Williamson ether**: the SN2 wearing a synthesis name, and copy that says why 3°
+  halides eliminate instead.
+- **Unit 5b spine, epoxide opening as a taught PAIR**: basic conditions attack the less hindered
+  carbon, acidic the more substituted, and EACH one's wrong answer is an authored distractor whose
+  copy explains the other regime. The pair the map says to teach together, built that way.
+- **Unit 7 spine, Grignard addition** (the methyl drawn as the carbanion it delivers, said plainly
+  in the brief) and **imine formation's first bond** (to the zwitterion, N+ beside O-).
+
+Playable inventory: 11 single-step reactions, 5 sequences holding 10 steps, 3 resonance finds:
+24 playable steps, roughly 20 of the 86 spine nodes. The picker chip row is at its limit; wiring
+the pathway tab's nodes to open the trainer at their reaction is now the next structural task,
+scheduled before wave 3 per the owner conversation.

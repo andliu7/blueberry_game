@@ -495,6 +495,193 @@ const ALDOL_ATTACK: MechanismStep = createStep({
   ],
 });
 
+/* ================= EAS nitration: attack, then rearomatize ================= */
+/* One Kekule structure, written localised, the same convention the fixture
+ * corpus uses for the benzenonium sigma complex (see the adjudication notes
+ * in STATUS.md: the sp3 carbon reads as a stereocentre to RDKit only because
+ * one resonance form is drawn; here nothing is chiral and the ring is plain). */
+
+const benzene = createSpecies({
+  id: "sp-benzene",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "b12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+  ],
+});
+
+const nitronium = createSpecies({
+  id: "sp-nitronium",
+  atoms: [
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "o2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [createBond({ id: "b-no1", a: "n1", b: "o1", order: 2 }), createBond({ id: "b-no2", a: "n1", b: "o2", order: 2 })],
+});
+
+const arenium = createSpecies({
+  id: "sp-arenium",
+  atoms: [
+    // c1 is sp3 now, its ring hydrogen EXPLICIT because step 2 takes it.
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "hx", element: "H" }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "o2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b1h", a: "c1", b: "hx" }),
+    createBond({ id: "b12", a: "c1", b: "c2" }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c1", b: "n1" }),
+    createBond({ id: "b-no1", a: "n1", b: "o1" }),
+    createBond({ id: "b-no2", a: "n1", b: "o2", order: 2 }),
+  ],
+});
+
+const EAS_ATTACK: MechanismStep = createStep({
+  id: "eas-attack",
+  from: createState({
+    id: "eas-a-before",
+    members: [
+      { species: benzene, role: "nucleophile" },
+      { species: nitronium, role: "electrophile" },
+    ],
+  }),
+  to: createState({ id: "eas-a-after", members: [{ species: arenium, role: "intermediate" }] }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_aromatic_substitution", reactionCenters: ["c1", "n1"] },
+  arrows: [
+    createArrow({ id: "a-ring-attacks", source: fromBond("b12"), sink: toBondBetween("c1", "n1") }),
+    createArrow({ id: "a-no-relief", source: fromBond("b-no1"), sink: toAtom("o1") }),
+  ],
+});
+
+/* Step 2: water takes the sp3 hydrogen and the ring rearomatizes. The arenium
+ * here is the SAME structure, restated as its own from-state. */
+
+const areniumIn = createSpecies({
+  id: "sp-arenium-2",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "hx", element: "H" }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "o2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b1h", a: "c1", b: "hx" }),
+    createBond({ id: "b12", a: "c1", b: "c2" }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c1", b: "n1" }),
+    createBond({ id: "b-no1", a: "n1", b: "o1" }),
+    createBond({ id: "b-no2", a: "n1", b: "o2", order: 2 }),
+  ],
+});
+
+const waterEas = createSpecies({
+  id: "sp-water-eas",
+  atoms: [
+    createAtom({ id: "ow", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hw1", element: "H" }),
+    createAtom({ id: "hw2", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-ow1", a: "ow", b: "hw1" }), createBond({ id: "b-ow2", a: "ow", b: "hw2" })],
+});
+
+const nitrobenzene = createSpecies({
+  id: "sp-nitrobenzene",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "o2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c1", b: "n1" }),
+    createBond({ id: "b-no1", a: "n1", b: "o1" }),
+    createBond({ id: "b-no2", a: "n1", b: "o2", order: 2 }),
+  ],
+});
+
+const hydroniumEas = createSpecies({
+  id: "sp-hydronium-eas",
+  atoms: [
+    createAtom({ id: "ow", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "hw1", element: "H" }),
+    createAtom({ id: "hw2", element: "H" }),
+    createAtom({ id: "hx", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-ow1", a: "ow", b: "hw1" }),
+    createBond({ id: "b-ow2", a: "ow", b: "hw2" }),
+    createBond({ id: "b-owx", a: "ow", b: "hx" }),
+  ],
+});
+
+const EAS_REAROMATIZE: MechanismStep = createStep({
+  id: "eas-rearomatize",
+  from: createState({
+    id: "eas-b-before",
+    members: [
+      { species: areniumIn, role: "intermediate" },
+      { species: waterEas, role: "base" },
+    ],
+  }),
+  to: createState({
+    id: "eas-b-after",
+    members: [
+      { species: nitrobenzene, role: "product" },
+      { species: hydroniumEas, role: "byproduct" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "electrophilic_aromatic_substitution", reactionCenters: ["hx", "c1"] },
+  arrows: [
+    createArrow({ id: "a-take-h", source: fromLonePair("ow"), sink: toBondBetween("ow", "hx") }),
+    createArrow({ id: "a-rearomatize", source: fromBond("b1h"), sink: toBondBetween("c1", "c2") }),
+  ],
+});
+
 import { TRAINER_REACTIONS } from "./reactions";
 
 const carbonyl = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
@@ -520,6 +707,75 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
         stepBrief: "Step 2 · The alkoxide takes a proton from hydronium.",
         fromHints: STEP2_FROM_HINTS,
         toHints: STEP2_TO_HINTS,
+      },
+    ],
+  },
+  {
+    id: "seq-eas",
+    title: "EAS nitration · 2 steps",
+    brief: "The ring attacks, then gives the proton back: substitution that keeps aromaticity.",
+    successLine: "Electrophilic aromatic substitution whole: the π attacks the nitronium, the arenium holds its breath, and losing the sp³ proton buys aromaticity back. Attack, then rearomatize — the same two beats under every reaction in this unit.",
+    steps: [
+      {
+        step: EAS_ATTACK,
+        stepBrief: "Step 1 · A ring π bond attacks the nitronium; one N=O relieves onto oxygen.",
+        fromHints: {
+          c1: { x: 0.0, y: 1.0 },
+          c2: { x: 0.87, y: 0.5 },
+          c3: { x: 0.87, y: -0.5 },
+          c4: { x: 0.0, y: -1.0 },
+          c5: { x: -0.87, y: -0.5 },
+          c6: { x: -0.87, y: 0.5 },
+          n1: { x: 0.6, y: 2.15 },
+          o1: { x: -0.35, y: 2.6 },
+          o2: { x: 1.55, y: 2.6 },
+        },
+        toHints: {
+          c1: { x: 0.0, y: 1.0 },
+          c2: { x: 0.87, y: 0.5 },
+          c3: { x: 0.87, y: -0.5 },
+          c4: { x: 0.0, y: -1.0 },
+          c5: { x: -0.87, y: -0.5 },
+          c6: { x: -0.87, y: 0.5 },
+          hx: { x: -0.7, y: 1.7 },
+          n1: { x: 0.6, y: 2.0 },
+          o1: { x: -0.3, y: 2.5 },
+          o2: { x: 1.55, y: 2.45 },
+        },
+      },
+      {
+        step: EAS_REAROMATIZE,
+        stepBrief: "Step 2 · Water takes the sp³ hydrogen and the ring rearomatizes.",
+        fromHints: {
+          c1: { x: 0.0, y: 1.0 },
+          c2: { x: 0.87, y: 0.5 },
+          c3: { x: 0.87, y: -0.5 },
+          c4: { x: 0.0, y: -1.0 },
+          c5: { x: -0.87, y: -0.5 },
+          c6: { x: -0.87, y: 0.5 },
+          hx: { x: -0.7, y: 1.7 },
+          n1: { x: 0.6, y: 2.0 },
+          o1: { x: -0.3, y: 2.5 },
+          o2: { x: 1.55, y: 2.45 },
+          ow: { x: -2.1, y: 1.9 },
+          hw1: { x: -2.85, y: 2.45 },
+          hw2: { x: -2.6, y: 1.1 },
+        },
+        toHints: {
+          c1: { x: 0.0, y: 1.0 },
+          c2: { x: 0.87, y: 0.5 },
+          c3: { x: 0.87, y: -0.5 },
+          c4: { x: 0.0, y: -1.0 },
+          c5: { x: -0.87, y: -0.5 },
+          c6: { x: -0.87, y: 0.5 },
+          n1: { x: 0.6, y: 2.15 },
+          o1: { x: -0.35, y: 2.6 },
+          o2: { x: 1.55, y: 2.6 },
+          ow: { x: -2.4, y: 1.9 },
+          hw1: { x: -3.15, y: 2.45 },
+          hw2: { x: -2.9, y: 1.1 },
+          hx: { x: -1.75, y: 2.7 },
+        },
       },
     ],
   },

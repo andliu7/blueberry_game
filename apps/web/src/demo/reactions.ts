@@ -444,6 +444,321 @@ const CYANOHYDRIN_ATTACK: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 5 spine: Williamson ether synthesis, an SN2 wearing a new name. */
+/* ------------------------------------------------------------------ */
+
+const methoxide = createSpecies({
+  id: "sp-methoxide",
+  atoms: [
+    createAtom({ id: "om", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-ome", a: "om", b: "cme" })],
+});
+
+const bromomethaneW = createSpecies({
+  id: "sp-bromomethane-w",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "br1", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-cbr", a: "c1", b: "br1" })],
+});
+
+const dimethylEther = createSpecies({
+  id: "sp-dimethyl-ether",
+  atoms: [
+    createAtom({ id: "om", element: "O", lonePairs: 2 }),
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-ome", a: "om", b: "cme" }), createBond({ id: "b-oc1", a: "om", b: "c1" })],
+});
+
+const bromideW = createSpecies({
+  id: "sp-bromide-w",
+  atoms: [createAtom({ id: "br1", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const WILLIAMSON: MechanismStep = createStep({
+  id: "williamson-ether",
+  from: createState({
+    id: "wil-before",
+    members: [
+      { species: methoxide, role: "nucleophile" },
+      { species: bromomethaneW, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "wil-after",
+    members: [
+      { species: dimethylEther, role: "product" },
+      { species: bromideW, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["c1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("om"), sink: toBondBetween("om", "c1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-cbr"), sink: toAtom("br1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 5b spine: epoxide opening, both regiochemistries, taught as a  */
+/* pair. Propylene oxide so the two carbons genuinely differ.          */
+/* ------------------------------------------------------------------ */
+
+const propyleneOxide = createSpecies({
+  id: "sp-propylene-oxide",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1o", a: "c1", b: "o1" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+  ],
+});
+
+const methoxideEp = createSpecies({
+  id: "sp-methoxide-ep",
+  atoms: [
+    createAtom({ id: "om", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-ome", a: "om", b: "cme" })],
+});
+
+const basicOpened = createSpecies({
+  id: "sp-basic-opened",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "om", element: "O", lonePairs: 2 }),
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-1om", a: "c1", b: "om" }),
+    createBond({ id: "b-ome", a: "om", b: "cme" }),
+  ],
+});
+
+const EPOXIDE_BASIC: MechanismStep = createStep({
+  id: "epoxide-basic",
+  from: createState({
+    id: "epb-before",
+    members: [
+      { species: methoxideEp, role: "nucleophile" },
+      { species: propyleneOxide, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "epb-after", members: [{ species: basicOpened, role: "product" }] }),
+  identity: { elementaryStep: "ring_opening", route: "sn2", reactionCenters: ["c1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("om"), sink: toBondBetween("om", "c1") }),
+    createArrow({ id: "a-relieve", source: fromBond("b-1o"), sink: toAtom("o1") }),
+  ],
+});
+
+const protonatedEpoxide = createSpecies({
+  id: "sp-protonated-epoxide",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "o1", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "hp", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1o", a: "c1", b: "o1" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-ohp", a: "o1", b: "hp" }),
+  ],
+});
+
+const waterEp = createSpecies({
+  id: "sp-water-ep",
+  atoms: [
+    createAtom({ id: "ow", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hw1", element: "H" }),
+    createAtom({ id: "hw2", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-ow1", a: "ow", b: "hw1" }), createBond({ id: "b-ow2", a: "ow", b: "hw2" })],
+});
+
+const acidOpened = createSpecies({
+  id: "sp-acid-opened",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hp", element: "H" }),
+    createAtom({ id: "ow", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "hw1", element: "H" }),
+    createAtom({ id: "hw2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1o", a: "c1", b: "o1" }),
+    createBond({ id: "b-ohp", a: "o1", b: "hp" }),
+    createBond({ id: "b-2ow", a: "c2", b: "ow" }),
+    createBond({ id: "b-ow1", a: "ow", b: "hw1" }),
+    createBond({ id: "b-ow2", a: "ow", b: "hw2" }),
+  ],
+});
+
+const EPOXIDE_ACIDIC: MechanismStep = createStep({
+  id: "epoxide-acidic",
+  from: createState({
+    id: "epa-before",
+    members: [
+      { species: waterEp, role: "nucleophile" },
+      { species: protonatedEpoxide, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "epa-after", members: [{ species: acidOpened, role: "product" }] }),
+  identity: { elementaryStep: "ring_opening", route: "sn1", reactionCenters: ["c2"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("ow"), sink: toBondBetween("ow", "c2") }),
+    createArrow({ id: "a-relieve", source: fromBond("b-2o"), sink: toAtom("o1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 7 spine: the Grignard's methyl, drawn as the carbanion it      */
+/* delivers; and the imine's first bond.                               */
+/* ------------------------------------------------------------------ */
+
+const methylCarbanion = createSpecies({
+  id: "sp-methyl-carbanion",
+  atoms: [createAtom({ id: "cg", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const formaldehydeG = createSpecies({
+  id: "sp-formaldehyde-g",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of", order: 2 }),
+  ],
+});
+
+const ethoxideOut = createSpecies({
+  id: "sp-ethoxide-out",
+  atoms: [
+    createAtom({ id: "cg", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-gc", a: "cg", b: "cf" }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of" }),
+  ],
+});
+
+const GRIGNARD_METHYL: MechanismStep = createStep({
+  id: "grignard-methyl",
+  from: createState({
+    id: "grig-before",
+    members: [
+      { species: methylCarbanion, role: "nucleophile" },
+      { species: formaldehydeG, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "grig-after", members: [{ species: ethoxideOut, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("cg"), sink: toBondBetween("cg", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cfo"), sink: toAtom("of") }),
+  ],
+});
+
+const methylamine = createSpecies({
+  id: "sp-methylamine",
+  atoms: [
+    createAtom({ id: "nm", element: "N", lonePairs: 1, implicitHydrogens: 2 }),
+    createAtom({ id: "cn", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-nc", a: "nm", b: "cn" })],
+});
+
+const formaldehydeIm = createSpecies({
+  id: "sp-formaldehyde-im",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of", order: 2 }),
+  ],
+});
+
+const zwitterion = createSpecies({
+  id: "sp-imine-zwitterion",
+  atoms: [
+    createAtom({ id: "nm", element: "N", formalCharge: 1, implicitHydrogens: 2 }),
+    createAtom({ id: "cn", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-nc", a: "nm", b: "cn" }),
+    createBond({ id: "b-nf", a: "nm", b: "cf" }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of" }),
+  ],
+});
+
+const IMINE_ATTACK: MechanismStep = createStep({
+  id: "imine-attack",
+  from: createState({
+    id: "im-before",
+    members: [
+      { species: methylamine, role: "nucleophile" },
+      { species: formaldehydeIm, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "im-after", members: [{ species: zwitterion, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("nm"), sink: toBondBetween("nm", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cfo"), sink: toAtom("of") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -586,6 +901,119 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       h2: { x: -0.35, y: 0.94 },
       h3: { x: 0.95, y: -0.35 },
       o1: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "williamson",
+    title: "Williamson ether",
+    brief: "Methoxide attacks the methyl halide: an SN2 that builds an ether.",
+    successLine: "Backside attack on the 1° carbon, bromide leaves: the Williamson is SN2 wearing a synthesis name, and it is why 3° halides eliminate instead.",
+    step: WILLIAMSON,
+    fromHints: {
+      om: { x: -1.6, y: 0.1 },
+      cme: { x: -2.55, y: 0.6 },
+      c1: { x: 0, y: 0 },
+      br1: { x: 1.2, y: 0 },
+    },
+    toHints: {
+      om: { x: -1.05, y: 0.1 },
+      cme: { x: -2.0, y: 0.6 },
+      c1: { x: 0, y: 0 },
+      br1: { x: 1.75, y: 0 },
+    },
+  },
+  {
+    id: "epoxide-basic",
+    title: "Epoxide, basic opening",
+    brief: "Strong nucleophile, no acid: which carbon does it hit?",
+    successLine: "Under basic conditions the nucleophile attacks the LESS hindered carbon — clean SN2, backside, and the ring strain does the leaving group's job.",
+    step: EPOXIDE_BASIC,
+    fromHints: {
+      om: { x: -1.85, y: -0.35 },
+      cme: { x: -2.8, y: -0.8 },
+      c1: { x: -0.5, y: 0.15 },
+      c2: { x: 0.55, y: 0.15 },
+      c3: { x: 1.3, y: -0.6 },
+      o1: { x: 0.05, y: 1.05 },
+    },
+    toHints: {
+      om: { x: -1.4, y: -0.3 },
+      cme: { x: -2.35, y: -0.75 },
+      c1: { x: -0.5, y: 0.15 },
+      c2: { x: 0.55, y: 0.15 },
+      c3: { x: 1.3, y: -0.6 },
+      o1: { x: 0.55, y: 1.15 },
+    },
+  },
+  {
+    id: "epoxide-acidic",
+    title: "Epoxide, acidic opening",
+    brief: "The ring is protonated now. Same question: which carbon?",
+    successLine: "Under acid the ring is activated and the MORE substituted carbon takes the hit: it carries the greater share of positive charge, so the weak nucleophile goes there.",
+    step: EPOXIDE_ACIDIC,
+    fromHints: {
+      ow: { x: 1.95, y: -0.5 },
+      hw1: { x: 2.7, y: 0.05 },
+      hw2: { x: 2.45, y: -1.3 },
+      c1: { x: -0.5, y: 0.15 },
+      c2: { x: 0.55, y: 0.15 },
+      c3: { x: 0.85, y: -0.85 },
+      o1: { x: 0.05, y: 1.05 },
+      hp: { x: 0.05, y: 2.05 },
+    },
+    toHints: {
+      ow: { x: 1.35, y: -0.45 },
+      hw1: { x: 2.1, y: 0.1 },
+      hw2: { x: 1.85, y: -1.25 },
+      c1: { x: -0.5, y: 0.15 },
+      c2: { x: 0.55, y: 0.15 },
+      c3: { x: 0.85, y: -0.85 },
+      o1: { x: -0.35, y: 1.05 },
+      hp: { x: -0.35, y: 2.05 },
+    },
+  },
+  {
+    id: "grignard-methyl",
+    title: "Grignard addition",
+    brief: "The Grignard's methyl, drawn as the carbanion it delivers. Two arrows.",
+    successLine: "The carbanion attacks the carbonyl carbon and the π electrons step onto oxygen: a new C–C bond and the alkoxide the workup will protonate.",
+    step: GRIGNARD_METHYL,
+    fromHints: {
+      cg: { x: -1.55, y: -0.35 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+    toHints: {
+      cg: { x: -1.0, y: -0.3 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "imine-attack",
+    title: "Imine, first bond",
+    brief: "The amine's lone pair opens the imine story. Two arrows.",
+    successLine: "Nitrogen attacks the carbonyl carbon and the zwitterion forms: N⁺ and O⁻ on neighbouring atoms, waiting for the proton shuffle that finishes the imine.",
+    step: IMINE_ATTACK,
+    fromHints: {
+      nm: { x: -1.55, y: -0.3 },
+      cn: { x: -2.5, y: -0.75 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+    toHints: {
+      nm: { x: -1.0, y: -0.25 },
+      cn: { x: -1.95, y: -0.7 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
     },
   },
 ];
