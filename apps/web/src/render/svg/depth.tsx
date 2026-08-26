@@ -213,8 +213,14 @@ const SUBSCRIPTS = ["", "", "₂", "₃", "₄"];
  * The faint arc of implicit hydrogens, with an H-count glyph on it.
  * `openAngle` is in scene terms (y up); pixel y grows downward, so it negates.
  */
-export function HydrogenArc({ centre, openAngle, count, r }: { centre: Point2; openAngle: number; count: number; r: number }) {
+export function HydrogenArc({ centre, openAngle, count, r, expanded = false }: { centre: Point2; openAngle: number; count: number; r: number; expanded?: boolean }) {
   if (count <= 0) return null;
+  /* `expanded` is the owner's "click on it and it opens up", for carbons: at
+     rest the hydrogens hug the sphere as quiet upright glyphs, and tapping the
+     atom (the same tap that reveals lone pairs) swings them further out, spreads
+     the arc, and lifts them to full ink so they read as countable atoms rather
+     than as an annotation. Oxygen never reaches this: its hydrogen is an
+     explicit atom in the species, the way the bar draws hydroxide. */
   // Hugging the sphere, thin, short. An arc set far out with a big label reads
   // as a mouth under the atom rather than as an annotation on it; the capture
   // keeps the hydrogens tight against the skin and quiet.
@@ -223,8 +229,8 @@ export function HydrogenArc({ centre, openAngle, count, r }: { centre: Point2; o
   // reads as a parenthesis with a subscript next to it; three H's ON the arc
   // read as three hydrogens, which is what they are. Above four the count
   // wins, because seven H's on an arc is a smear.
-  const arcR = r + 7;
-  const HALF = count <= 1 ? 0.34 : 0.3 + count * 0.16;
+  const arcR = r + (expanded ? 14 : 7);
+  const HALF = (count <= 1 ? 0.34 : 0.3 + count * 0.16) * (expanded ? 1.45 : 1);
   const a0 = -(openAngle - HALF);
   const a1 = -(openAngle + HALF);
   const start = { x: centre.x + arcR * Math.cos(a0), y: centre.y + arcR * Math.sin(a0) };
@@ -240,9 +246,9 @@ export function HydrogenArc({ centre, openAngle, count, r }: { centre: Point2; o
       : [{ key: 0, x: centre.x + (arcR + 7) * Math.cos(-openAngle), y: centre.y + (arcR + 7) * Math.sin(-openAngle), text: `H${SUBSCRIPTS[count] ?? `×${count}`}` }];
   return (
     <g>
-      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.4} strokeLinecap="round" opacity={0.6} />
+      <path d={`M ${start.x} ${start.y} A ${arcR} ${arcR} 0 0 0 ${end.x} ${end.y}`} fill="none" stroke="var(--scene-faint)" strokeWidth={1.4} strokeLinecap="round" opacity={expanded ? 0.85 : 0.6} />
       {letters.map((letter) => (
-        <text key={letter.key} x={letter.x} y={letter.y} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={600} fill="var(--scene-faint)">
+        <text key={letter.key} x={letter.x} y={letter.y} textAnchor="middle" dominantBaseline="central" fontSize={expanded ? 12.5 : 10.5} fontWeight={600} fill={expanded ? "var(--foreground)" : "var(--scene-faint)"}>
           {letter.text}
         </text>
       ))}

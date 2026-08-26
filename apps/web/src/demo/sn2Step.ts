@@ -32,9 +32,14 @@ import type { LayoutHints } from "../render/layout/layout";
 const hydroxide = createSpecies({
   id: "sp-hydroxide",
   atoms: [
-    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3, implicitHydrogens: 1 }),
+    // The H is EXPLICIT, per the owner ruling of 2026-08-25 and per how the bar
+    // draws hydroxide (IMG_1644: a real H sphere bonded to the O). Carbons keep
+    // their hydrogens implicit and circling; an oxygen's one hydrogen is part
+    // of the species' identity and gets a ball of its own.
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "h1", element: "H" }),
   ],
-  bonds: [],
+  bonds: [createBond({ id: "b-oh", a: "o1", b: "h1" })],
 });
 
 const bromomethane = createSpecies({
@@ -49,10 +54,11 @@ const bromomethane = createSpecies({
 const methanol = createSpecies({
   id: "sp-methanol",
   atoms: [
-    createAtom({ id: "o1", element: "O", lonePairs: 2, implicitHydrogens: 1 }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h1", element: "H" }),
     createAtom({ id: "c1", element: "C", implicitHydrogens: 3 }),
   ],
-  bonds: [createBond({ id: "b-oc", a: "o1", b: "c1" })],
+  bonds: [createBond({ id: "b-oh", a: "o1", b: "h1" }), createBond({ id: "b-oc", a: "o1", b: "c1" })],
 });
 
 const bromide = createSpecies({
@@ -95,12 +101,15 @@ export const SN2_DEMO_STEP: MechanismStep = createStep({
 /** Backside geometry, authored. Scene units; one bond length is 1. */
 export const SN2_FROM_HINTS: LayoutHints = {
   o1: { x: -1.9, y: 0 },
+  // Up and away from the carbon, so the O-H bond never crowds the attack axis.
+  h1: { x: -2.6, y: -0.72 },
   c1: { x: 0, y: 0, z: 0 },
   br1: { x: 1.05, y: 0 },
 };
 
 export const SN2_TO_HINTS: LayoutHints = {
   o1: { x: -1.05, y: 0 },
+  h1: { x: -1.75, y: -0.72 },
   c1: { x: 0, y: 0 },
   br1: { x: 2.1, y: 0 },
 };

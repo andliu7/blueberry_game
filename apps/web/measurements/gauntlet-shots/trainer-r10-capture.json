@@ -1,0 +1,33 @@
+{
+  "tag": "r10",
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "deviceScaleFactor": 2
+  },
+  "results": [
+    {
+      "theme": "light",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-light-success.png",
+      "midFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-light-mid.png",
+      "restFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-light-resting.png",
+      "firstFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-light-first-arrow.png",
+      "arrows": 1,
+      "success": true,
+      "wrong": {
+        "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-wrong-drop.png",
+        "card": true
+      }
+    },
+    {
+      "theme": "dark",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-dark-success.png",
+      "midFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-dark-mid.png",
+      "restFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-dark-resting.png",
+      "firstFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r10-arrow-dark-first-arrow.png",
+      "arrows": 1,
+      "success": true,
+      "wrong": null
+    }
+  ]
+}

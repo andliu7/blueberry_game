@@ -176,8 +176,12 @@ async function drawTheAnswer(page) {
 
 async function shoot(page, name) {
   const file = path.join(shotsDir, `${name}.png`);
-  const canvas = await page.$('svg[role="application"]');
-  if (canvas === null) throw new Error("the draw canvas is not on screen");
+  // The draw canvas when drawing; the playback SVG after a correct answer
+  // flips the trainer to play mode, which replaces the canvas wholesale. The
+  // success shot is BY DESIGN a shot of that playback state, so falling back
+  // to the first SVG in the canvas card is correct there and only there.
+  const canvas = (await page.$('svg[role="application"]')) ?? (await page.$("section svg"));
+  if (canvas === null) throw new Error("no canvas SVG is on screen in either mode");
   // The canvas alone, which is what the bar's captures show, and the tab around
   // it, because a critic judging the trainer judges the strip and the header too.
   await canvas.screenshot({ path: file, type: "png", captureBeyondViewport: false });
@@ -247,19 +251,62 @@ async function openTrainer(browser, theme) {
   return page;
 }
 
+/**
+ * The wrong drop, held on screen: arm the oxygen's lone pair, tap BROMINE.
+ * Immediate grading fires the not_requested path, the authored repulsion
+ * distractor card shows, and the sink atom wobbles for 500 ms before the
+ * machine's undo takes the arrow back. The shot lands inside that window,
+ * which is exactly the frame the owner asked for: feedback with no button.
+ */
+async function captureWrongDrop(page) {
+  await tapSite(page, `t.kind === "atom" && t.atomId === "o1"`);
+  await tapSite(page, `t.kind === "lonePair" && t.atomId === "o1" && t.slotIndex === 0`);
+  await tapSite(page, `t.kind === "atom" && t.atomId === "br1"`);
+  // Inside the wobble window (the tap helper already waited 160 ms of it).
+  const card = await page.evaluate(() => document.body.innerText.includes("lone pair at bromine"));
+  const file = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-wrong-drop`);
+  return { file, card };
+}
+
 async function captureTheme(browser, theme) {
+  // Resting: NOTHING has been tapped. Piece 1's evidence: no lone pairs, no
+  // revealed anything, hydrogens quiet against their spheres.
+  const restPage = await openTrainer(browser, theme);
+  const restFile = await shoot(restPage, `trainer-${TAG}-${PRIMITIVE}-${theme}-resting`);
+  await restPage.close();
+
   const midPage = await openTrainer(browser, theme);
   const midFile = await captureMidDrag(midPage, theme);
   await midPage.close();
 
+  // The full answer now grades ITSELF on the last commit and flips to
+  // playback, so there is no resting committed-arrows state any more. Two
+  // shots replace it: the first arrow committed (still draw mode, one real
+  // arrow on the canvas), and the success state the answer lands in.
   const page = await openTrainer(browser, theme);
-  await drawTheAnswer(page);
+  await tapSite(page, `t.kind === "atom" && t.atomId === "o1"`);
+  await tapSite(page, `t.kind === "lonePair" && t.atomId === "o1" && t.slotIndex === 0`);
+  await tapSite(page, `t.kind === "betweenAtomsSite" && t.atomIds.includes("o1") && t.atomIds.includes("c1")`);
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
-
   const arrows = await page.evaluate(() => document.querySelectorAll('path[marker-end="url(#draw-arrowhead)"]').length);
-  const file = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-${theme}-committed`);
+  const firstFile = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-${theme}-first-arrow`);
+
+  await tapSite(page, `t.kind === "bondEndHandle" && t.bondId === "b-cbr" && t.atomId === "br1"`);
+  await tapSite(page, `t.kind === "atom" && t.atomId === "br1"`);
+  await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
+  const success = await page.evaluate(() => document.body.innerText.includes("Back-side attack"));
+  const file = await shoot(page, `trainer-${TAG}-${PRIMITIVE}-${theme}-success`);
   await page.close();
-  return { theme, file, midFile, arrows };
+
+  // The wrong drop only needs one theme's shot per run; light carries it.
+  let wrong = null;
+  if (theme === "light") {
+    const wrongPage = await openTrainer(browser, theme);
+    wrong = await captureWrongDrop(wrongPage);
+    await wrongPage.close();
+  }
+
+  return { theme, file, midFile, restFile, firstFile, arrows, success, wrong };
 }
 
 const browser = await puppeteer.launch({
@@ -280,16 +327,28 @@ try {
 }
 
 for (const result of results) {
-  // The arrow count is the capture's own check that it drew the answer rather
-  // than photographing an empty canvas. Two arrows is the S_N2 step.
-  const state = result.arrows === 2 ? "committed, 2 arrows" : `INCOMPLETE, ${result.arrows} arrow(s) drawn`;
-  console.log(`${result.theme.padEnd(5)} ${state}  ${path.relative(process.cwd(), result.file)}`);
+  // Self checks, so a shot of the wrong state can never be handed to a critic:
+  // the first-arrow shot must hold exactly one committed arrow, the success
+  // shot must actually show the success card, and the wrong-drop shot must
+  // show the authored distractor card.
+  const first = result.arrows === 1 ? "first arrow committed" : `WRONG STATE, ${result.arrows} arrow(s) in the first-arrow shot`;
+  const done = result.success ? "success card shown" : "NO SUCCESS CARD";
+  const wrong = result.wrong === null ? "" : result.wrong.card ? ", distractor card shown" : ", NO DISTRACTOR CARD";
+  console.log(`${result.theme.padEnd(5)} ${first}; ${done}${wrong}  ${path.relative(process.cwd(), result.file)}`);
 }
 await writeFile(
   path.join(shotsDir, `trainer-${TAG}-capture.json`),
   `${JSON.stringify({ tag: TAG, viewport: VIEWPORT, results }, null, 2)}\n`,
 );
-if (results.some((result) => result.arrows !== 2)) {
-  console.error("A capture did not reach a completed answer. The shots are not judgeable; fix the drive, do not judge these.");
+// The judgeability gate, updated for immediate grading: the answer now checks
+// itself on the last commit and flips to playback, so "2 committed arrows at
+// rest" is a state that no longer exists. What must hold instead: exactly one
+// arrow in the first-arrow shot, the success card in the success shot, and the
+// authored distractor card in the wrong-drop shot.
+const unjudgeable = results.some(
+  (result) => result.arrows !== 1 || !result.success || (result.wrong !== null && !result.wrong.card),
+);
+if (unjudgeable) {
+  console.error("A capture did not reach its intended state. The shots are not judgeable; fix the drive, do not judge these.");
   process.exit(1);
 }

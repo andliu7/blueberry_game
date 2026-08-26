@@ -50,7 +50,9 @@ import { Berry } from "../../mascot/Berry";
 import type { BerryBehaviour } from "../../mascot/berryBehaviour";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
 import { applySpeciesOffsets, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
-import { gradeDrawing, missingArrows, type DrawVerdict } from "./grade";
+import { gradeDrawing, type DrawVerdict } from "./grade";
+import { matchDistractor, type TrainerDistractor } from "./distractors";
+import { playWrongSound } from "./feedbackSound";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
@@ -120,7 +122,7 @@ const TUTORIAL_STEPS = [
   "Tap one lone pair. It is now the source of an arrow.",
   "Tap the carbon, or the space between O and C, to send the pair there.",
   "Now the leaving group: tap the handle on the C–Br bond nearest bromine, then tap bromine.",
-  "Check the step.",
+  "The step checks itself the moment the last arrow lands.",
 ];
 
 export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: TrainerTabProps) {
@@ -128,6 +130,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const [mode, setMode] = useState<"draw" | "play">(AUTO_LOOP ? "play" : "draw");
   const [renderer, setRenderer] = useState<"2d" | "3d">(START_3D ? "3d" : "2d");
   const [verdict, setVerdict] = useState<DrawVerdict | null>(null);
+  const [distractor, setDistractor] = useState<TrainerDistractor | null>(null);
   const [failure, setFailure] = useState<FailureAnimation>(null);
   const [notice, setNotice] = useState<InteractionNotice | null>(null);
   const [behaviour, setBehaviour] = useState<BerryBehaviour>("idle");
@@ -198,42 +201,83 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     setBehaviourKey((k) => k + 1);
   };
 
-  const check = useCallback(() => {
+  /**
+   * IMMEDIATE grading, owner requirement 2026-08-25: every committed arrow is
+   * judged the moment it lands, with a sound, the failure animated, and the
+   * explanation on screen, and no button between the mistake and the feedback.
+   * The Check button is gone; this effect is what replaced it.
+   *
+   * Only the count going UP grades. The count goes down when the machine's own
+   * undo takes a wrong arrow back, and regrading that transition would judge
+   * the revert as if the student had drawn something.
+   *
+   * The revert itself: because every earlier arrow already passed this gate,
+   * the offending arrow is always the LAST one, so one undo puts the draft
+   * back exactly where it was before the mistake. That is the owner's "go
+   * back to what we had", and it is why this dispatches undo rather than
+   * nuking the draft with a fresh epoch: the arrows the student got right
+   * stay earned.
+   */
+  const gradedCountRef = useRef(0);
+  useEffect(() => {
+    const drawn = mechanism.arrows.length;
+    if (drawn <= gradedCountRef.current) {
+      gradedCountRef.current = drawn;
+      return;
+    }
+    gradedCountRef.current = drawn;
     const result = gradeDrawing(step, mechanism.arrows);
     setVerdict(result);
+
     if (result.kind === "correct") {
       // The success copy and the playback ARE the reward for this step; the
       // tutorial's Continue button below hands off only when the student
       // chooses, never on a timer and never before the copy has been read.
+      setDistractor(null);
       bump("bounce");
       setMode("play");
       if (!reducedMotion) play();
       return;
     }
     if (result.kind === "invalid") {
+      setDistractor(null);
+      playWrongSound();
+      if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
       bump("squash");
       setFailure({ kind: "snapBack", key: Date.now() });
-      // After the snap the arrows are gone: a fresh draft, the verdict stays.
       window.setTimeout(() => {
         setFailure(null);
-        setEpoch((n) => n + 1);
+        store.dispatch({ kind: "command", command: { kind: "undo" } });
       }, reducedMotion ? 1 : 430);
       return;
     }
     if (result.kind === "not_requested") {
+      // The molecule tried it and it did not work: name the exact mistake if
+      // an instructor anticipated it (Tier 2), wobble the atom the electrons
+      // were wrongly sent to, then take the one wrong arrow back.
+      const last = mechanism.arrows[mechanism.arrows.length - 1];
+      setDistractor(last !== undefined ? matchDistractor(step, last) : null);
+      playWrongSound();
+      if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
       bump("squash");
-      const stuck = missingArrows(step, mechanism.arrows)
-        .map((arrow) => (arrow.sink.kind === "atom" ? arrow.sink.atomId : null))
-        .filter((id): id is string => id !== null);
-      setFailure({ kind: "wobble", atomIds: stuck, key: Date.now() });
-      window.setTimeout(() => setFailure(null), reducedMotion ? 1 : 500);
+      const sentTo = last === undefined ? null : last.sink.kind === "atom" ? last.sink.atomId : last.sink.atomIds[1];
+      setFailure({ kind: "wobble", atomIds: sentTo === null ? [] : [sentTo], key: Date.now() });
+      window.setTimeout(() => {
+        setFailure(null);
+        store.dispatch({ kind: "command", command: { kind: "undo" } });
+      }, reducedMotion ? 1 : 500);
       return;
     }
-    bump("wideEyed");
-  }, [step, mechanism.arrows, play, reducedMotion]);
+    // Incomplete: legal so far. Quiet card, no sound; progress is not an error.
+    setDistractor(null);
+    bump("leanIn");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mechanism.arrows, step, play, reducedMotion, store]);
 
   const reset = () => {
     setVerdict(null);
+    setDistractor(null);
+    gradedCountRef.current = 0;
     setNotice(null);
     setMode("draw");
     scrub(0);
@@ -313,14 +357,11 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         </p>
       ) : null}
 
-      {verdict !== null ? <VerdictCard verdict={verdict} /> : null}
+      {verdict !== null ? <VerdictCard verdict={verdict} distractor={distractor} /> : null}
 
       <section className="flex flex-wrap items-center gap-3">
         {mode === "draw" ? (
           <>
-            <Press onPointerDown={check} disabled={mechanism.arrows.length === 0}>
-              Check the step
-            </Press>
             <span className="text-scale-sm text-muted-foreground">
               {mechanism.arrows.length} of {step.arrows.length} arrows
               {mechanism.armed !== null ? ", source armed" : ""}
@@ -396,7 +437,7 @@ function plainLine(verdict: DrawVerdict): string {
         ? "Every arrow you drew is legal, and the bromide still has no reason to leave."
         : "Every arrow you drew is legal, and together they describe a different transformation.";
     case "incomplete":
-      return `${verdict.drawn} of ${verdict.needed} arrows, both legal so far. One more: something has to break.`;
+      return `${verdict.drawn} of ${verdict.needed} arrows, ${verdict.drawn === 1 ? "and it holds up" : "all legal so far"}. One more: something has to break.`;
     default: {
       const unreachable: never = verdict;
       return unreachable;
@@ -434,7 +475,7 @@ function Detail({ label, text }: { readonly label: string; readonly text: string
   );
 }
 
-function VerdictCard({ verdict }: { readonly verdict: DrawVerdict }) {
+function VerdictCard({ verdict, distractor = null }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null }) {
   const line = plainLine(verdict);
 
   switch (verdict.kind) {
@@ -471,6 +512,22 @@ function VerdictCard({ verdict }: { readonly verdict: DrawVerdict }) {
       );
     }
     case "not_requested":
+      // An authored distractor is the specific mistake an instructor predicted,
+      // and specificity wins over tier number per CLAUDE.md: when one matched,
+      // its copy IS the card, headline included, and the generic concerted-step
+      // paragraph never shows. The owner hit the generic path drawing O to Br
+      // and it answered a different mistake than the one made.
+      if (distractor !== null) {
+        return (
+          <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
+            <p className="text-scale-lg font-semibold leading-snug text-not-requested">{distractor.what}</p>
+            <ShowMore>
+              <Detail label="Why" text={distractor.why} />
+              <Detail label="Look at" text={distractor.lookAt} />
+            </ShowMore>
+          </section>
+        );
+      }
       return (
         <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
           <p className="text-scale-lg font-semibold leading-snug text-not-requested">{line}</p>

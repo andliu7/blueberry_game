@@ -52,8 +52,8 @@ describe("betweenAtomsSite occlusion", () => {
   });
 
   it("the middle atom itself keeps its unoccluded site: carbon armed still reaches oxygen", () => {
-    // Every hydrogen in this demo is implicit, so the scene is exactly three
-    // atoms on one axis, and the only unoccluded unbonded pair is O with C.
+    // The hydroxide hydrogen is explicit now (owner ruling 2026-08-25) and it
+    // sits off the O-C-Br axis, so the axis still holds exactly three atoms.
     // Arming the CARBON asks the rule the question from the middle atom's own
     // seat: its line to the oxygen crosses nothing, so the site must survive.
     // A fix that deleted every long site would be worse than the bug.

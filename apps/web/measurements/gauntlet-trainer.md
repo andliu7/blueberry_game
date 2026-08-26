@@ -247,3 +247,40 @@ touch them:
   three lone pairs was picked up is unreadable.
 
 Captures: `gauntlet-shots/trainer-r9-arrow-{light,dark}-{mid,committed}.png`.
+
+## 2026-08-26, round 10: Alchemie parity round 1, four pieces from the owner's hand-on session
+
+The owner ran the trainer in a browser and the run produced four rulings plus one bug. The bug,
+the O-Br site sitting on the carbon, is fixed and tested in its own commit (occludedSite.test.ts).
+This round builds round 1 of the four rulings; the loop prompt is recorded in the conversation and
+the exit is a fresh-context critic picking ours blind, five rounds per piece.
+
+**Built this round.**
+
+- **Lone pairs are INVISIBLE at rest.** The resting faint rings are gone; tapping the atom reveals,
+  which is the machine's existing rule. Reverses round 3's faint-resting decision, and the trade is
+  recorded in the code comment: that decision bought first-canvas discoverability with permanent
+  clutter, and the bar shows nothing at rest.
+- **Hydroxide's H is explicit.** A real H sphere and an O-H rod, the way the bar draws it
+  (IMG_1644). Carbons keep implicit hydrogens as quiet upright glyphs hugging the sphere, and the
+  atom tap that reveals lone pairs now also OPENS the arc: further out, wider, full ink.
+- **Immediate per-arrow grading.** The Check button is gone. Every committed arrow grades the
+  moment it lands: correct plays, invalid snaps back with the named cause, a legal-but-wrong arrow
+  wobbles the atom it was sent to, plays the wrong sound (two descending sine blips, synthesised,
+  quiet), vibrates, shows the card, and then the machine's own undo takes exactly that one arrow
+  back, so the earned arrows stay. The offending arrow is always the last one, which is what makes
+  one undo the exact revert.
+- **Three authored Tier 2 distractors** for the demo step, matched on the arrow's own key. The one
+  the owner asked for leads with electrostatics: hydroxide is a full anion, the C-Br bond leans its
+  density onto bromine, like charges repel. The generic concerted-step paragraph shows only when no
+  distractor matched.
+
+**Capture script reshaped.** Immediate grading deleted the resting two-arrow state, so the shots
+are now resting, mid-drag, first-arrow, success, and wrong-drop, each with its own self check
+(exactly 1 arrow, the success card text, the distractor card text). The success shot falls back to
+the playback SVG because success flips modes now.
+
+Measured: suite 30 of 30, integrity unmodified, web tests 19 of 19, typecheck clean, payload
+115.1 KB of 400. Captures: `gauntlet-shots/trainer-r10-arrow-*`.
+
+**Verdicts: pending, four critics launching after this commit.**

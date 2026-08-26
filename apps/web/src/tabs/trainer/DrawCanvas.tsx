@@ -586,7 +586,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               const revealed = draft.revealedLonePairs.includes(atom.id);
               return (
                 <g key={atom.id}>
-                  <HydrogenArc centre={c} openAngle={hydrogenAngle(step, atom.id, atom.from.openAngle)} count={atom.fromImplicitH} r={r} />
+                  <HydrogenArc centre={c} openAngle={hydrogenAngle(step, atom.id, atom.from.openAngle)} count={atom.fromImplicitH} r={r} expanded={revealed} />
                   {revealed
                     ? lonePairSlots(scene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
@@ -608,21 +608,17 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                           </g>
                         );
                       })
-                    : lonePairSlots(scene, atom.id).map((slot, index) => (
-                        // At rest the pairs are DRAWN, faintly, not described in
-                        // words: "3 pairs" is a caption, and a student aims at
-                        // dots. Same lobe-around-two-dots shape as the revealed
-                        // state, just quiet: a blind critic praised the lobe for
-                        // making a pair countable, then caught us using naked
-                        // dots on some atoms and lobes on others, which is two
-                        // visual languages for one idea. Tapping the atom
-                        // promotes these to targets.
-                        <g key={index} opacity={0.45}>
-                          <circle cx={slot.x} cy={slot.y} r={11} fill="none" stroke="var(--scene-faint)" strokeWidth={1.2} />
-                          <circle cx={slot.x - 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
-                          <circle cx={slot.x + 3.2} cy={slot.y} r={2.2} fill="var(--bond-stroke)" />
-                        </g>
-                      ))}
+                    : // NOTHING at rest, per the owner ruling of 2026-08-25 and per
+                      // the bar: Alchemie's canvas shows no lone pairs until the
+                      // atom is tapped (IMG_1644 resting against IMG_1641 revealed).
+                      // This reverses the round 3 decision to draw them faintly.
+                      // That decision was made to help a student FIND the pairs,
+                      // and it bought discoverability by putting five quiet rings
+                      // on an atom the student had not asked about, which is
+                      // clutter on every canvas to help only the first one. The
+                      // tutorial strip already says to tap the atom, and the tap
+                      // acknowledges by revealing, which is its own lesson.
+                      null}
                 </g>
               );
             })}
