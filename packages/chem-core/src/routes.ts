@@ -32,6 +32,14 @@ export type MechanismRoute =
   | "radical_halogenation"
   | "radical_addition"
   | "acid_base_proton_transfer"
+  /**
+   * Not a reaction: no sigma bond forms or breaks and no atom moves. It is a
+   * route here because the trainer's resonance hunt grades drawn arrows that
+   * interconvert contributing structures, and correct_alternative_route has
+   * to be able to NAME what the student pushed. Owner direction 2026-08-26:
+   * resonance is a first-class game mode, and it is where the arrows live.
+   */
+  | "resonance"
   | "carbocation_rearrangement"
   | "oxidation"
   | "reduction"
@@ -62,6 +70,8 @@ export type ElementaryStepKind =
   | "radical_abstraction"
   | "radical_recombination"
   | "tautomerisation"
+  /** Electrons move, nothing else does: one contributing structure to another. */
+  | "electron_delocalisation"
   | "coordination"
   | "pericyclic_step";
 
@@ -97,6 +107,7 @@ const MECHANISM_ROUTE_LABELS: Readonly<Record<MechanismRoute, string>> = Object.
   radical_halogenation: "radical halogenation",
   radical_addition: "radical addition",
   acid_base_proton_transfer: "acid base proton transfer",
+  resonance: "resonance delocalisation",
   carbocation_rearrangement: "carbocation rearrangement",
   oxidation: "oxidation",
   reduction: "reduction",

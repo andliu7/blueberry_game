@@ -55,11 +55,13 @@ import { applySpeciesOffsets,
   applyAtomOrbits,
   resettleOpenAngles, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
 import { arrowKey, gradeDrawing, type DrawVerdict } from "./grade";
-import type { ElectronFlowArrow } from "@blueberry/chem-core";
+import type { ElectronFlowArrow, MechanismStep } from "@blueberry/chem-core";
 import { matchDistractor, type TrainerDistractor } from "./distractors";
 import { playWrongSound } from "./feedbackSound";
 import { saveMistake } from "./mistakes";
 import { TrainerTools } from "./TrainerTools";
+import { RESONANCE_HUNT } from "../../demo/resonance";
+import { TRAINER_SEQUENCES } from "../../demo/sequences";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
@@ -71,12 +73,72 @@ const Scene3D = lazy(() => import("../../render/three/Scene3D"));
  */
 const FIRST_REACTION = TRAINER_REACTIONS[0] as (typeof TRAINER_REACTIONS)[number];
 
-const SCENES = new Map(
-  TRAINER_REACTIONS.map((reaction) => [
-    reaction.id,
-    buildStepScene(reaction.step, layoutState(reaction.step.from, reaction.fromHints), layoutState(reaction.step.to, reaction.toHints)),
-  ]),
-);
+/**
+ * What the trainer can be pointed at. Reactions are single steps; sequences
+ * chain steps and run ARROWLESS (owner spec: the electron gesture carries a
+ * multi-step problem, no arrow glyphs accumulate); resonance entries are the
+ * hunt, and they are where the drawn arrows LIVE (owner spec again).
+ */
+type Selection =
+  | { readonly kind: "reaction"; readonly id: string }
+  | { readonly kind: "sequence"; readonly id: string; readonly stepIndex: number }
+  | { readonly kind: "resonance"; readonly id: string };
+
+/** Scenes for every playable step everywhere, keyed by the step's own id. */
+const SCENES = new Map<string, ReturnType<typeof buildStepScene>>();
+for (const entry of TRAINER_REACTIONS) {
+  SCENES.set(entry.step.id, buildStepScene(entry.step, layoutState(entry.step.from, entry.fromHints), layoutState(entry.step.to, entry.toHints)));
+}
+for (const sequence of TRAINER_SEQUENCES) {
+  for (const item of sequence.steps) {
+    if (!SCENES.has(item.step.id)) {
+      SCENES.set(item.step.id, buildStepScene(item.step, layoutState(item.step.from, item.fromHints), layoutState(item.step.to, item.toHints)));
+    }
+  }
+}
+for (const entry of RESONANCE_HUNT) {
+  SCENES.set(entry.step.id, buildStepScene(entry.step, layoutState(entry.step.from, entry.fromHints), layoutState(entry.step.to, entry.toHints)));
+}
+
+interface Playable {
+  readonly step: MechanismStep;
+  readonly title: string;
+  readonly brief: string;
+  readonly successLine: string;
+  /** Sequences hide arrow glyphs and force the electron gesture. */
+  readonly arrowless: boolean;
+  /** Resonance success is a FIND and celebrates as one. */
+  readonly resonance: boolean;
+  /** Set when this step is part of a sequence: progress and total. */
+  readonly sequencePosition: { readonly index: number; readonly total: number; readonly last: boolean } | null;
+}
+
+function resolveSelection(selection: Selection): Playable {
+  if (selection.kind === "reaction") {
+    const entry = TRAINER_REACTIONS.find((candidate) => candidate.id === selection.id) ?? FIRST_REACTION;
+    return { step: entry.step, title: entry.title, brief: entry.brief, successLine: entry.successLine, arrowless: false, resonance: false, sequencePosition: null };
+  }
+  if (selection.kind === "sequence") {
+    const sequence = TRAINER_SEQUENCES.find((candidate) => candidate.id === selection.id) ?? TRAINER_SEQUENCES[0];
+    if (sequence === undefined) throw new Error("no sequences authored");
+    const index = Math.min(selection.stepIndex, sequence.steps.length - 1);
+    const item = sequence.steps[index];
+    if (item === undefined) throw new Error(`sequence ${sequence.id} has no step ${index}`);
+    const last = index === sequence.steps.length - 1;
+    return {
+      step: item.step,
+      title: sequence.title,
+      brief: item.stepBrief,
+      successLine: last ? sequence.successLine : item.stepBrief.replace(/^Step \d+ · /, "Done: "),
+      arrowless: true,
+      resonance: false,
+      sequencePosition: { index, total: sequence.steps.length, last },
+    };
+  }
+  const entry = RESONANCE_HUNT.find((candidate) => candidate.id === selection.id) ?? RESONANCE_HUNT[0];
+  if (entry === undefined) throw new Error("no resonance entries authored");
+  return { step: entry.step, title: entry.title, brief: entry.brief, successLine: entry.foundLine, arrowless: false, resonance: true, sequencePosition: null };
+}
 
 const params = new URLSearchParams(window.location.search);
 const AUTO_LOOP = params.get("auto") === "1";
@@ -147,12 +209,19 @@ const TUTORIAL_STEPS = [
 
 export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: TrainerTabProps) {
   // The tutorial is authored against the SN2 step and stays pinned to it;
-  // everywhere else the student picks from the registry.
-  const [reactionId, setReactionId] = useState(START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION) ? START_REACTION : FIRST_REACTION.id);
-  const reaction = TRAINER_REACTIONS.find((entry) => entry.id === (tutorial ? FIRST_REACTION.id : reactionId)) ?? FIRST_REACTION;
-  const step = reaction.step;
-  const scene = SCENES.get(reaction.id);
-  if (scene === undefined) throw new Error(`no scene for reaction ${reaction.id}`);
+  // everywhere else the student picks from the registry, the sequences or
+  // the resonance hunt.
+  const [selection, setSelection] = useState<Selection>(
+    START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION)
+      ? { kind: "reaction", id: START_REACTION }
+      : { kind: "reaction", id: FIRST_REACTION.id },
+  );
+  const playable = resolveSelection(tutorial ? { kind: "reaction", id: FIRST_REACTION.id } : selection);
+  const step = playable.step;
+  const scene = SCENES.get(step.id);
+  if (scene === undefined) throw new Error(`no scene for step ${step.id}`);
+  // The mistake journal and the distractor card key on the step's own id.
+  const reaction = { id: step.id, successLine: playable.successLine };
   const [mode, setMode] = useState<"draw" | "play">(AUTO_LOOP ? "play" : "draw");
   const [renderer, setRenderer] = useState<"2d" | "3d">(START_3D ? "3d" : "2d");
   const [verdict, setVerdict] = useState<DrawVerdict | null>(null);
@@ -330,9 +399,8 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mechanism.arrows, step, reaction.id, play, reducedMotion, store]);
 
-  const pickReaction = (id: string) => {
-    if (id === reaction.id) return;
-    setReactionId(id);
+  const pickSelection = (next: Selection) => {
+    setSelection(next);
     setVerdict(null);
     setDistractor(null);
     setRejected(null);
@@ -374,26 +442,27 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     <div className="mx-auto flex h-full max-w-4xl flex-col gap-4 p-4 md:p-6">
       <header className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="title-face text-scale-xl font-semibold">{reaction.title}</h2>
-          <p className="text-scale-sm text-muted-foreground">{reaction.brief}</p>
+          <h2 className="title-face text-scale-xl font-semibold">{playable.title}</h2>
+          <p className="text-scale-sm text-muted-foreground">{playable.brief}</p>
           {!tutorial ? (
-            <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Reaction">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Problem">
               {TRAINER_REACTIONS.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={entry.id === reaction.id}
-                  className={
-                    "press min-h-9 rounded-full border px-3 text-scale-xs font-semibold " +
-                    (entry.id === reaction.id ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground")
-                  }
-                  onPointerDown={() => pickReaction(entry.id)}
-                >
-                  {entry.title}
-                </button>
+                <PickerChip key={entry.id} label={entry.title} active={selection.kind === "reaction" && selection.id === entry.id} onPick={() => pickSelection({ kind: "reaction", id: entry.id })} />
+              ))}
+              <span className="mx-1 text-scale-xs text-muted-foreground">·</span>
+              {TRAINER_SEQUENCES.map((entry) => (
+                <PickerChip key={entry.id} label={entry.title} active={selection.kind === "sequence" && selection.id === entry.id} onPick={() => pickSelection({ kind: "sequence", id: entry.id, stepIndex: 0 })} />
+              ))}
+              <span className="mx-1 text-scale-xs text-muted-foreground">·</span>
+              {RESONANCE_HUNT.map((entry) => (
+                <PickerChip key={entry.id} label={`✦ ${entry.title}`} active={selection.kind === "resonance" && selection.id === entry.id} onPick={() => pickSelection({ kind: "resonance", id: entry.id })} />
               ))}
             </div>
+          ) : null}
+          {playable.sequencePosition !== null ? (
+            <p className="mt-1 text-scale-xs font-semibold text-primary">
+              Step {playable.sequencePosition.index + 1} of {playable.sequencePosition.total}
+            </p>
           ) : null}
         </div>
         <Berry behaviour={behaviour} behaviourKey={behaviourKey} mood="curious" reducedMotion={reducedMotion} sizePx={56} />
@@ -421,7 +490,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         }}
       >
         {mode === "draw" ? (
-          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} />
+          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} arrowless={playable.arrowless} forceArrows={playable.resonance} />
         ) : renderer === "2d" ? (
           <MoleculeSvg {...renderProps} />
         ) : (
@@ -449,7 +518,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         {verdict !== null ? (
           <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-4 sm:items-center">
             <div className="pointer-events-auto w-full max-w-md">
-              <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} footer={mode === "draw" ? { drawn: mechanism.arrows.length, needed: step.arrows.length, onStartOver: reset } : null} />
+              <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} footer={mode === "draw" ? { drawn: mechanism.arrows.length, needed: step.arrows.length, onStartOver: reset } : null} resonance={playable.resonance} />
             </div>
           </div>
         ) : null}
@@ -491,6 +560,11 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
             <Press variant="secondary" onPointerDown={reset}>
               Draw it again
             </Press>
+            {playable.sequencePosition !== null && !playable.sequencePosition.last && verdict?.kind === "correct" && selection.kind === "sequence" ? (
+              <Press variant="reward" onPointerDown={() => pickSelection({ kind: "sequence", id: selection.id, stepIndex: playable.sequencePosition === null ? 0 : playable.sequencePosition.index + 1 })}>
+                Next step
+              </Press>
+            ) : null}
             {onSolved !== undefined && verdict?.kind === "correct" ? (
               <Press variant="reward" onPointerDown={onSolved}>
                 Continue
@@ -500,6 +574,23 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         )}
       </section>
     </div>
+  );
+}
+
+function PickerChip({ label, active, onPick }: { readonly label: string; readonly active: boolean; readonly onPick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      className={
+        "press min-h-9 rounded-full border px-3 text-scale-xs font-semibold " +
+        (active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground")
+      }
+      onPointerDown={onPick}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -602,7 +693,7 @@ function CardFooterRow({ footer }: { readonly footer: CardFooter | null }) {
   );
 }
 
-function VerdictCard({ verdict, distractor = null, successLine, footer = null }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string; readonly footer?: CardFooter | null }) {
+function VerdictCard({ verdict, distractor = null, successLine, footer = null, resonance = false }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string; readonly footer?: CardFooter | null; readonly resonance?: boolean }) {
   const line = plainLine(verdict, successLine);
 
   switch (verdict.kind) {
@@ -611,7 +702,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null }:
       return (
         <section className="fade-in rounded-2xl border border-good/40 bg-good-soft p-4" aria-live="polite">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">Correct</span>
+            <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">{resonance ? "✦ Resonance!" : "Correct"}</span>
           </div>
           <p className="mt-1.5 text-scale-lg font-semibold leading-snug text-good-ink">{line}</p>
           <ShowMore>

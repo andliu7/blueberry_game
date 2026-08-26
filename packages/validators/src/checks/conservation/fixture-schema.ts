@@ -232,6 +232,7 @@ const ELEMENTARY_STEP_KINDS: Readonly<Record<ElementaryStepKind, true>> = {
   radical_abstraction: true,
   radical_recombination: true,
   tautomerisation: true,
+  electron_delocalisation: true,
   coordination: true,
   pericyclic_step: true,
 };

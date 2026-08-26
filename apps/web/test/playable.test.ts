@@ -16,6 +16,8 @@ import { createInteractionStore, createMechanismDraft, currentDraft, type HitTar
 import type { ElectronFlowArrow, MechanismStep } from "@blueberry/chem-core";
 import { gradeDrawing } from "../src/tabs/trainer/grade";
 import { TRAINER_REACTIONS } from "../src/demo/reactions";
+import { RESONANCE_HUNT } from "../src/demo/resonance";
+import { TRAINER_SEQUENCES } from "../src/demo/sequences";
 
 /** The tap sequence that enters one authored arrow, as HitTargets. */
 function tapsFor(step: MechanismStep, arrow: ElectronFlowArrow): HitTarget[] {
@@ -53,9 +55,16 @@ function tapsFor(step: MechanismStep, arrow: ElectronFlowArrow): HitTarget[] {
   return taps;
 }
 
-describe("every registry reaction is playable through the machine", () => {
-  for (const reaction of TRAINER_REACTIONS) {
-    it(`${reaction.title}: the authored answer enters and grades correct`, () => {
+/** Everything the picker can point at, flattened to (label, step). */
+const ALL_PLAYABLE = [
+  ...TRAINER_REACTIONS.map((entry) => ({ label: entry.title, step: entry.step })),
+  ...TRAINER_SEQUENCES.flatMap((sequence) => sequence.steps.map((item, index) => ({ label: `${sequence.title} step ${index + 1}`, step: item.step }))),
+  ...RESONANCE_HUNT.map((entry) => ({ label: `resonance: ${entry.title}`, step: entry.step })),
+];
+
+describe("every playable step goes through the machine", () => {
+  for (const reaction of ALL_PLAYABLE) {
+    it(`${reaction.label}: the authored answer enters and grades correct`, () => {
       const store = createInteractionStore({
         initialDraft: createMechanismDraft(reaction.step.from),
         environment: {

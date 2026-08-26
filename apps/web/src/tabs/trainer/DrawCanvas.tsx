@@ -93,6 +93,15 @@ export interface DrawCanvasProps {
    * this arrow; it is drawn from this prop alone.
    */
   readonly rejected: { readonly arrow: ElectronFlowArrow; readonly key: number } | null;
+  /**
+   * Sequences run without arrow glyphs, owner spec 2026-08-26: the electron
+   * gesture carries the drawing, and a committed arrow renders as its
+   * forming-bond stub plus a resting electron pair at the landing, never a
+   * curve with a head.
+   */
+  readonly arrowless?: boolean;
+  /** The resonance hunt is where the arrows LIVE: force the arrow primitive. */
+  readonly forceArrows?: boolean;
   /** The authored scene. Frames the view box so the canvas never chases a drag. */
   readonly scene: StepScene;
   /** The live scene: authored positions plus where each species was carried. Everything draws from this. */
@@ -418,7 +427,8 @@ interface Carry {
   active: boolean;
 }
 
-export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected }: DrawCanvasProps) {
+export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected, arrowless = false, forceArrows = false }: DrawCanvasProps) {
+  const primitive: "electron" | "arrow" = arrowless ? "electron" : forceArrows ? "arrow" : PRIMITIVE;
   const svgRef = useRef<SVGSVGElement>(null);
   const carryRef = useRef<Carry | null>(null);
   /**
@@ -936,8 +946,20 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
             {/* A halo in the canvas colour under the stroke. An arrow that
                 crosses a hydrogen letter or a lone pair otherwise appears cut
                 into pieces by them, which is what a blind critic saw. */}
-            <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--card)" strokeWidth={7} strokeLinecap="round" opacity={0.9} />
-            <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--primary)" strokeWidth={3} strokeLinecap="round" markerEnd="url(#draw-arrowhead)" />
+            {arrowless ? (
+              <>
+                {/* The electrons, arrived and resting: twin dots at the
+                    landing. The stub above already says which bond they
+                    became; no curve, no head, per the sequence mode's rule. */}
+                <circle cx={to.x - 3.2} cy={to.y} r={2.6} fill="var(--electron-glow)" />
+                <circle cx={to.x + 3.2} cy={to.y} r={2.6} fill="var(--electron-glow)" />
+              </>
+            ) : (
+              <>
+                <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--card)" strokeWidth={7} strokeLinecap="round" opacity={0.9} />
+                <path d={curveAway(from, to, centroid)} fill="none" stroke="var(--primary)" strokeWidth={3} strokeLinecap="round" markerEnd="url(#draw-arrowhead)" />
+              </>
+            )}
           </g>
         );
       })}
@@ -1106,9 +1128,9 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
             // The ruling was BOTH: no head in flight, a real curved arrow with
             // a head once the step is committed, so the gesture matches the bar
             // and the record matches what CHEM 241 grades on paper.
-            markerEnd={PRIMITIVE === "arrow" ? "url(#draw-arrowhead)" : undefined}
+            markerEnd={primitive === "arrow" ? "url(#draw-arrowhead)" : undefined}
           />
-          {PRIMITIVE === "arrow" ? null : (
+          {primitive === "arrow" ? null : (
             <>
               {/* The electrons in flight. A warm halo, then the sphere: the
                   same two part mark the bar uses, sized to read at a glance
