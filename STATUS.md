@@ -480,6 +480,37 @@ npm run validate
 30 of 30. Recorded in `second-brain/OS/memory/environment.md` too, because it will bite any project
 here, not only this one.
 
+## The video corpus and the parity loop, 2026-08-26
+
+Owner direction: build what the Alchemie videos show, exactly, before diverging. The whole corpus
+is local: 92 clips, 242 MB, four playlists (Addition 20, Carbonyl 20, Acid Base 20, Structure 30)
+plus How to Play and ModelAR, in `reference images/alchemie-video/` (gitignored), with 392 PNG
+frames extracted from five key clips under `frames/`. The bar is finally the interaction MOVING.
+
+Built under the loop, all committed on `phase-5`:
+
+- **The orbit drag.** A terminal atom swings around its neighbour at the bond's press-time radius,
+  open angles re-settling from live geometry so lone pairs and arcs migrate with the swing.
+  Self-checked: 308 px of orbit, 0.00 px bond-length drift. Terminal is chemistry, not topology:
+  implicit hydrogens weigh in, and on a tie the smaller atom swings. **WON BLIND at parity round 3**,
+  the first candidate win against the video bar: the reference's frames carry no held state, ours
+  draws grabbed, constrained and attached into the frame.
+- **The reaction library.** `apps/web/src/demo/reactions.ts`: four registry entries matching the
+  four playlists (SN2, NH3+HCl proton transfer, hydroxide+formaldehyde addition, ethene+HBr
+  protonation), each a real chem-core step consumed as data, picker in the header, `?reaction=`
+  deep links, walked through layout, legality and grading by `reactions.test.ts`. Adding a
+  reaction is adding an entry, which is "replicatable for any reaction" made executable.
+- Earlier the same day: immediate per-arrow feedback (sound, animated failure, card, machine undo
+  of exactly the wrong arrow), lone pairs hidden until tap, explicit actor hydrogens, the authored
+  O-to-Br repulsion distractor, the occlusion rule (a forming-bond site is never offered through
+  another atom), and the O-Br-site-on-the-carbon drag bug the owner hit in his first minute.
+
+The reactions piece is at round 4 of 5, re-judge running as this is written; the round 2 and 3
+verdicts and their fixes are in `apps/web/measurements/gauntlet-trainer.md`. Standing tension for
+the owner, recorded in the log: the round 3 critic called invisible resting lone pairs the single
+biggest teaching gap, which collides with the hide-until-tap ruling; round 4 answers it with a
+breathing halo on the step's own reaction centres, which cues WHERE without showing arrows.
+
 ## Reference clones filed, 2026-08-25
 
 Owner supplied three repository URLs for the surfaces the Phase 5 loop is judging:
