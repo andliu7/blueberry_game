@@ -76,6 +76,149 @@ export function lonePairSlots(scene: StepScene, atomId: AtomId): readonly Point2
 /** Per species pixel offset from the authored layout, keyed by species id. */
 export type SpeciesOffsets = Readonly<Record<string, Point2>>;
 
+/**
+ * Per ATOM pixel offset, for the orbit drag. Owner requirement, 2026-08-26,
+ * matching the Alchemie videos: "if I drag the hydrogen I should be able to
+ * circle the oxygen. Bonds should follow dynamically."
+ *
+ * A species offset moves a molecule; an orbit offset moves one atom within
+ * it, constrained by the gesture code to the circle its bond allows. The two
+ * compose: orbit is applied after the species carry, so a molecule dragged
+ * across the canvas keeps its swung hydrogen where the student put it.
+ */
+export type AtomOrbits = Readonly<Record<string, Point2>>;
+
+/** The scene with individual atoms moved by their orbit offsets. */
+export function applyAtomOrbits(scene: StepScene, orbits: AtomOrbits): StepScene {
+  if (Object.keys(orbits).length === 0) return scene;
+  const atoms = scene.atoms.map((atom) => {
+    const offset = orbits[atom.id];
+    if (offset === undefined) return atom;
+    const delta: Vec = { x: offset.x / PX, y: -offset.y / PX, z: 0 };
+    return {
+      ...atom,
+      from: { ...atom.from, pos: add(atom.from.pos, delta) },
+      to: { ...atom.to, pos: add(atom.to.pos, delta) },
+    };
+  });
+  return { ...scene, atoms };
+}
+
+/**
+ * Re-derive every atom's open angle from where its bonds POINT NOW.
+ *
+ * The authored openAngle is computed once at layout time, which was right
+ * while atoms never moved relative to each other. The orbit drag broke that
+ * assumption: swing the hydrogen from below the oxygen to above it and the
+ * lone pairs must migrate to the far side, because the open direction IS the
+ * away-from-bonds direction. This is the "neighbour re-settles" half of the
+ * owner's requirement, and it is a pure function of live geometry: same rule
+ * as layout.ts's openDirection, read from the scene's own bonds.
+ *
+ * Atoms with no bonds keep their authored angle: nothing about their
+ * surroundings changed, so nothing about their annotations should.
+ */
+export function resettleOpenAngles(scene: StepScene): StepScene {
+  const atoms = scene.atoms.map((atom) => {
+    const bonds = scene.bonds.filter((bond) => bond.phase !== "forming" && (bond.a === atom.id || bond.b === atom.id));
+    if (bonds.length === 0) return atom;
+    const here = atom.from.pos;
+    let sx = 0;
+    let sy = 0;
+    for (const bond of bonds) {
+      const otherId = bond.a === atom.id ? bond.b : bond.a;
+      const other = scene.atoms.find((candidate) => candidate.id === otherId);
+      if (other === undefined) continue;
+      const dx = other.from.pos.x - here.x;
+      const dy = other.from.pos.y - here.y;
+      const len = Math.hypot(dx, dy) || 1;
+      sx += dx / len;
+      sy += dy / len;
+    }
+    const mag = Math.hypot(sx, sy);
+    let openAngle: number;
+    if (mag < 1e-6) {
+      // Linear atom: open perpendicular to the first bond, same as layout.ts.
+      const first = bonds[0];
+      const otherId = first === undefined ? undefined : first.a === atom.id ? first.b : first.a;
+      const other = otherId === undefined ? undefined : scene.atoms.find((candidate) => candidate.id === otherId);
+      openAngle = other === undefined ? atom.from.openAngle : Math.atan2(other.from.pos.y - here.y, other.from.pos.x - here.x) + Math.PI / 2;
+    } else {
+      openAngle = Math.atan2(-sy, -sx);
+    }
+    const badgeAngle = atom.fromImplicitH > 0 ? openAngle + 2.27 : openAngle;
+    return { ...atom, from: { ...atom.from, openAngle, badgeAngle } };
+  });
+  return { ...scene, atoms };
+}
+
+/**
+ * The atom this one SWINGS around, or null when dragging it should carry the
+ * whole species instead.
+ *
+ * Topology alone is not enough, and the first cut of this proved it: in
+ * bromomethane the carbon has exactly one EXPLICIT bond, because its three
+ * hydrogens are implicit, so "one bond means terminal" made both ends of the
+ * molecule orbit and left nothing to carry it by. The rule is about which end
+ * is the CENTRE:
+ *
+ *   - the atom must have exactly one explicit bond (two circles pin an atom);
+ *   - the neighbour must be the heavier end, where weight is explicit bonds
+ *     plus implicit hydrogens: CH3's carbon is a four-way centre however few
+ *     bonds are drawn, so Br orbits it and it carries the molecule;
+ *   - on a tie (H-O in hydroxide, H-Cl: both ends degree one) the SMALLER
+ *     atom orbits, which is the hand's own intuition: you swing the hydrogen
+ *     around the oxygen, not the oxygen around the hydrogen.
+ */
+export function terminalNeighbor(step: MechanismStep, atomId: AtomId): AtomId | null {
+  interface Info {
+    readonly element: string;
+    readonly weight: number;
+    readonly partners: AtomId[];
+  }
+  const info = new Map<AtomId, Info>();
+  for (const member of step.from.members) {
+    for (const atom of member.species.atoms) {
+      info.set(atom.id, { element: atom.element, weight: atom.implicitHydrogens, partners: [] });
+    }
+    for (const bond of member.species.bonds) {
+      const a = info.get(bond.a);
+      const b = info.get(bond.b);
+      if (a !== undefined) {
+        a.partners.push(bond.b);
+        info.set(bond.a, { ...a, weight: a.weight + 1 });
+      }
+      if (b !== undefined) {
+        b.partners.push(bond.a);
+        info.set(bond.b, { ...b, weight: b.weight + 1 });
+      }
+    }
+  }
+  const self = info.get(atomId);
+  if (self === undefined || self.partners.length !== 1) return null;
+  const neighbourId = self.partners[0];
+  if (neighbourId === undefined) return null;
+  const neighbour = info.get(neighbourId);
+  if (neighbour === undefined) return null;
+  if (neighbour.weight > self.weight) return neighbourId;
+  if (neighbour.weight < self.weight) return null;
+  return atomRadius(self.element) < atomRadius(neighbour.element) ? neighbourId : null;
+}
+
+/**
+ * Where an orbiting atom sits for a given pointer: on the circle around its
+ * neighbour at the radius the bond had when the drag began, at the pointer's
+ * angle. The radius is an input rather than a lookup so a mid-drag render
+ * cannot feed the constraint its own output and let the bond creep.
+ */
+export function orbitPoint(neighbourPx: Point2, radiusPx: number, pointerPx: Point2): Point2 {
+  const dx = pointerPx.x - neighbourPx.x;
+  const dy = pointerPx.y - neighbourPx.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-6) return { x: neighbourPx.x + radiusPx, y: neighbourPx.y };
+  return { x: neighbourPx.x + (dx / len) * radiusPx, y: neighbourPx.y + (dy / len) * radiusPx };
+}
+
 /** Which species each atom of the from state belongs to. */
 export function speciesOf(step: MechanismStep): ReadonlyMap<AtomId, string> {
   const map = new Map<AtomId, string>();

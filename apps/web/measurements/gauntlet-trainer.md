@@ -334,3 +334,48 @@ critic's strike-mark idea is better and unbuilt); the H glyph arc still parks al
 carbon rather than splaying the umbrella perpendicular to the attack axis, which costs the Walden
 inversion picture; matching presentation, currency name, free tier shape and negative XP are still
 open questions for the owner.
+
+## 2026-08-26, parity loop against the VIDEO corpus: the orbit drag and the reaction library
+
+The bar changed under owner direction: the Alchemie YouTube corpus, downloaded whole into
+`reference images/alchemie-video/` (gitignored, 92 clips, 242 MB: Addition 20, Carbonyl 20,
+Acid Base 20, Structure 30, plus How to Play and ModelAR). Motion was the weakness of every still
+capture so far; the corpus is the bar performing the interactions themselves. 392 PNG frames
+extracted from five key clips into `alchemie-video/frames/` by 1 fps sample plus top interframe
+motion, cv2, no ffmpeg needed.
+
+Read before building, per the working agreement. What the frames settle that stills never did:
+the bar's H spheres are LARGE pale balls; spectator bonds are dark grey while PARTICIPATING bonds
+render white; structure-1's implicit H glyphs sit AROUND the atom at varied angles, not one arc
+below, which is the exact defect round 10's critic named.
+
+**Built.**
+
+- **The orbit drag.** Owner's words: "if I drag the hydrogen I should be able to circle the oxygen.
+  Bonds should follow dynamically." A terminal atom now swings around its neighbour on a circle of
+  the bond's press-time radius; the rest of the molecule stays put; open angles re-derive from live
+  geometry every render, so lone pairs, hydrogen arcs and the charge badge migrate away from the
+  swung bond, which is the "neighbour re-settles" half. Measured by the capture's own self check:
+  the hydrogen moved 308.3 px around the oxygen with 0.00 px of bond-length drift.
+- **Terminal is chemistry, not topology.** The first cut said "one explicit bond means orbit" and
+  bromomethane's carbon qualified, because its hydrogens are implicit: both ends orbited and
+  nothing could carry the molecule. The rule now weighs explicit bonds plus implicit hydrogens, so
+  CH3's carbon is a four-way centre that carries, Br swings around it, and on a degree tie the
+  smaller atom orbits (you swing the hydrogen around the oxygen, never the reverse).
+- **The render was blind to orbits, and the first capture proved it.** Targets and bonds read the
+  live scene while the spheres read the authored one, so the hydrogen's hit circle swung and the
+  hydrogen stayed put, two ball joints floating where the bond thought its atom was. The species
+  render blocks now draw from the orbited scene; species carry stays on the group transform, so
+  nothing shifts twice.
+- **The reaction library.** `demo/reactions.ts`: a registry the trainer consumes as data, which is
+  the owner's "replicatable for any reaction I give you" made executable. Three entries: the SN2,
+  a proton transfer (NH3 + HCl, the Acid Base playlist's family) and a carbonyl addition
+  (hydroxide + formaldehyde, the Carbonyl playlist's family), each a real chem-core step with its
+  own hints, brief and success line. A picker in the header, `?reaction=` deep links for captures.
+  Adding a reaction is adding an entry; no component changes, and `reactions.test.ts` walks every
+  entry through layout, scene build, arrow legality and grading.
+
+Measured: suite 30 of 30, integrity unmodified, web tests 33 of 33, typecheck clean, payload
+117.1 KB of 400. Captures `parity-p2-*` with per-shot self checks (orbit movement, zero drift).
+
+**Verdicts: pending, two critics on the video frames.**

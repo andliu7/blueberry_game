@@ -44,13 +44,16 @@ import {
 import { MoleculeSvg } from "../../render/svg/MoleculeSvg";
 import { layoutState } from "../../render/layout/layout";
 import { buildStepScene } from "../../render/layout/stepScene";
-import { SN2_DEMO_STEP, SN2_FROM_HINTS, SN2_TO_HINTS } from "../../demo/sn2Step";
+import { TRAINER_REACTIONS } from "../../demo/reactions";
+import type { AtomOrbits } from "./hitLayout";
 import { useStepProgress } from "../../demo/useStepProgress";
 import { Press } from "../../app/ui/Press";
 import { Berry } from "../../mascot/Berry";
 import type { BerryBehaviour } from "../../mascot/berryBehaviour";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
-import { applySpeciesOffsets, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
+import { applySpeciesOffsets,
+  applyAtomOrbits,
+  resettleOpenAngles, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
 import { gradeDrawing, type DrawVerdict } from "./grade";
 import type { ElectronFlowArrow } from "@blueberry/chem-core";
 import { matchDistractor, type TrainerDistractor } from "./distractors";
@@ -58,9 +61,20 @@ import { playWrongSound } from "./feedbackSound";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
-const fromLayout = layoutState(SN2_DEMO_STEP.from, SN2_FROM_HINTS);
-const toLayout = layoutState(SN2_DEMO_STEP.to, SN2_TO_HINTS);
-const scene = buildStepScene(SN2_DEMO_STEP, fromLayout, toLayout);
+/**
+ * One scene per registry entry, built once at module scope. The registry is
+ * data; the trainer consumes whichever entry is selected, which is the whole
+ * "replicatable for any reaction" claim made executable: nothing below this
+ * line knows which reaction it is running.
+ */
+const FIRST_REACTION = TRAINER_REACTIONS[0] as (typeof TRAINER_REACTIONS)[number];
+
+const SCENES = new Map(
+  TRAINER_REACTIONS.map((reaction) => [
+    reaction.id,
+    buildStepScene(reaction.step, layoutState(reaction.step.from, reaction.fromHints), layoutState(reaction.step.to, reaction.toHints)),
+  ]),
+);
 
 const params = new URLSearchParams(window.location.search);
 const AUTO_LOOP = params.get("auto") === "1";
@@ -78,6 +92,8 @@ const SHOW_STATS = params.get("stats") === "1";
  * Behind a flag, so a student's run never publishes it.
  */
 const EXPOSE_TARGETS = params.get("targets") === "1";
+/** Deep link into a registry entry, for captures and for sharing. */
+const START_REACTION = params.get("reaction");
 
 declare global {
   interface Window {
@@ -128,7 +144,13 @@ const TUTORIAL_STEPS = [
 ];
 
 export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: TrainerTabProps) {
-  const step = SN2_DEMO_STEP;
+  // The tutorial is authored against the SN2 step and stays pinned to it;
+  // everywhere else the student picks from the registry.
+  const [reactionId, setReactionId] = useState(START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION) ? START_REACTION : FIRST_REACTION.id);
+  const reaction = TRAINER_REACTIONS.find((entry) => entry.id === (tutorial ? FIRST_REACTION.id : reactionId)) ?? FIRST_REACTION;
+  const step = reaction.step;
+  const scene = SCENES.get(reaction.id);
+  if (scene === undefined) throw new Error(`no scene for reaction ${reaction.id}`);
   const [mode, setMode] = useState<"draw" | "play">(AUTO_LOOP ? "play" : "draw");
   const [renderer, setRenderer] = useState<"2d" | "3d">(START_3D ? "3d" : "2d");
   const [verdict, setVerdict] = useState<DrawVerdict | null>(null);
@@ -172,8 +194,13 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   // site stays on its atom wherever the student put the molecule. Positions
   // survive a reset on purpose: an arrangement is not an answer.
   const [offsets, setOffsets] = useState<SpeciesOffsets>({});
-  const live = useMemo(() => applySpeciesOffsets(scene, step, offsets), [step, offsets]);
+  const [orbits, setOrbits] = useState<AtomOrbits>({});
+  // Species carry, then per-atom orbit, then the re-settle: open angles are
+  // re-derived from where the bonds point NOW, which is what makes the lone
+  // pairs and hydrogen arcs migrate as a swung atom circles its neighbour.
+  const live = useMemo(() => resettleOpenAngles(applyAtomOrbits(applySpeciesOffsets(scene, step, offsets), orbits)), [scene, step, offsets, orbits]);
   const onSpeciesMove = useCallback((speciesId: string, offset: Point2) => setOffsets((prev) => ({ ...prev, [speciesId]: offset })), []);
+  const onAtomOrbit = useCallback((atomId: string, offset: Point2) => setOrbits((prev: AtomOrbits) => ({ ...prev, [atomId]: offset })), []);
   const targets = useMemo(() => buildTargets(step, live, mechanism.revealedLonePairs, armedAtom), [step, live, mechanism.revealedLonePairs, armedAtom]);
   targetsRef.current = targets;
   useEffect(() => {
@@ -293,6 +320,23 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mechanism.arrows, step, play, reducedMotion, store]);
 
+  const pickReaction = (id: string) => {
+    if (id === reaction.id) return;
+    setReactionId(id);
+    setVerdict(null);
+    setDistractor(null);
+    setRejected(null);
+    setFailure(null);
+    setNotice(null);
+    setOffsets({});
+    setOrbits({});
+    gradedCountRef.current = 0;
+    setMode("draw");
+    scrub(0);
+    bump("leanIn");
+    setEpoch((n) => n + 1);
+  };
+
   const reset = () => {
     setVerdict(null);
     setDistractor(null);
@@ -320,10 +364,27 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     <div className="mx-auto flex h-full max-w-4xl flex-col gap-4 p-4 md:p-6">
       <header className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="title-face text-scale-xl font-semibold">
-            S<sub>N</sub>2 at bromomethane
-          </h2>
-          <p className="text-scale-sm text-muted-foreground">Hydroxide attacks, bromide leaves. Draw both arrows.</p>
+          <h2 className="title-face text-scale-xl font-semibold">{reaction.title}</h2>
+          <p className="text-scale-sm text-muted-foreground">{reaction.brief}</p>
+          {!tutorial ? (
+            <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Reaction">
+              {TRAINER_REACTIONS.map((entry) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={entry.id === reaction.id}
+                  className={
+                    "press min-h-9 rounded-full border px-3 text-scale-xs font-semibold " +
+                    (entry.id === reaction.id ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground")
+                  }
+                  onPointerDown={() => pickReaction(entry.id)}
+                >
+                  {entry.title}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
         <Berry behaviour={behaviour} behaviourKey={behaviourKey} mood="curious" reducedMotion={reducedMotion} sizePx={56} />
       </header>
@@ -350,7 +411,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         }}
       >
         {mode === "draw" ? (
-          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} />
+          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} />
         ) : renderer === "2d" ? (
           <MoleculeSvg {...renderProps} />
         ) : (
@@ -377,7 +438,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         </p>
       ) : null}
 
-      {verdict !== null ? <VerdictCard verdict={verdict} distractor={distractor} /> : null}
+      {verdict !== null ? <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} /> : null}
 
       <section className="flex flex-wrap items-center gap-3">
         {mode === "draw" ? (
@@ -449,10 +510,10 @@ const PLAIN_BY_RULE: Record<string, string> = {
 };
 
 /** One sentence per verdict. The headline, and often all a student needs. */
-function plainLine(verdict: DrawVerdict): string {
+function plainLine(verdict: DrawVerdict, successLine: string): string {
   switch (verdict.kind) {
     case "correct":
-      return "Back-side attack: the hydroxide lone pair forms the new C–O bond as the bromide leaves.";
+      return successLine;
     case "invalid":
       return PLAIN_BY_RULE[verdict.finding.rule] ?? "That arrow cannot move electrons the way it is drawn.";
     case "not_requested":
@@ -498,8 +559,8 @@ function Detail({ label, text }: { readonly label: string; readonly text: string
   );
 }
 
-function VerdictCard({ verdict, distractor = null }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null }) {
-  const line = plainLine(verdict);
+function VerdictCard({ verdict, distractor = null, successLine }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string }) {
+  const line = plainLine(verdict, successLine);
 
   switch (verdict.kind) {
     case "correct": {
@@ -507,10 +568,7 @@ function VerdictCard({ verdict, distractor = null }: { readonly verdict: DrawVer
       return (
         <section className="fade-in rounded-2xl border border-good/40 bg-good-soft p-4" aria-live="polite">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">
-              S<sub>N</sub>2
-            </span>
-            <span className="text-scale-xs font-semibold text-good-ink">back-side attack</span>
+            <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">Correct</span>
           </div>
           <p className="mt-1.5 text-scale-lg font-semibold leading-snug text-good-ink">{line}</p>
           <ShowMore>

@@ -63,6 +63,11 @@ import {
   speciesOf,
   targetAnchor,
   toPx,
+  applyAtomOrbits,
+  resettleOpenAngles,
+  orbitPoint,
+  terminalNeighbor,
+  type AtomOrbits,
   type DrawTarget,
   type SpeciesOffsets,
 } from "./hitLayout";
@@ -94,6 +99,9 @@ export interface DrawCanvasProps {
   readonly live: StepScene;
   readonly offsets: SpeciesOffsets;
   readonly onSpeciesMove: (speciesId: string, offset: Point2) => void;
+  readonly orbits: AtomOrbits;
+  /** The orbit drag's write path: an absolute px offset for one atom. */
+  readonly onAtomOrbit: (atomId: AtomId, offset: Point2) => void;
   readonly draft: MechanismDraft;
   readonly guide: InFlightGuide | null;
   readonly targets: readonly DrawTarget[];
@@ -392,14 +400,22 @@ function stretchGeometry(step: MechanismStep, scene: StepScene, guide: InFlightG
 
 interface Carry {
   readonly pointerId: number;
+  readonly kind: "species" | "orbit";
   readonly speciesId: string;
+  /** Orbit only: the atom being swung and the neighbour it swings around. */
+  readonly atomId: AtomId | null;
+  readonly neighbourId: AtomId | null;
+  /** Orbit only: the bond's px radius at press time, held constant for the drag. */
+  readonly radiusPx: number;
+  /** Orbit only: where the atom would sit with NO orbit offset, so offset = constrained - base. */
+  readonly basePx: Point2;
   readonly down: PointerInput;
   readonly startOffset: Point2;
   /** False until the pointer has travelled DRAG_START_PX; until then the machine still owns the press. */
   active: boolean;
 }
 
-export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, guide, targets, dispatch, failure, reducedMotion, rejected }: DrawCanvasProps) {
+export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected }: DrawCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const carryRef = useRef<Carry | null>(null);
   const targetsRef = useRef(targets);
@@ -408,6 +424,21 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
   // canvas and the machine agree about what "on an atom body" means.
   const hitTester = useMemo(() => createHitTester(() => targetsRef.current), []);
   const owner = useMemo(() => speciesOf(step), [step]);
+
+  /**
+   * What the species render blocks draw from: the authored scene with the
+   * ORBITS applied and open angles re-settled, and nothing else. Species
+   * carry offsets are deliberately absent, because those blocks sit inside
+   * per-species groups whose CSS transform already applies them; adding the
+   * offset to the coordinates too would shift a carried molecule twice.
+   *
+   * This exists because the first orbit capture proved the render was blind
+   * to orbits: targets and bonds read `live` while the spheres read the
+   * authored scene, so the hydrogen's hit circle swung around the oxygen and
+   * the hydrogen itself stayed put, leaving two ball joints floating where
+   * the bond thought its atom was.
+   */
+  const drawScene = useMemo(() => resettleOpenAngles(applyAtomOrbits(scene, orbits)), [scene, orbits]);
 
   const toInput = useCallback((event: ReactPointerEvent<SVGSVGElement>): PointerInput | null => {
     const svg = svgRef.current;
@@ -439,7 +470,42 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
       if (hit.primary.kind === "atom") {
         const speciesId = owner.get(hit.primary.atomId);
         if (speciesId !== undefined) {
-          carryRef.current = { pointerId: pointer.pointerId, speciesId, down: pointer, startOffset: offsets[speciesId] ?? { x: 0, y: 0 }, active: false };
+          // A terminal atom SWINGS around its one neighbour, per the Alchemie
+          // videos: drag the hydrogen and it circles the oxygen, bond
+          // following, the rest of the molecule staying put. Everything else
+          // carries the whole species, exactly as before. The radius is taken
+          // at press time and held, so the bond cannot creep during the drag.
+          const neighbourId = terminalNeighbor(step, hit.primary.atomId);
+          if (neighbourId !== null) {
+            const atomPx = atomCentre(live, hit.primary.atomId);
+            const neighbourPx = atomCentre(live, neighbourId);
+            const currentOrbit = orbits[hit.primary.atomId] ?? { x: 0, y: 0 };
+            carryRef.current = {
+              pointerId: pointer.pointerId,
+              kind: "orbit",
+              speciesId,
+              atomId: hit.primary.atomId,
+              neighbourId,
+              radiusPx: Math.hypot(atomPx.x - neighbourPx.x, atomPx.y - neighbourPx.y),
+              basePx: { x: atomPx.x - currentOrbit.x, y: atomPx.y - currentOrbit.y },
+              down: pointer,
+              startOffset: currentOrbit,
+              active: false,
+            };
+          } else {
+            carryRef.current = {
+              pointerId: pointer.pointerId,
+              kind: "species",
+              speciesId,
+              atomId: null,
+              neighbourId: null,
+              radiusPx: 0,
+              basePx: { x: 0, y: 0 },
+              down: pointer,
+              startOffset: offsets[speciesId] ?? { x: 0, y: 0 },
+              active: false,
+            };
+          }
         }
       }
     }
@@ -455,7 +521,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
       const dy = pointer.point.y - carry.down.point.y;
       if (!carry.active && Math.hypot(dx, dy) > DRAG_START_PX) carry.active = true;
       if (carry.active) {
-        onSpeciesMove(carry.speciesId, clampToFrame(carry.speciesId, { x: carry.startOffset.x + dx, y: carry.startOffset.y + dy }));
+        if (carry.kind === "orbit" && carry.atomId !== null && carry.neighbourId !== null) {
+          // The neighbour is read LIVE, not from press time: if the molecule
+          // itself was carried earlier the circle's centre moved with it.
+          const neighbourPx = atomCentre(live, carry.neighbourId);
+          const constrained = orbitPoint(neighbourPx, carry.radiusPx, pointer.point);
+          onAtomOrbit(carry.atomId, { x: constrained.x - carry.basePx.x, y: constrained.y - carry.basePx.y });
+        } else {
+          onSpeciesMove(carry.speciesId, clampToFrame(carry.speciesId, { x: carry.startOffset.x + dx, y: carry.startOffset.y + dy }));
+        }
         return;
       }
     }
@@ -601,15 +675,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
       {/* Attachments per species, on the lag: bonds, hydrogen arcs, lone pair dots. */}
       {speciesIds.map((speciesId) => (
         <g key={`lag-${speciesId}`} style={lagStyle(speciesId)} filter={`url(#${SHADOW_FILTER_ID})`}>
-          {scene.bonds
+          {drawScene.bonds
             .filter((bond) => bond.phase !== "forming" && owner.get(bond.a) === speciesId)
             .map((bond) => (
               <BondCapsule
                 key={bond.key}
-                a={atomCentre(scene, bond.a)}
-                b={atomCentre(scene, bond.b)}
-                rA={atomRadius(scene.atoms.find((atom) => atom.id === bond.a)?.element ?? "C")}
-                rB={atomRadius(scene.atoms.find((atom) => atom.id === bond.b)?.element ?? "C")}
+                a={atomCentre(drawScene, bond.a)}
+                b={atomCentre(drawScene, bond.b)}
+                rA={atomRadius(drawScene.atoms.find((atom) => atom.id === bond.a)?.element ?? "C")}
+                rB={atomRadius(drawScene.atoms.find((atom) => atom.id === bond.b)?.element ?? "C")}
                 order={bond.order}
                 // The leaving group is not a bystander in its own departure,
                 // which is how a blind critic put it: mid-drag the canvas
@@ -622,7 +696,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                 opacity={inFlight?.sink !== null && inFlight !== null && bond.phase === "breaking" ? 0.45 : 1}
               />
             ))}
-          {scene.atoms
+          {drawScene.atoms
             .filter((atom) => owner.get(atom.id) === speciesId)
             .map((atom) => {
               const c = toPx(atom.from.pos);
@@ -632,7 +706,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                 <g key={atom.id}>
                   <HydrogenArc centre={c} openAngle={hydrogenAngle(step, atom.id, atom.from.openAngle)} count={atom.fromImplicitH} r={r} expanded={revealed} />
                   {revealed
-                    ? lonePairSlots(scene, atom.id).map((slot, index) => {
+                    ? lonePairSlots(drawScene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
                         // Glide is measured against the live slot (the lag group is
                         // in authored coordinates, so the offset is species local either way).
@@ -690,7 +764,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
       {/* Atom bodies per species, moving with the pointer. */}
       {speciesIds.map((speciesId) => (
         <g key={`body-${speciesId}`} style={bodyStyle(speciesId)} filter={`url(#${SHADOW_FILTER_ID})`}>
-          {scene.atoms
+          {drawScene.atoms
             .filter((atom) => owner.get(atom.id) === speciesId)
             .map((atom) => {
               const c = toPx(atom.from.pos);
