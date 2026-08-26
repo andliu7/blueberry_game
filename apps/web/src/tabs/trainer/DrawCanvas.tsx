@@ -41,11 +41,11 @@
  * and between-atom sites render only while a source is armed.
  */
 
-import { useCallback, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import type { AtomId, ElectronFlowArrow, MechanismStep } from "@blueberry/chem-core";
 import { inferSink, targetAtomId, type ArmedElectronSource, type HitTarget, type InFlightGuide, type InteractionEvent, type MechanismDraft, type PointerInput, type PointerKind, type Point2 } from "@blueberry/interaction";
 import type { StepScene } from "../../render/layout/stepScene";
-import { AtomSphere, BondCapsule, ChargeBadge, DepthDefs, HydrogenArc, SHADOW_FILTER_ID } from "../../render/svg/depth";
+import { AtomSphere, BondCapsule, ChargeBadge, DepthDefs, HydrogenArc, hydrogenDirections, sphereGradientId, SHADOW_FILTER_ID } from "../../render/svg/depth";
 import {
   PX,
   atomCentre,
@@ -100,6 +100,8 @@ export interface DrawCanvasProps {
    * curve with a head.
    */
   readonly arrowless?: boolean;
+  /** Bumped by the shell's Re-centre control; the canvas refits its view. */
+  readonly recenterSignal?: number;
   /** The resonance hunt is where the arrows LIVE: force the arrow primitive. */
   readonly forceArrows?: boolean;
   /** The authored scene. Frames the view box so the canvas never chases a drag. */
@@ -138,6 +140,60 @@ function WarningTriangle({ at }: { readonly at: Point2 }) {
       <polygon points={points} fill="var(--warn-soft-solid)" stroke="var(--warn)" strokeWidth={3} strokeLinejoin="round" />
       <line x1={at.x} y1={at.y - 4.5} x2={at.x} y2={at.y + 1.5} stroke="var(--warn-ink-strong)" strokeWidth={2.4} strokeLinecap="round" />
       <circle cx={at.x} cy={at.y + 5.2} r={1.5} fill="var(--warn-ink-strong)" />
+    </g>
+  );
+}
+
+/**
+ * The Alchemie reveal, owner spec 2026-08-26: tap a carbon and its hydrogens
+ * appear FROM it, bonds extending out "and almost grab the hydrogens". Real
+ * small spheres on real rods, launched from the atom centre on a spring, the
+ * rod fading in as it stretches. Positions come from the same distribution
+ * the resting glyphs use, so nothing jumps when the reveal closes.
+ */
+function HydrogenReveal({ centre, r, count, bondAngles, openAngle, reducedMotion }: { readonly centre: Point2; readonly r: number; readonly count: number; readonly bondAngles: readonly number[]; readonly openAngle: number; readonly reducedMotion: boolean }) {
+  const [out, setOut] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setOut(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  const reach = r + 30;
+  const hr = 11;
+  return (
+    <g>
+      {hydrogenDirections(count, bondAngles, openAngle).map((angle, index) => {
+        const hx = centre.x + reach * Math.cos(angle);
+        const hy = centre.y + reach * Math.sin(angle);
+        const rimX = centre.x + (r - 1) * Math.cos(angle);
+        const rimY = centre.y + (r - 1) * Math.sin(angle);
+        const shown = out || reducedMotion;
+        return (
+          <g key={index}>
+            <line
+              x1={rimX}
+              y1={rimY}
+              x2={hx - hr * Math.cos(angle)}
+              y2={hy - hr * Math.sin(angle)}
+              stroke="var(--bond-stroke)"
+              strokeWidth={5}
+              strokeLinecap="round"
+              opacity={shown ? 0.9 : 0}
+              style={{ transition: reducedMotion ? "none" : "opacity 200ms ease-out 90ms" }}
+            />
+            <g
+              style={{
+                transform: shown ? "translate(0px, 0px)" : `translate(${centre.x - hx}px, ${centre.y - hy}px)`,
+                transition: reducedMotion ? "none" : "transform 300ms cubic-bezier(0.2, 0.8, 0.3, 1.25)",
+              }}
+            >
+              <circle cx={hx} cy={hy} r={hr} fill={`url(#${sphereGradientId("H")})`} stroke="#0f172a" strokeOpacity={0.18} strokeWidth={1} />
+              <text x={hx} y={hy} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700} fill="#334155">
+                H
+              </text>
+            </g>
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -427,10 +483,11 @@ interface Carry {
   active: boolean;
 }
 
-export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected, arrowless = false, forceArrows = false }: DrawCanvasProps) {
+export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, onAtomOrbit, draft, guide, targets, dispatch, failure, reducedMotion, rejected, arrowless = false, forceArrows = false, recenterSignal = 0 }: DrawCanvasProps) {
   const primitive: "electron" | "arrow" = arrowless ? "electron" : forceArrows ? "arrow" : PRIMITIVE;
   const svgRef = useRef<SVGSVGElement>(null);
   const carryRef = useRef<Carry | null>(null);
+  const panRef = useRef<{ pointerId: number; clientX: number; clientY: number; cx: number; cy: number; scale: number; down: PointerInput; active: boolean } | null>(null);
   /**
    * The active orbit, mirrored into state so it can RENDER. A video-frame
    * critic put it plainly: the one frame whose whole job is "pointer held"
@@ -487,9 +544,27 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
       // The pointer is already gone (released before this ran, or not a
       // pointer the browser is tracking). Capture is a nicety; the press is not.
     }
-    if (carryRef.current === null && draft.armed === null) {
+    if (carryRef.current === null && panRef.current === null && draft.armed === null) {
       const hit = hitTester.hitTest({ point: pointer.point, pointerType: pointer.pointerType, armedSource: null });
-      if (hit.primary.kind === "atom") {
+      if (hit.primary.kind === "empty") {
+        // Dragging the SCREEN, not a molecule: pan the window. Client px are
+        // the stable frame here, because the viewBox itself moves under the
+        // gesture; scene units per client px is fixed at press time.
+        const svg = svgRef.current;
+        const rect = svg?.getBoundingClientRect();
+        if (rect !== undefined && rect.width > 0) {
+          panRef.current = {
+            pointerId: pointer.pointerId,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            cx: zcx,
+            cy: zcy,
+            scale: zw / rect.width,
+            down: pointer,
+            active: false,
+          };
+        }
+      } else if (hit.primary.kind === "atom") {
         const speciesId = owner.get(hit.primary.atomId);
         if (speciesId !== undefined) {
           // A terminal atom SWINGS around its one neighbour, per the Alchemie
@@ -537,6 +612,16 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
   const onPointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
     const pointer = toInput(event);
     if (pointer === null) return;
+    const pan = panRef.current;
+    if (pan !== null && pan.pointerId === pointer.pointerId) {
+      const dx = event.clientX - pan.clientX;
+      const dy = event.clientY - pan.clientY;
+      if (!pan.active && Math.hypot(dx, dy) > DRAG_START_PX) pan.active = true;
+      if (pan.active) {
+        setZoom((prev) => ({ k: prev.k, cx: pan.cx - dx * pan.scale, cy: pan.cy - dy * pan.scale }));
+        return;
+      }
+    }
     const carry = carryRef.current;
     if (carry !== null && carry.pointerId === pointer.pointerId) {
       const dx = pointer.point.x - carry.down.point.x;
@@ -601,6 +686,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
   const onPointerUp = (event: ReactPointerEvent<SVGSVGElement>) => {
     const pointer = toInput(event);
     if (pointer === null) return;
+    const pan = panRef.current;
+    if (pan !== null && pan.pointerId === pointer.pointerId) {
+      panRef.current = null;
+      if (pan.active) {
+        // The pan was the canvas's; the machine sees a plain tap at the press.
+        dispatch({ kind: "pointerUp", pointer: { ...pointer, point: pan.down.point } });
+        return;
+      }
+    }
     const carry = carryRef.current;
     if (carry !== null && carry.pointerId === pointer.pointerId) {
       carryRef.current = null;
@@ -620,6 +714,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
   const onPointerCancel = (event: ReactPointerEvent<SVGSVGElement>) => {
     const pointer = toInput(event);
     if (pointer === null) return;
+    if (panRef.current?.pointerId === pointer.pointerId) panRef.current = null;
     if (carryRef.current?.pointerId === pointer.pointerId) {
       carryRef.current = null;
       setActiveOrbit(null);
@@ -636,6 +731,9 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
    * cursor; the buttons in the corner serve touch; reset refits.
    */
   const [zoom, setZoom] = useState<{ readonly k: number; readonly cx: number | null; readonly cy: number | null }>({ k: 1, cx: null, cy: null });
+  useEffect(() => {
+    if (recenterSignal > 0) setZoom({ k: 1, cx: null, cy: null });
+  }, [recenterSignal]);
 
   // View box from the AUTHORED from positions, same padding as MoleculeSvg.
   let minX = Infinity;
@@ -741,12 +839,16 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
   // coordinates inside a <g> translated by its offset, so the carry is one
   // transform per group and the attachments' lag is one transition per group.
   const speciesIds = [...new Set(owner.values())];
+  /**
+   * No lag any more. The 120 ms overshoot on the attachments was designed as
+   * a "settling" flourish, and the owner's hands-on verdict was final: "it's
+   * really laggy, the bonds do not follow the molecules." A molecule is rigid;
+   * its bonds move with it in the same frame. The constant stays for the
+   * armed-slot glide, which is the one lag that still earns its keep.
+   */
   const lagStyle = (speciesId: string): CSSProperties => {
     const offset = offsets[speciesId] ?? { x: 0, y: 0 };
-    return {
-      transform: `translate(${offset.x}px, ${offset.y}px)`,
-      transition: reducedMotion ? "none" : `transform ${LAG_MS}ms ${LAG_EASE}`,
-    };
+    return { transform: `translate(${offset.x}px, ${offset.y}px)` };
   };
   const bodyStyle = (speciesId: string): CSSProperties => {
     const offset = offsets[speciesId] ?? { x: 0, y: 0 };
@@ -818,14 +920,24 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
                   {/* The lone pair fan's direction joins the hydrogen keep-outs,
                       so on an atom carrying both, the hydrogens land on the FAR
                       side of the lone pairs. Owner ruling 2026-08-26. */}
-                  <HydrogenArc
-                    centre={c}
-                    openAngle={atom.from.openAngle}
-                    count={atom.fromImplicitH}
-                    r={r}
-                    expanded={revealed}
-                    bondAngles={[...bondAnglesAt(drawScene, atom.id), ...(atom.fromLonePairs > 0 ? [atom.from.openAngle + Math.PI] : [])]}
-                  />
+                  {revealed && atom.fromImplicitH > 0 ? (
+                    <HydrogenReveal
+                      centre={c}
+                      r={r}
+                      count={atom.fromImplicitH}
+                      bondAngles={[...bondAnglesAt(drawScene, atom.id), ...(atom.fromLonePairs > 0 ? [atom.from.openAngle + Math.PI] : [])]}
+                      openAngle={atom.from.openAngle}
+                      reducedMotion={reducedMotion}
+                    />
+                  ) : (
+                    <HydrogenArc
+                      centre={c}
+                      openAngle={atom.from.openAngle}
+                      count={atom.fromImplicitH}
+                      r={r}
+                      bondAngles={[...bondAnglesAt(drawScene, atom.id), ...(atom.fromLonePairs > 0 ? [atom.from.openAngle + Math.PI] : [])]}
+                    />
+                  )}
                   {revealed
                     ? lonePairSlots(drawScene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
@@ -1025,41 +1137,6 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
             );
           })()
         : null}
-
-      {/* Zoom controls, pinned to the window's lower-left corner and sized
-          against the zoom so they stay 44 points on screen whatever the
-          scale. pointerdown stops propagation so a tap here never reaches
-          the machine as a canvas press. */}
-      {(() => {
-        const ui = 1 / zoom.k;
-        const bx = zcx - zw / 2 + 14 * ui;
-        const by = zcy + zh / 2 - 58 * ui;
-        const button = (index: number, label: string, act: () => void) => (
-          <g
-            key={label}
-            transform={`translate(${bx + index * 52 * ui}, ${by})`}
-            style={{ cursor: "pointer", pointerEvents: "all" }}
-            onPointerDown={(event) => {
-              event.stopPropagation();
-              act();
-            }}
-            role="button"
-            aria-label={label === "+" ? "Zoom in" : label === "−" ? "Zoom out" : "Reset zoom"}
-          >
-            <circle cx={22 * ui} cy={22 * ui} r={22 * ui} fill="var(--card)" stroke="var(--border)" strokeWidth={1.5 * ui} opacity={0.92} />
-            <text x={22 * ui} y={22 * ui} textAnchor="middle" dominantBaseline="central" fontSize={18 * ui} fontWeight={600} fill="var(--foreground)" style={{ userSelect: "none" }}>
-              {label}
-            </text>
-          </g>
-        );
-        return (
-          <g>
-            {button(0, "+", () => zoomBy(1.25))}
-            {button(1, "−", () => zoomBy(0.8))}
-            {zoom.k !== 1 ? button(2, "⤢", () => setZoom({ k: 1, cx: null, cy: null })) : null}
-          </g>
-        );
-      })()}
 
       {/* The dashed in flight guide, per capture x01: starts on the source,
           head at the finger, or on the drop site once the release would land

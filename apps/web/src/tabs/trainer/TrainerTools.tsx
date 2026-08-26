@@ -20,9 +20,15 @@ import type { StepScene } from "../../render/layout/stepScene";
 const PeriodicTab = lazy(() => import("../periodic/PeriodicTab"));
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
-type Tool = "scratchpad" | "periodic" | "three" | null;
+type Tool = "scratchpad" | "periodic" | "three" | "history" | null;
 
-export function TrainerTools({ step, scene, progress, reducedMotion }: { readonly step: MechanismStep; readonly scene: StepScene; readonly progress: number; readonly reducedMotion: boolean }) {
+export interface FeedbackHistoryEntry {
+  readonly line: string;
+  readonly kind: string;
+  readonly at: string;
+}
+
+export function TrainerTools({ step, scene, progress, reducedMotion, history, onRecenter }: { readonly step: MechanismStep; readonly scene: StepScene; readonly progress: number; readonly reducedMotion: boolean; readonly history: readonly FeedbackHistoryEntry[]; readonly onRecenter: () => void }) {
   const [open, setOpen] = useState(false);
   const [tool, setTool] = useState<Tool>(null);
 
@@ -65,6 +71,14 @@ export function TrainerTools({ step, scene, progress, reducedMotion }: { readonl
             <ToolButton label="Scratchpaper" onPick={() => pick("scratchpad")} />
             <ToolButton label="Periodic table" onPick={() => pick("periodic")} />
             <ToolButton label="3D view" onPick={() => pick("three")} />
+            <ToolButton label={`Feedback history${history.length > 0 ? ` (${history.length})` : ""}`} onPick={() => pick("history")} />
+            <ToolButton
+              label="Re-centre view"
+              onPick={() => {
+                onRecenter();
+                setOpen(false);
+              }}
+            />
           </div>
         ) : null}
       </div>
@@ -75,6 +89,24 @@ export function TrainerTools({ step, scene, progress, reducedMotion }: { readonl
           <Suspense fallback={<p className="p-6 text-scale-sm text-muted-foreground">Loading the table…</p>}>
             <PeriodicTab selected={null} />
           </Suspense>
+        </ToolCard>
+      ) : null}
+      {tool === "history" ? (
+        <ToolCard title="Feedback history" onClose={() => setTool(null)}>
+          {history.length === 0 ? (
+            <p className="p-2 text-scale-sm text-muted-foreground">Nothing yet. Every verdict you get lands here, newest first.</p>
+          ) : (
+            <ol className="flex flex-col gap-2">
+              {history.map((entry, index) => (
+                <li key={index} className="rounded-xl border border-border bg-card p-3">
+                  <p className="text-scale-sm text-foreground">{entry.line}</p>
+                  <p className="mt-0.5 text-scale-xs text-muted-foreground">
+                    {entry.kind.replace(/_/g, " ")} · {entry.at}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
         </ToolCard>
       ) : null}
       {tool === "three" ? (
@@ -118,11 +150,46 @@ function ToolCard({ title, onClose, children }: { readonly title: string; readon
 /**
  * The scratchpaper: the screen dims, strokes are the only interaction, and
  * the work is gone when it closes, like real scratch paper leaving the exam
- * hall. Resolution matches devicePixelRatio so pen strokes stay sharp.
+ * hall. Owner additions 2026-08-26: undo takes back the last stroke, and an
+ * eraser mode rubs out what it touches. Both need strokes to be DATA rather
+ * than pixels, so every stroke is a point list and the bitmap is a replay:
+ * undo pops and replays, the eraser is a stroke whose composite mode is
+ * destination-out, and a resize replays too instead of wiping the page.
  */
+interface Stroke {
+  readonly erase: boolean;
+  readonly points: { x: number; y: number }[];
+}
+
 function Scratchpad({ onClose }: { readonly onClose: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawing = useRef<{ id: number; x: number; y: number } | null>(null);
+  const strokesRef = useRef<Stroke[]>([]);
+  const activeRef = useRef<number | null>(null);
+  const [eraser, setEraser] = useState(false);
+  const [strokeCount, setStrokeCount] = useState(0);
+
+  const replay = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+    const scale = window.devicePixelRatio || 1;
+    context.setTransform(scale, 0, 0, scale, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    for (const stroke of strokesRef.current) {
+      context.globalCompositeOperation = stroke.erase ? "destination-out" : "source-over";
+      context.lineWidth = stroke.erase ? 26 : 2.5;
+      context.strokeStyle = "#f5f4f1";
+      context.beginPath();
+      stroke.points.forEach((point, index) => {
+        if (index === 0) context.moveTo(point.x, point.y);
+        else context.lineTo(point.x, point.y);
+      });
+      context.stroke();
+    }
+    context.globalCompositeOperation = "source-over";
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -130,14 +197,8 @@ function Scratchpad({ onClose }: { readonly onClose: () => void }) {
     const scale = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * scale;
     canvas.height = canvas.clientHeight * scale;
-    const context = canvas.getContext("2d");
-    if (context !== null) {
-      context.scale(scale, scale);
-      context.lineWidth = 2.5;
-      context.lineCap = "round";
-      context.lineJoin = "round";
-      context.strokeStyle = "#f5f4f1";
-    }
+    replay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const point = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -150,36 +211,53 @@ function Scratchpad({ onClose }: { readonly onClose: () => void }) {
       <canvas
         ref={canvasRef}
         className="h-full w-full touch-none"
+        style={{ cursor: eraser ? "cell" : "crosshair" }}
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId);
-          const p = point(event);
-          drawing.current = { id: event.pointerId, ...p };
+          activeRef.current = event.pointerId;
+          strokesRef.current.push({ erase: eraser, points: [point(event)] });
+          setStrokeCount(strokesRef.current.length);
         }}
         onPointerMove={(event) => {
-          const state = drawing.current;
-          if (state === null || state.id !== event.pointerId) return;
-          const context = event.currentTarget.getContext("2d");
-          if (context === null) return;
-          const p = point(event);
-          context.beginPath();
-          context.moveTo(state.x, state.y);
-          context.lineTo(p.x, p.y);
-          context.stroke();
-          drawing.current = { id: state.id, ...p };
+          if (activeRef.current !== event.pointerId) return;
+          const stroke = strokesRef.current[strokesRef.current.length - 1];
+          if (stroke === undefined) return;
+          stroke.points.push(point(event));
+          replay();
         }}
         onPointerUp={() => {
-          drawing.current = null;
+          activeRef.current = null;
         }}
       />
       <div className="absolute right-4 top-4 flex gap-2">
         <button
           type="button"
-          className="press min-h-11 rounded-full border border-white/30 bg-white/10 px-4 text-scale-sm font-semibold text-white"
-          onPointerDown={(event) => {
-            const canvas = canvasRef.current;
-            const context = canvas?.getContext("2d");
-            if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
-            event.stopPropagation();
+          aria-pressed={eraser}
+          className={"press min-h-11 rounded-full border px-4 text-scale-sm font-semibold text-white " + (eraser ? "border-white bg-white/25" : "border-white/30 bg-white/10")}
+          onPointerDown={() => setEraser((prev) => !prev)}
+        >
+          Eraser
+        </button>
+        <button
+          type="button"
+          className="press min-h-11 rounded-full border border-white/30 bg-white/10 px-4 text-scale-sm font-semibold text-white disabled:opacity-40"
+          disabled={strokeCount === 0}
+          onPointerDown={() => {
+            strokesRef.current.pop();
+            setStrokeCount(strokesRef.current.length);
+            replay();
+          }}
+        >
+          Undo
+        </button>
+        <button
+          type="button"
+          className="press min-h-11 rounded-full border border-white/30 bg-white/10 px-4 text-scale-sm font-semibold text-white disabled:opacity-40"
+          disabled={strokeCount === 0}
+          onPointerDown={() => {
+            strokesRef.current = [];
+            setStrokeCount(0);
+            replay();
           }}
         >
           Clear

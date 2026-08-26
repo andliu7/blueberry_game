@@ -240,6 +240,33 @@ const SUBSCRIPTS = ["", "", "₂", "₃", "₄"];
  * The faint arc of implicit hydrogens, with an H-count glyph on it.
  * `openAngle` is in scene terms (y up); pixel y grows downward, so it negates.
  */
+/**
+ * Where an atom's implicit hydrogens sit, as screen-space angles: distributed
+ * around the circle in the gaps between bonds (and any other keep-out the
+ * caller adds). Exported because two renderers need the SAME positions: the
+ * quiet resting glyphs here, and DrawCanvas's reach-out reveal animation.
+ */
+export function hydrogenDirections(count: number, bondAngles: readonly number[], openAngle: number): number[] {
+  const KEEP_OUT = 0.9;
+  const TAU = Math.PI * 2;
+  const norm = (a: number) => ((a % TAU) + TAU) % TAU;
+  const cones = bondAngles.map((angle) => norm(-angle));
+  const STEPS = 720;
+  const allowed: number[] = [];
+  for (let i = 0; i < STEPS; i += 1) {
+    const angle = (i / STEPS) * TAU;
+    const blocked = cones.some((cone) => {
+      const d = Math.abs(norm(angle - cone + Math.PI) - Math.PI);
+      return d < KEEP_OUT;
+    });
+    if (!blocked) allowed.push(angle);
+  }
+  const pool = allowed.length > 0 ? allowed : Array.from({ length: STEPS }, (_, i) => (i / STEPS) * TAU);
+  const anchor = cones.length === 0 ? norm(-(openAngle + Math.PI)) : 0;
+  const anchorIndex = cones.length === 0 ? Math.round((anchor / TAU) * pool.length) % pool.length : 0;
+  return Array.from({ length: count }, (_, i) => pool[(anchorIndex + Math.floor(((i + 0.5) / count) * pool.length)) % pool.length] ?? 0);
+}
+
 export function HydrogenArc({
   centre,
   openAngle,
@@ -268,42 +295,12 @@ export function HydrogenArc({
      rest the hydrogens hug the sphere as quiet upright glyphs, and tapping the
      atom swings them further out and lifts them to full ink. */
   const arcR = r + (expanded ? 14 : 7);
-
-  /* Distribute `count` directions over the circle, excluding a keep-out cone
-     around every bond. Done on the circle rather than on one arc because a
-     single arc was judged twice: a blind critic read it as a bond joining the
-     outer hydrogens with the middle one dangling free, and the bar's frames
-     show the gaps-between-bonds placement. */
-  const KEEP_OUT = 0.9; /* half-angle of each bond's cone, ~52 degrees */
-  const TAU = Math.PI * 2;
-  const norm = (a: number) => ((a % TAU) + TAU) % TAU;
-  const cones = bondAngles.map((angle) => norm(-angle)); /* screen y is down; slots below negate too */
-  /* Walk the circle in fine steps, collecting allowed runs. Coarse but robust:
-     720 steps is exact to half a degree and immune to interval edge cases. */
-  const STEPS = 720;
-  const allowed: number[] = [];
-  for (let i = 0; i < STEPS; i += 1) {
-    const angle = (i / STEPS) * TAU;
-    const blocked = cones.some((cone) => {
-      const d = Math.abs(norm(angle - cone + Math.PI) - Math.PI);
-      return d < KEEP_OUT;
-    });
-    if (!blocked) allowed.push(angle);
-  }
-  const pool = allowed.length > 0 ? allowed : Array.from({ length: STEPS }, (_, i) => (i / STEPS) * TAU);
-  /* Anchor the spread so a bond-free atom still centres its fan on the open
-     angle rather than starting at zero. */
-  const anchor = cones.length === 0 ? norm(-(openAngle + Math.PI)) : 0;
-  const anchorIndex = cones.length === 0 ? Math.round((anchor / TAU) * pool.length) % pool.length : 0;
-  const letters = Array.from({ length: count }, (_, i) => {
-    const at = pool[(anchorIndex + Math.floor(((i + 0.5) / count) * pool.length)) % pool.length] ?? 0;
-    return {
-      key: i,
-      angle: at,
-      x: centre.x + (arcR + 6) * Math.cos(at),
-      y: centre.y + (arcR + 6) * Math.sin(at),
-    };
-  });
+  const letters = hydrogenDirections(count, bondAngles, openAngle).map((at, i) => ({
+    key: i,
+    angle: at,
+    x: centre.x + (arcR + 6) * Math.cos(at),
+    y: centre.y + (arcR + 6) * Math.sin(at),
+  }));
   const TICK = 0.32; /* half-length of the small arc tick under each glyph */
   return (
     <g>

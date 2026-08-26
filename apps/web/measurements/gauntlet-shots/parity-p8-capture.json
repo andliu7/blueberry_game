@@ -1,0 +1,34 @@
+{
+  "tag": "p8",
+  "results": {
+    "reactions": [
+      {
+        "reaction": "sn2",
+        "title": "Sₙ2 at bromomethane",
+        "file": "parity-p8-sn2-resting.png"
+      },
+      {
+        "reaction": "proton-transfer",
+        "title": "Proton transfer",
+        "file": "parity-p8-proton-transfer-resting.png"
+      },
+      {
+        "reaction": "carbonyl-addition",
+        "title": "Carbonyl addition",
+        "file": "parity-p8-carbonyl-addition-resting.png"
+      }
+    ],
+    "orbit": {
+      "movedPx": 308.28059720728317,
+      "radiusBefore": 156.51816225926757,
+      "radiusAfter": 156.5181554318258,
+      "returnedPx": 0,
+      "mid": "parity-p8-orbit-mid.png",
+      "after": "parity-p8-orbit-after.png"
+    },
+    "carbonyl": {
+      "success": true,
+      "text": ""
+    }
+  }
+}

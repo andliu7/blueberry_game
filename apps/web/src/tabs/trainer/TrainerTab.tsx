@@ -227,6 +227,8 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const [verdict, setVerdict] = useState<DrawVerdict | null>(null);
   const [distractor, setDistractor] = useState<TrainerDistractor | null>(null);
   const [rejected, setRejected] = useState<{ readonly arrow: ElectronFlowArrow; readonly key: number } | null>(null);
+  /** Every verdict this session, newest first, for the plus-menu history. */
+  const [history, setHistory] = useState<readonly { readonly line: string; readonly kind: string; readonly at: string }[]>([]);
   const [failure, setFailure] = useState<FailureAnimation>(null);
   const [notice, setNotice] = useState<InteractionNotice | null>(null);
   const [behaviour, setBehaviour] = useState<BerryBehaviour>("idle");
@@ -239,6 +241,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   // draft: the machine has an undo stack but no "clear" command by design, and
   // a new document is the honest way to start over.
   const [epoch, setEpoch] = useState(0);
+  const [recenterSignal, setRecenterSignal] = useState(0);
   const targetsRef = useRef<readonly DrawTarget[]>([]);
   const store = useMemo(
     () =>
@@ -340,6 +343,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     gradedCountRef.current = drawn;
     const result = gradeDrawing(step, mechanism.arrows);
     setVerdict(result);
+    setHistory((prev) => [{ line: plainLine(result, playable.successLine), kind: result.kind, at: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
     setRejected(null);
 
     if (result.kind === "correct") {
@@ -397,7 +401,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     setDistractor(null);
     bump("leanIn");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mechanism.arrows, step, reaction.id, play, reducedMotion, store]);
+  }, [mechanism.arrows, step, reaction.id, playable.successLine, play, reducedMotion, store]);
 
   const pickSelection = (next: Selection) => {
     setSelection(next);
@@ -464,6 +468,9 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
               Step {playable.sequencePosition.index + 1} of {playable.sequencePosition.total}
             </p>
           ) : null}
+          {playable.resonance ? (
+            <p className="mt-1 text-scale-xs text-muted-foreground">One species on purpose: nothing reacts here, only the electrons move.</p>
+          ) : null}
         </div>
         <Berry behaviour={behaviour} behaviourKey={behaviourKey} mood="curious" reducedMotion={reducedMotion} sizePx={56} />
       </header>
@@ -490,7 +497,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         }}
       >
         {mode === "draw" ? (
-          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} arrowless={playable.arrowless} forceArrows={playable.resonance} />
+          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} arrowless={playable.arrowless} forceArrows={playable.resonance} recenterSignal={recenterSignal} />
         ) : renderer === "2d" ? (
           <MoleculeSvg {...renderProps} />
         ) : (
@@ -510,20 +517,19 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
           </button>
         ) : null}
 
-        {/* The card in the MIDDLE, owner spec 2026-08-26: feedback floats
-            centred over the canvas rather than below it, so the eye never
-            leaves the molecule it is reading about. The wrapper swallows no
-            events; only the card itself does, so the student can keep
-            working around it. */}
+        {/* Feedback lives in the CORNER, closable, revisitable from the
+            plus-menu history. The first centred version buried the molecule
+            and blocked the second arrow; the owner's words were "now it's
+            unplayable", and a card that costs the canvas costs everything. */}
         {verdict !== null ? (
-          <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-4 sm:items-center">
-            <div className="pointer-events-auto w-full max-w-md">
-              <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} footer={mode === "draw" ? { drawn: mechanism.arrows.length, needed: step.arrows.length, onStartOver: reset } : null} resonance={playable.resonance} />
+          <div className="pointer-events-none absolute bottom-3 left-3 max-w-sm">
+            <div className="pointer-events-auto">
+              <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} footer={mode === "draw" ? { drawn: mechanism.arrows.length, needed: step.arrows.length, onStartOver: reset } : null} resonance={playable.resonance} onClose={() => setVerdict(null)} />
             </div>
           </div>
         ) : null}
 
-        <TrainerTools step={step} scene={scene} progress={mode === "play" ? progress : 0} reducedMotion={reducedMotion} />
+        <TrainerTools step={step} scene={scene} progress={mode === "play" ? progress : 0} reducedMotion={reducedMotion} history={history} onRecenter={() => setRecenterSignal((n) => n + 1)} />
       </section>
 
       {notice !== null && isContestedNotice(notice) ? (
@@ -693,14 +699,24 @@ function CardFooterRow({ footer }: { readonly footer: CardFooter | null }) {
   );
 }
 
-function VerdictCard({ verdict, distractor = null, successLine, footer = null, resonance = false }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string; readonly footer?: CardFooter | null; readonly resonance?: boolean }) {
+function CardClose({ onClose }: { readonly onClose: (() => void) | null }) {
+  if (onClose === null) return null;
+  return (
+    <button type="button" aria-label="Dismiss feedback" className="press absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-scale-sm font-semibold text-muted-foreground hover:text-foreground" onPointerDown={onClose}>
+      ×
+    </button>
+  );
+}
+
+function VerdictCard({ verdict, distractor = null, successLine, footer = null, resonance = false, onClose = null }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string; readonly footer?: CardFooter | null; readonly resonance?: boolean; readonly onClose?: (() => void) | null }) {
   const line = plainLine(verdict, successLine);
 
   switch (verdict.kind) {
     case "correct": {
       const copy = causeCopyEntry(verdict.cause);
       return (
-        <section className="fade-in rounded-2xl border border-good/40 bg-good-soft p-4" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border border-good/40 bg-good-soft p-4 pr-9 shadow-md" aria-live="polite">
+          <CardClose onClose={onClose} />
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">{resonance ? "✦ Resonance!" : "Correct"}</span>
           </div>
@@ -717,7 +733,8 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
     case "invalid": {
       const copy = causeCopyEntry(verdict.cause);
       return (
-        <section className="fade-in rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border border-primary/30 bg-primary/5 p-4 pr-9 shadow-md" aria-live="polite">
+          <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
           <ShowMore>
             <Detail label="What you did" text={copy.whatYouDid} />
@@ -740,7 +757,8 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
         // collapsed behind Show more "at the exact moment of confusion".
         // Only the where-to-look-next stays behind the fold.
         return (
-          <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
+          <section className="fade-in relative rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4 pr-9 shadow-md" aria-live="polite">
+          <CardClose onClose={onClose} />
             <p className="text-scale-lg font-semibold leading-snug text-not-requested">{distractor.what}</p>
             <p className="mt-1.5 text-scale-sm text-foreground">{distractor.why}</p>
             <ShowMore>
@@ -751,7 +769,8 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
         );
       }
       return (
-        <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4 pr-9 shadow-md" aria-live="polite">
+          <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-not-requested">{line}</p>
           <ShowMore>
             <Detail
@@ -779,7 +798,8 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
       );
     case "incomplete":
       return (
-        <section className="fade-in rounded-2xl border border-border bg-muted p-4" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border border-border bg-muted p-4 pr-9 shadow-md" aria-live="polite">
+          <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
           <ShowMore>
             <Detail label="Why" text="Every arrow you have drawn holds up on its own. The step is not finished until the electrons that were holding the leaving group have somewhere to go." />

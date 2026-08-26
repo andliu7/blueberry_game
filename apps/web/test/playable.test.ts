@@ -88,7 +88,7 @@ describe("every playable step goes through the machine", () => {
       if (draft.shape !== "mechanism") throw new Error("not a mechanism draft");
       expect(
         draft.arrows.length,
-        `arrows committed for ${reaction.id}; notices: ${notices.join(", ")}`,
+        `arrows committed for ${reaction.step.id}; notices: ${notices.join(", ")}`,
       ).toBe(reaction.step.arrows.length);
       expect(gradeDrawing(reaction.step, draft.arrows).kind).toBe("correct");
     });
