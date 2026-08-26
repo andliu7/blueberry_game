@@ -132,6 +132,7 @@ export function BondCapsule({
   order = 1,
   opacity = 1,
   forming = false,
+  extraRodOpacity = 1,
 }: {
   a: Point2;
   b: Point2;
@@ -146,6 +147,14 @@ export function BondCapsule({
    * solid rod asserts the sigma bond the student is being asked to make.
    */
   forming?: boolean;
+  /**
+   * Opacity of every rod BEYOND the first: the pi component of a multiple
+   * bond. The playback fades this toward zero when a persistent bond's order
+   * drops during the step (the carbonyl's C=O to C-O), and grows it when the
+   * order rises, so a pi push is visible as the second rod leaving rather
+   * than a double bond snapping to single between frames.
+   */
+  extraRodOpacity?: number;
 }) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
@@ -156,7 +165,7 @@ export function BondCapsule({
   const width = order === 1 ? BOND_WIDTH : BOND_WIDTH - 3;
   return (
     <g opacity={opacity}>
-      {offsets.map((off) => {
+      {offsets.map((off, rodIndex) => {
         const oa = { x: a.x + px * off, y: a.y + py * off };
         const ob = { x: b.x + px * off, y: b.y + py * off };
         // ON the skin, not inside it. A two pixel inset puts the capsule's
@@ -175,7 +184,7 @@ export function BondCapsule({
         const start = rimPoint(oa, ob, chordA + width / 2 - 1);
         const end = rimPoint(ob, oa, chordB + width / 2 - 1);
         return (
-          <g key={off}>
+          <g key={off} opacity={rodIndex === 0 ? 1 : extraRodOpacity}>
             <line
               x1={start.x}
               y1={start.y}

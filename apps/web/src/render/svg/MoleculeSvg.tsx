@@ -167,7 +167,17 @@ export function MoleculeSvg({
         const startId = bond.phase === "forming" ? bond.growFrom : bond.a;
         const endId = startId === bond.a ? bond.b : bond.a;
         const endInset = bond.phase === "forming" ? radiusOf(endId) * smoothstep(0.3, 0.85, t) : radiusOf(endId);
-        return <BondCapsule key={bond.key} a={p1} b={p2} rA={radiusOf(startId)} rB={endInset} order={bond.order} opacity={opacity} />;
+        // A persistent bond whose ORDER changes animates its pi rod on the
+        // breaking/forming schedule: the carbonyl's second rod fades as the
+        // electrons climb onto the oxygen, or grows when a pi bond forms.
+        const extraRodOpacity =
+          bond.phase === "persistent" && bond.toOrder < bond.order
+            ? 1 - smoothstep(0.35, 0.85, t)
+            : bond.phase === "persistent" && bond.toOrder > bond.order
+              ? smoothstep(0.3, 0.85, t)
+              : 1;
+        const drawOrder = bond.phase === "persistent" ? Math.max(bond.order, bond.toOrder) : bond.order;
+        return <BondCapsule key={bond.key} a={p1} b={p2} rA={radiusOf(startId)} rB={endInset} order={drawOrder} opacity={opacity} extraRodOpacity={extraRodOpacity} />;
       })}
       </g>
 

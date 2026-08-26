@@ -49,7 +49,18 @@ export interface SceneBond {
   readonly key: string;
   readonly a: AtomId;
   readonly b: AtomId;
+  /** Bond order in the FROM state (or the to state for a forming bond). */
   readonly order: number;
+  /**
+   * Bond order in the TO state. Differs from `order` when a persistent bond
+   * CHANGES order, which is every pi push: the C=O of a carbonyl addition is
+   * order 2 before and 1 after. The owner caught the old model, which merged
+   * the pair at max(2,1)=2 and rendered a static double bond through the
+   * whole animation: "the carbonyl is not pushing the bond to the oxygen."
+   * An order change is an event, and the renderer needs both numbers to
+   * animate it.
+   */
+  readonly toOrder: number;
   readonly phase: BondPhase;
   /** For a forming bond, the end it visually grows from: the electron donor. */
   readonly growFrom: AtomId;
@@ -187,15 +198,14 @@ export function buildStepScene(
   interface PairInfo {
     a: AtomId;
     b: AtomId;
-    order: number;
-    inFrom: boolean;
-    inTo: boolean;
+    fromOrder: number;
+    toOrder: number;
   }
   const pairs = new Map<string, PairInfo>();
   for (const member of step.from.members) {
     for (const bond of member.species.bonds) {
       const key = atomPairKey(bond.a, bond.b);
-      pairs.set(key, { a: bond.a, b: bond.b, order: bond.order, inFrom: true, inTo: false });
+      pairs.set(key, { a: bond.a, b: bond.b, fromOrder: bond.order, toOrder: 0 });
     }
   }
   for (const member of step.to.members) {
@@ -203,10 +213,9 @@ export function buildStepScene(
       const key = atomPairKey(bond.a, bond.b);
       const existing = pairs.get(key);
       if (existing === undefined) {
-        pairs.set(key, { a: bond.a, b: bond.b, order: bond.order, inFrom: false, inTo: true });
+        pairs.set(key, { a: bond.a, b: bond.b, fromOrder: 0, toOrder: bond.order });
       } else {
-        existing.inTo = true;
-        existing.order = Math.max(existing.order, bond.order);
+        existing.toOrder = bond.order;
       }
     }
   }
@@ -214,16 +223,19 @@ export function buildStepScene(
   const bonds: SceneBond[] = [];
   const breakingMidpoints: Vec[] = [];
   for (const [key, info] of pairs) {
-    const phase: BondPhase = info.inFrom && info.inTo ? "persistent" : info.inFrom ? "breaking" : "forming";
+    const phase: BondPhase = info.fromOrder > 0 && info.toOrder > 0 ? "persistent" : info.fromOrder > 0 ? "breaking" : "forming";
     bonds.push({
       key,
       a: info.a,
       b: info.b,
-      order: info.order,
+      order: info.fromOrder > 0 ? info.fromOrder : info.toOrder,
+      toOrder: info.toOrder,
       phase,
       growFrom: phase === "forming" ? donorFor([info.a, info.b], step) : info.a,
     });
-    if (phase === "breaking") {
+    // A full break AND a pi departure both release electrons somewhere: the
+    // burst marks it. An order DROP on a persisting bond is the carbonyl case.
+    if (phase === "breaking" || (phase === "persistent" && info.toOrder < info.fromOrder)) {
       breakingMidpoints.push(
         midpoint(requirePlacement(fromLayout, info.a).pos, requirePlacement(fromLayout, info.b).pos),
       );

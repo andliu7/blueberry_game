@@ -45,6 +45,30 @@ describe("the reaction registry", () => {
   }
 });
 
+describe("the pi push is an animatable event", () => {
+  it("the carbonyl C=O carries order 2 into the step and order 1 out of it", () => {
+    // The owner's report verbatim: "the carbonyl is not pushing the bond to
+    // the oxygen to form the tetrahedral intermediate." The cause was the
+    // scene merging the pair at max(2,1)=2, which rendered a static double
+    // bond through the whole animation and a chemically wrong final frame.
+    const reaction = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
+    if (reaction === undefined) throw new Error("carbonyl-addition missing");
+    const scene = buildStepScene(reaction.step, layoutState(reaction.step.from, reaction.fromHints), layoutState(reaction.step.to, reaction.toHints));
+    const co = scene.bonds.find((bond) => (bond.a === "c1" && bond.b === "o2") || (bond.a === "o2" && bond.b === "c1"));
+    if (co === undefined) throw new Error("no C=O in scene");
+    expect(co.phase).toBe("persistent");
+    expect(co.order).toBe(2);
+    expect(co.toOrder).toBe(1);
+  });
+
+  it("an order drop on a persisting bond marks a release burst", () => {
+    const reaction = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
+    if (reaction === undefined) throw new Error("carbonyl-addition missing");
+    const scene = buildStepScene(reaction.step, layoutState(reaction.step.from, reaction.fromHints), layoutState(reaction.step.to, reaction.toHints));
+    expect(scene.breakingMidpoints.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
 describe("the orbit drag geometry", () => {
   it("finds the swing neighbour for every terminal atom in every reaction", () => {
     // The hydroxide H orbits its O; HCl's H orbits Cl; bromomethane's Br

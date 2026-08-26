@@ -103,6 +103,37 @@ async function open(browser, reaction) {
   return page;
 }
 
+async function tap(page, match) {
+  const point = await siteAt(page, match);
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.down();
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  await page.mouse.up();
+  await new Promise((resolve) => setTimeout(resolve, 200));
+}
+
+/**
+ * Drive the carbonyl addition's authored answer through the real browser,
+ * chasing the owner report that the pi bond would not push onto the oxygen.
+ * The machine-level walk passes in vitest, so if this fails the bug is in
+ * target reachability or the pointer layer, and if it passes the report is
+ * about the animation, not the input.
+ */
+async function solveCarbonyl(browser) {
+  const page = await open(browser, "carbonyl-addition");
+  await tap(page, `t.kind === "atom" && t.atomId === "o1"`);
+  await tap(page, `t.kind === "lonePair" && t.atomId === "o1" && t.slotIndex === 0`);
+  await tap(page, `t.kind === "betweenAtomsSite" && t.atomIds.includes("o1") && t.atomIds.includes("c1")`);
+  await tap(page, `t.kind === "bondEndHandle" && t.bondId === "b-co" && t.atomId === "o2"`);
+  await tap(page, `t.kind === "atom" && t.atomId === "o2"`);
+  await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
+  const success = await page.evaluate(() => document.body.innerText.includes("π electrons climb"));
+  const text = success ? "" : await page.evaluate(() => document.body.innerText.slice(0, 600));
+  await page.screenshot({ path: path.join(shotsDir, `parity-${TAG}-carbonyl-solved.png`), type: "png" });
+  await page.close();
+  return { success, text };
+}
+
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ["--force-device-scale-factor=2"] });
 const results = { reactions: [], orbit: {} };
 
@@ -151,6 +182,8 @@ for (const reaction of REACTIONS) {
   await page.close();
 }
 
+results.carbonyl = await solveCarbonyl(browser);
+
 await browser.close();
 server.close();
 
@@ -159,6 +192,7 @@ const drift = Math.abs(results.orbit.radiusAfter - results.orbit.radiusBefore);
 console.log(`orbit: moved ${results.orbit.movedPx.toFixed(1)}px, radius ${results.orbit.radiusBefore.toFixed(1)} -> ${results.orbit.radiusAfter.toFixed(1)} (drift ${drift.toFixed(2)}px)`);
 await writeFile(path.join(shotsDir, `parity-${TAG}-capture.json`), `${JSON.stringify({ tag: TAG, results }, null, 2)}\n`);
 
+console.log(`carbonyl solve: ${results.carbonyl.success ? "SUCCESS CARD SHOWN" : `NO SUCCESS. page said: ${results.carbonyl.text}`}`);
 if (results.orbit.movedPx < 30) {
   console.error("The orbit drag did not move the hydrogen. Not judgeable; fix the drive or the feature.");
   process.exit(1);
