@@ -302,6 +302,19 @@ body {
 .snap-back {
   animation: snap-back 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+/* The reaction centre's resting halo breathes, slowly: present enough to
+   answer "where is the question", quiet enough to never compete with an
+   armed source or a drop ring. */
+@keyframes centre-breathe {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50% { opacity: 0.42; transform: scale(1.06); }
+}
+.centre-breathe {
+  animation: centre-breathe 2.6s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
 @keyframes wobble {
   0%,
   100% {

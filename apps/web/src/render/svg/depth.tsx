@@ -152,7 +152,7 @@ export function BondCapsule({
   const len = Math.hypot(dx, dy) || 1;
   const px = -dy / len;
   const py = dx / len;
-  const offsets = order === 2 ? [-7, 7] : order === 3 ? [-11, 0, 11] : [0];
+  const offsets = order === 2 ? [-5.5, 5.5] : order === 3 ? [-10, 0, 10] : [0];
   const width = order === 1 ? BOND_WIDTH : BOND_WIDTH - 3;
   return (
     <g opacity={opacity}>
@@ -165,8 +165,15 @@ export function BondCapsule({
         // not have: there, the rod stops at the silhouette and a ball joint
         // sits exactly on it. Half the stroke width is added back so the round
         // cap's OUTER edge, not its centre, lands on the rim.
-        const start = rimPoint(oa, ob, rA + width / 2 - 1);
-        const end = rimPoint(ob, oa, rB + width / 2 - 1);
+        // An OFFSET rod meets the sphere off its equator, where the circle
+        // is narrower: seating it with the full radius leaves the outer tube
+        // floating past the silhouette, which the round 3 critic read as a
+        // broken bond. Chord geometry: at perpendicular offset `off` the
+        // sphere's half-width is sqrt(r^2 - off^2).
+        const chordA = Math.sqrt(Math.max(rA * rA - off * off, 0));
+        const chordB = Math.sqrt(Math.max(rB * rB - off * off, 0));
+        const start = rimPoint(oa, ob, chordA + width / 2 - 1);
+        const end = rimPoint(ob, oa, chordB + width / 2 - 1);
         return (
           <g key={off}>
             <line

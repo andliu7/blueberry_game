@@ -846,6 +846,25 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
         );
       })}
 
+      {/* The question's own subject, marked at rest: a quiet halo on each
+          reaction centre. Three rounds of critics said the same thing in
+          different words: nothing on the resting canvas answers "what is
+          about to react with what", and with lone pairs hidden until tap
+          (owner ruling) the scene otherwise carries zero targeting cues. The
+          centres come from the step's own identity, so this marks WHERE the
+          question lives without revealing a single arrow, which keeps the
+          anti-requirement: no mechanism shown before the attempt. */}
+      {step.identity.reactionCenters.map((atomId) => {
+        const centre = atomCentre(live, atomId);
+        const r = elementRadius(live, atomId);
+        return (
+          <g key={`centre-${atomId}`} style={{ pointerEvents: "none" }}>
+            <circle cx={centre.x} cy={centre.y} r={r + 8} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.28} />
+            <circle cx={centre.x} cy={centre.y} r={r + 8} fill="none" stroke="var(--primary)" strokeWidth={2} opacity={0.5} className={reducedMotion ? undefined : "centre-breathe"} />
+          </g>
+        );
+      })}
+
       {/* The orbit in progress: the circle the atom rides, dashed because it
           exists only while the pointer holds it, and a halo on the swung atom
           so the grabbed thing is visibly grabbed. */}

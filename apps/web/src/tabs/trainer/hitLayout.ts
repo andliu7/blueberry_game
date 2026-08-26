@@ -146,8 +146,13 @@ export function resettleOpenAngles(scene: StepScene): StepScene {
     } else {
       openAngle = Math.atan2(-sy, -sx);
     }
-    const badgeAngle = atom.fromImplicitH > 0 ? openAngle + 2.27 : openAngle;
-    return { ...atom, from: { ...atom.from, openAngle, badgeAngle } };
+    // The badge angle deliberately does NOT resettle. The round 3 critic
+    // watched the minus chip re-anchor as the hydrogen swung and read it as
+    // "the charge appears to migrate around the oxygen during a purely
+    // geometric gesture, which reads as chemistry changing when it is not."
+    // A lone pair fan is geometry and follows the bonds; a formal charge is
+    // bookkeeping and stays where it was authored.
+    return { ...atom, from: { ...atom.from, openAngle } };
   });
   return { ...scene, atoms };
 }

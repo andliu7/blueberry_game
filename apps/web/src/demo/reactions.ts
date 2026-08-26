@@ -142,13 +142,25 @@ const hydroxideNu = createSpecies({
   bonds: [createBond({ id: "b-oh", a: "o1", b: "h1" })],
 });
 
+/**
+ * The aldehyde hydrogens are explicit: they sit ON the reactive carbon, and a
+ * critic caught them dematerialised as arc glyphs "on the very molecule where
+ * attack-the-C-not-its-substituents matters". Ghost glyphs stay for spectator
+ * CH3 groups; atoms of the electrophile itself are real.
+ */
 const formaldehyde = createSpecies({
   id: "sp-formaldehyde",
   atoms: [
-    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
     createAtom({ id: "o2", element: "O", lonePairs: 2 }),
   ],
-  bonds: [createBond({ id: "b-co", a: "c1", b: "o2", order: 2 })],
+  bonds: [
+    createBond({ id: "b-ch2", a: "c1", b: "h2" }),
+    createBond({ id: "b-ch3", a: "c1", b: "h3" }),
+    createBond({ id: "b-co", a: "c1", b: "o2", order: 2 }),
+  ],
 });
 
 const alkoxide = createSpecies({
@@ -156,12 +168,16 @@ const alkoxide = createSpecies({
   atoms: [
     createAtom({ id: "o1", element: "O", lonePairs: 2 }),
     createAtom({ id: "h1", element: "H" }),
-    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "h2", element: "H" }),
+    createAtom({ id: "h3", element: "H" }),
     createAtom({ id: "o2", element: "O", formalCharge: -1, lonePairs: 3 }),
   ],
   bonds: [
     createBond({ id: "b-oh", a: "o1", b: "h1" }),
     createBond({ id: "b-oc", a: "o1", b: "c1" }),
+    createBond({ id: "b-ch2", a: "c1", b: "h2" }),
+    createBond({ id: "b-ch3", a: "c1", b: "h3" }),
     createBond({ id: "b-co", a: "c1", b: "o2" }),
   ],
 });
@@ -191,6 +207,69 @@ const CARBONYL_ADDITION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Electrophilic addition, step 1: ethene protonated by HBr.           */
+/* The Addition playlist's opening move: the pi bond is the nucleophile.*/
+/* ------------------------------------------------------------------ */
+
+const ethene = createSpecies({
+  id: "sp-ethene",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [createBond({ id: "b-cc", a: "c1", b: "c2", order: 2 })],
+});
+
+const hydrogenBromide = createSpecies({
+  id: "sp-hbr",
+  atoms: [createAtom({ id: "h1", element: "H" }), createAtom({ id: "br1", element: "Br", lonePairs: 3 })],
+  bonds: [createBond({ id: "b-hbr", a: "h1", b: "br1" })],
+});
+
+const ethylCation = createSpecies({
+  id: "sp-ethyl-cation",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h1", element: "H" }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 2 }),
+  ],
+  bonds: [createBond({ id: "b-cc", a: "c1", b: "c2" }), createBond({ id: "b-ch", a: "c1", b: "h1" })],
+});
+
+const bromide = createSpecies({
+  id: "sp-bromide-add",
+  atoms: [createAtom({ id: "br1", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const ALKENE_PROTONATION: MechanismStep = createStep({
+  id: "alkene-protonation-hbr",
+  from: createState({
+    id: "ap-before",
+    members: [
+      { species: ethene, role: "nucleophile" },
+      { species: hydrogenBromide, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ap-after",
+    members: [
+      { species: ethylCation, role: "product" },
+      { species: bromide, role: "leaving_group" },
+    ],
+  }),
+  identity: {
+    elementaryStep: "pi_bond_attack",
+    route: "electrophilic_addition_alkene",
+    reactionCenters: ["c1", "c2"],
+  },
+  arrows: [
+    createArrow({ id: "a-pi-grab", source: fromBond("b-cc"), sink: toBondBetween("c1", "h1") }),
+    createArrow({ id: "a-hbr-release", source: fromBond("b-hbr"), sink: toAtom("br1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -212,19 +291,24 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       // The three N-H bonds fan away from the acid so the lone pair side of
       // the nitrogen FACES the proton it is about to take: the staged
       // geometry must agree with the reaction, per the video-frame critic.
-      n1: { x: -1.6, y: 0 },
-      h2: { x: -2.45, y: 0.55 },
-      h3: { x: -2.55, y: -0.35 },
-      h4: { x: -1.85, y: -0.95 },
-      h1: { x: -0.35, y: 0 },
-      cl1: { x: 0.65, y: 0 },
+      // 90, 180, 270 degrees, all exactly one bond length: the widest the
+      // three N-H bonds can spread while the whole lone pair half-plane
+      // faces the acid. Round 3 measured the old fan at adjacent angles
+      // nearer 65 degrees, "a picture of ammonia a student will remember
+      // incorrectly", with one bond visibly longer than the others.
+      n1: { x: -1.45, y: 0 },
+      h2: { x: -1.45, y: 1.0 },
+      h3: { x: -2.45, y: 0 },
+      h4: { x: -1.45, y: -1.0 },
+      h1: { x: -0.25, y: 0 },
+      cl1: { x: 0.75, y: 0 },
     },
     toHints: {
-      n1: { x: -1.35, y: 0 },
-      h2: { x: -2.2, y: 0.55 },
-      h3: { x: -2.3, y: -0.35 },
-      h4: { x: -1.6, y: -0.95 },
-      h1: { x: -0.35, y: 0 },
+      n1: { x: -1.25, y: 0 },
+      h2: { x: -1.25, y: 1.0 },
+      h3: { x: -2.25, y: 0 },
+      h4: { x: -1.25, y: -1.0 },
+      h1: { x: -0.25, y: 0 },
       cl1: { x: 1.8, y: 0 },
     },
   },
@@ -238,16 +322,41 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       // Below-left of the carbon, so the approach vector aims at C and away
       // from the carbonyl oxygen: the critic measured the old line landing
       // nearer the O end of the C=O than the carbon it attacks.
-      o1: { x: -1.55, y: -0.5 },
-      h1: { x: -2.3, y: -1.15 },
+      o1: { x: -1.35, y: -0.45 },
+      h1: { x: -2.1, y: -1.1 },
       c1: { x: 0, y: 0 },
+      h2: { x: -0.35, y: 0.94 },
+      h3: { x: 0.95, y: -0.35 },
       o2: { x: 0.62, y: 0.78 },
     },
     toHints: {
       o1: { x: -0.95, y: -0.45 },
       h1: { x: -1.7, y: -1.1 },
       c1: { x: 0, y: 0 },
+      h2: { x: -0.35, y: 0.94 },
+      h3: { x: 0.95, y: -0.35 },
       o2: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "alkene-protonation",
+    title: "Alkene + HBr",
+    brief: "The π bond grabs the proton. Draw both arrows.",
+    successLine: "The π electrons pull the proton in, and the H–Br bond's electrons leave with bromide.",
+    step: ALKENE_PROTONATION,
+    fromHints: {
+      // The double bond stands vertical on the left with the acid's proton
+      // facing it, so the pi cloud and the H it grabs look at each other.
+      c1: { x: -1.3, y: 0.5 },
+      c2: { x: -1.3, y: -0.5 },
+      h1: { x: 0.1, y: 0.15 },
+      br1: { x: 1.1, y: 0.15 },
+    },
+    toHints: {
+      c1: { x: -1.15, y: 0.5 },
+      h1: { x: -0.3, y: 0.95 },
+      c2: { x: -1.15, y: -0.5 },
+      br1: { x: 1.6, y: 0.15 },
     },
   },
 ];
