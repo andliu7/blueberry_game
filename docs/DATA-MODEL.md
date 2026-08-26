@@ -157,3 +157,13 @@ Derived and returned by the server: `xpTotal`, `rating`, `cash`, `streak`, per-t
 CLAUDE.md says the currency is Diamonds. §10 of the new framework says cash. The JSON below uses
 `cash` and this is flagged as question 7, because CLAUDE.md is the file that wins on conflict and
 one of the two has to be edited.
+
+## Owner direction, 2026-08-26: reactions split into reaction lessons
+
+The reaction database is not a monolith the trainer points at. Every reaction gets split up and
+placed into the reaction lessons: a reaction's mechanism becomes `draw_arrows` beats, one per step,
+inside the owning topic's Mechanisms track, with the intermediates as their own beats between. The
+`Mechanism` entity above is already shaped for this (steps are addressable by `stepIndex`, beats
+reference `mechanismId` + `stepIndex`), so the split is authoring work, not schema work. The
+reaction search keeps reading the same rows; a lesson and a search result point at one shared
+mechanism, never at two copies.

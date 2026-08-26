@@ -39,6 +39,7 @@ import {
   type InteractionState,
   type MechanismDraft,
   type Point2,
+  type InteractionEvent,
 } from "@blueberry/interaction";
 import { MoleculeSvg } from "../../render/svg/MoleculeSvg";
 import { layoutState } from "../../render/layout/layout";
@@ -51,6 +52,7 @@ import type { BerryBehaviour } from "../../mascot/berryBehaviour";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
 import { applySpeciesOffsets, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
 import { gradeDrawing, type DrawVerdict } from "./grade";
+import type { ElectronFlowArrow } from "@blueberry/chem-core";
 import { matchDistractor, type TrainerDistractor } from "./distractors";
 import { playWrongSound } from "./feedbackSound";
 
@@ -131,6 +133,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const [renderer, setRenderer] = useState<"2d" | "3d">(START_3D ? "3d" : "2d");
   const [verdict, setVerdict] = useState<DrawVerdict | null>(null);
   const [distractor, setDistractor] = useState<TrainerDistractor | null>(null);
+  const [rejected, setRejected] = useState<{ readonly arrow: ElectronFlowArrow; readonly key: number } | null>(null);
   const [failure, setFailure] = useState<FailureAnimation>(null);
   const [notice, setNotice] = useState<InteractionNotice | null>(null);
   const [behaviour, setBehaviour] = useState<BerryBehaviour>("idle");
@@ -177,6 +180,17 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     if (EXPOSE_TARGETS) window.__blueberryTargets = targets;
   }, [targets]);
   const guide = inFlightGuide(state);
+
+  // The held failure clears the moment the student touches the canvas again:
+  // the card has been read or it has not, and either way a new gesture means
+  // the old mistake is no longer the story.
+  const canvasDispatch = useCallback(
+    (event: InteractionEvent) => {
+      if (event.kind === "pointerDown") setRejected(null);
+      store.dispatch(event);
+    },
+    [store],
+  );
 
   // Backgrounding ends any gesture, per the machine's appBackgrounded event.
   useEffect(() => {
@@ -228,6 +242,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     gradedCountRef.current = drawn;
     const result = gradeDrawing(step, mechanism.arrows);
     setVerdict(result);
+    setRejected(null);
 
     if (result.kind === "correct") {
       // The success copy and the playback ARE the reward for this step; the
@@ -264,6 +279,10 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       setFailure({ kind: "wobble", atomIds: sentTo === null ? [] : [sentTo], key: Date.now() });
       window.setTimeout(() => {
         setFailure(null);
+        // The ghost replaces the real arrow in the SAME frame the undo takes
+        // it: during the wobble the committed render carries the evidence, and
+        // setting the ghost any earlier drew both at once, casing on casing.
+        if (last !== undefined) setRejected({ arrow: last, key: Date.now() });
         store.dispatch({ kind: "command", command: { kind: "undo" } });
       }, reducedMotion ? 1 : 500);
       return;
@@ -277,6 +296,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const reset = () => {
     setVerdict(null);
     setDistractor(null);
+    setRejected(null);
     gradedCountRef.current = 0;
     setNotice(null);
     setMode("draw");
@@ -330,7 +350,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         }}
       >
         {mode === "draw" ? (
-          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} draft={mechanism} guide={guide} targets={targets} dispatch={store.dispatch} failure={failure} reducedMotion={reducedMotion} />
+          <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} />
         ) : renderer === "2d" ? (
           <MoleculeSvg {...renderProps} />
         ) : (
@@ -363,8 +383,11 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         {mode === "draw" ? (
           <>
             <span className="text-scale-sm text-muted-foreground">
-              {mechanism.arrows.length} of {step.arrows.length} arrows
-              {mechanism.armed !== null ? ", source armed" : ""}
+              {/* Student words. "Source armed" is engine vocabulary, and a
+                  blind critic caught it leaking into the one line that is
+                  always on screen. */}
+              {mechanism.arrows.length} of {step.arrows.length} arrows drawn
+              {mechanism.armed !== null ? " · electrons in hand" : ""}
             </span>
             {mechanism.arrows.length > 0 ? (
               <Press variant="ghost" onPointerDown={reset}>
@@ -518,11 +541,15 @@ function VerdictCard({ verdict, distractor = null }: { readonly verdict: DrawVer
       // paragraph never shows. The owner hit the generic path drawing O to Br
       // and it answered a different mistake than the one made.
       if (distractor !== null) {
+        // The why is VISIBLE, not folded: a blind critic caught the default
+        // state of the card being pure diagnosis with the entire teaching
+        // collapsed behind Show more "at the exact moment of confusion".
+        // Only the where-to-look-next stays behind the fold.
         return (
           <section className="fade-in rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4" aria-live="polite">
             <p className="text-scale-lg font-semibold leading-snug text-not-requested">{distractor.what}</p>
+            <p className="mt-1.5 text-scale-sm text-foreground">{distractor.why}</p>
             <ShowMore>
-              <Detail label="Why" text={distractor.why} />
               <Detail label="Look at" text={distractor.lookAt} />
             </ShowMore>
           </section>

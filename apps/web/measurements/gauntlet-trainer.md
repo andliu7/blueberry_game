@@ -284,3 +284,53 @@ Measured: suite 30 of 30, integrity unmodified, web tests 19 of 19, typecheck cl
 115.1 KB of 400. Captures: `gauntlet-shots/trainer-r10-arrow-*`.
 
 **Verdicts: pending, four critics launching after this commit.**
+
+### Round 10 verdicts: OURS WON ALL FOUR PIECES BLIND. Round 11 fixes what the critics named anyway.
+
+Two fresh-context critics, four pieces, labels stripped. Every verdict picked ours over the bar:
+
+- **Resting canvas: ours.** "A is not a working surface at rest; it is a lesson slide." The bar's own
+  noise beat it. The named cost of our win: at rest nothing is marked grabbable, which is the
+  deliberate trade the owner ruled for, recorded in the code.
+- **Hydrogens: ours.** The glyph-versus-sphere hierarchy read as "scenery versus participant".
+- **Failure feedback: ours**, because a named specific cause beats a bare glyph. The critic's words
+  for the bar's triangle: "exactly the failure mode this comparison exists to expose".
+- **In-flight drag: ours.** And the same critic, knowing nothing of rounds 1 to 9, independently
+  rejected the bar's headless tether for the same reason our round 8 critic did: "no directionality;
+  nothing on screen says which way the electrons flow, which is the entire content of the notation."
+  Two independent blind critics have now picked the arrowhead over the electron sphere. The round 8
+  ruling's premise is contradicted twice over; the owner should re-decide with both verdicts in hand.
+
+**Exit met on all four pieces, round 1 of the parity loop.** The loop closes. What follows was fixed
+anyway because critics named defects that teach wrong chemistry, and CLAUDE.md does not let those
+ride on a won comparison:
+
+- **The five-bonded carbon.** Mid-drag showed intact C-Br plus forming O-C plus three H with no
+  departure cue: "the leaving group is a bystander in its own departure." Bonds the step BREAKS now
+  dim to 0.45 while the in-flight gesture has a resolved landing. The scene already classified
+  phases; this is a read, not a guess.
+- **The carbon-coloured hydrogen.** Both critics called the slate H sphere an element identification
+  error. H is CPK pale now, dark glyph, and bromine outgrew carbon (three radius tiers) because size
+  is one of the few things a sphere can teach.
+- **The canvas contradicted the card.** By the time the card was read, the undo had erased the wrong
+  arrow: "the failure moment shows no failure." A rejected arrow now freezes on the canvas in
+  warning amber with the bar's triangle on the atom it wrongly targeted, swapped in at the same
+  frame the undo takes the real arrow, held until the next touch.
+- **The teaching was behind a click.** The distractor card's why is visible by default now; only
+  look-at folds.
+- **"source armed" leaked engine vocabulary** into the always-on status line. Student words now.
+
+Found while fixing: `var(--warn)` was referenced before it existed in theme.css, and an unset var in
+an SVG attribute falls back to black, which is how r11's first capture grew a black arrowhead. And
+the ghost was originally set at wobble start, drawing casing-on-casing beside the still-committed
+arrow; it now swaps in exactly when the undo fires.
+
+Measured at close: suite 30 of 30, integrity unmodified, web 19 of 19, interaction 377 of 377,
+typecheck clean, payload 115.5 KB of 400. Captures `trainer-r11b-arrow-*`.
+
+**Left open, named honestly:** the wrongly-inferred O-Br stub still crosses behind the carbon during
+the wobble window (it is the student's own asserted bond, so drawing it is defensible, but the
+critic's strike-mark idea is better and unbuilt); the H glyph arc still parks all three below the
+carbon rather than splaying the umbrella perpendicular to the attack axis, which costs the Walden
+inversion picture; matching presentation, currency name, free tier shape and negative XP are still
+open questions for the owner.

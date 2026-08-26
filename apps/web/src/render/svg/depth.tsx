@@ -24,7 +24,12 @@ import type { Point2 } from "@blueberry/interaction";
 export const ELEMENT_FILL: Record<string, string> = {
   // Saturated enough to hold white glyphs at 4.5:1+ in both themes.
   C: "#334155",
-  H: "#64748b",
+  // PALE, per CPK and per two blind critics who read our slate H as a second
+  // carbon: "an H rendered in carbon's colour is an element-identification
+  // error waiting to happen." Hydrogen is the one element everyone knows is
+  // white; its glyph flips to dark ink below because white-on-white is not a
+  // label.
+  H: "#e2e8f0",
   O: "#dc2626",
   N: "#2563eb",
   Br: "#9a3412",
@@ -96,7 +101,7 @@ export function AtomSphere({ centre, r, element, opacity = 1 }: { centre: Point2
       <circle cx={centre.x} cy={centre.y} r={r} fill={`url(#${sphereGradientId(element)})`} />
       {/* A rim shade, the thin dark edge a sphere shows against its ground. */}
       <circle cx={centre.x} cy={centre.y} r={r - 0.75} fill="none" stroke="#0f172a" strokeOpacity={0.22} strokeWidth={1.5} />
-      <text x={centre.x} y={centre.y} textAnchor="middle" dominantBaseline="central" fontSize={element === "H" ? 13 : 18} fontWeight={700} fill="#ffffff">
+      <text x={centre.x} y={centre.y} textAnchor="middle" dominantBaseline="central" fontSize={element === "H" ? 13 : 18} fontWeight={700} fill={element === "H" ? "#334155" : "#ffffff"}>
         {element}
       </text>
     </g>
@@ -172,7 +177,7 @@ export function BondCapsule({
               stroke="var(--bond-stroke)"
               strokeWidth={width}
               strokeLinecap="round"
-              strokeDasharray={forming ? "9 7" : undefined}
+              strokeDasharray={forming ? "15 9" : undefined}
             />
             {/* The highlight breaks WITH the rod. It did not, and that single
                 omission is why a forming bond read as a finished one: the body
@@ -190,7 +195,7 @@ export function BondCapsule({
               strokeOpacity={0.42}
               strokeWidth={width * 0.34}
               strokeLinecap="round"
-              strokeDasharray={forming ? "9 7" : undefined}
+              strokeDasharray={forming ? "15 9" : undefined}
             />
             {/* Ball joints, sitting ON each silhouette. In the capture these
                 are what make a bond read as a rod socketed into a ball rather

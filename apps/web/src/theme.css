@@ -82,6 +82,15 @@
   --charge-chip: #ffffff;
   --charge-ink: #1a1817;
   --charge-ring: #57534e;
+  /* The rejection triangle. Solid fill, not the translucent --warn-soft: it
+     sits ON atoms of every colour and a translucent wash would change hue per
+     atom behind it. */
+  --warn-soft-solid: #fef3c7;
+  --warn-ink-strong: #92400e;
+  /* The warning STROKE, for the rejected arrow and its head. Referenced by the
+     canvas before this existed, and an unset var() in an SVG attribute falls
+     back to black, which is how the first r11 capture grew a black arrowhead. */
+  --warn: #d97706;
   /* The gap docs/DESIGN-TOKENS.md names: success and the two non-binary
      outcomes need tokens of their own, and none of them is red. --good is
      emerald-700 (4.6:1 on white, 4.4:1 on cream for large text only, so body
@@ -128,6 +137,9 @@
   --charge-chip: #e7e5e1;
   --charge-ink: #1a1817;
   --charge-ring: #8a837b;
+  --warn-soft-solid: #453a12;
+  --warn-ink-strong: #fcd34d;
+  --warn: #f59e0b;
   --good: #34d399;
   --good-ink: #6ee7b7;
   --good-soft: rgba(52, 211, 153, 0.16);

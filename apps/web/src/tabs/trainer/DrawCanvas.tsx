@@ -79,6 +79,15 @@ export type FailureAnimation =
 
 export interface DrawCanvasProps {
   readonly step: MechanismStep;
+  /**
+   * The last rejected arrow, HELD on the canvas in warning colour until the
+   * student touches the canvas again. A blind critic caught the alternative:
+   * the machine's undo erased the wrong arrow before the card could be read,
+   * so the canvas showed nothing wrong while the words described a mistake,
+   * and "the failure moment shows no failure". The draft no longer contains
+   * this arrow; it is drawn from this prop alone.
+   */
+  readonly rejected: { readonly arrow: ElectronFlowArrow; readonly key: number } | null;
   /** The authored scene. Frames the view box so the canvas never chases a drag. */
   readonly scene: StepScene;
   /** The live scene: authored positions plus where each species was carried. Everything draws from this. */
@@ -91,6 +100,29 @@ export interface DrawCanvasProps {
   readonly dispatch: (event: InteractionEvent) => void;
   readonly failure: FailureAnimation;
   readonly reducedMotion: boolean;
+}
+
+/**
+ * The bar's rejection mark: a rounded equilateral triangle, yellow, with a bold
+ * exclamation, sitting on the atom that refused the electrons. Drawn inline
+ * rather than in depth.tsx because it is trainer feedback, not scene depth:
+ * the 2D and 3D renderers never show one.
+ */
+function WarningTriangle({ at }: { readonly at: Point2 }) {
+  const R = 13;
+  const points = [0, 1, 2]
+    .map((i) => {
+      const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+      return `${at.x + R * Math.cos(angle)},${at.y + R * Math.sin(angle)}`;
+    })
+    .join(" ");
+  return (
+    <g className="fade-in" style={{ pointerEvents: "none" }}>
+      <polygon points={points} fill="var(--warn-soft-solid)" stroke="var(--warn)" strokeWidth={3} strokeLinejoin="round" />
+      <line x1={at.x} y1={at.y - 4.5} x2={at.x} y2={at.y + 1.5} stroke="var(--warn-ink-strong)" strokeWidth={2.4} strokeLinecap="round" />
+      <circle cx={at.x} cy={at.y + 5.2} r={1.5} fill="var(--warn-ink-strong)" />
+    </g>
+  );
 }
 
 function pointerKind(type: string): PointerKind {
@@ -367,7 +399,7 @@ interface Carry {
   active: boolean;
 }
 
-export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, guide, targets, dispatch, failure, reducedMotion }: DrawCanvasProps) {
+export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, guide, targets, dispatch, failure, reducedMotion, rejected }: DrawCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const carryRef = useRef<Carry | null>(null);
   const targetsRef = useRef(targets);
@@ -561,6 +593,9 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
         <marker id="draw-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
           <path d="M 0 0.6 L 10 5 L 0 9.4 z" fill="var(--primary)" />
         </marker>
+                <marker id="draw-arrowhead-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto">
+          <path d="M 0 0.6 L 10 5 L 0 9.4 z" fill="var(--warn)" />
+        </marker>
       </defs>
 
       {/* Attachments per species, on the lag: bonds, hydrogen arcs, lone pair dots. */}
@@ -576,6 +611,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                 rA={atomRadius(scene.atoms.find((atom) => atom.id === bond.a)?.element ?? "C")}
                 rB={atomRadius(scene.atoms.find((atom) => atom.id === bond.b)?.element ?? "C")}
                 order={bond.order}
+                // The leaving group is not a bystander in its own departure,
+                // which is how a blind critic put it: mid-drag the canvas
+                // otherwise shows an intact C-Br, a forming O-C and three
+                // hydrogens, which reads as a five-bonded carbon. While the
+                // in-flight gesture has a resolved landing, every bond this
+                // step BREAKS loosens its grip: dimmer, visibly letting go.
+                // The scene already classifies phases, so this is a read, not
+                // a guess.
+                opacity={inFlight?.sink !== null && inFlight !== null && bond.phase === "breaking" ? 0.45 : 1}
               />
             ))}
           {scene.atoms
@@ -658,6 +702,15 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
                 <g key={atom.id} className={wobbling.has(atom.id) ? "wobble" : undefined} style={{ cursor: "grab" }}>
                   <AtomSphere centre={c} r={r} element={atom.element} />
                   <ChargeBadge at={badgeAt} charge={atom.fromCharge} />
+                  {/* The failure mark ON the molecule, the bar's language for a
+                      rejected drop (IMG_1647 to IMG_1650): a rounded yellow
+                      warning triangle riding the atom that could not take the
+                      electrons, for exactly as long as the wobble runs. Yellow
+                      per the anti-requirements: chemically wrong is a warning,
+                      never error red. The card below the canvas says WHY; this
+                      says WHERE, and a student mid-gesture reads the canvas
+                      before the card. */}
+                  {wobbling.has(atom.id) ? <WarningTriangle at={{ x: c.x + r * 0.55, y: c.y - r * 0.95 }} /> : null}
                 </g>
               );
             })}
@@ -697,6 +750,32 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
           </g>
         );
       })}
+
+      {/* The rejected arrow, frozen in warning colour with the bar's triangle
+          on the atom it wrongly targeted. Stays until the next touch, so the
+          canvas and the card tell the same story for as long as the card is
+          on screen. */}
+      {rejected !== null
+        ? (() => {
+            const centroid = awayFrom(sourceAtomId(step, rejected.arrow));
+            const { from } = committedArrowGeometry(step, live, rejected.arrow, centroid);
+            // The ghost lands ON the atom the student wrongly targeted, not on
+            // a stub midpoint: for the O-to-Br mistake the inferred bond's
+            // middle sits behind the carbon, and an arrow ending there tells
+            // the wrong story. The card names bromine; the ghost points at it.
+            const sinkAtom = rejected.arrow.sink.kind === "atom" ? rejected.arrow.sink.atomId : rejected.arrow.sink.atomIds[1];
+            const c = atomCentre(live, sinkAtom);
+            const r = elementRadius(live, sinkAtom);
+            const landing = landingOnRim(c, r, from, centroid, LAND_GAP);
+            return (
+              <g key={rejected.key} style={{ pointerEvents: "none" }}>
+                <path d={curveAway(from, landing, centroid)} fill="none" stroke="var(--card)" strokeWidth={7} strokeLinecap="round" opacity={0.9} />
+                <path d={curveAway(from, landing, centroid)} fill="none" stroke="var(--warn)" strokeWidth={3} strokeDasharray="7 6" strokeLinecap="round" markerEnd="url(#draw-arrowhead-warn)" />
+                <WarningTriangle at={{ x: c.x + r * 0.55, y: c.y - r * 0.95 }} />
+              </g>
+            );
+          })()
+        : null}
 
       {/* The dashed in flight guide, per capture x01: starts on the source,
           head at the finger, or on the drop site once the release would land

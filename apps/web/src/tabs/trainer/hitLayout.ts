@@ -34,13 +34,20 @@ export function mix(a: Point2, b: Point2, t: number): Point2 {
 export const PX = 72;
 export const ATOM_R = 21;
 export const ATOM_R_SMALL = 13;
+export const ATOM_R_LARGE = 26;
 
 export function toPx(v: Vec): Point2 {
   return { x: v.x * PX, y: -v.y * PX };
 }
 
 export function atomRadius(element: string): number {
-  return element === "H" ? ATOM_R_SMALL : ATOM_R;
+  // Size is one of the few things a sphere can teach, per a blind critic who
+  // caught Br drawn at carbon's diameter. Three tiers are enough: hydrogen
+  // small, second row standard, third row and below larger. Van der Waals
+  // ratios, coarsened so hit targets stay predictable.
+  if (element === "H") return ATOM_R_SMALL;
+  if (element === "Br" || element === "I" || element === "Cl" || element === "S" || element === "P") return ATOM_R_LARGE;
+  return ATOM_R;
 }
 
 export interface DrawTarget {
