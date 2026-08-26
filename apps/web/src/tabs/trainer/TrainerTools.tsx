@@ -57,6 +57,7 @@ export function TrainerTools({ step, scene, progress, reducedMotion, history, on
           className="press flex min-h-12 min-w-12 items-center justify-center rounded-full border border-border bg-card text-scale-xl shadow-md"
           aria-expanded={open}
           aria-label={open ? "Close tools" : "Open tools"}
+          title={open ? "Close tools" : "Tools: scratchpaper, periodic table, 3D, history"}
           onPointerDown={() => setOpen((prev) => !prev)}
         >
           <span
@@ -86,9 +87,11 @@ export function TrainerTools({ step, scene, progress, reducedMotion, history, on
       {tool === "scratchpad" ? <Scratchpad onClose={() => setTool(null)} /> : null}
       {tool === "periodic" ? (
         <ToolCard title="Periodic table" onClose={() => setTool(null)}>
-          <Suspense fallback={<p className="p-6 text-scale-sm text-muted-foreground">Loading the table…</p>}>
-            <PeriodicTab selected={null} />
-          </Suspense>
+          <ZoomPan>
+            <Suspense fallback={<p className="p-6 text-scale-sm text-muted-foreground">Loading the table…</p>}>
+              <PeriodicTab selected={null} />
+            </Suspense>
+          </ZoomPan>
         </ToolCard>
       ) : null}
       {tool === "history" ? (
@@ -122,6 +125,50 @@ export function TrainerTools({ step, scene, progress, reducedMotion, history, on
   );
 }
 
+/**
+ * Wheel-zoom and drag-pan for HTML content, owner request 2026-08-26: the
+ * periodic table popup scrolls and zooms the same way the mechanism canvas
+ * does. CSS transform on a wrapper: wheel scales toward a fixed origin,
+ * dragging translates, double click resets. Buttons inside stay clickable
+ * because a click is only suppressed after real travel.
+ */
+function ZoomPan({ children }: { readonly children: ReactNode }) {
+  const [view, setView] = useState({ k: 1, x: 0, y: 0 });
+  const drag = useRef<{ id: number; startX: number; startY: number; x: number; y: number; moved: boolean } | null>(null);
+  return (
+    <div
+      className="touch-none overflow-hidden"
+      style={{ cursor: drag.current !== null ? "grabbing" : "grab" }}
+      onWheel={(event) => {
+        const factor = Math.exp(-event.deltaY * 0.0016);
+        setView((prev) => ({ ...prev, k: Math.min(2.5, Math.max(1, prev.k * factor)) }));
+      }}
+      onDoubleClick={() => setView({ k: 1, x: 0, y: 0 })}
+      onPointerDown={(event) => {
+        drag.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, x: view.x, y: view.y, moved: false };
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        const state = drag.current;
+        if (state === null || state.id !== event.pointerId) return;
+        const dx = event.clientX - state.startX;
+        const dy = event.clientY - state.startY;
+        if (Math.hypot(dx, dy) > 6) state.moved = true;
+        if (state.moved) setView((prev) => ({ ...prev, x: state.x + dx, y: state.y + dy }));
+      }}
+      onPointerUp={() => {
+        drag.current = null;
+      }}
+      onClickCapture={(event) => {
+        // A drag that travelled is not a click on an element cell.
+        if (drag.current?.moved) event.stopPropagation();
+      }}
+    >
+      <div style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})`, transformOrigin: "0 0" }}>{children}</div>
+    </div>
+  );
+}
+
 function ToolButton({ label, onPick }: { readonly label: string; readonly onPick: () => void }) {
   return (
     <button type="button" className="press min-h-11 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-md" onPointerDown={onPick}>
@@ -137,7 +184,7 @@ function ToolCard({ title, onClose, children }: { readonly title: string; readon
       <div className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl border border-border bg-background p-4 shadow-lg" onPointerDown={(event) => event.stopPropagation()}>
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-scale-lg font-semibold text-foreground">{title}</h3>
-          <button type="button" className="press min-h-11 min-w-11 rounded-full border border-border bg-card font-semibold" aria-label="Close" onPointerDown={onClose}>
+          <button type="button" className="press min-h-11 min-w-11 rounded-full border border-border bg-card font-semibold" aria-label="Close" title="Close" onPointerDown={onClose}>
             ×
           </button>
         </div>
@@ -262,7 +309,7 @@ function Scratchpad({ onClose }: { readonly onClose: () => void }) {
         >
           Clear
         </button>
-        <button type="button" className="press min-h-11 rounded-full border border-white/30 bg-white/10 px-4 text-scale-sm font-semibold text-white" aria-label="Close scratchpaper" onPointerDown={onClose}>
+        <button type="button" className="press min-h-11 rounded-full border border-white/30 bg-white/10 px-4 text-scale-sm font-semibold text-white" aria-label="Close scratchpaper" title="Close scratchpaper" onPointerDown={onClose}>
           Close ×
         </button>
       </div>

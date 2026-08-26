@@ -78,15 +78,22 @@ function Bond({ from, to, phase, t }: { from: Vec; to: Vec; phase: SceneBond["ph
   );
 }
 
-/** Slow idle orbit so depth reads without the student having to drag. */
-function IdleOrbit({ enabled }: { enabled: boolean }) {
+/**
+ * The camera: a slow idle orbit until the student takes hold, then their
+ * drag owns it. Owner request, 2026-08-26: "a mode where I can drag the
+ * screen and look around it, so I can see the actual stereochemistry and the
+ * hybridization." Dragging sets azimuth and elevation directly; releasing
+ * leaves the view where the hand put it, and the idle drift resumes only
+ * from that pose, so the model never snaps away from what the student chose
+ * to look at.
+ */
+function OrbitCamera({ enabled, pose }: { enabled: boolean; pose: { azimuth: number; elevation: number; dragging: boolean } }) {
   const { camera } = useThree();
-  const angleRef = useRef(0);
   useFrame((_, delta) => {
-    if (!enabled) return;
-    angleRef.current += delta * 0.25;
+    if (enabled && !pose.dragging) pose.azimuth += delta * 0.25;
     const r = 4.4;
-    camera.position.set(Math.sin(angleRef.current) * r, 1.4, Math.cos(angleRef.current) * r);
+    const el = Math.max(-1.2, Math.min(1.2, pose.elevation));
+    camera.position.set(Math.sin(pose.azimuth) * Math.cos(el) * r, Math.sin(el) * r + 0.6, Math.cos(pose.azimuth) * Math.cos(el) * r);
     camera.lookAt(0, 0, 0);
   });
   return null;
@@ -102,11 +109,37 @@ export function Scene3D({ scene, progress, reducedMotion }: MechanismRenderProps
   }
   const at = (id: string): Vec => positions.get(id) ?? { x: 0, y: 0, z: 0 };
 
+  // The pose lives in a ref-like mutable object: useFrame mutates it every
+  // frame and pointer handlers mutate it mid-drag, and neither should force a
+  // React render.
+  const poseRef = useRef({ azimuth: 0, elevation: 0.3, dragging: false });
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+
   return (
-    <Canvas camera={{ position: [0, 1.4, 4.4], fov: 45 }} dpr={[1, 2]}>
+    <Canvas
+      camera={{ position: [0, 1.4, 4.4], fov: 45 }}
+      dpr={[1, 2]}
+      style={{ touchAction: "none", cursor: "grab" }}
+      onPointerDown={(event) => {
+        poseRef.current.dragging = true;
+        lastPointer.current = { x: event.clientX, y: event.clientY };
+        (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        const last = lastPointer.current;
+        if (!poseRef.current.dragging || last === null) return;
+        poseRef.current.azimuth -= (event.clientX - last.x) * 0.008;
+        poseRef.current.elevation += (event.clientY - last.y) * 0.006;
+        lastPointer.current = { x: event.clientX, y: event.clientY };
+      }}
+      onPointerUp={() => {
+        poseRef.current.dragging = false;
+        lastPointer.current = null;
+      }}
+    >
       <ambientLight intensity={0.9} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
-      <IdleOrbit enabled={!reducedMotion} />
+      <OrbitCamera enabled={!reducedMotion} pose={poseRef.current} />
       {scene.bonds.map((bond) => (
         <Bond key={bond.key} from={at(bond.a)} to={at(bond.b)} phase={bond.phase} t={t} />
       ))}

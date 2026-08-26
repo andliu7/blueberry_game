@@ -512,6 +512,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
             className="press absolute right-4 top-4 min-h-11 min-w-11 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-sm"
             onPointerDown={() => setRenderer((r) => (r === "2d" ? "3d" : "2d"))}
             aria-label={renderer === "2d" ? "Switch to the 3D view" : "Switch to the 2D view"}
+            title={renderer === "2d" ? "Switch to the 3D view" : "Switch to the 2D view"}
           >
             {renderer === "2d" ? "3D" : "2D"}
           </button>
@@ -702,7 +703,7 @@ function CardFooterRow({ footer }: { readonly footer: CardFooter | null }) {
 function CardClose({ onClose }: { readonly onClose: (() => void) | null }) {
   if (onClose === null) return null;
   return (
-    <button type="button" aria-label="Dismiss feedback" className="press absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-scale-sm font-semibold text-muted-foreground hover:text-foreground" onPointerDown={onClose}>
+    <button type="button" aria-label="Dismiss feedback" title="Dismiss feedback" className="press absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-scale-sm font-semibold text-muted-foreground hover:text-foreground" onPointerDown={onClose}>
       ×
     </button>
   );

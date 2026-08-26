@@ -50,8 +50,22 @@ const SN2_DEMO_DISTRACTORS: Readonly<Record<string, TrainerDistractor>> = {
   },
 };
 
+/**
+ * Per-step distractor tables. The SN2 set above keeps its name; new steps add
+ * their own entries here, keyed by step id then arrow key.
+ */
+const DISTRACTORS_BY_STEP: Readonly<Record<string, Readonly<Record<string, TrainerDistractor>>>> = {
+  "sn2-demo-step": SN2_DEMO_DISTRACTORS,
+  "alkene-protonation-hbr": {
+    "2e bond:b-cc -> between:c2+h1": {
+      what: "You protonated the middle carbon.",
+      why: "Putting the H there parks the positive charge on the END carbon: a primary cation, with only one neighbour to share the load. Protonating the CH₂ end instead leaves the charge on the middle carbon, secondary, steadied by both alkyl groups. The proton goes wherever it makes the MORE stable cation.",
+      lookAt: "The CH₂ end of the double bond. Send the π electrons from there to the proton, and check where the + ends up.",
+    },
+  },
+};
+
 /** The authored distractor for an arrow, or null when no one anticipated it. */
 export function matchDistractor(step: MechanismStep, arrow: ElectronFlowArrow): TrainerDistractor | null {
-  if (step.id !== "sn2-demo-step") return null;
-  return SN2_DEMO_DISTRACTORS[arrowKey(arrow)] ?? null;
+  return DISTRACTORS_BY_STEP[step.id]?.[arrowKey(arrow)] ?? null;
 }

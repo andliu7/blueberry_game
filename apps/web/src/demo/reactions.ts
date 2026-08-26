@@ -211,13 +211,25 @@ const CARBONYL_ADDITION: MechanismStep = createStep({
 /* The Addition playlist's opening move: the pi bond is the nucleophile.*/
 /* ------------------------------------------------------------------ */
 
-const ethene = createSpecies({
-  id: "sp-ethene",
+/**
+ * PROPENE, not ethene, and the swap was forced by a real hand on the canvas.
+ * With ethene the two alkene carbons are chemically identical, but grading
+ * compares against the authored arrow set, so grabbing the C=C by its bottom
+ * handle built the mirror-image answer and was wobbled back as wrong: the
+ * owner's report, "dragging from the bottom doesn't work but the top does."
+ * Propene makes the two ends genuinely different: protonating the terminal
+ * CH2 gives the secondary cation (Markovnikov, correct), protonating the
+ * middle carbon gives the primary cation, which is now an authored
+ * distractor that teaches instead of a symmetry accident that frustrates.
+ */
+const propene = createSpecies({
+  id: "sp-propene",
   atoms: [
     createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
-    createAtom({ id: "c2", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
   ],
-  bonds: [createBond({ id: "b-cc", a: "c1", b: "c2", order: 2 })],
+  bonds: [createBond({ id: "b-cc", a: "c1", b: "c2", order: 2 }), createBond({ id: "b-c23", a: "c2", b: "c3" })],
 });
 
 const hydrogenBromide = createSpecies({
@@ -226,14 +238,19 @@ const hydrogenBromide = createSpecies({
   bonds: [createBond({ id: "b-hbr", a: "h1", b: "br1" })],
 });
 
-const ethylCation = createSpecies({
-  id: "sp-ethyl-cation",
+const isopropylCation = createSpecies({
+  id: "sp-isopropyl-cation",
   atoms: [
     createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
     createAtom({ id: "h1", element: "H" }),
-    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
   ],
-  bonds: [createBond({ id: "b-cc", a: "c1", b: "c2" }), createBond({ id: "b-ch", a: "c1", b: "h1" })],
+  bonds: [
+    createBond({ id: "b-cc", a: "c1", b: "c2" }),
+    createBond({ id: "b-ch", a: "c1", b: "h1" }),
+    createBond({ id: "b-c23", a: "c2", b: "c3" }),
+  ],
 });
 
 const bromide = createSpecies({
@@ -247,14 +264,14 @@ const ALKENE_PROTONATION: MechanismStep = createStep({
   from: createState({
     id: "ap-before",
     members: [
-      { species: ethene, role: "nucleophile" },
+      { species: propene, role: "nucleophile" },
       { species: hydrogenBromide, role: "substrate" },
     ],
   }),
   to: createState({
     id: "ap-after",
     members: [
-      { species: ethylCation, role: "product" },
+      { species: isopropylCation, role: "product" },
       { species: bromide, role: "leaving_group" },
     ],
   }),
@@ -345,22 +362,24 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   },
   {
     id: "alkene-protonation",
-    title: "Alkene + HBr",
-    brief: "The π bond grabs the proton. Draw both arrows.",
-    successLine: "The π electrons pull the proton in, and the H–Br bond's electrons leave with bromide.",
+    title: "Propene + HBr",
+    brief: "The π bond grabs the proton — but which carbon takes the H? Draw both arrows.",
+    successLine: "Markovnikov: the H lands on the CH₂ end, so the positive charge sits on the more substituted carbon, where it is most stable.",
     step: ALKENE_PROTONATION,
     fromHints: {
       // The double bond stands vertical on the left with the acid's proton
       // facing it, so the pi cloud and the H it grabs look at each other.
-      c1: { x: -1.3, y: 0.5 },
-      c2: { x: -1.3, y: -0.5 },
+      c1: { x: -1.3, y: 0.55 },
+      c2: { x: -1.3, y: -0.45 },
+      c3: { x: -2.25, y: -0.95 },
       h1: { x: 0.1, y: 0.15 },
       br1: { x: 1.1, y: 0.15 },
     },
     toHints: {
-      c1: { x: -1.15, y: 0.5 },
-      h1: { x: -0.3, y: 0.95 },
-      c2: { x: -1.15, y: -0.5 },
+      c1: { x: -1.15, y: 0.55 },
+      h1: { x: -0.35, y: 1.0 },
+      c2: { x: -1.15, y: -0.45 },
+      c3: { x: -2.1, y: -0.95 },
       br1: { x: 1.6, y: 0.15 },
     },
   },
