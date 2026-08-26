@@ -194,3 +194,56 @@ Blind copies for the critic, labels stripped: `blind-r8/candidate-{A,B}-{light,d
 electron and B is arrow. That mapping is recorded here and not in the folder the critic reads.
 
 **Verdict: pending.** The critic is running as this is written.
+
+### Round 8 verdict, and round 9's fixes
+
+**The critic picked B, the arrow.** Against the recommendation that produced the ruling. Its argument
+is worth recording in full because it is not a preference:
+
+> A copies the vocabulary and breaks the grammar: in x01 the amber-haloed sphere sits exactly on a
+> real atom, so the glow is a snap indication that says "this atom is the target." In A the amber
+> sphere sits at roughly the 48 percent point of the O to C span, on bare stick, marking nothing.
+
+And on direction: a headless dashed line has two ends and no heading, so a student reading it cold
+cannot tell whether the hydroxide is attacking the carbon or the carbon is donating to the oxygen.
+Direction is the entire chemical content of a curved arrow.
+
+The caveat the critic volunteered and which keeps this from settling the ruling: "the bar also earns
+its headless line through motion and through the fact that the glow anchors on an atom; a still frame
+of A has neither." So the still is decisive about AMBIGUITY, not about how the drag feels in a hand.
+The synthesis it points at, and which nobody has built yet, is that the glow belongs ON the resolved
+sink rather than under the fingertip.
+
+**Four defects the round found in BOTH candidates, so none of them depends on which primitive wins.
+Two teach wrong chemistry. All four fixed in round 9.**
+
+1. **The forming O-C bond was indistinguishable from the real C-Br bond**, which asserts the sigma
+   bond the student is being asked to make. Cause, and it is one line: `BondCapsule` dashed the rod
+   body for a forming bond but drew the white specular highlight over it SOLID at full length, so
+   the highlight filled every gap back in. Both now carry the same dasharray.
+2. **The stretched bond never declared itself forming.** `DrawCanvas` passed `opacity={0.5}` and no
+   `forming` prop, so the O-C stretch drew as a solid rod at half opacity. Opacity does not read as
+   provisional, it reads as further away.
+3. **The formal charge chip was invisible in DARK mode**, a near black disc on the near black canvas
+   ground, reading as a hole punched in the page. This is the same bug round 7 fixed in light mode
+   and it recurred inverted, for the same structural reason: the chip referenced `--card`, a surface
+   it is not drawn on, so it is wrong in whichever theme `--card` matches the ground. It has its own
+   token pair now, light chip and dark sign in both themes.
+4. **The lone pair rings and dots were under any contrast floor in LIGHT mode.** `--scene-faint` was
+   slate at 0.5 alpha on a warm off-white ground. The lone pair is the object a student must find and
+   grab before the gesture can start at all, so this was the primary affordance failing the Budgets
+   table's WCAG AA row. Raised to 0.82.
+
+**Still open, carried honestly rather than claimed.** The critic named these and round 9 did not
+touch them:
+
+- The two offered between-atom stubs are colinear with the O-C-Br axis, so they read as ONE dashed
+  line running through the carbon and onto the C-Br bond, which is the bond that breaks. A student
+  could read a second electron path toward bromine. The fix is a design change to how an offered
+  site is drawn, not a parameter, so it waits for the owner.
+- The arrowhead lands short of the drop ring and is rotated off the curve's local tangent.
+- The white casing overshoots the head, leaving a light nub past the tip.
+- The tail doubles back into a hook with a detached blob beside it at the oxygen, so which of the
+  three lone pairs was picked up is unreadable.
+
+Captures: `gauntlet-shots/trainer-r9-arrow-{light,dark}-{mid,committed}.png`.

@@ -1,0 +1,22 @@
+{
+  "tag": "r9",
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "deviceScaleFactor": 2
+  },
+  "results": [
+    {
+      "theme": "light",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r9-arrow-light-committed.png",
+      "midFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r9-arrow-light-mid.png",
+      "arrows": 2
+    },
+    {
+      "theme": "dark",
+      "file": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r9-arrow-dark-committed.png",
+      "midFile": "C:\\Users\\zeusa\\Downloads\\Projects\\blueberry_game\\apps\\web\\measurements\\gauntlet-shots\\trainer-r9-arrow-dark-mid.png",
+      "arrows": 2
+    }
+  ]
+}

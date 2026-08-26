@@ -174,6 +174,13 @@ export function BondCapsule({
               strokeLinecap="round"
               strokeDasharray={forming ? "9 7" : undefined}
             />
+            {/* The highlight breaks WITH the rod. It did not, and that single
+                omission is why a forming bond read as a finished one: the body
+                carried "9 7" but this line ran the full length unbroken, so the
+                white filled every gap and the segmentation vanished under it. A
+                blind critic called the forming O-C stick indistinguishable from
+                the real C-Br stick, which is an assertion that the sigma bond
+                the student is being asked to make already exists. */}
             <line
               x1={start.x - 1.2}
               y1={start.y - 1.6}
@@ -183,6 +190,7 @@ export function BondCapsule({
               strokeOpacity={0.42}
               strokeWidth={width * 0.34}
               strokeLinecap="round"
+              strokeDasharray={forming ? "9 7" : undefined}
             />
             {/* Ball joints, sitting ON each silhouette. In the capture these
                 are what make a bond read as a rod socketed into a ball rather
@@ -254,13 +262,17 @@ export function ChargeBadge({ at, charge, opacity = 1 }: { at: Point2; charge: n
     // disc with a hairline ring and no highlight and no shadow: the only flat
     // filled circle on a canvas where every physical object is modelled.
     <g opacity={opacity}>
-      <circle cx={at.x} cy={at.y} r={10} fill="var(--card)" stroke="var(--bond-stroke)" strokeWidth={1.6} />
-      {/* --foreground, never a literal. #ffffff here made the sign INVISIBLE in
-          light mode: the disc is --card, which is near white, so hydroxide read
-          as neutral and the whole step lost its charge. Formal charge is
-          chemistry, and the light and dark captures side by side are what
-          showed it, because dark mode alone looked correct. */}
-      <text x={at.x} y={at.y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700} fill="var(--foreground)">
+      <circle cx={at.x} cy={at.y} r={10} fill="var(--charge-chip)" stroke="var(--charge-ring)" strokeWidth={1.6} />
+      {/* The chip gets its OWN token pair, and the reason is the second half of
+          a bug this comment used to only tell half of. #ffffff on --card made
+          the sign invisible in LIGHT mode; --card on the scene ground then made
+          the whole chip invisible in DARK mode, because --card is near black
+          there and so is the canvas behind it, so a blind critic read the
+          charge as a hole punched in the page. A chip that references a surface
+          it is not drawn on will always be wrong in one theme. --charge-chip is
+          light in both themes and --charge-ink is dark in both, so the pair is
+          legible against any ground the canvas ever takes. */}
+      <text x={at.x} y={at.y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={700} fill="var(--charge-ink)">
         {magnitude > 1 ? `${magnitude}${sign}` : sign}
       </text>
     </g>

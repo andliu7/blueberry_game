@@ -53,7 +53,12 @@
   /* Mechanism canvas strokes. Slate-600-ish clears the 3:1 graphics contrast
      floor on the cream ground; the faint variant is for the hydrogen arc. */
   --bond-stroke: #64748b;
-  --scene-faint: rgba(71, 85, 105, 0.5);
+  /* The lone pair ring and dots. Raised from 0.5 alpha slate, which a blind
+     critic measured as under any reasonable contrast floor on the warm off
+     white ground: pale grey dots in a pale ring, and the lone pair is the one
+     object a student has to find and grab before the gesture can begin at all.
+     The Budgets table's WCAG AA row covers it. */
+  --scene-faint: rgba(51, 65, 85, 0.82);
   /* The canvas GROUND, distinct from --card. Atoms are modelled objects and a
      modelled object needs a surface to sit on: the reference canvas is a lit
      gradient, and against a flat ground the darkest atom (carbon) loses its
@@ -70,6 +75,13 @@
      warm thing on it. */
   --electron-glow: #f5b93d;
   --electron-core: #fffdf6;
+  /* The formal charge chip. Its own pair, because a chip that borrows a surface
+     it is not drawn on is wrong in one theme by construction: --card is near
+     white here and near black in dark, and the canvas ground is the opposite
+     both times. Light chip, dark sign, both themes. */
+  --charge-chip: #ffffff;
+  --charge-ink: #1a1817;
+  --charge-ring: #57534e;
   /* The gap docs/DESIGN-TOKENS.md names: success and the two non-binary
      outcomes need tokens of their own, and none of them is red. --good is
      emerald-700 (4.6:1 on white, 4.4:1 on cream for large text only, so body
@@ -111,6 +123,11 @@
      #fffdf6 core against #1a1817 needs no help, while the halo does. */
   --electron-glow: #ffc756;
   --electron-core: #ffffff;
+  /* Still a LIGHT chip with a DARK sign. Inverting it here is what produced the
+     bug: a near black disc on the near black canvas ground read as a hole. */
+  --charge-chip: #e7e5e1;
+  --charge-ink: #1a1817;
+  --charge-ring: #8a837b;
   --good: #34d399;
   --good-ink: #6ee7b7;
   --good-soft: rgba(52, 211, 153, 0.16);

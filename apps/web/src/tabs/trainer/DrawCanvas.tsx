@@ -727,6 +727,12 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, draft, g
               rA={stretch.rFrom}
               rB={stretch.toRadius}
               opacity={stretch.existing ? 0.9 : 0.5}
+              // A stretch toward a bond that does not exist yet is a FORMING
+              // bond and has to say so. It did not pass this, so the O-C stretch
+              // drew as a solid rod at half opacity: same shading, same joints,
+              // same silhouette as the real C-Br bond beside it. Opacity alone
+              // does not read as provisional, it reads as further away.
+              forming={!stretch.existing}
             />
           ) : null}
           {inFlight.sink?.stub && stretch === null ? <BondCapsule a={inFlight.sink.stub.a} b={inFlight.sink.stub.b} rA={0} rB={0} opacity={0.6} forming /> : null}
