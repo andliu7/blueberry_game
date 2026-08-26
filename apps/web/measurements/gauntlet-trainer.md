@@ -379,3 +379,44 @@ Measured: suite 30 of 30, integrity unmodified, web tests 33 of 33, typecheck cl
 117.1 KB of 400. Captures `parity-p2-*` with per-shot self checks (orbit movement, zero drift).
 
 **Verdicts: pending, two critics on the video frames.**
+
+### Parity round 2 verdicts: THE REFERENCE WON BOTH PIECES. Round 3 answers.
+
+The first rounds this loop has lost since the bar became real, and the verdicts earned it.
+
+**Orbit piece, reference.** The swing's facts held: O fixed, bond attached at both ends, radius
+constant within four percent, "a viewer who flips the frames does infer an atom circling its
+neighbour at fixed radius". What lost it: the held frame carried nothing kinetic, no halo, no path,
+no pointer state, so three shots read as three static re-renders; the bond rod was darker than both
+atoms it joined, inverting the bar's figure-ground where rods are the light, actable layer; the
+charge chip read as a notification bubble; and the H glyphs sat 45 degrees apart in one bottom
+wedge, "completely decoupled from the open valences", where the bar projects them onto the halo in
+the directions real bonds do not occupy.
+
+**Reactions piece, reference, both families.** Ammonia's hydrogens were floating letters beside
+HCl's sphere-on-a-stick, one element in two languages in one scene; the C=O drew as "a ladder with
+rungs, a notation no chemistry uses"; the nitrogen's staged geometry contradicted the reaction it
+was set for; the attack vector aimed nearer the carbonyl oxygen than the carbon.
+
+**Round 3, all of it addressed except one thing.**
+
+- The orbit renders its held state: a dashed circle for the path that exists only while the pointer
+  holds it, a halo on the swung atom.
+- Ammonia's three hydrogens are explicit spheres fanned away from the acid, lone pair side facing
+  the proton. One hydrogen language per scene.
+- Ball joints are single-bond only, so a double bond is two clean parallel sticks.
+- Bonds are lighter than the atoms they join, joints lighter still: the grab handles read as the
+  bar's do. The charge chip is the bar's filled dark disc in light mode; dark keeps round 9's
+  light chip, because that lesson was paid for.
+- Implicit hydrogens distribute around their atom in the gaps between bonds, forming bonds
+  included, each glyph on its own short tick. This replaces both the single arc and the
+  reaction-centre quarter-turn special case with one rule read from live geometry.
+- The hydroxide approaches the carbonyl from below-left, aimed at the carbon.
+
+**The one thing left on the table, deliberately.** The reactions critic called invisible resting
+lone pairs "the single biggest gap: it changes whether the canvas can teach the reaction at all",
+and the bar's own acid-base clip shows lone pair dots on the actors as the arrow launches. That
+finding collides with the owner ruling of 2026-08-25, made watching the same product: lone pairs
+hidden until the atom is tapped. Possibilities that honour both: the bar may pre-reveal pairs on
+the PROBLEM'S actor atoms only, or reveal them when the clip's demonstrator taps. Owner decision;
+both positions are now on the record.
