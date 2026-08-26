@@ -161,6 +161,23 @@ export function buildTargets(
     for (const other of scene.atoms) {
       if (other.id === armedAtom) continue;
       if (bondIdFor(step, armedAtom, other.id) !== null) continue;
+      // A bond cannot form THROUGH another atom, and offering one that would is
+      // how the worst reported bug in this canvas happened.
+      //
+      // Hydroxide attacking bromomethane lays out linearly, O-C-Br. The site
+      // offered for the pair (O, Br) is centred on the midpoint of O and Br,
+      // which in a linear layout is sitting exactly on the CARBON. So dragging
+      // the oxygen's electrons toward the carbon put the pointer inside the
+      // O-Br site, that site won the hit test, and the arrow snapped to bromine
+      // before the carbon was ever reached. The owner hit this in the first
+      // minute of using it: "as I drag it to the right before I even get to the
+      // carbon it jumps straight to the bromine, which shouldn't even be
+      // allowed."
+      //
+      // It is also the stray dashed line a blind critic read as a second
+      // electron path toward bromine. One stub drawn O to Br, straight through
+      // the carbon, not two colinear ones as first diagnosed.
+      if (occludedByAnotherAtom(scene, armedAtom, other.id)) continue;
       const centre = mix(origin, toPx(other.from.pos), 0.5);
       targets.push({ target: { kind: "betweenAtomsSite", atomIds: [armedAtom, other.id] }, centre, radius: 14 });
     }
@@ -325,6 +342,37 @@ export function sceneCentroid(scene: StepScene): Point2 {
   }
   const n = scene.atoms.length || 1;
   return { x: x / n, y: y / n };
+}
+
+/**
+ * Does the straight line between two atoms pass through a third?
+ *
+ * Pure geometry, deliberately: "is this pair separated by something" is a
+ * question about the drawn scene, and answering it from bond topology instead
+ * would miss the case the layout creates and invent cases it does not. An atom
+ * counts as in the way when its centre is closer to the segment than its own
+ * drawn radius, and when the nearest point on that segment is strictly between
+ * the two endpoints rather than off either end.
+ */
+function occludedByAnotherAtom(scene: StepScene, from: AtomId, to: AtomId): boolean {
+  const a = atomCentre(scene, from);
+  const b = atomCentre(scene, to);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) return false;
+
+  return scene.atoms.some((atom) => {
+    if (atom.id === from || atom.id === to) return false;
+    const c = atomCentre(scene, atom.id);
+    // Where c projects onto the segment, as a fraction of its length.
+    const t = ((c.x - a.x) * dx + (c.y - a.y) * dy) / lengthSquared;
+    // Off either end is not in the way, it is merely nearby. The margin keeps a
+    // near-endpoint atom from counting against a pair it is really part of.
+    if (t <= 0.05 || t >= 0.95) return false;
+    const nearest = { x: a.x + dx * t, y: a.y + dy * t };
+    return distance(c, nearest) < atomRadius(atom.element);
+  });
 }
 
 /**
