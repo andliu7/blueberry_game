@@ -54,6 +54,8 @@ import "./pathway.css";
 
 export type NodeState = "done" | "current" | "open" | "review" | "locked";
 
+import { PATHWAY_UNITS, type PlayableLink as MapPlayableLink } from "../../demo/pathwayMap";
+
 export interface PathwayNode {
   readonly topic: TopicId;
   readonly label: string;
@@ -326,6 +328,112 @@ function CoursePicker() {
   );
 }
 
+/** The trainer deep link for one map node's playable entry. */
+function hrefForPlayable(link: MapPlayableLink): string {
+  const param = link.kind === "reaction" ? "reaction" : link.kind === "sequence" ? "sequence" : "hunt";
+  return `?${param}=${encodeURIComponent(link.id)}#/trainer`;
+}
+
+/**
+ * The Duolingo-shaped track, restructured onto the Orgo Pathway Map. Owner
+ * direction 2026-08-26: the map's own inventory IS the game's track. Spine
+ * nodes ride the winding slab track and open the trainer when playable;
+ * branch nodes hang off each unit as side quests; gates render as the
+ * checkpoint strip their PDF row describes; the boss closes the run. The
+ * slab visual system is the one that won its blind gauntlet; only the data
+ * source changed.
+ */
+function OrgoMapTrack() {
+  let running = 0;
+  return (
+    <div className="flex flex-col gap-2" role="region" aria-label="Orgo II pathway map">
+      {PATHWAY_UNITS.map((unit) => {
+        const spineNodes = unit.nodes.filter((node) => node.kind === "spine" || node.kind === "boss");
+        const gates = unit.nodes.filter((node) => node.kind === "gate");
+        const branches = unit.nodes.filter((node) => node.kind === "branch");
+        const first = running;
+        running += spineNodes.length;
+        return (
+          <section key={unit.id} className="flex flex-col gap-3" aria-label={unit.title}>
+            <header className="path-banner flex items-stretch overflow-hidden" style={{ "--banner": "var(--primary)" } as CSSProperties}>
+              <div className="flex-1 px-4 py-3">
+                <p className="text-scale-xs font-bold uppercase tracking-wide text-white/80">{unit.note}</p>
+                <h3 className="text-scale-base font-semibold text-white">{unit.title}</h3>
+              </div>
+            </header>
+
+            {gates.length > 0 ? (
+              <div className="mx-auto flex w-full max-w-md flex-wrap gap-1.5" aria-label="Checkpoint">
+                {gates.map((node) => (
+                  <span key={node.id} className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-scale-xs font-semibold text-primary" title={node.blurb}>
+                    ★ {node.title}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
+              {spineNodes.map((node, i) => {
+                const index = first + i;
+                const playable = node.playable !== undefined;
+                const wind = trackWind(index);
+                const labelLeft = wind > 0;
+                const state = node.kind === "boss" ? (playable ? "current" : "locked") : playable ? "open" : "locked";
+                const slab = (
+                  <>
+                    <span className="path-node__edge" aria-hidden />
+                    <span className="path-node__face">
+                      <NodeGlyph state={playable ? "open" : "locked"} index={index} />
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={node.id} className="path-row relative w-full" style={{ "--wind": wind } as CSSProperties}>
+                    <div className="path-row__slab relative">
+                      {playable && node.playable !== undefined ? (
+                        <a href={hrefForPlayable(node.playable)} aria-label={`${node.title}. Playable now.`} className={`path-node path-node--${state} path-node--press`}>
+                          {slab}
+                        </a>
+                      ) : (
+                        <span className={`path-node path-node--${state}`} role="img" aria-label={`${node.title}. Authoring queued.`}>
+                          {slab}
+                        </span>
+                      )}
+                    </div>
+                    <div className={`path-row__label flex min-w-0 flex-col ${labelLeft ? "path-row__label--left items-end text-right" : ""}`} aria-hidden>
+                      <span className={`text-scale-sm font-semibold leading-tight ${playable ? "text-foreground" : "text-muted-foreground"}`}>{node.title}</span>
+                      <span className="text-scale-xs text-muted-foreground">{playable ? node.blurb : "authoring queued"}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {branches.length > 0 ? (
+              <div className="mx-auto w-full max-w-md">
+                <p className="mb-1 text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">Side quests</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {branches.map((node) =>
+                    node.playable !== undefined ? (
+                      <a key={node.id} href={hrefForPlayable(node.playable)} className="press rounded-full border border-not-requested/40 bg-not-requested-soft px-3 py-1.5 text-scale-xs font-semibold text-not-requested" title={node.blurb}>
+                        {node.title}
+                      </a>
+                    ) : (
+                      <span key={node.id} className="rounded-full border border-border bg-card px-3 py-1.5 text-scale-xs text-muted-foreground opacity-60" title={`${node.blurb} (authoring queued)`}>
+                        {node.title}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: boolean }) {
   const snapshot = useProgress();
   const course = snapshot.course;
@@ -351,6 +459,9 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
         <Berry mood={doneCount === nodes.length && nodes.length > 0 ? "proud" : "curious"} reducedMotion={reducedMotion} sizePx={56} />
       </header>
 
+      {course === "orgo_2" ? (
+        <OrgoMapTrack />
+      ) : (
       <div className="flex flex-col gap-2" role="region" aria-label="Pathway">
         {units.map((unit) => {
           const first = running;
@@ -367,6 +478,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
           );
         })}
       </div>
+      )}
 
       <Card className="flex flex-col gap-2">
         <div className="flex items-center justify-between">

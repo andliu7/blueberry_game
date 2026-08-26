@@ -62,6 +62,8 @@ import { saveMistake } from "./mistakes";
 import { TrainerTools } from "./TrainerTools";
 import { RESONANCE_HUNT } from "../../demo/resonance";
 import { TRAINER_SEQUENCES } from "../../demo/sequences";
+import { ProblemBrowser } from "./ProblemBrowser";
+import type { PlayableLink } from "../../demo/pathwayMap";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
@@ -156,8 +158,10 @@ const SHOW_STATS = params.get("stats") === "1";
  * Behind a flag, so a student's run never publishes it.
  */
 const EXPOSE_TARGETS = params.get("targets") === "1";
-/** Deep link into a registry entry, for captures and for sharing. */
+/** Deep links, for captures, sharing, and the pathway map's nodes. */
 const START_REACTION = params.get("reaction");
+const START_SEQUENCE = params.get("sequence");
+const START_HUNT = params.get("hunt");
 
 declare global {
   interface Window {
@@ -211,11 +215,12 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   // The tutorial is authored against the SN2 step and stays pinned to it;
   // everywhere else the student picks from the registry, the sequences or
   // the resonance hunt.
-  const [selection, setSelection] = useState<Selection>(
-    START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION)
-      ? { kind: "reaction", id: START_REACTION }
-      : { kind: "reaction", id: FIRST_REACTION.id },
-  );
+  const [selection, setSelection] = useState<Selection>(() => {
+    if (START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION)) return { kind: "reaction", id: START_REACTION };
+    if (START_SEQUENCE !== null && TRAINER_SEQUENCES.some((entry) => entry.id === START_SEQUENCE)) return { kind: "sequence", id: START_SEQUENCE, stepIndex: 0 };
+    if (START_HUNT !== null && RESONANCE_HUNT.some((entry) => entry.id === START_HUNT)) return { kind: "resonance", id: START_HUNT };
+    return { kind: "reaction", id: FIRST_REACTION.id };
+  });
   const playable = resolveSelection(tutorial ? { kind: "reaction", id: FIRST_REACTION.id } : selection);
   const step = playable.step;
   const scene = SCENES.get(step.id);
@@ -449,19 +454,14 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
           <h2 className="title-face text-scale-xl font-semibold">{playable.title}</h2>
           <p className="text-scale-sm text-muted-foreground">{playable.brief}</p>
           {!tutorial ? (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Problem">
-              {TRAINER_REACTIONS.map((entry) => (
-                <PickerChip key={entry.id} label={entry.title} active={selection.kind === "reaction" && selection.id === entry.id} onPick={() => pickSelection({ kind: "reaction", id: entry.id })} />
-              ))}
-              <span className="mx-1 text-scale-xs text-muted-foreground">·</span>
-              {TRAINER_SEQUENCES.map((entry) => (
-                <PickerChip key={entry.id} label={entry.title} active={selection.kind === "sequence" && selection.id === entry.id} onPick={() => pickSelection({ kind: "sequence", id: entry.id, stepIndex: 0 })} />
-              ))}
-              <span className="mx-1 text-scale-xs text-muted-foreground">·</span>
-              {RESONANCE_HUNT.map((entry) => (
-                <PickerChip key={entry.id} label={`✦ ${entry.title}`} active={selection.kind === "resonance" && selection.id === entry.id} onPick={() => pickSelection({ kind: "resonance", id: entry.id })} />
-              ))}
-            </div>
+            <ProblemBrowser
+              currentTitle={playable.title}
+              onPick={(link: PlayableLink) => {
+                if (link.kind === "reaction") pickSelection({ kind: "reaction", id: link.id });
+                else if (link.kind === "sequence") pickSelection({ kind: "sequence", id: link.id, stepIndex: 0 });
+                else pickSelection({ kind: "resonance", id: link.id });
+              }}
+            />
           ) : null}
           {playable.sequencePosition !== null ? (
             <p className="mt-1 text-scale-xs font-semibold text-primary">
@@ -581,23 +581,6 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         )}
       </section>
     </div>
-  );
-}
-
-function PickerChip({ label, active, onPick }: { readonly label: string; readonly active: boolean; readonly onPick: () => void }) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      className={
-        "press min-h-9 rounded-full border px-3 text-scale-xs font-semibold " +
-        (active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground")
-      }
-      onPointerDown={onPick}
-    >
-      {label}
-    </button>
   );
 }
 

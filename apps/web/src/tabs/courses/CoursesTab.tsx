@@ -52,8 +52,18 @@ function isCourseId(value: string): value is CourseId {
   return (ALL_COURSE_IDS as readonly string[]).includes(value);
 }
 
+/**
+ * Question kinds a lesson serves TODAY. Owner ruling, 2026-08-26: no fill-in
+ * the-blank or multiple choice for now; reactions and concept work only, at
+ * the easy level, with the longer stoichiometry problems returning when the
+ * full Alchemie-style stoichiometry features exist (the unit-cancellation
+ * keyboard and equation surfaces in the video corpus). The authored MCQ and
+ * numeric corpus stays; it is gated, not deleted.
+ */
+const SERVED_KINDS = new Set(["major_product", "reagents", "structure"]);
+
 export function problemsForTopic(topic: TopicId): readonly Problem[] {
-  return SEED_CORPUS.filter((problem) => problem.topic === topic);
+  return SEED_CORPUS.filter((problem) => problem.topic === topic && SERVED_KINDS.has(problem.answer.kind));
 }
 
 function CourseList() {

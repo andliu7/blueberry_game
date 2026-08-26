@@ -17,6 +17,9 @@ import { buildStepScene } from "../src/render/layout/stepScene";
 import { gradeDrawing } from "../src/tabs/trainer/grade";
 import { orbitPoint, resettleOpenAngles, terminalNeighbor } from "../src/tabs/trainer/hitLayout";
 import { TRAINER_REACTIONS } from "../src/demo/reactions";
+import { TRAINER_SEQUENCES } from "../src/demo/sequences";
+import { RESONANCE_HUNT } from "../src/demo/resonance";
+import { PATHWAY_UNITS, coverage } from "../src/demo/pathwayMap";
 
 describe("the reaction registry", () => {
   it("holds at least three reactions, per the owner's more-examples requirement", () => {
@@ -116,5 +119,29 @@ describe("the orbit drag geometry", () => {
     if (settledO === undefined) throw new Error("no settled o1");
     // Away from a bond pointing +y is an angle pointing -y.
     expect(Math.sin(settledO.from.openAngle)).toBeLessThan(-0.9);
+  });
+});
+
+describe("the pathway map is a truthful ledger", () => {
+  it("every playable link resolves to a real trainer entry", () => {
+    for (const unit of PATHWAY_UNITS) {
+      for (const node of unit.nodes) {
+        if (node.playable === undefined) continue;
+        const { kind, id } = node.playable;
+        const found =
+          kind === "reaction"
+            ? TRAINER_REACTIONS.some((entry) => entry.id === id)
+            : kind === "sequence"
+              ? TRAINER_SEQUENCES.some((entry) => entry.id === id)
+              : RESONANCE_HUNT.some((entry) => entry.id === id);
+        expect(found, `${node.id} links ${kind}:${id}`).toBe(true);
+      }
+    }
+  });
+
+  it("carries the full inventory: 192 nodes, 86 of them spine", () => {
+    const score = coverage();
+    expect(score.total).toBe(192);
+    expect(score.spineTotal).toBe(86);
   });
 });
