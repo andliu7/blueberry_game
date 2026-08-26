@@ -420,3 +420,42 @@ finding collides with the owner ruling of 2026-08-25, made watching the same pro
 hidden until the atom is tapped. Possibilities that honour both: the bar may pre-reveal pairs on
 the PROBLEM'S actor atoms only, or reveal them when the clip's demonstrator taps. Owner decision;
 both positions are now on the record.
+
+### Parity rounds 3 and 4 verdicts: BOTH PIECES WON BLIND. The video-bar loop closes.
+
+**Round 3, the orbit piece: OURS.** The first candidate win against the bar's own footage, and on
+the manipulation axis itself: "freeze any frame and the drag disappears" in the reference, while
+ours draws grabbed, constrained and attached into the frame (the dashed locus circle, the halo on
+the held atom, the bond at full weight while displaced). Its caveat, the charge chip re-anchoring
+during the swing, was fixed in round 4: charges are bookkeeping and stay authored; only geometry
+re-settles.
+
+**Round 4, the reactions piece: OURS, both families.** The stipulations mattered and were honest
+ones: judged as stage-setting with the tutorial arrows discounted, the reference's acid-base frame
+is two chemically identical waters, symmetric and unreadable, where ours stages an unambiguous
+donor-acceptor pair with the one acidic proton ringed. On the carbonyl, the nucleophile is marked
+by its charge and the electrophilic carbon by the breathing ring: "nucleophile marked, target
+marked, story readable."
+
+**Carried out of the verdicts and fixed immediately:** ammonia's projection moved from 90 degree
+spacing ("square-ish") to 115/180/245, a real pyramidal projection, closing the round 3 versus
+round 4 pincer (65 too cramped, 90 too square); and the charge chip anchors half-over the sphere's
+silhouette, because a detached dark disc beside a red oxygen was read as possibly a fourth atom.
+
+**Carried open, named, not fixed, for the next round or an owner call:**
+
+- Nothing marks the NUCLEOPHILE as "from where" (the ring only says "here"). A polarity or charge
+  cue on the attacking atom is the natural fix; on ammonia there is no charge to show, so this may
+  want the lone-pair-on-actor question resolved first (the standing owner tension).
+- The purple ring is semantically unanchored: reaction centre, selected, and hint are one glyph. A
+  first-use legend or the tutorial naming it once would close this.
+- The ring on the carbonyl carbon clips the C-H bonds and grazes the carbonyl O, smearing "the
+  carbon is the centre" toward "this region is the centre", exactly the C-attack versus O-attack
+  distinction that matters. Ring radius or a gap-aware ring.
+- No delta plus / delta minus polarization cues anywhere.
+- Bond tubes and H spheres flirt with contrast failure on the off-white ground (WCAG row).
+- Composition: dead space, and the carbonyl approach line runs long through empty canvas.
+- At mobile size the seated C=O may still scan as one thick bond.
+
+Suite 30 of 30, web 36 of 36, payload within budget at every commit of the run. Captures
+`parity-p5-*`.

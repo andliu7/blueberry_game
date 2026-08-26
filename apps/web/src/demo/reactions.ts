@@ -296,18 +296,23 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       // faces the acid. Round 3 measured the old fan at adjacent angles
       // nearer 65 degrees, "a picture of ammonia a student will remember
       // incorrectly", with one bond visibly longer than the others.
+      // 115, 180 and 245 degrees: a real pyramidal projection. Round 3
+      // measured 65 degree spacing as cramped, round 4 read 90 degrees as
+      // "square-ish geometry"; 65 degrees BETWEEN bonds with the whole fan
+      // still clear of the acid's half-plane is the projection a textbook
+      // draws.
       n1: { x: -1.45, y: 0 },
-      h2: { x: -1.45, y: 1.0 },
+      h2: { x: -1.87, y: 0.91 },
       h3: { x: -2.45, y: 0 },
-      h4: { x: -1.45, y: -1.0 },
+      h4: { x: -1.87, y: -0.91 },
       h1: { x: -0.25, y: 0 },
       cl1: { x: 0.75, y: 0 },
     },
     toHints: {
       n1: { x: -1.25, y: 0 },
-      h2: { x: -1.25, y: 1.0 },
+      h2: { x: -1.67, y: 0.91 },
       h3: { x: -2.25, y: 0 },
-      h4: { x: -1.25, y: -1.0 },
+      h4: { x: -1.67, y: -0.91 },
       h1: { x: -0.25, y: 0 },
       cl1: { x: 1.8, y: 0 },
     },

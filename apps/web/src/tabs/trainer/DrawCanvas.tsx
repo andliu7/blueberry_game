@@ -792,7 +792,13 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
               const r = atomRadius(atom.element);
               // The armed lone pair slot already fills solid; a ring around the
               // whole atom would read as a drop site, which it is not.
-              const badgeAt = { x: c.x + (r + 6) * Math.cos(-atom.from.badgeAngle), y: c.y + (r + 6) * Math.sin(-atom.from.badgeAngle) };
+              // ON the rim, overlapping the sphere by nearly half the chip:
+              // at r+6 the chip floated detached, and the round 4 critic read
+              // a dark disc beside a red oxygen as possibly a fourth atom,
+              // because in this language dark spheres are carbon. Anchoring
+              // it half-over the silhouette makes it unmistakably a label on
+              // the atom rather than a body near it.
+              const badgeAt = { x: c.x + (r + 1) * Math.cos(-atom.from.badgeAngle), y: c.y + (r + 1) * Math.sin(-atom.from.badgeAngle) };
               return (
                 <g key={atom.id} className={wobbling.has(atom.id) ? "wobble" : undefined} style={{ cursor: "grab" }}>
                   <AtomSphere centre={c} r={r} element={atom.element} />
