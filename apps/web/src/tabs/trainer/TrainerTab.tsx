@@ -54,10 +54,12 @@ import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
 import { applySpeciesOffsets,
   applyAtomOrbits,
   resettleOpenAngles, buildTargets, createHitTester, type DrawTarget, type SpeciesOffsets } from "./hitLayout";
-import { gradeDrawing, type DrawVerdict } from "./grade";
+import { arrowKey, gradeDrawing, type DrawVerdict } from "./grade";
 import type { ElectronFlowArrow } from "@blueberry/chem-core";
 import { matchDistractor, type TrainerDistractor } from "./distractors";
 import { playWrongSound } from "./feedbackSound";
+import { saveMistake } from "./mistakes";
+import { TrainerTools } from "./TrainerTools";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
@@ -282,6 +284,10 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       return;
     }
     if (result.kind === "invalid") {
+      const offending = mechanism.arrows[mechanism.arrows.length - 1];
+      if (offending !== undefined) {
+        saveMistake({ reactionId: reaction.id, arrowKey: arrowKey(offending), verdict: "invalid", causeId: result.cause, distractorMatched: false, at: new Date().toISOString() });
+      }
       setDistractor(null);
       playWrongSound();
       if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
@@ -298,7 +304,11 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       // an instructor anticipated it (Tier 2), wobble the atom the electrons
       // were wrongly sent to, then take the one wrong arrow back.
       const last = mechanism.arrows[mechanism.arrows.length - 1];
-      setDistractor(last !== undefined ? matchDistractor(step, last) : null);
+      const matched = last !== undefined ? matchDistractor(step, last) : null;
+      if (last !== undefined) {
+        saveMistake({ reactionId: reaction.id, arrowKey: arrowKey(last), verdict: "not_requested", causeId: null, distractorMatched: matched !== null, at: new Date().toISOString() });
+      }
+      setDistractor(matched);
       playWrongSound();
       if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
       bump("squash");
@@ -318,7 +328,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     setDistractor(null);
     bump("leanIn");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mechanism.arrows, step, play, reducedMotion, store]);
+  }, [mechanism.arrows, step, reaction.id, play, reducedMotion, store]);
 
   const pickReaction = (id: string) => {
     if (id === reaction.id) return;
@@ -430,6 +440,21 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
             {renderer === "2d" ? "3D" : "2D"}
           </button>
         ) : null}
+
+        {/* The card in the MIDDLE, owner spec 2026-08-26: feedback floats
+            centred over the canvas rather than below it, so the eye never
+            leaves the molecule it is reading about. The wrapper swallows no
+            events; only the card itself does, so the student can keep
+            working around it. */}
+        {verdict !== null ? (
+          <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-4 sm:items-center">
+            <div className="pointer-events-auto w-full max-w-md">
+              <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} footer={mode === "draw" ? { drawn: mechanism.arrows.length, needed: step.arrows.length, onStartOver: reset } : null} />
+            </div>
+          </div>
+        ) : null}
+
+        <TrainerTools step={step} scene={scene} progress={mode === "play" ? progress : 0} reducedMotion={reducedMotion} />
       </section>
 
       {notice !== null && isContestedNotice(notice) ? (
@@ -437,8 +462,6 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
           Two things were close under that tap. The nearer one was taken; tap again to change it.
         </p>
       ) : null}
-
-      {verdict !== null ? <VerdictCard verdict={verdict} distractor={distractor} successLine={reaction.successLine} /> : null}
 
       <section className="flex flex-wrap items-center gap-3">
         {mode === "draw" ? (
@@ -559,7 +582,27 @@ function Detail({ label, text }: { readonly label: string; readonly text: string
   );
 }
 
-function VerdictCard({ verdict, distractor = null, successLine }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string }) {
+interface CardFooter {
+  readonly drawn: number;
+  readonly needed: number;
+  readonly onStartOver: () => void;
+}
+
+function CardFooterRow({ footer }: { readonly footer: CardFooter | null }) {
+  if (footer === null) return null;
+  return (
+    <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-2">
+      <span className="text-scale-xs text-muted-foreground">
+        {footer.drawn} of {footer.needed} arrows drawn
+      </span>
+      <button type="button" className="press min-h-9 rounded-full px-3 text-scale-xs font-semibold text-muted-foreground hover:text-foreground" onPointerDown={footer.onStartOver}>
+        Start over
+      </button>
+    </div>
+  );
+}
+
+function VerdictCard({ verdict, distractor = null, successLine, footer = null }: { readonly verdict: DrawVerdict; readonly distractor?: TrainerDistractor | null; readonly successLine: string; readonly footer?: CardFooter | null }) {
   const line = plainLine(verdict, successLine);
 
   switch (verdict.kind) {
@@ -576,6 +619,7 @@ function VerdictCard({ verdict, distractor = null, successLine }: { readonly ver
             <Detail label="Why" text={copy.why} />
             <Detail label="Look at" text={copy.lookAt} />
           </ShowMore>
+          <CardFooterRow footer={footer} />
         </section>
       );
     }
@@ -589,6 +633,7 @@ function VerdictCard({ verdict, distractor = null, successLine }: { readonly ver
             <Detail label="Why" text={copy.why} />
             <Detail label="Look at" text={copy.lookAt} />
           </ShowMore>
+          <CardFooterRow footer={footer} />
         </section>
       );
     }
@@ -610,6 +655,7 @@ function VerdictCard({ verdict, distractor = null, successLine }: { readonly ver
             <ShowMore>
               <Detail label="Look at" text={distractor.lookAt} />
             </ShowMore>
+            <CardFooterRow footer={footer} />
           </section>
         );
       }
@@ -637,6 +683,7 @@ function VerdictCard({ verdict, distractor = null, successLine }: { readonly ver
               text="The C–Br bond. Grab its handle on the bromine side and send those electrons onto bromine, which leaves as bromide."
             />
           </ShowMore>
+          <CardFooterRow footer={footer} />
         </section>
       );
     case "incomplete":
@@ -647,6 +694,7 @@ function VerdictCard({ verdict, distractor = null, successLine }: { readonly ver
             <Detail label="Why" text="Every arrow you have drawn holds up on its own. The step is not finished until the electrons that were holding the leaving group have somewhere to go." />
             <Detail label="Look at" text="Which bond has to break for this product to exist, and which atom keeps those electrons." />
           </ShowMore>
+          <CardFooterRow footer={footer} />
         </section>
       );
     default: {

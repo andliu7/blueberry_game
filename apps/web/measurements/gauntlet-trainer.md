@@ -459,3 +459,39 @@ silhouette, because a detached dark disc beside a red oxygen was read as possibl
 
 Suite 30 of 30, web 36 of 36, payload within budget at every commit of the run. Captures
 `parity-p5-*`.
+
+## 2026-08-26, the playable-game loop: wave 1 and 2
+
+The full-game prompt is running (fully playable mechanisms game, coverage of the Reagent Reference
+along the Pathway Map). The map scopes the MVP: 86 spine nodes plus one boss node is complete and
+playable end to end; units 5, 7, 8 and 9 hold 58 of the 86.
+
+**The carbonyl bug, root-caused and fixed.** Not input, not inference, not grading: a new
+playable.test.ts walks all four registry answers through the real interaction machine, and the
+parity script solves the carbonyl in a real browser with pointer events, both green. The bug was
+the scene model: bonds key by atom pair, the C=O exists in both states, and the merge took
+max(2,1)=2, so playback showed a static double bond forever and a wrong final frame. SceneBond now
+carries toOrder; a persistent bond whose order drops fades its pi rod on the breaking schedule with
+a release burst, so the electrons visibly climb onto the oxygen.
+
+**Wave 2, all owner-specified, all measured or screenshotted:**
+
+- The orbit is a WIGGLE now: swing the hydrogen anywhere while held (308 px measured), release, and
+  it springs home on a damped oscillation, 0.0 px from its stereochemical position at rest. The
+  capture self-check asserts both halves.
+- Lone pairs and hydrogens sit on far sides of each other: the lone pair fan's direction joins the
+  hydrogen keep-out cones.
+- The canvas zooms: wheel toward the cursor, corner buttons for touch, bounded 0.45x to 3x, reset
+  refits. Implemented on the viewBox so hit testing, targets and rendering zoom as one.
+- The verdict card floats CENTRED over the canvas, arrows-drawn count and Start over in its footer,
+  the wrapper transparent to events so the student works around it.
+- Every mistake saves: mistakes.ts journals reaction, arrow key, verdict, cause and distractor
+  match to localStorage behind the same rendering-cache contract as progress.ts, capped at 300,
+  the review queue's seed until Phase 6 syncs it server side.
+- The plus-that-becomes-an-X opens three tools: scratchpaper (screen dims, ink only, cleared on
+  close, a DOM barrier so nothing beneath is reachable), the periodic table as a lazy popup card,
+  and the lazy 3D model of the current state.
+
+Suite 30 of 30 and payload within budget at every commit. Still queued in this loop: the arrowless
+multi-step mode, the resonance-hunt game mode where the drawn arrows live, /generate assets, and
+the spine coverage waves.

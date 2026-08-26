@@ -553,6 +553,41 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     dispatch({ kind: "pointerMove", pointer });
   };
 
+  /**
+   * The swung atom RETURNS on release. Owner ruling, 2026-08-26: "the
+   * orientation of the atoms around a molecule should wiggle around as I
+   * drag it but go back to its stereochemical position." The orbit was
+   * persistent before this; now it is a wiggle, and the return is a damped
+   * spring rather than a snap, because the hand just gave the atom energy
+   * and matter settles, it does not teleport. Reduced motion snaps.
+   */
+  const springRef = useRef<number | null>(null);
+  const springBack = useCallback(
+    (atomId: AtomId, from: Point2) => {
+      if (springRef.current !== null) cancelAnimationFrame(springRef.current);
+      if (reducedMotion) {
+        onAtomOrbit(atomId, { x: 0, y: 0 });
+        return;
+      }
+      const startedAt = performance.now();
+      const DURATION = 420;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - startedAt) / DURATION);
+        // Damped oscillation: two visible wobbles, then home.
+        const envelope = Math.exp(-4.2 * t) * Math.cos(9 * t);
+        if (t >= 1) {
+          onAtomOrbit(atomId, { x: 0, y: 0 });
+          springRef.current = null;
+          return;
+        }
+        onAtomOrbit(atomId, { x: from.x * envelope, y: from.y * envelope });
+        springRef.current = requestAnimationFrame(tick);
+      };
+      springRef.current = requestAnimationFrame(tick);
+    },
+    [onAtomOrbit, reducedMotion],
+  );
+
   const onPointerUp = (event: ReactPointerEvent<SVGSVGElement>) => {
     const pointer = toInput(event);
     if (pointer === null) return;
@@ -560,6 +595,9 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     if (carry !== null && carry.pointerId === pointer.pointerId) {
       carryRef.current = null;
       setActiveOrbit(null);
+      if (carry.kind === "orbit" && carry.active && carry.atomId !== null) {
+        springBack(carry.atomId, orbits[carry.atomId] ?? { x: 0, y: 0 });
+      }
       if (carry.active) {
         // The carry was the canvas's; the machine sees a tap where the press landed.
         dispatch({ kind: "pointerUp", pointer: { ...pointer, point: carry.down.point } });
@@ -579,6 +617,16 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     dispatch({ kind: "pointerCancel", pointer });
   };
 
+  /**
+   * ZOOM, owner request 2026-08-26: "you can zoom out on the whole thing",
+   * bounded rather than infinite. Implemented on the viewBox, not on a
+   * transform group: getScreenCTM already maps pointer to scene coordinates
+   * through the viewBox, so scaling the viewBox zooms hit testing, targets
+   * and rendering together with zero further changes. Wheel zooms toward the
+   * cursor; the buttons in the corner serve touch; reset refits.
+   */
+  const [zoom, setZoom] = useState<{ readonly k: number; readonly cx: number | null; readonly cy: number | null }>({ k: 1, cx: null, cy: null });
+
   // View box from the AUTHORED from positions, same padding as MoleculeSvg.
   let minX = Infinity;
   let minY = Infinity;
@@ -592,7 +640,38 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
     maxY = Math.max(maxY, q.y);
   }
   const PAD = 64;
-  const viewBox = `${minX - PAD} ${minY - PAD} ${maxX - minX + 2 * PAD} ${maxY - minY + 2 * PAD}`;
+  const baseX = minX - PAD;
+  const baseY = minY - PAD;
+  const baseW = maxX - minX + 2 * PAD;
+  const baseH = maxY - minY + 2 * PAD;
+  // The zoomed window: k > 1 is closer, k < 1 is the whole thing plus air.
+  const zw = baseW / zoom.k;
+  const zh = baseH / zoom.k;
+  const zcx = zoom.cx ?? baseX + baseW / 2;
+  const zcy = zoom.cy ?? baseY + baseH / 2;
+  const viewBox = `${zcx - zw / 2} ${zcy - zh / 2} ${zw} ${zh}`;
+
+  const zoomBy = (factor: number, focal?: Point2) => {
+    setZoom((prev) => {
+      const k = Math.min(3, Math.max(0.45, prev.k * factor));
+      if (k === prev.k) return prev;
+      const cx = prev.cx ?? baseX + baseW / 2;
+      const cy = prev.cy ?? baseY + baseH / 2;
+      if (focal === undefined) return { k, cx, cy };
+      // Keep the focal scene point fixed under the cursor across the zoom.
+      const ratio = prev.k / k;
+      return { k, cx: focal.x + (cx - focal.x) * ratio, cy: focal.y + (cy - focal.y) * ratio };
+    });
+  };
+
+  const onWheel = (event: React.WheelEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (svg === null) return;
+    const ctm = svg.getScreenCTM();
+    if (ctm === null) return;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse());
+    zoomBy(Math.exp(-event.deltaY * 0.0016), { x: point.x, y: point.y });
+  };
 
   // A carried species stays inside the frame. The frame does not follow the
   // molecule (that would cancel the drag visually), so the offset is clamped
@@ -676,6 +755,7 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
+      onWheel={onWheel}
     >
       <defs>
         <DepthDefs />
@@ -725,7 +805,17 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
               const revealed = draft.revealedLonePairs.includes(atom.id);
               return (
                 <g key={atom.id}>
-                  <HydrogenArc centre={c} openAngle={atom.from.openAngle} count={atom.fromImplicitH} r={r} expanded={revealed} bondAngles={bondAnglesAt(drawScene, atom.id)} />
+                  {/* The lone pair fan's direction joins the hydrogen keep-outs,
+                      so on an atom carrying both, the hydrogens land on the FAR
+                      side of the lone pairs. Owner ruling 2026-08-26. */}
+                  <HydrogenArc
+                    centre={c}
+                    openAngle={atom.from.openAngle}
+                    count={atom.fromImplicitH}
+                    r={r}
+                    expanded={revealed}
+                    bondAngles={[...bondAnglesAt(drawScene, atom.id), ...(atom.fromLonePairs > 0 ? [atom.from.openAngle + Math.PI] : [])]}
+                  />
                   {revealed
                     ? lonePairSlots(drawScene, atom.id).map((slot, index) => {
                         const armedSlot = armedTarget?.kind === "lonePair" && armedTarget.atomId === atom.id && armedTarget.slotIndex === index;
@@ -913,6 +1003,41 @@ export function DrawCanvas({ step, scene, live, offsets, onSpeciesMove, orbits, 
             );
           })()
         : null}
+
+      {/* Zoom controls, pinned to the window's lower-left corner and sized
+          against the zoom so they stay 44 points on screen whatever the
+          scale. pointerdown stops propagation so a tap here never reaches
+          the machine as a canvas press. */}
+      {(() => {
+        const ui = 1 / zoom.k;
+        const bx = zcx - zw / 2 + 14 * ui;
+        const by = zcy + zh / 2 - 58 * ui;
+        const button = (index: number, label: string, act: () => void) => (
+          <g
+            key={label}
+            transform={`translate(${bx + index * 52 * ui}, ${by})`}
+            style={{ cursor: "pointer", pointerEvents: "all" }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              act();
+            }}
+            role="button"
+            aria-label={label === "+" ? "Zoom in" : label === "−" ? "Zoom out" : "Reset zoom"}
+          >
+            <circle cx={22 * ui} cy={22 * ui} r={22 * ui} fill="var(--card)" stroke="var(--border)" strokeWidth={1.5 * ui} opacity={0.92} />
+            <text x={22 * ui} y={22 * ui} textAnchor="middle" dominantBaseline="central" fontSize={18 * ui} fontWeight={600} fill="var(--foreground)" style={{ userSelect: "none" }}>
+              {label}
+            </text>
+          </g>
+        );
+        return (
+          <g>
+            {button(0, "+", () => zoomBy(1.25))}
+            {button(1, "−", () => zoomBy(0.8))}
+            {zoom.k !== 1 ? button(2, "⤢", () => setZoom({ k: 1, cx: null, cy: null })) : null}
+          </g>
+        );
+      })()}
 
       {/* The dashed in flight guide, per capture x01: starts on the source,
           head at the finger, or on the drop site once the release would land

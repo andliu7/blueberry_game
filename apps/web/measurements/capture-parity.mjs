@@ -169,16 +169,21 @@ for (const reaction of REACTIONS) {
     await new Promise((resolve) => setTimeout(resolve, 25));
     if (step === 10) mid = await shoot(page, `parity-${TAG}-orbit-mid`);
   }
+  // MID-SWING measurement, pointer still down: the wiggle ruling of
+  // 2026-08-26 makes the atom RETURN on release, so displacement after
+  // release is supposed to be zero and the old after-release check read the
+  // feature as a failure. Held displacement proves the swing; post-release
+  // displacement proves the spring home.
+  const hMid = await siteAt(page, `t.kind === "atom" && t.atomId === "h1"`);
+  const oMid = await siteAt(page, `t.kind === "atom" && t.atomId === "o1"`);
+  const movedPx = Math.hypot(hMid.x - h.x, hMid.y - h.y);
+  const radiusMid = Math.hypot(hMid.x - oMid.x, hMid.y - oMid.y);
   await page.mouse.up();
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
   const after = await shoot(page, `parity-${TAG}-orbit-after`);
-
-  // Self check: the H target must have MOVED, and stayed one bond length out.
-  const h2 = await siteAt(page, `t.kind === "atom" && t.atomId === "h1"`);
-  const o2 = await siteAt(page, `t.kind === "atom" && t.atomId === "o1"`);
-  const movedPx = Math.hypot(h2.x - h.x, h2.y - h.y);
-  const newRadius = Math.hypot(h2.x - o2.x, h2.y - o2.y);
-  results.orbit = { movedPx, radiusBefore: radius, radiusAfter: newRadius, mid: path.basename(mid ?? ""), after: path.basename(after) };
+  const hEnd = await siteAt(page, `t.kind === "atom" && t.atomId === "h1"`);
+  const returnedPx = Math.hypot(hEnd.x - h.x, hEnd.y - h.y);
+  results.orbit = { movedPx, radiusBefore: radius, radiusAfter: radiusMid, returnedPx, mid: path.basename(mid ?? ""), after: path.basename(after) };
   await page.close();
 }
 
@@ -189,12 +194,16 @@ server.close();
 
 for (const entry of results.reactions) console.log(`${entry.reaction.padEnd(18)} "${entry.title}"  ${entry.file}`);
 const drift = Math.abs(results.orbit.radiusAfter - results.orbit.radiusBefore);
-console.log(`orbit: moved ${results.orbit.movedPx.toFixed(1)}px, radius ${results.orbit.radiusBefore.toFixed(1)} -> ${results.orbit.radiusAfter.toFixed(1)} (drift ${drift.toFixed(2)}px)`);
+console.log(`orbit: swung ${results.orbit.movedPx.toFixed(1)}px held, radius ${results.orbit.radiusBefore.toFixed(1)} -> ${results.orbit.radiusAfter.toFixed(1)} (drift ${drift.toFixed(2)}px), sprang back to ${results.orbit.returnedPx.toFixed(1)}px from home`);
 await writeFile(path.join(shotsDir, `parity-${TAG}-capture.json`), `${JSON.stringify({ tag: TAG, results }, null, 2)}\n`);
 
 console.log(`carbonyl solve: ${results.carbonyl.success ? "SUCCESS CARD SHOWN" : `NO SUCCESS. page said: ${results.carbonyl.text}`}`);
 if (results.orbit.movedPx < 30) {
-  console.error("The orbit drag did not move the hydrogen. Not judgeable; fix the drive or the feature.");
+  console.error("The orbit drag did not move the hydrogen while held. Not judgeable; fix the drive or the feature.");
+  process.exit(1);
+}
+if (results.orbit.returnedPx > 6) {
+  console.error("The swung atom did not spring back to its stereochemical position on release.");
   process.exit(1);
 }
 if (drift > 2) {
