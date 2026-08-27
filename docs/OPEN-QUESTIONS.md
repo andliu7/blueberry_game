@@ -226,3 +226,14 @@ moves fast enough to feel responsive, and with the accuracy gate it is honest. C
 long-term answer and should replace or join it once problem difficulty is calibrated. B is real but
 too slow to function as the glanceable signal this is asking for, and it is already partly visible
 in the review queue's own counters.
+
+## Pathway backdrop theme
+
+Owner ruling, 2026-08-26, after reviewing the three generated options
+(`C:\Users\zeusa\generations\blueberry_pathway-theme-{a,b,c}_*.png`):
+
+- **B (twilight lanterns) is the current favourite.** A (sunlit meadow) is "almost there";
+  C (cloud-sea) is "a little too much".
+- **Not final.** More options get generated and the pick is discussed with the team before any
+  backdrop ships. Do not wire a backdrop into PathwayTab until that happens.
+- The two unpicked themes remain candidates for the diamond store per `docs/ECONOMY.md`.

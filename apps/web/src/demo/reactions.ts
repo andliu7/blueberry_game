@@ -1172,6 +1172,150 @@ const IMINIUM_REDUCTION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 8 spine: DIBAL-H partial reduction. One hydride, then the      */
+/* run STOPS: the cold tetrahedral intermediate is the product here.   */
+/* ------------------------------------------------------------------ */
+
+const hydrideD = createSpecies({
+  id: "sp-hydride-d",
+  atoms: [createAtom({ id: "hd", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const methylAcetateD = createSpecies({
+  id: "sp-methyl-acetate-d",
+  atoms: [
+    createAtom({ id: "dca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dc1", element: "C" }),
+    createAtom({ id: "do1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "do2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dac1", a: "dca", b: "dc1" }),
+    createBond({ id: "b-d1o1", a: "dc1", b: "do1", order: 2 }),
+    createBond({ id: "b-d1o2", a: "dc1", b: "do2" }),
+    createBond({ id: "b-do2cm", a: "do2", b: "dcm" }),
+  ],
+});
+
+const tiDibal = createSpecies({
+  id: "sp-ti-dibal",
+  atoms: [
+    createAtom({ id: "dca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dc1", element: "C" }),
+    createAtom({ id: "do1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "do2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dcm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "hd", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-dac1", a: "dca", b: "dc1" }),
+    createBond({ id: "b-d1o1", a: "dc1", b: "do1" }),
+    createBond({ id: "b-d1o2", a: "dc1", b: "do2" }),
+    createBond({ id: "b-do2cm", a: "do2", b: "dcm" }),
+    createBond({ id: "b-d1hd", a: "dc1", b: "hd" }),
+  ],
+});
+
+const DIBAL_ESTER: MechanismStep = createStep({
+  id: "dibal-ester",
+  from: createState({
+    id: "dib-before",
+    members: [
+      { species: hydrideD, role: "nucleophile" },
+      { species: methylAcetateD, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "dib-after", members: [{ species: tiDibal, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["dc1"] },
+  arrows: [
+    createArrow({ id: "a-h", source: fromLonePair("hd"), sink: toBondBetween("hd", "dc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-d1o1"), sink: toAtom("do1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: beta-keto acid decarboxylation. Four arrows around a  */
+/* six-membered ring, CO2 walks away, the enol stays.                  */
+/* ------------------------------------------------------------------ */
+
+const acetoaceticAcid = createSpecies({
+  id: "sp-acetoacetic-acid",
+  atoms: [
+    createAtom({ id: "kcm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "kck", element: "C" }),
+    createAtom({ id: "kok", element: "O", lonePairs: 2 }),
+    createAtom({ id: "kca", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "kcc", element: "C" }),
+    createAtom({ id: "koa", element: "O", lonePairs: 2 }),
+    createAtom({ id: "koh", element: "O", lonePairs: 2 }),
+    createAtom({ id: "khh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-kcmck", a: "kcm", b: "kck" }),
+    createBond({ id: "b-ckok", a: "kck", b: "kok", order: 2 }),
+    createBond({ id: "b-ckca", a: "kck", b: "kca" }),
+    createBond({ id: "b-kcacc", a: "kca", b: "kcc" }),
+    createBond({ id: "b-ccoa", a: "kcc", b: "koa", order: 2 }),
+    createBond({ id: "b-ccoh", a: "kcc", b: "koh" }),
+    createBond({ id: "b-kohh", a: "koh", b: "khh" }),
+  ],
+});
+
+const enolK = createSpecies({
+  id: "sp-enol-k",
+  atoms: [
+    createAtom({ id: "kcm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "kck", element: "C" }),
+    createAtom({ id: "kok", element: "O", lonePairs: 2 }),
+    createAtom({ id: "khh", element: "H" }),
+    createAtom({ id: "kca", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-kcmck", a: "kcm", b: "kck" }),
+    createBond({ id: "b-ckok", a: "kck", b: "kok" }),
+    createBond({ id: "b-okh", a: "kok", b: "khh" }),
+    createBond({ id: "b-ckca", a: "kck", b: "kca", order: 2 }),
+  ],
+});
+
+const co2K = createSpecies({
+  id: "sp-co2-k",
+  atoms: [
+    createAtom({ id: "kcc", element: "C" }),
+    createAtom({ id: "koa", element: "O", lonePairs: 2 }),
+    createAtom({ id: "koh", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ccoa", a: "kcc", b: "koa", order: 2 }),
+    createBond({ id: "b-ccoh", a: "kcc", b: "koh", order: 2 }),
+  ],
+});
+
+const DECARBOXYLATION: MechanismStep = createStep({
+  id: "decarboxylation",
+  from: createState({
+    id: "dec-before",
+    members: [{ species: acetoaceticAcid, role: "substrate" }],
+  }),
+  to: createState({
+    id: "dec-after",
+    members: [
+      { species: enolK, role: "product" },
+      { species: co2K, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "pericyclic_step", route: "pericyclic", reactionCenters: ["kcc", "kca"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("kok"), sink: toBondBetween("kok", "khh") }),
+    createArrow({ id: "a-oh", source: fromBond("b-kohh"), sink: toBondBetween("koh", "kcc") }),
+    createArrow({ id: "a-cc", source: fromBond("b-kcacc"), sink: toBondBetween("kca", "kck") }),
+    createArrow({ id: "a-pi", source: fromBond("b-ckok"), sink: toAtom("kok") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1569,6 +1713,56 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       hf2: { x: 0.55, y: -0.9 },
       nm: { x: 1.05, y: 0.45 },
       cn: { x: 2.05, y: 0.05 },
+    },
+  },
+  {
+    id: "dibal-ester",
+    title: "DIBAL-H, the deliberate stop",
+    brief: "One hydride onto the ester, and then nothing. The cold tetrahedral intermediate IS the product.",
+    successLine: "The hydride landed and the pi electrons settled on oxygen, and at -78 degrees that is where the story ends: aluminum holds the tetrahedral alkoxide together, so the aldehyde only appears at workup. Partial reduction is a temperature trick, and you just drew it.",
+    step: DIBAL_ESTER,
+    fromHints: {
+      hd: { x: -1.4, y: 0.35 },
+      dca: { x: -0.95, y: -0.75 },
+      dc1: { x: 0, y: 0 },
+      do1: { x: 0.4, y: 0.95 },
+      do2: { x: 1.0, y: -0.5 },
+      dcm: { x: 2.0, y: -0.3 },
+    },
+    toHints: {
+      hd: { x: -0.8, y: 0.5 },
+      dca: { x: -0.95, y: -0.75 },
+      dc1: { x: 0, y: 0 },
+      do1: { x: 0.45, y: 1.0 },
+      do2: { x: 1.0, y: -0.5 },
+      dcm: { x: 2.0, y: -0.3 },
+    },
+  },
+  {
+    id: "decarboxylation",
+    title: "Decarboxylation",
+    brief: "A beta-keto acid loses CO2 through a six-membered ring. Four arrows, all at once.",
+    successLine: "All four arrows moved together: the ketone oxygen took the proton, the O-H electrons became CO2's second pi bond, the C-C bond became the enol's alkene, and the old carbonyl pi settled onto oxygen. This is why malonic and acetoacetic ester syntheses end with gentle heating: the ring does the work.",
+    step: DECARBOXYLATION,
+    fromHints: {
+      kcm: { x: -2.6, y: -0.2 },
+      kck: { x: -1.6, y: 0.3 },
+      kok: { x: -1.35, y: 1.35 },
+      kca: { x: -0.6, y: -0.4 },
+      kcc: { x: 0.6, y: 0.1 },
+      koa: { x: 0.9, y: -0.95 },
+      koh: { x: 0.8, y: 1.15 },
+      khh: { x: 0.0, y: 1.75 },
+    },
+    toHints: {
+      kcm: { x: -2.7, y: -0.3 },
+      kck: { x: -1.7, y: 0.25 },
+      kok: { x: -1.4, y: 1.3 },
+      khh: { x: -0.6, y: 1.7 },
+      kca: { x: -0.75, y: -0.5 },
+      kcc: { x: 1.6, y: 0.2 },
+      koa: { x: 2.1, y: -0.7 },
+      koh: { x: 1.9, y: 1.15 },
     },
   },
 ];
