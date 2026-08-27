@@ -966,6 +966,148 @@ const MICHAEL_ADDITION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 7 spine: the enamine's first bond, a 2° amine this time.        */
+/* ------------------------------------------------------------------ */
+
+const dimethylamine = createSpecies({
+  id: "sp-dimethylamine",
+  atoms: [
+    createAtom({ id: "nm", element: "N", lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "cn1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cn2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-nc1", a: "nm", b: "cn1" }), createBond({ id: "b-nc2", a: "nm", b: "cn2" })],
+});
+
+const formaldehydeEn = createSpecies({
+  id: "sp-formaldehyde-en",
+  atoms: [
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of", order: 2 }),
+  ],
+});
+
+const enamineZwitterion = createSpecies({
+  id: "sp-enamine-zwitterion",
+  atoms: [
+    createAtom({ id: "nm", element: "N", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "cn1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cn2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "of", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-nc1", a: "nm", b: "cn1" }),
+    createBond({ id: "b-nc2", a: "nm", b: "cn2" }),
+    createBond({ id: "b-nf", a: "nm", b: "cf" }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfo", a: "cf", b: "of" }),
+  ],
+});
+
+const ENAMINE_ATTACK: MechanismStep = createStep({
+  id: "enamine-attack",
+  from: createState({
+    id: "en-before",
+    members: [
+      { species: dimethylamine, role: "nucleophile" },
+      { species: formaldehydeEn, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "en-after", members: [{ species: enamineZwitterion, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("nm"), sink: toBondBetween("nm", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cfo"), sink: toAtom("of") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9 spine: enolate alkylation, the C-C bond by SN2.               */
+/* ------------------------------------------------------------------ */
+
+const enolateAlk = createSpecies({
+  id: "sp-enolate-alk",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const bromomethaneAlk = createSpecies({
+  id: "sp-bromomethane-alk",
+  atoms: [
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "brm", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-cbr", a: "cme", b: "brm" })],
+});
+
+const butanone = createSpecies({
+  id: "sp-butanone",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "cme", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-1me", a: "c1", b: "cme" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const bromideAlk = createSpecies({
+  id: "sp-bromide-alk",
+  atoms: [createAtom({ id: "brm", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const ENOLATE_ALKYLATION: MechanismStep = createStep({
+  id: "enolate-alkylation",
+  from: createState({
+    id: "ea-before",
+    members: [
+      { species: enolateAlk, role: "nucleophile" },
+      { species: bromomethaneAlk, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ea-after",
+    members: [
+      { species: butanone, role: "product" },
+      { species: bromideAlk, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["c1", "cme"] },
+  arrows: [
+    createArrow({ id: "a-c-attacks", source: fromBond("b-12"), sink: toBondBetween("c1", "cme") }),
+    createArrow({ id: "a-reform", source: fromLonePair("o1"), sink: toBondBetween("o1", "c2") }),
+    createArrow({ id: "a-leave", source: fromBond("b-cbr"), sink: toAtom("brm") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1292,6 +1434,54 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       ca: { x: 0.65, y: 0.1 },
       cc: { x: 1.65, y: -0.35 },
       oa: { x: 2.6, y: 0.1 },
+    },
+  },
+  {
+    id: "enamine-attack",
+    title: "Enamine, first bond",
+    brief: "A 2° amine this time: no N–H left to lose at the end, which is the whole difference.",
+    successLine: "The dimethylamine's lone pair takes the carbonyl carbon: the zwitterion forms, and because the nitrogen came in with only one H, the road ends at an enamine, not an imine — Stork chemistry starts here.",
+    step: ENAMINE_ATTACK,
+    fromHints: {
+      nm: { x: -1.55, y: -0.3 },
+      cn1: { x: -2.5, y: 0.15 },
+      cn2: { x: -1.85, y: -1.35 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+    toHints: {
+      nm: { x: -1.0, y: -0.25 },
+      cn1: { x: -1.95, y: 0.2 },
+      cn2: { x: -1.3, y: -1.3 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.95, y: -0.35 },
+      of: { x: 0.62, y: 0.78 },
+    },
+  },
+  {
+    id: "enolate-alkylation",
+    title: "Enolate alkylation",
+    brief: "The enolate's carbon does an SN2 on the methyl halide. Three arrows.",
+    successLine: "C-alkylation: the enolate attacks through carbon, the carbonyl reforms behind it, bromide leaves — one new C–C bond, and the regiochemistry was decided back when you chose which enolate to make.",
+    step: ENOLATE_ALKYLATION,
+    fromHints: {
+      c1: { x: -1.0, y: 0.15 },
+      c2: { x: -1.95, y: -0.35 },
+      o1: { x: -2.05, y: 0.75 },
+      c3: { x: -2.9, y: -0.95 },
+      cme: { x: 0.35, y: -0.15 },
+      brm: { x: 1.55, y: -0.5 },
+    },
+    toHints: {
+      c1: { x: -1.0, y: 0.15 },
+      cme: { x: 0.0, y: -0.2 },
+      c2: { x: -1.95, y: -0.35 },
+      o1: { x: -2.05, y: 0.75 },
+      c3: { x: -2.9, y: -0.95 },
+      brm: { x: 1.95, y: -0.6 },
     },
   },
 ];

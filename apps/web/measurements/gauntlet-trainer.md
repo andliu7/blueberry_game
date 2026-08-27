@@ -562,3 +562,21 @@ opening spine argument made playable.
 
 Map links updated: 20 spine nodes now carry playable entries. The pathway tab's Orgo II track and
 the trainer's browser both read the same ledger, so the coverage number on screen is the truth.
+
+## 2026-08-26, coverage wave 4: SNAr's relay, the Claisen, enamine, alkylation
+
+Six steps, 113 tests green, all conserving at import and walking the machine first run.
+
+The showpiece is SNAr as a two-step sequence on 1-fluoro-4-nitrobenzene: methoxide adds and the
+negative charge relays through the ring onto the para nitro oxygen, four arrows at once, then the
+relay runs backwards and fluoride leaves, four arrows again. The Meisenheimer complex is the
+intermediate the pathway map calls the whole exam question, and drawing the charge onto the nitro
+oxygen is now something the student literally does. The reversed leaving-group order gets its
+explanation in the success copy: addition is the hard step, not C-F cleavage.
+
+The Claisen lands as attack then collapse, the beta-ketoester's doubly-activated proton named as
+what pulls the equilibrium over. The enamine gets its first bond with a 2° amine and copy that
+says why no N-H left means enamine, not imine. Enolate alkylation closes the wave: C-alkylation
+by SN2, three arrows.
+
+37 playable steps; 26 spine nodes linked on the map, plus Unit 4 now fully playable end to end.

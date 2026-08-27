@@ -938,6 +938,284 @@ const DIENE_CAPTURE_14: MechanismStep = createStep({
   ],
 });
 
+/* ================= SNAr: the Meisenheimer, then the expulsion ================= */
+/* 1-fluoro-4-nitrobenzene + methoxide. The charge relay INTO the para nitro
+ * group is the whole exam question, so both steps carry it explicitly:
+ * four arrows in, four arrows out. One localised Kekule form throughout. */
+
+const fluoronitrobenzene = createSpecies({
+  id: "sp-fnb",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "f1", element: "F", lonePairs: 3 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C" }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "on1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "on2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cf", a: "c1", b: "f1" }),
+    createBond({ id: "b12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c4", b: "n1" }),
+    createBond({ id: "b-no1", a: "n1", b: "on1" }),
+    createBond({ id: "b-no2", a: "n1", b: "on2", order: 2 }),
+  ],
+});
+
+const methoxideSnar = createSpecies({
+  id: "sp-methoxide-snar",
+  atoms: [
+    createAtom({ id: "om", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "cm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-om", a: "om", b: "cm" })],
+});
+
+const meisenheimer = createSpecies({
+  id: "sp-meisenheimer",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "f1", element: "F", lonePairs: 3 }),
+    createAtom({ id: "om", element: "O", lonePairs: 2 }),
+    createAtom({ id: "cm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C" }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "on1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "on2", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cf", a: "c1", b: "f1" }),
+    createBond({ id: "b-com", a: "c1", b: "om" }),
+    createBond({ id: "b-om", a: "om", b: "cm" }),
+    createBond({ id: "b12", a: "c1", b: "c2" }),
+    createBond({ id: "b23", a: "c2", b: "c3", order: 2 }),
+    createBond({ id: "b34", a: "c3", b: "c4" }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c4", b: "n1", order: 2 }),
+    createBond({ id: "b-no1", a: "n1", b: "on1" }),
+    createBond({ id: "b-no2", a: "n1", b: "on2" }),
+  ],
+});
+
+const SNAR_ADDITION: MechanismStep = createStep({
+  id: "snar-addition",
+  from: createState({
+    id: "snar-a-before",
+    members: [
+      { species: methoxideSnar, role: "nucleophile" },
+      { species: fluoronitrobenzene, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "snar-a-after", members: [{ species: meisenheimer, role: "intermediate" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_aromatic_substitution", reactionCenters: ["c1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("om"), sink: toBondBetween("om", "c1") }),
+    createArrow({ id: "a-relay-1", source: fromBond("b12"), sink: toBondBetween("c2", "c3") }),
+    createArrow({ id: "a-relay-2", source: fromBond("b34"), sink: toBondBetween("c4", "n1") }),
+    createArrow({ id: "a-onto-o", source: fromBond("b-no2"), sink: toAtom("on2") }),
+  ],
+});
+
+const nitroanisole = createSpecies({
+  id: "sp-nitroanisole",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "om", element: "O", lonePairs: 2 }),
+    createAtom({ id: "cm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "c2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c4", element: "C" }),
+    createAtom({ id: "c5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "c6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "n1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "on1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "on2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-com", a: "c1", b: "om" }),
+    createBond({ id: "b-om", a: "om", b: "cm" }),
+    createBond({ id: "b12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b23", a: "c2", b: "c3" }),
+    createBond({ id: "b34", a: "c3", b: "c4", order: 2 }),
+    createBond({ id: "b45", a: "c4", b: "c5" }),
+    createBond({ id: "b56", a: "c5", b: "c6", order: 2 }),
+    createBond({ id: "b61", a: "c6", b: "c1" }),
+    createBond({ id: "b-cn", a: "c4", b: "n1" }),
+    createBond({ id: "b-no1", a: "n1", b: "on1" }),
+    createBond({ id: "b-no2", a: "n1", b: "on2", order: 2 }),
+  ],
+});
+
+const fluoride = createSpecies({
+  id: "sp-fluoride",
+  atoms: [createAtom({ id: "f1", element: "F", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const SNAR_EXPULSION: MechanismStep = createStep({
+  id: "snar-expulsion",
+  from: createState({ id: "snar-b-before", members: [{ species: meisenheimer, role: "intermediate" }] }),
+  to: createState({
+    id: "snar-b-after",
+    members: [
+      { species: nitroanisole, role: "product" },
+      { species: fluoride, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_aromatic_substitution", reactionCenters: ["c1"] },
+  arrows: [
+    createArrow({ id: "a-o-back", source: fromLonePair("on2"), sink: toBondBetween("n1", "on2") }),
+    createArrow({ id: "a-relay-back-1", source: fromBond("b-cn"), sink: toBondBetween("c3", "c4") }),
+    createArrow({ id: "a-relay-back-2", source: fromBond("b23"), sink: toBondBetween("c1", "c2") }),
+    createArrow({ id: "a-expel", source: fromBond("b-cf"), sink: toAtom("f1") }),
+  ],
+});
+
+/* ================= Claisen: attack, then the alkoxide expels methoxide ================= */
+
+const esterEnolate = createSpecies({
+  id: "sp-ester-enolate",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "oe1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ce1", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-2oe", a: "c2", b: "oe1" }),
+    createBond({ id: "b-oece", a: "oe1", b: "ce1" }),
+  ],
+});
+
+const methylAcetate = createSpecies({
+  id: "sp-methyl-acetate",
+  atoms: [
+    createAtom({ id: "cm2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ck", element: "C" }),
+    createAtom({ id: "ok", element: "O", lonePairs: 2 }),
+    createAtom({ id: "oe2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ce2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-mck", a: "cm2", b: "ck" }),
+    createBond({ id: "b-cko", a: "ck", b: "ok", order: 2 }),
+    createBond({ id: "b-ckoe", a: "ck", b: "oe2" }),
+    createBond({ id: "b-oece2", a: "oe2", b: "ce2" }),
+  ],
+});
+
+const claisenTetrahedral = createSpecies({
+  id: "sp-claisen-tet",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "oe1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ce1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cm2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ck", element: "C" }),
+    createAtom({ id: "ok", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "oe2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ce2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-2oe", a: "c2", b: "oe1" }),
+    createBond({ id: "b-oece", a: "oe1", b: "ce1" }),
+    createBond({ id: "b-1ck", a: "c1", b: "ck" }),
+    createBond({ id: "b-mck", a: "cm2", b: "ck" }),
+    createBond({ id: "b-cko", a: "ck", b: "ok" }),
+    createBond({ id: "b-ckoe", a: "ck", b: "oe2" }),
+    createBond({ id: "b-oece2", a: "oe2", b: "ce2" }),
+  ],
+});
+
+const CLAISEN_ATTACK: MechanismStep = createStep({
+  id: "claisen-attack",
+  from: createState({
+    id: "cl-a-before",
+    members: [
+      { species: esterEnolate, role: "nucleophile" },
+      { species: methylAcetate, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "cl-a-after", members: [{ species: claisenTetrahedral, role: "intermediate" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["c1", "ck"] },
+  arrows: [
+    createArrow({ id: "a-c-attacks", source: fromBond("b-12"), sink: toBondBetween("c1", "ck") }),
+    createArrow({ id: "a-reform", source: fromLonePair("o1"), sink: toBondBetween("o1", "c2") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-cko"), sink: toAtom("ok") }),
+  ],
+});
+
+const ketoester = createSpecies({
+  id: "sp-ketoester",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "oe1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ce1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cm2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ck", element: "C" }),
+    createAtom({ id: "ok", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-2oe", a: "c2", b: "oe1" }),
+    createBond({ id: "b-oece", a: "oe1", b: "ce1" }),
+    createBond({ id: "b-1ck", a: "c1", b: "ck" }),
+    createBond({ id: "b-mck", a: "cm2", b: "ck" }),
+    createBond({ id: "b-cko", a: "ck", b: "ok", order: 2 }),
+  ],
+});
+
+const methoxideOut2 = createSpecies({
+  id: "sp-methoxide-out2",
+  atoms: [
+    createAtom({ id: "oe2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "ce2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-oece2", a: "oe2", b: "ce2" })],
+});
+
+const CLAISEN_COLLAPSE: MechanismStep = createStep({
+  id: "claisen-collapse",
+  from: createState({ id: "cl-b-before", members: [{ species: claisenTetrahedral, role: "intermediate" }] }),
+  to: createState({
+    id: "cl-b-after",
+    members: [
+      { species: ketoester, role: "product" },
+      { species: methoxideOut2, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["ck"] },
+  arrows: [
+    createArrow({ id: "a-reform-pi", source: fromLonePair("ok"), sink: toBondBetween("ck", "ok") }),
+    createArrow({ id: "a-expel", source: fromBond("b-ckoe"), sink: toAtom("oe2") }),
+  ],
+});
+
 import { TRAINER_REACTIONS } from "./reactions";
 
 const carbonyl = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
@@ -963,6 +1241,142 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
         stepBrief: "Step 2 · The alkoxide takes a proton from hydronium.",
         fromHints: STEP2_FROM_HINTS,
         toHints: STEP2_TO_HINTS,
+      },
+    ],
+  },
+  {
+    id: "seq-snar",
+    title: "SNAr · 2 steps",
+    brief: "Aromatic reactivity inverts: the ring takes a nucleophile, and the nitro group holds the charge while it happens.",
+    successLine: "SNAr whole: addition into the Meisenheimer complex, the negative charge parked on the nitro oxygen, then the relay runs backwards and fluoride leaves — the reversed leaving-group order makes sense the moment you see that addition, not C–F cleavage, is the hard step.",
+    steps: [
+      {
+        step: SNAR_ADDITION,
+        stepBrief: "Step 1 · Methoxide adds; the charge relays through the ring onto the nitro oxygen. Four arrows.",
+        fromHints: {
+          om: { x: -2.2, y: 1.55 },
+          cm: { x: -3.15, y: 1.95 },
+          c1: { x: 0.0, y: 1.0 },
+          f1: { x: -1.0, y: 1.55 },
+          c2: { x: 0.87, y: 1.5 },
+          c3: { x: 1.74, y: 1.0 },
+          c4: { x: 1.74, y: 0.0 },
+          c5: { x: 0.87, y: -0.5 },
+          c6: { x: 0.0, y: 0.0 },
+          n1: { x: 2.6, y: -0.5 },
+          on1: { x: 3.5, y: 0.0 },
+          on2: { x: 2.6, y: -1.5 },
+        },
+        toHints: {
+          om: { x: -0.9, y: 1.75 },
+          cm: { x: -1.85, y: 2.15 },
+          c1: { x: 0.0, y: 1.0 },
+          f1: { x: -1.0, y: 0.55 },
+          c2: { x: 0.87, y: 1.5 },
+          c3: { x: 1.74, y: 1.0 },
+          c4: { x: 1.74, y: 0.0 },
+          c5: { x: 0.87, y: -0.5 },
+          c6: { x: 0.0, y: 0.0 },
+          n1: { x: 2.6, y: -0.5 },
+          on1: { x: 3.5, y: 0.0 },
+          on2: { x: 2.6, y: -1.5 },
+        },
+      },
+      {
+        step: SNAR_EXPULSION,
+        stepBrief: "Step 2 · The relay runs backwards and fluoride is pushed out. Four arrows again.",
+        fromHints: {
+          om: { x: -0.9, y: 1.75 },
+          cm: { x: -1.85, y: 2.15 },
+          c1: { x: 0.0, y: 1.0 },
+          f1: { x: -1.0, y: 0.55 },
+          c2: { x: 0.87, y: 1.5 },
+          c3: { x: 1.74, y: 1.0 },
+          c4: { x: 1.74, y: 0.0 },
+          c5: { x: 0.87, y: -0.5 },
+          c6: { x: 0.0, y: 0.0 },
+          n1: { x: 2.6, y: -0.5 },
+          on1: { x: 3.5, y: 0.0 },
+          on2: { x: 2.6, y: -1.5 },
+        },
+        toHints: {
+          om: { x: -0.9, y: 1.55 },
+          cm: { x: -1.85, y: 1.95 },
+          c1: { x: 0.0, y: 1.0 },
+          c2: { x: 0.87, y: 1.5 },
+          c3: { x: 1.74, y: 1.0 },
+          c4: { x: 1.74, y: 0.0 },
+          c5: { x: 0.87, y: -0.5 },
+          c6: { x: 0.0, y: 0.0 },
+          n1: { x: 2.6, y: -0.5 },
+          on1: { x: 3.5, y: 0.0 },
+          on2: { x: 2.6, y: -1.5 },
+          f1: { x: -1.6, y: -0.2 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-claisen",
+    title: "Claisen condensation · 2 steps",
+    brief: "The ester enolate attacks another ester; the tetrahedral intermediate throws methoxide out.",
+    successLine: "The Claisen whole: enolate carbon onto the ester carbonyl, then the alkoxide reforms the π and expels methoxide — a β-ketoester, and the doubly-activated proton it carries is what pulls the whole equilibrium over.",
+    steps: [
+      {
+        step: CLAISEN_ATTACK,
+        stepBrief: "Step 1 · The enolate carbon attacks the other ester's carbonyl. Three arrows.",
+        fromHints: {
+          c1: { x: -1.3, y: 0.2 },
+          c2: { x: -2.25, y: -0.3 },
+          o1: { x: -2.35, y: 0.8 },
+          oe1: { x: -3.2, y: -0.9 },
+          ce1: { x: -4.15, y: -0.5 },
+          cm2: { x: 1.9, y: 1.0 },
+          ck: { x: 0.95, y: 0.45 },
+          ok: { x: 1.05, y: -0.65 },
+          oe2: { x: 0.0, y: 1.05 },
+          ce2: { x: -0.2, y: 2.1 },
+        },
+        toHints: {
+          c1: { x: -1.1, y: 0.2 },
+          c2: { x: -2.05, y: -0.3 },
+          o1: { x: -2.15, y: 0.8 },
+          oe1: { x: -3.0, y: -0.9 },
+          ce1: { x: -3.95, y: -0.5 },
+          ck: { x: 0.35, y: 0.4 },
+          cm2: { x: 1.3, y: 0.95 },
+          ok: { x: 0.45, y: -0.7 },
+          oe2: { x: -0.6, y: 1.0 },
+          ce2: { x: -0.8, y: 2.05 },
+        },
+      },
+      {
+        step: CLAISEN_COLLAPSE,
+        stepBrief: "Step 2 · The alkoxide reforms the carbonyl and methoxide leaves.",
+        fromHints: {
+          c1: { x: -1.1, y: 0.2 },
+          c2: { x: -2.05, y: -0.3 },
+          o1: { x: -2.15, y: 0.8 },
+          oe1: { x: -3.0, y: -0.9 },
+          ce1: { x: -3.95, y: -0.5 },
+          ck: { x: 0.35, y: 0.4 },
+          cm2: { x: 1.3, y: 0.95 },
+          ok: { x: 0.45, y: -0.7 },
+          oe2: { x: -0.6, y: 1.0 },
+          ce2: { x: -0.8, y: 2.05 },
+        },
+        toHints: {
+          c1: { x: -1.1, y: 0.2 },
+          c2: { x: -2.05, y: -0.3 },
+          o1: { x: -2.15, y: 0.8 },
+          oe1: { x: -3.0, y: -0.9 },
+          ce1: { x: -3.95, y: -0.5 },
+          ck: { x: 0.35, y: 0.4 },
+          cm2: { x: 1.3, y: 0.95 },
+          ok: { x: 0.45, y: -0.7 },
+          oe2: { x: -0.05, y: 1.75 },
+          ce2: { x: -0.25, y: 2.8 },
+        },
       },
     ],
   },
