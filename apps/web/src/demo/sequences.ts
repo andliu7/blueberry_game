@@ -2913,6 +2913,1017 @@ const ROBINSON_E1CB: MechanismStep = createStep({
   ],
 });
 
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: Fischer esterification, the three beats that matter.  */
+/* Protonate, attack, lose water. The proton shuffles between beats    */
+/* are narrated, not drawn: they are bookkeeping, not chemistry.       */
+/* ------------------------------------------------------------------ */
+
+const hydroniumF = createSpecies({
+  id: "sp-hydronium-f",
+  atoms: [
+    createAtom({ id: "fo3", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "fh1", element: "H" }),
+    createAtom({ id: "fh2", element: "H" }),
+    createAtom({ id: "fh3", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-fo3h1", a: "fo3", b: "fh1" }),
+    createBond({ id: "b-fo3h2", a: "fo3", b: "fh2" }),
+    createBond({ id: "b-fo3h3", a: "fo3", b: "fh3" }),
+  ],
+});
+
+const aceticAcidF = createSpecies({
+  id: "sp-acetic-acid-f",
+  atoms: [
+    createAtom({ id: "fca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc1", element: "C" }),
+    createAtom({ id: "fo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fho", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-fcac1", a: "fca", b: "fc1" }),
+    createBond({ id: "b-fc1o1", a: "fc1", b: "fo1", order: 2 }),
+    createBond({ id: "b-fc1o2", a: "fc1", b: "fo2" }),
+    createBond({ id: "b-fo2h", a: "fo2", b: "fho" }),
+  ],
+});
+
+const protAcidF = createSpecies({
+  id: "sp-prot-acid-f",
+  atoms: [
+    createAtom({ id: "fca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc1", element: "C" }),
+    createAtom({ id: "fo1", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "fh1", element: "H" }),
+    createAtom({ id: "fo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fho", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-fcac1", a: "fca", b: "fc1" }),
+    createBond({ id: "b-fc1o1", a: "fc1", b: "fo1", order: 2 }),
+    createBond({ id: "b-fo1h", a: "fo1", b: "fh1" }),
+    createBond({ id: "b-fc1o2", a: "fc1", b: "fo2" }),
+    createBond({ id: "b-fo2h", a: "fo2", b: "fho" }),
+  ],
+});
+
+const waterF = createSpecies({
+  id: "sp-water-f",
+  atoms: [
+    createAtom({ id: "fo3", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fh2", element: "H" }),
+    createAtom({ id: "fh3", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-fo3h2", a: "fo3", b: "fh2" }),
+    createBond({ id: "b-fo3h3", a: "fo3", b: "fh3" }),
+  ],
+});
+
+const FISCHER_PROTONATE: MechanismStep = createStep({
+  id: "fischer-protonate",
+  from: createState({
+    id: "fi1-before",
+    members: [
+      { species: aceticAcidF, role: "nucleophile" },
+      { species: hydroniumF, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "fi1-after",
+    members: [
+      { species: protAcidF, role: "product" },
+      { species: waterF, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["fh1", "fo1"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("fo1"), sink: toBondBetween("fo1", "fh1") }),
+    createArrow({ id: "a-release", source: fromBond("b-fo3h1"), sink: toAtom("fo3") }),
+  ],
+});
+
+const methanolF = createSpecies({
+  id: "sp-methanol-f",
+  atoms: [
+    createAtom({ id: "fom", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fhm", element: "H" }),
+    createAtom({ id: "fcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-fomh", a: "fom", b: "fhm" }),
+    createBond({ id: "b-fomc", a: "fom", b: "fcm" }),
+  ],
+});
+
+const tiFischer = createSpecies({
+  id: "sp-ti-fischer",
+  atoms: [
+    createAtom({ id: "fca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc1", element: "C" }),
+    createAtom({ id: "fo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fh1", element: "H" }),
+    createAtom({ id: "fo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fho", element: "H" }),
+    createAtom({ id: "fom", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "fhm", element: "H" }),
+    createAtom({ id: "fcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-fcac1", a: "fca", b: "fc1" }),
+    createBond({ id: "b-fc1o1", a: "fc1", b: "fo1" }),
+    createBond({ id: "b-fo1h", a: "fo1", b: "fh1" }),
+    createBond({ id: "b-fc1o2", a: "fc1", b: "fo2" }),
+    createBond({ id: "b-fo2h", a: "fo2", b: "fho" }),
+    createBond({ id: "b-fc1om", a: "fc1", b: "fom" }),
+    createBond({ id: "b-fomh", a: "fom", b: "fhm" }),
+    createBond({ id: "b-fomc", a: "fom", b: "fcm" }),
+  ],
+});
+
+const FISCHER_ATTACK: MechanismStep = createStep({
+  id: "fischer-attack",
+  from: createState({
+    id: "fi2-before",
+    members: [
+      { species: methanolF, role: "nucleophile" },
+      { species: protAcidF, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "fi2-after", members: [{ species: tiFischer, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["fom", "fc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("fom"), sink: toBondBetween("fom", "fc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-fc1o1"), sink: toAtom("fo1") }),
+  ],
+});
+
+const tiWaterF = createSpecies({
+  id: "sp-ti-water-f",
+  atoms: [
+    createAtom({ id: "fca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc1", element: "C" }),
+    createAtom({ id: "foh", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fhh", element: "H" }),
+    createAtom({ id: "fow", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "fw1", element: "H" }),
+    createAtom({ id: "fw2", element: "H" }),
+    createAtom({ id: "fom", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-fcac1", a: "fca", b: "fc1" }),
+    createBond({ id: "b-fc1oh", a: "fc1", b: "foh" }),
+    createBond({ id: "b-fohh", a: "foh", b: "fhh" }),
+    createBond({ id: "b-fc1ow", a: "fc1", b: "fow" }),
+    createBond({ id: "b-fowh1", a: "fow", b: "fw1" }),
+    createBond({ id: "b-fowh2", a: "fow", b: "fw2" }),
+    createBond({ id: "b-fc1om", a: "fc1", b: "fom" }),
+    createBond({ id: "b-fomc", a: "fom", b: "fcm" }),
+  ],
+});
+
+const protEsterF = createSpecies({
+  id: "sp-prot-ester-f",
+  atoms: [
+    createAtom({ id: "fca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc1", element: "C" }),
+    createAtom({ id: "foh", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fhh", element: "H" }),
+    createAtom({ id: "fom", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "fcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-fcac1", a: "fca", b: "fc1" }),
+    createBond({ id: "b-fc1oh", a: "fc1", b: "foh" }),
+    createBond({ id: "b-fohh", a: "foh", b: "fhh" }),
+    createBond({ id: "b-fc1om", a: "fc1", b: "fom", order: 2 }),
+    createBond({ id: "b-fomc", a: "fom", b: "fcm" }),
+  ],
+});
+
+const waterOutF = createSpecies({
+  id: "sp-water-out-f",
+  atoms: [
+    createAtom({ id: "fow", element: "O", lonePairs: 2 }),
+    createAtom({ id: "fw1", element: "H" }),
+    createAtom({ id: "fw2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-fowh1", a: "fow", b: "fw1" }),
+    createBond({ id: "b-fowh2", a: "fow", b: "fw2" }),
+  ],
+});
+
+const FISCHER_LOSE_WATER: MechanismStep = createStep({
+  id: "fischer-lose-water",
+  from: createState({
+    id: "fi3-before",
+    members: [{ species: tiWaterF, role: "substrate" }],
+  }),
+  to: createState({
+    id: "fi3-after",
+    members: [
+      { species: protEsterF, role: "product" },
+      { species: waterOutF, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["fc1"] },
+  arrows: [
+    createArrow({ id: "a-push", source: fromLonePair("fom"), sink: toBondBetween("fom", "fc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-fc1ow"), sink: toAtom("fow") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: SOCl2 makes the acyl chloride. The activation move    */
+/* every synthesis uses when the acid itself is too lazy to react.     */
+/* ------------------------------------------------------------------ */
+
+const aceticAcidS = createSpecies({
+  id: "sp-acetic-acid-s",
+  atoms: [
+    createAtom({ id: "sca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "sc1", element: "C" }),
+    createAtom({ id: "so1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "so2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "sho", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-scac1", a: "sca", b: "sc1" }),
+    createBond({ id: "b-sc1o1", a: "sc1", b: "so1", order: 2 }),
+    createBond({ id: "b-sc1o2", a: "sc1", b: "so2" }),
+    createBond({ id: "b-so2h", a: "so2", b: "sho" }),
+  ],
+});
+
+const thionylS = createSpecies({
+  id: "sp-thionyl-s",
+  atoms: [
+    createAtom({ id: "ss", element: "S", lonePairs: 1 }),
+    createAtom({ id: "sk", element: "O", lonePairs: 2 }),
+    createAtom({ id: "scl1", element: "Cl", lonePairs: 3 }),
+    createAtom({ id: "scl2", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ssk", a: "ss", b: "sk", order: 2 }),
+    createBond({ id: "b-sscl1", a: "ss", b: "scl1" }),
+    createBond({ id: "b-sscl2", a: "ss", b: "scl2" }),
+  ],
+});
+
+const protChlorosulfiteS = createSpecies({
+  id: "sp-prot-chlorosulfite-s",
+  atoms: [
+    createAtom({ id: "sca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "sc1", element: "C" }),
+    createAtom({ id: "so1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "so2", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "sho", element: "H" }),
+    createAtom({ id: "ss", element: "S", lonePairs: 1 }),
+    createAtom({ id: "sk", element: "O", lonePairs: 2 }),
+    createAtom({ id: "scl2", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-scac1", a: "sca", b: "sc1" }),
+    createBond({ id: "b-sc1o1", a: "sc1", b: "so1", order: 2 }),
+    createBond({ id: "b-sc1o2", a: "sc1", b: "so2" }),
+    createBond({ id: "b-so2h", a: "so2", b: "sho" }),
+    createBond({ id: "b-so2s", a: "so2", b: "ss" }),
+    createBond({ id: "b-ssk", a: "ss", b: "sk", order: 2 }),
+    createBond({ id: "b-sscl2", a: "ss", b: "scl2" }),
+  ],
+});
+
+const chlorideS = createSpecies({
+  id: "sp-chloride-s",
+  atoms: [createAtom({ id: "scl1", element: "Cl", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const SOCL2_ACTIVATE: MechanismStep = createStep({
+  id: "socl2-activate",
+  from: createState({
+    id: "so1-before",
+    members: [
+      { species: aceticAcidS, role: "nucleophile" },
+      { species: thionylS, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "so1-after",
+    members: [
+      { species: protChlorosulfiteS, role: "product" },
+      { species: chlorideS, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["so2", "ss"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("so2"), sink: toBondBetween("so2", "ss") }),
+    createArrow({ id: "a-leave", source: fromBond("b-sscl1"), sink: toAtom("scl1") }),
+  ],
+});
+
+const chlorosulfiteEsterS = createSpecies({
+  id: "sp-chlorosulfite-ester-s",
+  atoms: [
+    createAtom({ id: "sca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "sc1", element: "C" }),
+    createAtom({ id: "so1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "so2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ss", element: "S", lonePairs: 1 }),
+    createAtom({ id: "sk", element: "O", lonePairs: 2 }),
+    createAtom({ id: "scl2", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-scac1", a: "sca", b: "sc1" }),
+    createBond({ id: "b-sc1o1", a: "sc1", b: "so1", order: 2 }),
+    createBond({ id: "b-sc1o2", a: "sc1", b: "so2" }),
+    createBond({ id: "b-so2s", a: "so2", b: "ss" }),
+    createBond({ id: "b-ssk", a: "ss", b: "sk", order: 2 }),
+    createBond({ id: "b-sscl2", a: "ss", b: "scl2" }),
+  ],
+});
+
+const chlorideS2 = createSpecies({
+  id: "sp-chloride-s2",
+  atoms: [createAtom({ id: "sclx", element: "Cl", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const tiSocl2 = createSpecies({
+  id: "sp-ti-socl2",
+  atoms: [
+    createAtom({ id: "sca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "sc1", element: "C" }),
+    createAtom({ id: "so1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "so2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ss", element: "S", lonePairs: 1 }),
+    createAtom({ id: "sk", element: "O", lonePairs: 2 }),
+    createAtom({ id: "scl2", element: "Cl", lonePairs: 3 }),
+    createAtom({ id: "sclx", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-scac1", a: "sca", b: "sc1" }),
+    createBond({ id: "b-sc1o1", a: "sc1", b: "so1" }),
+    createBond({ id: "b-sc1o2", a: "sc1", b: "so2" }),
+    createBond({ id: "b-so2s", a: "so2", b: "ss" }),
+    createBond({ id: "b-ssk", a: "ss", b: "sk", order: 2 }),
+    createBond({ id: "b-sscl2", a: "ss", b: "scl2" }),
+    createBond({ id: "b-sc1clx", a: "sc1", b: "sclx" }),
+  ],
+});
+
+const SOCL2_ATTACK: MechanismStep = createStep({
+  id: "socl2-attack",
+  from: createState({
+    id: "so2-before",
+    members: [
+      { species: chlorideS2, role: "nucleophile" },
+      { species: chlorosulfiteEsterS, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "so2-after", members: [{ species: tiSocl2, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["sclx", "sc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("sclx"), sink: toBondBetween("sclx", "sc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-sc1o1"), sink: toAtom("so1") }),
+  ],
+});
+
+const acetylChlorideS = createSpecies({
+  id: "sp-acetyl-chloride-s",
+  atoms: [
+    createAtom({ id: "sca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "sc1", element: "C" }),
+    createAtom({ id: "so1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "sclx", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-scac1", a: "sca", b: "sc1" }),
+    createBond({ id: "b-sc1o1", a: "sc1", b: "so1", order: 2 }),
+    createBond({ id: "b-sc1clx", a: "sc1", b: "sclx" }),
+  ],
+});
+
+const chlorosulfiteAnionS = createSpecies({
+  id: "sp-chlorosulfite-anion-s",
+  atoms: [
+    createAtom({ id: "so2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "ss", element: "S", lonePairs: 1 }),
+    createAtom({ id: "sk", element: "O", lonePairs: 2 }),
+    createAtom({ id: "scl2", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-so2s", a: "so2", b: "ss" }),
+    createBond({ id: "b-ssk", a: "ss", b: "sk", order: 2 }),
+    createBond({ id: "b-sscl2", a: "ss", b: "scl2" }),
+  ],
+});
+
+const SOCL2_COLLAPSE: MechanismStep = createStep({
+  id: "socl2-collapse",
+  from: createState({ id: "so3-before", members: [{ species: tiSocl2, role: "substrate" }] }),
+  to: createState({
+    id: "so3-after",
+    members: [
+      { species: acetylChlorideS, role: "product" },
+      { species: chlorosulfiteAnionS, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["sc1"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("so1"), sink: toBondBetween("so1", "sc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-sc1o2"), sink: toAtom("so2") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: acid to anhydride, by way of the acyl chloride the    */
+/* last sequence just made. Carboxylate in, chloride out.              */
+/* ------------------------------------------------------------------ */
+
+const acetateN = createSpecies({
+  id: "sp-acetate-n",
+  atoms: [
+    createAtom({ id: "nb", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "nc2", element: "C" }),
+    createAtom({ id: "nk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "na2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-nbc2", a: "nb", b: "nc2" }),
+    createBond({ id: "b-nc2k2", a: "nc2", b: "nk2", order: 2 }),
+    createBond({ id: "b-nc2a2", a: "nc2", b: "na2" }),
+  ],
+});
+
+const acetylChlorideN = createSpecies({
+  id: "sp-acetyl-chloride-n",
+  atoms: [
+    createAtom({ id: "nca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "nc1", element: "C" }),
+    createAtom({ id: "no1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ncl", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ncac1", a: "nca", b: "nc1" }),
+    createBond({ id: "b-nc1o1", a: "nc1", b: "no1", order: 2 }),
+    createBond({ id: "b-nc1cl", a: "nc1", b: "ncl" }),
+  ],
+});
+
+const tiAnhydrideMake = createSpecies({
+  id: "sp-ti-anhydride-make",
+  atoms: [
+    createAtom({ id: "nca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "nc1", element: "C" }),
+    createAtom({ id: "no1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "ncl", element: "Cl", lonePairs: 3 }),
+    createAtom({ id: "nb", element: "O", lonePairs: 2 }),
+    createAtom({ id: "nc2", element: "C" }),
+    createAtom({ id: "nk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "na2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ncac1", a: "nca", b: "nc1" }),
+    createBond({ id: "b-nc1o1", a: "nc1", b: "no1" }),
+    createBond({ id: "b-nc1cl", a: "nc1", b: "ncl" }),
+    createBond({ id: "b-nc1nb", a: "nc1", b: "nb" }),
+    createBond({ id: "b-nbc2", a: "nb", b: "nc2" }),
+    createBond({ id: "b-nc2k2", a: "nc2", b: "nk2", order: 2 }),
+    createBond({ id: "b-nc2a2", a: "nc2", b: "na2" }),
+  ],
+});
+
+const ANHMAKE_ATTACK: MechanismStep = createStep({
+  id: "anhmake-attack",
+  from: createState({
+    id: "nm1-before",
+    members: [
+      { species: acetateN, role: "nucleophile" },
+      { species: acetylChlorideN, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "nm1-after", members: [{ species: tiAnhydrideMake, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["nb", "nc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("nb"), sink: toBondBetween("nb", "nc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-nc1o1"), sink: toAtom("no1") }),
+  ],
+});
+
+const anhydrideN = createSpecies({
+  id: "sp-anhydride-n",
+  atoms: [
+    createAtom({ id: "nca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "nc1", element: "C" }),
+    createAtom({ id: "no1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "nb", element: "O", lonePairs: 2 }),
+    createAtom({ id: "nc2", element: "C" }),
+    createAtom({ id: "nk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "na2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-ncac1", a: "nca", b: "nc1" }),
+    createBond({ id: "b-nc1o1", a: "nc1", b: "no1", order: 2 }),
+    createBond({ id: "b-nc1nb", a: "nc1", b: "nb" }),
+    createBond({ id: "b-nbc2", a: "nb", b: "nc2" }),
+    createBond({ id: "b-nc2k2", a: "nc2", b: "nk2", order: 2 }),
+    createBond({ id: "b-nc2a2", a: "nc2", b: "na2" }),
+  ],
+});
+
+const chlorideN = createSpecies({
+  id: "sp-chloride-n",
+  atoms: [createAtom({ id: "ncl", element: "Cl", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const ANHMAKE_COLLAPSE: MechanismStep = createStep({
+  id: "anhmake-collapse",
+  from: createState({ id: "nm2-before", members: [{ species: tiAnhydrideMake, role: "substrate" }] }),
+  to: createState({
+    id: "nm2-after",
+    members: [
+      { species: anhydrideN, role: "product" },
+      { species: chlorideN, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["nc1"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("no1"), sink: toBondBetween("no1", "nc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-nc1cl"), sink: toAtom("ncl") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: LiAlH4 takes the ester all the way down. Two          */
+/* hydrides, and the aldehyde in the middle never gets to leave.       */
+/* ------------------------------------------------------------------ */
+
+const hydrideL1 = createSpecies({
+  id: "sp-hydride-l1",
+  atoms: [createAtom({ id: "lh1", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const methylAcetateL = createSpecies({
+  id: "sp-methyl-acetate-l",
+  atoms: [
+    createAtom({ id: "lca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "lc1", element: "C" }),
+    createAtom({ id: "lo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "lo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "lcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-lcac1", a: "lca", b: "lc1" }),
+    createBond({ id: "b-lc1o1", a: "lc1", b: "lo1", order: 2 }),
+    createBond({ id: "b-lc1o2", a: "lc1", b: "lo2" }),
+    createBond({ id: "b-lo2cm", a: "lo2", b: "lcm" }),
+  ],
+});
+
+const tiLialh = createSpecies({
+  id: "sp-ti-lialh",
+  atoms: [
+    createAtom({ id: "lca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "lc1", element: "C" }),
+    createAtom({ id: "lo1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "lo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "lcm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "lh1", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-lcac1", a: "lca", b: "lc1" }),
+    createBond({ id: "b-lc1o1", a: "lc1", b: "lo1" }),
+    createBond({ id: "b-lc1o2", a: "lc1", b: "lo2" }),
+    createBond({ id: "b-lo2cm", a: "lo2", b: "lcm" }),
+    createBond({ id: "b-lc1h1", a: "lc1", b: "lh1" }),
+  ],
+});
+
+const LIALH_FIRST: MechanismStep = createStep({
+  id: "lialh-first",
+  from: createState({
+    id: "la1-before",
+    members: [
+      { species: hydrideL1, role: "nucleophile" },
+      { species: methylAcetateL, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "la1-after", members: [{ species: tiLialh, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["lc1"] },
+  arrows: [
+    createArrow({ id: "a-h", source: fromLonePair("lh1"), sink: toBondBetween("lh1", "lc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-lc1o1"), sink: toAtom("lo1") }),
+  ],
+});
+
+const acetaldehydeL = createSpecies({
+  id: "sp-acetaldehyde-l",
+  atoms: [
+    createAtom({ id: "lca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "lc1", element: "C" }),
+    createAtom({ id: "lo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "lh1", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-lcac1", a: "lca", b: "lc1" }),
+    createBond({ id: "b-lc1o1", a: "lc1", b: "lo1", order: 2 }),
+    createBond({ id: "b-lc1h1", a: "lc1", b: "lh1" }),
+  ],
+});
+
+const methoxideL = createSpecies({
+  id: "sp-methoxide-l",
+  atoms: [
+    createAtom({ id: "lo2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "lcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-lo2cm", a: "lo2", b: "lcm" })],
+});
+
+const LIALH_COLLAPSE: MechanismStep = createStep({
+  id: "lialh-collapse",
+  from: createState({ id: "la2-before", members: [{ species: tiLialh, role: "substrate" }] }),
+  to: createState({
+    id: "la2-after",
+    members: [
+      { species: acetaldehydeL, role: "product" },
+      { species: methoxideL, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["lc1"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("lo1"), sink: toBondBetween("lo1", "lc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-lc1o2"), sink: toAtom("lo2") }),
+  ],
+});
+
+const hydrideL2 = createSpecies({
+  id: "sp-hydride-l2",
+  atoms: [createAtom({ id: "lh2", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const ethoxideL = createSpecies({
+  id: "sp-ethoxide-l",
+  atoms: [
+    createAtom({ id: "lca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "lc1", element: "C" }),
+    createAtom({ id: "lo1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "lh1", element: "H" }),
+    createAtom({ id: "lh2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-lcac1", a: "lca", b: "lc1" }),
+    createBond({ id: "b-lc1o1", a: "lc1", b: "lo1" }),
+    createBond({ id: "b-lc1h1", a: "lc1", b: "lh1" }),
+    createBond({ id: "b-lc1h2", a: "lc1", b: "lh2" }),
+  ],
+});
+
+const LIALH_SECOND: MechanismStep = createStep({
+  id: "lialh-second",
+  from: createState({
+    id: "la3-before",
+    members: [
+      { species: hydrideL2, role: "nucleophile" },
+      { species: acetaldehydeL, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "la3-after", members: [{ species: ethoxideL, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["lc1"] },
+  arrows: [
+    createArrow({ id: "a-h", source: fromLonePair("lh2"), sink: toBondBetween("lh2", "lc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-lc1o1"), sink: toAtom("lo1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: two Grignards on an ester. The ketone in the middle   */
+/* is more reactive than the ester that made it. It never survives.    */
+/* ------------------------------------------------------------------ */
+
+const carbanionE1 = createSpecies({
+  id: "sp-carbanion-e1",
+  atoms: [createAtom({ id: "ge1", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const methylAcetateG = createSpecies({
+  id: "sp-methyl-acetate-g",
+  atoms: [
+    createAtom({ id: "gca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "go1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "go2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "gcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-gcac1", a: "gca", b: "gc1" }),
+    createBond({ id: "b-gc1o1", a: "gc1", b: "go1", order: 2 }),
+    createBond({ id: "b-gc1o2", a: "gc1", b: "go2" }),
+    createBond({ id: "b-go2cm", a: "go2", b: "gcm" }),
+  ],
+});
+
+const tiGrignardE = createSpecies({
+  id: "sp-ti-grignard-e",
+  atoms: [
+    createAtom({ id: "gca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "go1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "go2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "gcm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ge1", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-gcac1", a: "gca", b: "gc1" }),
+    createBond({ id: "b-gc1o1", a: "gc1", b: "go1" }),
+    createBond({ id: "b-gc1o2", a: "gc1", b: "go2" }),
+    createBond({ id: "b-go2cm", a: "go2", b: "gcm" }),
+    createBond({ id: "b-gc1e1", a: "gc1", b: "ge1" }),
+  ],
+});
+
+const GRIGNARD_E_FIRST: MechanismStep = createStep({
+  id: "grignard-e-first",
+  from: createState({
+    id: "ge1-before",
+    members: [
+      { species: carbanionE1, role: "nucleophile" },
+      { species: methylAcetateG, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "ge1-after", members: [{ species: tiGrignardE, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["ge1", "gc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("ge1"), sink: toBondBetween("ge1", "gc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-gc1o1"), sink: toAtom("go1") }),
+  ],
+});
+
+const acetoneE = createSpecies({
+  id: "sp-acetone-e",
+  atoms: [
+    createAtom({ id: "gca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "go1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ge1", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-gcac1", a: "gca", b: "gc1" }),
+    createBond({ id: "b-gc1o1", a: "gc1", b: "go1", order: 2 }),
+    createBond({ id: "b-gc1e1", a: "gc1", b: "ge1" }),
+  ],
+});
+
+const methoxideG = createSpecies({
+  id: "sp-methoxide-g",
+  atoms: [
+    createAtom({ id: "go2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "gcm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-go2cm", a: "go2", b: "gcm" })],
+});
+
+const GRIGNARD_E_COLLAPSE: MechanismStep = createStep({
+  id: "grignard-e-collapse",
+  from: createState({ id: "ge2-before", members: [{ species: tiGrignardE, role: "substrate" }] }),
+  to: createState({
+    id: "ge2-after",
+    members: [
+      { species: acetoneE, role: "product" },
+      { species: methoxideG, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["gc1"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("go1"), sink: toBondBetween("go1", "gc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-gc1o2"), sink: toAtom("go2") }),
+  ],
+});
+
+const carbanionE2 = createSpecies({
+  id: "sp-carbanion-e2",
+  atoms: [createAtom({ id: "ge2", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const tertButoxideE = createSpecies({
+  id: "sp-tert-butoxide-e",
+  atoms: [
+    createAtom({ id: "gca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "go1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "ge1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ge2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-gcac1", a: "gca", b: "gc1" }),
+    createBond({ id: "b-gc1o1", a: "gc1", b: "go1" }),
+    createBond({ id: "b-gc1e1", a: "gc1", b: "ge1" }),
+    createBond({ id: "b-gc1e2", a: "gc1", b: "ge2" }),
+  ],
+});
+
+const GRIGNARD_E_SECOND: MechanismStep = createStep({
+  id: "grignard-e-second",
+  from: createState({
+    id: "ge3-before",
+    members: [
+      { species: carbanionE2, role: "nucleophile" },
+      { species: acetoneE, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "ge3-after", members: [{ species: tertButoxideE, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["ge2", "gc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("ge2"), sink: toBondBetween("ge2", "gc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-gc1o1"), sink: toAtom("go1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 8 spine: amide hydrolysis under base. The worst leaving group  */
+/* in the ladder only leaves because the proton transfer afterwards    */
+/* makes coming back impossible.                                       */
+/* ------------------------------------------------------------------ */
+
+const hydroxideAm = createSpecies({
+  id: "sp-hydroxide-am",
+  atoms: [
+    createAtom({ id: "xoh", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "xhh", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-xohh", a: "xoh", b: "xhh" })],
+});
+
+const acetamideX = createSpecies({
+  id: "sp-acetamide-x",
+  atoms: [
+    createAtom({ id: "xca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "xc1", element: "C" }),
+    createAtom({ id: "xo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "xhn", element: "H" }),
+    createAtom({ id: "xcn", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcac1", a: "xca", b: "xc1" }),
+    createBond({ id: "b-xc1o1", a: "xc1", b: "xo1", order: 2 }),
+    createBond({ id: "b-xc1n", a: "xc1", b: "xn" }),
+    createBond({ id: "b-xnh", a: "xn", b: "xhn" }),
+    createBond({ id: "b-xncn", a: "xn", b: "xcn" }),
+  ],
+});
+
+const tiAmideX = createSpecies({
+  id: "sp-ti-amide-x",
+  atoms: [
+    createAtom({ id: "xca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "xc1", element: "C" }),
+    createAtom({ id: "xo1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "xn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "xhn", element: "H" }),
+    createAtom({ id: "xcn", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "xoh", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xhh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcac1", a: "xca", b: "xc1" }),
+    createBond({ id: "b-xc1o1", a: "xc1", b: "xo1" }),
+    createBond({ id: "b-xc1n", a: "xc1", b: "xn" }),
+    createBond({ id: "b-xnh", a: "xn", b: "xhn" }),
+    createBond({ id: "b-xncn", a: "xn", b: "xcn" }),
+    createBond({ id: "b-xc1oh", a: "xc1", b: "xoh" }),
+    createBond({ id: "b-xohh", a: "xoh", b: "xhh" }),
+  ],
+});
+
+const AMIDE_ATTACK: MechanismStep = createStep({
+  id: "amide-attack",
+  from: createState({
+    id: "am1-before",
+    members: [
+      { species: hydroxideAm, role: "nucleophile" },
+      { species: acetamideX, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "am1-after", members: [{ species: tiAmideX, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_acyl_substitution", reactionCenters: ["xoh", "xc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("xoh"), sink: toBondBetween("xoh", "xc1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-xc1o1"), sink: toAtom("xo1") }),
+  ],
+});
+
+const aceticAcidX = createSpecies({
+  id: "sp-acetic-acid-x",
+  atoms: [
+    createAtom({ id: "xca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "xc1", element: "C" }),
+    createAtom({ id: "xo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xoh", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xhh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcac1", a: "xca", b: "xc1" }),
+    createBond({ id: "b-xc1o1", a: "xc1", b: "xo1", order: 2 }),
+    createBond({ id: "b-xc1oh", a: "xc1", b: "xoh" }),
+    createBond({ id: "b-xohh", a: "xoh", b: "xhh" }),
+  ],
+});
+
+const amideAnionX = createSpecies({
+  id: "sp-amide-anion-x",
+  atoms: [
+    createAtom({ id: "xn", element: "N", formalCharge: -1, lonePairs: 2 }),
+    createAtom({ id: "xhn", element: "H" }),
+    createAtom({ id: "xcn", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-xnh", a: "xn", b: "xhn" }),
+    createBond({ id: "b-xncn", a: "xn", b: "xcn" }),
+  ],
+});
+
+const AMIDE_COLLAPSE: MechanismStep = createStep({
+  id: "amide-collapse",
+  from: createState({ id: "am2-before", members: [{ species: tiAmideX, role: "substrate" }] }),
+  to: createState({
+    id: "am2-after",
+    members: [
+      { species: aceticAcidX, role: "product" },
+      { species: amideAnionX, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["xc1"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("xo1"), sink: toBondBetween("xo1", "xc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-xc1n"), sink: toAtom("xn") }),
+  ],
+});
+
+const acetateX = createSpecies({
+  id: "sp-acetate-x",
+  atoms: [
+    createAtom({ id: "xca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "xc1", element: "C" }),
+    createAtom({ id: "xo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xoh", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcac1", a: "xca", b: "xc1" }),
+    createBond({ id: "b-xc1o1", a: "xc1", b: "xo1", order: 2 }),
+    createBond({ id: "b-xc1oh", a: "xc1", b: "xoh" }),
+  ],
+});
+
+const methylamineX = createSpecies({
+  id: "sp-methylamine-x",
+  atoms: [
+    createAtom({ id: "xn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "xhn", element: "H" }),
+    createAtom({ id: "xhh", element: "H" }),
+    createAtom({ id: "xcn", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-xnh", a: "xn", b: "xhn" }),
+    createBond({ id: "b-xnh2", a: "xn", b: "xhh" }),
+    createBond({ id: "b-xncn", a: "xn", b: "xcn" }),
+  ],
+});
+
+const AMIDE_PT: MechanismStep = createStep({
+  id: "amide-pt",
+  from: createState({
+    id: "am3-before",
+    members: [
+      { species: amideAnionX, role: "nucleophile" },
+      { species: aceticAcidX, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "am3-after",
+    members: [
+      { species: acetateX, role: "product" },
+      { species: methylamineX, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["xhh", "xn"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("xn"), sink: toBondBetween("xn", "xhh") }),
+    createArrow({ id: "a-release", source: fromBond("b-xohh"), sink: toAtom("xoh") }),
+  ],
+});
+
 export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
   {
     id: "seq-hydration",
@@ -4115,6 +5126,442 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
           h7: { x: 1.45, y: -0.15 },
           ho6: { x: 1.75, y: 1.5 },
           hoh: { x: 2.5, y: 2.0 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-fischer",
+    title: "Fischer esterification · 3 steps",
+    brief: "Protonate the carbonyl, let the alcohol in, push the water out. The proton shuffles between beats are bookkeeping.",
+    successLine: "Acid catalysis in three honest moves: the proton made the carbonyl hungry, methanol attacked, and water left once the electrons could relay from the methoxy oxygen. Everything else in the full PADPED dance is proton bookkeeping, and the equilibrium is pushed by drowning it in alcohol.",
+    steps: [
+      {
+        step: FISCHER_PROTONATE,
+        stepBrief: "Step 1 · Hydronium protonates the carbonyl oxygen. Now the carbon is hungry.",
+        fromHints: {
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          fo1: { x: 0.35, y: 1.0 },
+          fo2: { x: 1.0, y: -0.5 },
+          fho: { x: 1.95, y: -0.25 },
+          fo3: { x: 1.4, y: 1.85 },
+          fh1: { x: 0.75, y: 1.55 },
+          fh2: { x: 2.1, y: 1.5 },
+          fh3: { x: 1.45, y: 2.6 },
+        },
+        toHints: {
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          fo1: { x: 0.35, y: 1.0 },
+          fh1: { x: 1.0, y: 1.6 },
+          fo2: { x: 1.0, y: -0.5 },
+          fho: { x: 1.95, y: -0.25 },
+          fo3: { x: 1.7, y: 2.15 },
+          fh2: { x: 2.4, y: 1.8 },
+          fh3: { x: 1.75, y: 2.9 },
+        },
+      },
+      {
+        step: FISCHER_ATTACK,
+        stepBrief: "Step 2 · Methanol attacks the protonated carbonyl.",
+        fromHints: {
+          fom: { x: -1.55, y: 0.6 },
+          fhm: { x: -2.3, y: 0.25 },
+          fcm: { x: -1.65, y: 1.7 },
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          fo1: { x: 0.35, y: 1.0 },
+          fh1: { x: 1.0, y: 1.6 },
+          fo2: { x: 1.0, y: -0.5 },
+          fho: { x: 1.95, y: -0.25 },
+        },
+        toHints: {
+          fom: { x: -0.85, y: 0.7 },
+          fhm: { x: -1.6, y: 0.4 },
+          fcm: { x: -0.95, y: 1.8 },
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          fo1: { x: 0.45, y: 1.05 },
+          fh1: { x: 1.1, y: 1.65 },
+          fo2: { x: 1.0, y: -0.5 },
+          fho: { x: 1.95, y: -0.25 },
+        },
+      },
+      {
+        step: FISCHER_LOSE_WATER,
+        stepBrief: "Step 3 · After the proton hops (offstage), water leaves and the ester appears.",
+        fromHints: {
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          foh: { x: 0.45, y: 1.05 },
+          fhh: { x: 1.15, y: 1.6 },
+          fow: { x: 1.05, y: -0.55 },
+          fw1: { x: 2.0, y: -0.3 },
+          fw2: { x: 1.15, y: -1.6 },
+          fom: { x: -0.85, y: 0.7 },
+          fcm: { x: -0.95, y: 1.8 },
+        },
+        toHints: {
+          fca: { x: -0.95, y: -0.6 },
+          fc1: { x: 0, y: 0 },
+          foh: { x: 0.45, y: 1.05 },
+          fhh: { x: 1.15, y: 1.6 },
+          fom: { x: -0.85, y: 0.7 },
+          fcm: { x: -0.95, y: 1.8 },
+          fow: { x: 1.65, y: -0.85 },
+          fw1: { x: 2.6, y: -0.6 },
+          fw2: { x: 1.75, y: -1.9 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-socl2",
+    title: "SOCl2: acid → acyl chloride · 3 steps",
+    brief: "Turn the worst leaving group in the ladder into one that cannot wait to go. Activation, then the usual two beats.",
+    successLine: "The acid's OH attacked sulfur and became a chlorosulfite: a leaving group that leaves. Chloride then ran the standard attack-collapse pair, and the ejected chlorosulfite falls apart into SO2 gas and chloride, which is why this reaction only runs forward. Every synthesis that starts 'first, SOCl2' is buying this exact upgrade.",
+    steps: [
+      {
+        step: SOCL2_ACTIVATE,
+        stepBrief: "Step 1 · The acid's OH oxygen attacks sulfur; a chloride is pushed off.",
+        fromHints: {
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.35, y: 1.1 },
+          so2: { x: -1.3, y: -0.5 },
+          sho: { x: -1.35, y: -1.6 },
+          ss: { x: 0.1, y: 0.1 },
+          sk: { x: 0.3, y: 1.2 },
+          scl1: { x: 1.25, y: -0.55 },
+          scl2: { x: 0.05, y: -1.35 },
+        },
+        toHints: {
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.35, y: 1.1 },
+          so2: { x: -1.15, y: -0.4 },
+          sho: { x: -1.2, y: -1.5 },
+          ss: { x: 0.0, y: 0.1 },
+          sk: { x: 0.2, y: 1.2 },
+          scl2: { x: -0.05, y: -1.35 },
+          scl1: { x: 1.7, y: -0.75 },
+        },
+      },
+      {
+        step: SOCL2_ATTACK,
+        stepBrief: "Step 2 · Chloride attacks the carbonyl carbon of the (now deprotonated) chlorosulfite ester.",
+        fromHints: {
+          sclx: { x: -3.5, y: 1.05 },
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.35, y: 1.1 },
+          so2: { x: -1.15, y: -0.4 },
+          ss: { x: 0.0, y: 0.1 },
+          sk: { x: 0.2, y: 1.2 },
+          scl2: { x: -0.05, y: -1.35 },
+        },
+        toHints: {
+          sclx: { x: -2.9, y: 0.95 },
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.15, y: 1.15 },
+          so2: { x: -1.15, y: -0.4 },
+          ss: { x: 0.0, y: 0.1 },
+          sk: { x: 0.2, y: 1.2 },
+          scl2: { x: -0.05, y: -1.35 },
+        },
+      },
+      {
+        step: SOCL2_COLLAPSE,
+        stepBrief: "Step 3 · Collapse. The chlorosulfite leaves, then shatters into SO2 and chloride offstage.",
+        fromHints: {
+          sclx: { x: -2.9, y: 0.95 },
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.15, y: 1.15 },
+          so2: { x: -1.15, y: -0.4 },
+          ss: { x: 0.0, y: 0.1 },
+          sk: { x: 0.2, y: 1.2 },
+          scl2: { x: -0.05, y: -1.35 },
+        },
+        toHints: {
+          sclx: { x: -2.9, y: 0.95 },
+          sca: { x: -3.3, y: -0.6 },
+          sc1: { x: -2.35, y: 0.0 },
+          so1: { x: -2.15, y: 1.15 },
+          so2: { x: -0.75, y: -0.5 },
+          ss: { x: 0.4, y: 0.0 },
+          sk: { x: 0.6, y: 1.1 },
+          scl2: { x: 0.35, y: -1.45 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-anhydride-make",
+    title: "Acid → anhydride · 2 steps",
+    brief: "Carboxylate meets the acyl chloride you just made. Attack, collapse, and the middle oxygen is born.",
+    successLine: "The carboxylate attacked the acyl chloride and chloride left: an anhydride from the ladder's most reactive rung. Notice the direction: you always climb DOWN the reactivity ladder, which is why the acyl chloride had to be made first.",
+    steps: [
+      {
+        step: ANHMAKE_ATTACK,
+        stepBrief: "Step 1 · The carboxylate oxygen attacks the acyl chloride's carbonyl.",
+        fromHints: {
+          nb: { x: -1.5, y: 0.5 },
+          nc2: { x: -2.5, y: 0.05 },
+          nk2: { x: -2.55, y: -1.05 },
+          na2: { x: -3.45, y: 0.65 },
+          nca: { x: -0.9, y: -0.85 },
+          nc1: { x: 0, y: 0 },
+          no1: { x: 0.35, y: 1.05 },
+          ncl: { x: 1.2, y: -0.6 },
+        },
+        toHints: {
+          nb: { x: -0.9, y: 0.6 },
+          nc2: { x: -1.9, y: 0.15 },
+          nk2: { x: -1.95, y: -0.95 },
+          na2: { x: -2.85, y: 0.75 },
+          nca: { x: -0.9, y: -0.85 },
+          nc1: { x: 0, y: 0 },
+          no1: { x: 0.4, y: 1.1 },
+          ncl: { x: 1.2, y: -0.6 },
+        },
+      },
+      {
+        step: ANHMAKE_COLLAPSE,
+        stepBrief: "Step 2 · The carbonyl reforms and chloride leaves. Anhydride made.",
+        fromHints: {
+          nb: { x: -0.9, y: 0.6 },
+          nc2: { x: -1.9, y: 0.15 },
+          nk2: { x: -1.95, y: -0.95 },
+          na2: { x: -2.85, y: 0.75 },
+          nca: { x: -0.9, y: -0.85 },
+          nc1: { x: 0, y: 0 },
+          no1: { x: 0.4, y: 1.1 },
+          ncl: { x: 1.2, y: -0.6 },
+        },
+        toHints: {
+          nb: { x: -0.9, y: 0.6 },
+          nc2: { x: -1.9, y: 0.15 },
+          nk2: { x: -1.95, y: -0.95 },
+          na2: { x: -2.85, y: 0.75 },
+          nca: { x: -0.9, y: -0.85 },
+          nc1: { x: 0, y: 0 },
+          no1: { x: 0.4, y: 1.1 },
+          ncl: { x: 1.8, y: -0.85 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-lialh4",
+    title: "LiAlH4 on an ester · 3 steps",
+    brief: "Two hydrides, straight to the primary alcohol. The aldehyde in the middle never survives the flask.",
+    successLine: "First hydride, collapse to the aldehyde, second hydride: down two rungs to the alkoxide, alcohol at workup. The aldehyde is MORE reactive than the ester that made it, so with LiAlH4 there is no stopping halfway. That is exactly the job DIBAL exists to do differently.",
+    steps: [
+      {
+        step: LIALH_FIRST,
+        stepBrief: "Step 1 · The first hydride attacks the ester carbonyl.",
+        fromHints: {
+          lh1: { x: -1.4, y: 0.35 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.4, y: 0.95 },
+          lo2: { x: 1.0, y: -0.5 },
+          lcm: { x: 2.0, y: -0.3 },
+        },
+        toHints: {
+          lh1: { x: -0.8, y: 0.5 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.45, y: 1.0 },
+          lo2: { x: 1.0, y: -0.5 },
+          lcm: { x: 2.0, y: -0.3 },
+        },
+      },
+      {
+        step: LIALH_COLLAPSE,
+        stepBrief: "Step 2 · The alkoxide collapses; methoxide leaves; an aldehyde appears.",
+        fromHints: {
+          lh1: { x: -0.8, y: 0.5 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.45, y: 1.0 },
+          lo2: { x: 1.0, y: -0.5 },
+          lcm: { x: 2.0, y: -0.3 },
+        },
+        toHints: {
+          lh1: { x: -0.8, y: 0.5 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.45, y: 1.0 },
+          lo2: { x: 1.6, y: -0.75 },
+          lcm: { x: 2.55, y: -0.55 },
+        },
+      },
+      {
+        step: LIALH_SECOND,
+        stepBrief: "Step 3 · The second hydride finishes it. Alkoxide now, alcohol at workup.",
+        fromHints: {
+          lh2: { x: -1.45, y: 0.4 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.45, y: 1.0 },
+          lh1: { x: 0.85, y: -0.6 },
+        },
+        toHints: {
+          lh2: { x: -0.85, y: 0.55 },
+          lca: { x: -0.95, y: -0.75 },
+          lc1: { x: 0, y: 0 },
+          lo1: { x: 0.45, y: 1.0 },
+          lh1: { x: 0.85, y: -0.6 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-grignard-ester",
+    title: "Two Grignards on an ester · 3 steps",
+    brief: "Attack, collapse, attack again. The ketone is born more reactive than its parent, so it never survives.",
+    successLine: "The first carbanion built the intermediate, the collapse revealed a ketone, and the second carbanion took it immediately: a tertiary alkoxide with two identical new groups. This is why esters plus Grignards give tertiary alcohols and never stop at the ketone, and why the Gilman route exists when you need one.",
+    steps: [
+      {
+        step: GRIGNARD_E_FIRST,
+        stepBrief: "Step 1 · The first carbanion attacks the ester carbonyl.",
+        fromHints: {
+          ge1: { x: -1.45, y: 0.35 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.4, y: 0.95 },
+          go2: { x: 1.0, y: -0.5 },
+          gcm: { x: 2.0, y: -0.3 },
+        },
+        toHints: {
+          ge1: { x: -0.85, y: 0.55 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.45, y: 1.0 },
+          go2: { x: 1.0, y: -0.5 },
+          gcm: { x: 2.0, y: -0.3 },
+        },
+      },
+      {
+        step: GRIGNARD_E_COLLAPSE,
+        stepBrief: "Step 2 · Collapse. Methoxide out, and a ketone stands exposed.",
+        fromHints: {
+          ge1: { x: -0.85, y: 0.55 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.45, y: 1.0 },
+          go2: { x: 1.0, y: -0.5 },
+          gcm: { x: 2.0, y: -0.3 },
+        },
+        toHints: {
+          ge1: { x: -0.85, y: 0.55 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.45, y: 1.0 },
+          go2: { x: 1.6, y: -0.75 },
+          gcm: { x: 2.55, y: -0.55 },
+        },
+      },
+      {
+        step: GRIGNARD_E_SECOND,
+        stepBrief: "Step 3 · The second carbanion takes the ketone. Tertiary alkoxide, done.",
+        fromHints: {
+          ge2: { x: -1.5, y: 0.4 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.45, y: 1.0 },
+          ge1: { x: 0.95, y: -0.55 },
+        },
+        toHints: {
+          ge2: { x: -0.9, y: 0.55 },
+          gca: { x: -0.95, y: -0.75 },
+          gc1: { x: 0, y: 0 },
+          go1: { x: 0.45, y: 1.0 },
+          ge1: { x: 0.95, y: -0.55 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-amide-hyd",
+    title: "Amide hydrolysis · 3 steps",
+    brief: "The ladder's most stubborn rung. The amide anion only leaves because the proton transfer after it slams the door.",
+    successLine: "Hydroxide attacked, the amide anion was forced out, and it instantly took the acid's proton to give carboxylate plus amine. That last transfer is the thermodynamic sink that makes the whole reluctant hydrolysis run, and it is why amides need hot, strong base while esters fall apart in warm soap water.",
+    steps: [
+      {
+        step: AMIDE_ATTACK,
+        stepBrief: "Step 1 · Hydroxide attacks the amide carbonyl. Slowly. Resonance fights back.",
+        fromHints: {
+          xoh: { x: -1.6, y: 0.5 },
+          xhh: { x: -2.35, y: 0.15 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.4, y: 0.95 },
+          xn: { x: 1.05, y: -0.45 },
+          xhn: { x: 1.0, y: -1.55 },
+          xcn: { x: 2.1, y: 0.05 },
+        },
+        toHints: {
+          xoh: { x: -0.75, y: 0.65 },
+          xhh: { x: -1.5, y: 0.95 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.45, y: 1.0 },
+          xn: { x: 1.05, y: -0.45 },
+          xhn: { x: 1.0, y: -1.55 },
+          xcn: { x: 2.1, y: 0.05 },
+        },
+      },
+      {
+        step: AMIDE_COLLAPSE,
+        stepBrief: "Step 2 · The collapse pushes out the amide anion, the worst leaving group you will ever draw.",
+        fromHints: {
+          xoh: { x: -0.75, y: 0.65 },
+          xhh: { x: -1.5, y: 0.95 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.45, y: 1.0 },
+          xn: { x: 1.05, y: -0.45 },
+          xhn: { x: 1.0, y: -1.55 },
+          xcn: { x: 2.1, y: 0.05 },
+        },
+        toHints: {
+          xoh: { x: -0.75, y: 0.65 },
+          xhh: { x: -1.5, y: 0.95 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.45, y: 1.0 },
+          xn: { x: 1.65, y: -0.7 },
+          xhn: { x: 1.6, y: -1.8 },
+          xcn: { x: 2.7, y: -0.2 },
+        },
+      },
+      {
+        step: AMIDE_PT,
+        stepBrief: "Step 3 · The amide anion takes the acid's proton. The door slams shut behind it.",
+        fromHints: {
+          xn: { x: -2.3, y: 1.45 },
+          xhn: { x: -3.3, y: 1.2 },
+          xcn: { x: -2.25, y: 2.55 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.45, y: 0.95 },
+          xoh: { x: -0.75, y: 0.65 },
+          xhh: { x: -1.5, y: 0.95 },
+        },
+        toHints: {
+          xn: { x: -2.35, y: 1.5 },
+          xhh: { x: -1.6, y: 1.2 },
+          xhn: { x: -3.35, y: 1.25 },
+          xcn: { x: -2.3, y: 2.6 },
+          xca: { x: -0.95, y: -0.75 },
+          xc1: { x: 0, y: 0 },
+          xo1: { x: 0.45, y: 0.95 },
+          xoh: { x: -0.75, y: 0.65 },
         },
       },
     ],

@@ -1448,6 +1448,207 @@ const CUPRATE_CONJUGATE: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 8 spine: Grignard onto a nitrile. The triple bond gives one    */
+/* pi and keeps one; workup turns the imine salt into a ketone.        */
+/* ------------------------------------------------------------------ */
+
+const carbanionY = createSpecies({
+  id: "sp-carbanion-y",
+  atoms: [createAtom({ id: "yg", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const acetonitrileY = createSpecies({
+  id: "sp-acetonitrile-y",
+  atoms: [
+    createAtom({ id: "yc1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "yc2", element: "C" }),
+    createAtom({ id: "yn", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "b-y12", a: "yc1", b: "yc2" }),
+    createBond({ id: "b-y2n", a: "yc2", b: "yn", order: 3 }),
+  ],
+});
+
+const ketimideY = createSpecies({
+  id: "sp-ketimide-y",
+  atoms: [
+    createAtom({ id: "yc1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "yc2", element: "C" }),
+    createAtom({ id: "yn", element: "N", formalCharge: -1, lonePairs: 2 }),
+    createAtom({ id: "yg", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-y12", a: "yc1", b: "yc2" }),
+    createBond({ id: "b-y2n", a: "yc2", b: "yn", order: 2 }),
+    createBond({ id: "b-y2g", a: "yc2", b: "yg" }),
+  ],
+});
+
+const GRIGNARD_NITRILE: MechanismStep = createStep({
+  id: "grignard-nitrile",
+  from: createState({
+    id: "yn-before",
+    members: [
+      { species: carbanionY, role: "nucleophile" },
+      { species: acetonitrileY, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "yn-after", members: [{ species: ketimideY, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["yg", "yc2"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("yg"), sink: toBondBetween("yg", "yc2") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-y2n"), sink: toAtom("yn") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 10 spine: hydride onto a nitrile, the first half of the        */
+/* reduction to a primary amine.                                       */
+/* ------------------------------------------------------------------ */
+
+const hydrideZ = createSpecies({
+  id: "sp-hydride-z",
+  atoms: [createAtom({ id: "zh", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const acetonitrileZ = createSpecies({
+  id: "sp-acetonitrile-z",
+  atoms: [
+    createAtom({ id: "zc1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "zc2", element: "C" }),
+    createAtom({ id: "zn", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "b-z12", a: "zc1", b: "zc2" }),
+    createBond({ id: "b-z2n", a: "zc2", b: "zn", order: 3 }),
+  ],
+});
+
+const aldimideZ = createSpecies({
+  id: "sp-aldimide-z",
+  atoms: [
+    createAtom({ id: "zc1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "zc2", element: "C" }),
+    createAtom({ id: "zn", element: "N", formalCharge: -1, lonePairs: 2 }),
+    createAtom({ id: "zh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-z12", a: "zc1", b: "zc2" }),
+    createBond({ id: "b-z2n", a: "zc2", b: "zn", order: 2 }),
+    createBond({ id: "b-z2h", a: "zc2", b: "zh" }),
+  ],
+});
+
+const NITRILE_HYDRIDE: MechanismStep = createStep({
+  id: "nitrile-hydride",
+  from: createState({
+    id: "zn-before",
+    members: [
+      { species: hydrideZ, role: "nucleophile" },
+      { species: acetonitrileZ, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "zn-after", members: [{ species: aldimideZ, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["zc2"] },
+  arrows: [
+    createArrow({ id: "a-h", source: fromLonePair("zh"), sink: toBondBetween("zh", "zc2") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-z2n"), sink: toAtom("zn") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 11 spine: phenoxide as nucleophile, the Williamson that makes  */
+/* anisole. The ring makes the alkoxide easy; the SN2 is the same.     */
+/* ------------------------------------------------------------------ */
+
+const phenoxideP = createSpecies({
+  id: "sp-phenoxide-p",
+  atoms: [
+    createAtom({ id: "pc1", element: "C" }),
+    createAtom({ id: "pc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "po", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-p12", a: "pc1", b: "pc2", order: 2 }),
+    createBond({ id: "b-p23", a: "pc2", b: "pc3" }),
+    createBond({ id: "b-p34", a: "pc3", b: "pc4", order: 2 }),
+    createBond({ id: "b-p45", a: "pc4", b: "pc5" }),
+    createBond({ id: "b-p56", a: "pc5", b: "pc6", order: 2 }),
+    createBond({ id: "b-p61", a: "pc6", b: "pc1" }),
+    createBond({ id: "b-p1o", a: "pc1", b: "po" }),
+  ],
+});
+
+const bromomethaneP = createSpecies({
+  id: "sp-bromomethane-p",
+  atoms: [
+    createAtom({ id: "pcx", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "pbr", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-pcxbr", a: "pcx", b: "pbr" })],
+});
+
+const anisoleP = createSpecies({
+  id: "sp-anisole-p",
+  atoms: [
+    createAtom({ id: "pc1", element: "C" }),
+    createAtom({ id: "pc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "pc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "po", element: "O", lonePairs: 2 }),
+    createAtom({ id: "pcx", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-p12", a: "pc1", b: "pc2", order: 2 }),
+    createBond({ id: "b-p23", a: "pc2", b: "pc3" }),
+    createBond({ id: "b-p34", a: "pc3", b: "pc4", order: 2 }),
+    createBond({ id: "b-p45", a: "pc4", b: "pc5" }),
+    createBond({ id: "b-p56", a: "pc5", b: "pc6", order: 2 }),
+    createBond({ id: "b-p61", a: "pc6", b: "pc1" }),
+    createBond({ id: "b-p1o", a: "pc1", b: "po" }),
+    createBond({ id: "b-pocx", a: "po", b: "pcx" }),
+  ],
+});
+
+const bromideP = createSpecies({
+  id: "sp-bromide-p",
+  atoms: [createAtom({ id: "pbr", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const PHENOXIDE_ALKYLATION: MechanismStep = createStep({
+  id: "phenoxide-alkylation",
+  from: createState({
+    id: "ph-before",
+    members: [
+      { species: phenoxideP, role: "nucleophile" },
+      { species: bromomethaneP, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ph-after",
+    members: [
+      { species: anisoleP, role: "product" },
+      { species: bromideP, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["po", "pcx"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("po"), sink: toBondBetween("po", "pcx") }),
+    createArrow({ id: "a-leave", source: fromBond("b-pcxbr"), sink: toAtom("pbr") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1945,6 +2146,73 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       vk: { x: 1.4, y: 0.3 },
       vo: { x: 1.75, y: 1.3 },
       vm: { x: 2.2, y: -0.5 },
+    },
+  },
+  {
+    id: "grignard-nitrile",
+    title: "Grignard + nitrile",
+    brief: "The carbanion attacks the triple bond's carbon. One pi moves up; one stays.",
+    successLine: "The carbanion took the nitrile carbon and one pi pair climbed onto nitrogen: a metalated ketimine, which acidic workup hydrolyses to the ketone. Nitriles are the quiet way to a ketone that never over-adds, because the anionic imine repels the second equivalent.",
+    step: GRIGNARD_NITRILE,
+    fromHints: {
+      yg: { x: -1.5, y: 0.45 },
+      yc1: { x: -1.0, y: -0.85 },
+      yc2: { x: 0, y: 0 },
+      yn: { x: 1.15, y: 0.35 },
+    },
+    toHints: {
+      yg: { x: -0.85, y: 0.6 },
+      yc1: { x: -1.0, y: -0.85 },
+      yc2: { x: 0, y: 0 },
+      yn: { x: 1.15, y: 0.35 },
+    },
+  },
+  {
+    id: "nitrile-hydride",
+    title: "Nitrile reduction, first hydride",
+    brief: "Hydride onto the nitrile carbon: the first of the two additions that end at a primary amine.",
+    successLine: "The hydride landed and the triple bond let one pi pair go: a metalated aldimine, halfway to the amine. A second hydride does it again, and workup hands you the primary amine with its CH2 built from nothing but H-minus, twice.",
+    step: NITRILE_HYDRIDE,
+    fromHints: {
+      zh: { x: -1.35, y: 0.4 },
+      zc1: { x: -1.0, y: -0.85 },
+      zc2: { x: 0, y: 0 },
+      zn: { x: 1.15, y: 0.35 },
+    },
+    toHints: {
+      zh: { x: -0.75, y: 0.55 },
+      zc1: { x: -1.0, y: -0.85 },
+      zc2: { x: 0, y: 0 },
+      zn: { x: 1.15, y: 0.35 },
+    },
+  },
+  {
+    id: "phenoxide-alkylation",
+    title: "Phenoxide Williamson",
+    brief: "The ring made this alkoxide cheap to form; the SN2 it does is the same one you already know.",
+    successLine: "Phenoxide's oxygen took the methyl carbon and bromide left: anisole by Williamson. The aromatic ring is why plain NaOH was enough to make this nucleophile, and it is the same delocalisation that makes phenol a hundred thousand times more acidic than cyclohexanol.",
+    step: PHENOXIDE_ALKYLATION,
+    fromHints: {
+      pc1: { x: -1.3, y: 0.0 },
+      pc2: { x: -2.0, y: 0.85 },
+      pc3: { x: -3.1, y: 0.7 },
+      pc4: { x: -3.5, y: -0.3 },
+      pc5: { x: -2.8, y: -1.15 },
+      pc6: { x: -1.7, y: -1.0 },
+      po: { x: -0.6, y: 0.85 },
+      pcx: { x: 0.75, y: 0.45 },
+      pbr: { x: 1.95, y: 0.05 },
+    },
+    toHints: {
+      pc1: { x: -1.3, y: 0.0 },
+      pc2: { x: -2.0, y: 0.85 },
+      pc3: { x: -3.1, y: 0.7 },
+      pc4: { x: -3.5, y: -0.3 },
+      pc5: { x: -2.8, y: -1.15 },
+      pc6: { x: -1.7, y: -1.0 },
+      po: { x: -0.6, y: 0.85 },
+      pcx: { x: 0.35, y: 0.5 },
+      pbr: { x: 2.35, y: 0.2 },
     },
   },
 ];
