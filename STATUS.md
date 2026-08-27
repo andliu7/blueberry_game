@@ -543,3 +543,32 @@ budget gate.
 4. `BUILD-PROMPT.md` says `INHERITED-DECISIONS.md` holds eleven decisions. It holds thirteen.
 5. Both optional screen recordings are still missing. They are what would settle whether the feedback
    count is a real property of the app or an artifact of still captures.
+
+## 2026-08-26 · Coverage waves 6-9: the mechanism spine is done
+
+Four authoring waves in one session, each green on its first test run because the registry-as-data
+pattern held: a wave is species + arrows + hints + a map link, and the generic tests do the rest.
+
+- **Wave 6, the acyl ladder core.** Saponification (3 steps), transesterification, Gilman stop,
+  anhydride aminolysis (also the amine-protection node), DIBAL stop, decarboxylation.
+- **Wave 7, Unit 9 enolates, complete.** Acid α-bromination, crossed aldol, intramolecular aldol,
+  Dieckmann, malonic ester synthesis, cuprate 1,4, and the Robinson annulation capstone (3 steps).
+- **Wave 8, Unit 8 complete.** Fischer (3 steps), SOCl₂ activation (3 steps), acid→anhydride,
+  LiAlH₄ double reduction, double Grignard, amide hydrolysis, Grignard+nitrile, nitrile reduction,
+  phenoxide Williamson. Triple bonds entered the corpus; the renderer already carried 3 rods.
+- **Wave 9, the rest.** EAS bromination / sulfonation / FC acylation, Br₂+diene 1,4, HBr alcohol
+  activation, mesylate, hemiacetal, epoxidation (4-arrow butterfly), Wolff-Kishner N₂ extrusion,
+  1,2-vs-1,4 Grignard, diazotization first bond, diazonium substitution.
+
+**Score: 69 of 86 spine nodes playable (70 nodes total), 219 web tests, typecheck clean.**
+
+The 17 spine nodes left are NOT mechanism-shaped: directing effects, blocking strategy, sequencing
+logic, oxidation ladder, protecting-group logic (x2 + orthogonality), reactivity ladder, pKa
+hierarchy, kinetic-vs-thermodynamic (x2), retrosynthesis, basicity-vs-nucleophilicity, phenol
+acidity, nitro reduction (x2, multi-electron metal chemistry, not arrow chemistry), and OsO₄
+syn-dihydroxylation (needs Os, an element chem-core does not carry). These are the concept /
+reagent-choice beat surfaces — the first non-trainer build, awaiting owner go-ahead.
+
+Theme ruling recorded in OPEN-QUESTIONS.md: lanterns (B) leads, more options to generate, team
+review before any backdrop ships. Next phase per owner: Stripe + Supabase configuration (Phase 6)
+run as a gauntlet loop.
