@@ -1216,6 +1216,319 @@ const CLAISEN_COLLAPSE: MechanismStep = createStep({
   ],
 });
 
+/* ================= Keto-enol tautomerism, base-catalyzed ================= */
+/* Unit 9a's opening spine node. Both directions are real chemistry; this
+ * sequence runs ketone -> enol so the enolate in the middle is the same
+ * intermediate every later 9-node leans on. */
+
+const acetoneTau = createSpecies({
+  id: "sp-acetone-tau",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "ha", element: "H" }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-c1ha", a: "c1", b: "ha" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const hydroxideTau = createSpecies({
+  id: "sp-hydroxide-tau",
+  atoms: [
+    createAtom({ id: "ob", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "hb", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" })],
+});
+
+const enolateTau = createSpecies({
+  id: "sp-enolate-tau",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const waterTau = createSpecies({
+  id: "sp-water-tau",
+  atoms: [
+    createAtom({ id: "ob", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hb", element: "H" }),
+    createAtom({ id: "ha", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" }), createBond({ id: "b-obha", a: "ob", b: "ha" })],
+});
+
+const TAU_DEPROTONATE: MechanismStep = createStep({
+  id: "tau-deprotonate",
+  from: createState({
+    id: "tau-a-before",
+    members: [
+      { species: hydroxideTau, role: "base" },
+      { species: acetoneTau, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "tau-a-after",
+    members: [
+      { species: enolateTau, role: "intermediate" },
+      { species: waterTau, role: "byproduct" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["ha", "c1"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("ob"), sink: toBondBetween("ob", "ha") }),
+    createArrow({ id: "a-into-pi", source: fromBond("b-c1ha"), sink: toBondBetween("c1", "c2") }),
+    createArrow({ id: "a-onto-o", source: fromBond("b-2o"), sink: toAtom("o1") }),
+  ],
+});
+
+/* The enolate reprotonates ON OXYGEN this time: that is the whole point of
+ * an ambident nucleophile, and the product is the enol. */
+
+const enolateTau2 = createSpecies({
+  id: "sp-enolate-tau2",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const waterTau2 = createSpecies({
+  id: "sp-water-tau2",
+  atoms: [
+    createAtom({ id: "ob", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hb", element: "H" }),
+    createAtom({ id: "ha", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" }), createBond({ id: "b-obha", a: "ob", b: "ha" })],
+});
+
+const enol = createSpecies({
+  id: "sp-enol",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ha", element: "H" }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-oha", a: "o1", b: "ha" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+  ],
+});
+
+const hydroxideTau2 = createSpecies({
+  id: "sp-hydroxide-tau2",
+  atoms: [
+    createAtom({ id: "ob", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "hb", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" })],
+});
+
+const TAU_O_PROTONATE: MechanismStep = createStep({
+  id: "tau-o-protonate",
+  from: createState({
+    id: "tau-b-before",
+    members: [
+      { species: enolateTau2, role: "intermediate" },
+      { species: waterTau2, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "tau-b-after",
+    members: [
+      { species: enol, role: "product" },
+      { species: hydroxideTau2, role: "byproduct" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["o1", "ha"] },
+  arrows: [
+    createArrow({ id: "a-o-grabs", source: fromLonePair("o1"), sink: toBondBetween("o1", "ha") }),
+    createArrow({ id: "a-oh-release", source: fromBond("b-obha"), sink: toAtom("ob") }),
+  ],
+});
+
+/* ================= Aldol condensation: the E1cb dehydration ================= */
+/* Finishing the aldol story: the beta-hydroxy carbonyl loses water through
+ * its enolate. Conjugation is the driving force and the copy says so. */
+
+const aldolProduct = createSpecies({
+  id: "sp-aldol-product",
+  atoms: [
+    createAtom({ id: "c1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "ha2", element: "H" }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "oh1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-c1ha2", a: "c1", b: "ha2" }),
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1f", a: "c1", b: "cf" }),
+    createBond({ id: "b-foh", a: "cf", b: "oh1" }),
+    createBond({ id: "b-ohh", a: "oh1", b: "hh" }),
+  ],
+});
+
+const hydroxideCond = createSpecies({
+  id: "sp-hydroxide-cond",
+  atoms: [
+    createAtom({ id: "ob", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "hb", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" })],
+});
+
+const aldolEnolate = createSpecies({
+  id: "sp-aldol-enolate",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "oh1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1f", a: "c1", b: "cf" }),
+    createBond({ id: "b-foh", a: "cf", b: "oh1" }),
+    createBond({ id: "b-ohh", a: "oh1", b: "hh" }),
+  ],
+});
+
+const waterCond = createSpecies({
+  id: "sp-water-cond",
+  atoms: [
+    createAtom({ id: "ob", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hb", element: "H" }),
+    createAtom({ id: "ha2", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-obhb", a: "ob", b: "hb" }), createBond({ id: "b-obha2", a: "ob", b: "ha2" })],
+});
+
+const COND_DEPROTONATE: MechanismStep = createStep({
+  id: "cond-deprotonate",
+  from: createState({
+    id: "cond-a-before",
+    members: [
+      { species: hydroxideCond, role: "base" },
+      { species: aldolProduct, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "cond-a-after",
+    members: [
+      { species: aldolEnolate, role: "intermediate" },
+      { species: waterCond, role: "byproduct" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["ha2", "c1"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("ob"), sink: toBondBetween("ob", "ha2") }),
+    createArrow({ id: "a-into-pi", source: fromBond("b-c1ha2"), sink: toBondBetween("c1", "c2") }),
+    createArrow({ id: "a-onto-o", source: fromBond("b-2o"), sink: toAtom("o1") }),
+  ],
+});
+
+const aldolEnolate2 = createSpecies({
+  id: "sp-aldol-enolate2",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "oh1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hh", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2", order: 2 }),
+    createBond({ id: "b-2o", a: "c2", b: "o1" }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1f", a: "c1", b: "cf" }),
+    createBond({ id: "b-foh", a: "cf", b: "oh1" }),
+    createBond({ id: "b-ohh", a: "oh1", b: "hh" }),
+  ],
+});
+
+const enone = createSpecies({
+  id: "sp-enone",
+  atoms: [
+    createAtom({ id: "c1", element: "C" }),
+    createAtom({ id: "c2", element: "C" }),
+    createAtom({ id: "o1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "c3", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-12", a: "c1", b: "c2" }),
+    createBond({ id: "b-2o", a: "c2", b: "o1", order: 2 }),
+    createBond({ id: "b-23", a: "c2", b: "c3" }),
+    createBond({ id: "b-1f", a: "c1", b: "cf", order: 2 }),
+  ],
+});
+
+const hydroxideOut2 = createSpecies({
+  id: "sp-hydroxide-out2",
+  atoms: [
+    createAtom({ id: "oh1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "hh", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-ohh", a: "oh1", b: "hh" })],
+});
+
+const COND_EXPEL: MechanismStep = createStep({
+  id: "cond-expel",
+  from: createState({ id: "cond-b-before", members: [{ species: aldolEnolate2, role: "intermediate" }] }),
+  to: createState({
+    id: "cond-b-after",
+    members: [
+      { species: enone, role: "product" },
+      { species: hydroxideOut2, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "e1cb", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-pi-swing", source: fromBond("b-12"), sink: toBondBetween("c1", "cf") }),
+    createArrow({ id: "a-reform-co", source: fromLonePair("o1"), sink: toBondBetween("o1", "c2") }),
+    createArrow({ id: "a-oh-leaves", source: fromBond("b-foh"), sink: toAtom("oh1") }),
+  ],
+});
+
 import { TRAINER_REACTIONS } from "./reactions";
 
 const carbonyl = TRAINER_REACTIONS.find((entry) => entry.id === "carbonyl-addition");
@@ -1241,6 +1554,116 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
         stepBrief: "Step 2 · The alkoxide takes a proton from hydronium.",
         fromHints: STEP2_FROM_HINTS,
         toHints: STEP2_TO_HINTS,
+      },
+    ],
+  },
+  {
+    id: "seq-tautomer",
+    title: "Keto–enol tautomerism · 2 steps",
+    brief: "Base takes the α-proton, then the enolate protonates on OXYGEN: same atoms, new tautomer.",
+    successLine: "Tautomerism whole: deprotonate at carbon, reprotonate at oxygen. The enolate in the middle is an ambident nucleophile, and which end takes the proton decides which tautomer you get — the equilibrium favours the ketone, but the enol is how half of Unit 9 happens.",
+    steps: [
+      {
+        step: TAU_DEPROTONATE,
+        stepBrief: "Step 1 · The base takes the α-hydrogen; three arrows to the enolate.",
+        fromHints: {
+          ob: { x: -2.55, y: 1.0 },
+          hb: { x: -3.3, y: 1.55 },
+          c1: { x: -0.95, y: 0.35 },
+          ha: { x: -1.7, y: 0.95 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+        },
+        toHints: {
+          ob: { x: -2.55, y: 1.0 },
+          hb: { x: -3.3, y: 1.55 },
+          ha: { x: -2.05, y: 1.6 },
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+        },
+      },
+      {
+        step: TAU_O_PROTONATE,
+        stepBrief: "Step 2 · The enolate's OXYGEN takes a proton from water: the enol.",
+        fromHints: {
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+          ob: { x: 2.35, y: 1.35 },
+          hb: { x: 3.1, y: 1.9 },
+          ha: { x: 1.45, y: 1.1 },
+        },
+        toHints: {
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          ha: { x: 1.15, y: 1.4 },
+          c3: { x: 0.6, y: -1.2 },
+          ob: { x: 2.75, y: 1.35 },
+          hb: { x: 3.5, y: 1.9 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-condensation",
+    title: "Aldol condensation · 2 steps",
+    brief: "The aldol product loses water the E1cb way: enolate first, then the hydroxide is pushed out.",
+    successLine: "The condensation whole: deprotonate alpha to the carbonyl, then the enolate's π swings over and expels hydroxide — the enone is conjugated, and that conjugation is the thermodynamic paycheck that drives the dehydration.",
+    steps: [
+      {
+        step: COND_DEPROTONATE,
+        stepBrief: "Step 1 · Base takes the α-H between the carbonyl and the alcohol arm.",
+        fromHints: {
+          ob: { x: -2.75, y: 1.15 },
+          hb: { x: -3.5, y: 1.7 },
+          c1: { x: -0.95, y: 0.35 },
+          ha2: { x: -1.7, y: 1.0 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+          cf: { x: -1.85, y: -0.45 },
+          oh1: { x: -2.9, y: -0.15 },
+          hh: { x: -3.55, y: 0.5 },
+        },
+        toHints: {
+          ob: { x: -2.75, y: 1.55 },
+          hb: { x: -3.5, y: 2.1 },
+          ha2: { x: -2.15, y: 2.1 },
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+          cf: { x: -1.85, y: -0.45 },
+          oh1: { x: -2.9, y: -0.15 },
+          hh: { x: -3.55, y: 0.5 },
+        },
+      },
+      {
+        step: COND_EXPEL,
+        stepBrief: "Step 2 · The enolate's π swings onto the C–C bond and hydroxide leaves. E1cb.",
+        fromHints: {
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+          cf: { x: -1.85, y: -0.45 },
+          oh1: { x: -2.9, y: -0.15 },
+          hh: { x: -3.55, y: 0.5 },
+        },
+        toHints: {
+          c1: { x: -0.95, y: 0.35 },
+          c2: { x: 0, y: -0.25 },
+          o1: { x: 0.55, y: 0.65 },
+          c3: { x: 0.6, y: -1.2 },
+          cf: { x: -1.85, y: -0.45 },
+          oh1: { x: -3.3, y: -0.35 },
+          hh: { x: -3.95, y: 0.3 },
+        },
       },
     ],
   },

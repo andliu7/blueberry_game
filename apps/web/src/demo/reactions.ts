@@ -1108,6 +1108,70 @@ const ENOLATE_ALKYLATION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 10 spine: the heart of reductive amination, hydride onto the    */
+/* iminium. NaBH3CN's whole trick is choosing THIS carbon.              */
+/* ------------------------------------------------------------------ */
+
+const iminium = createSpecies({
+  id: "sp-iminium",
+  atoms: [
+    createAtom({ id: "nm", element: "N", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "cn", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-nc", a: "nm", b: "cn" }),
+    createBond({ id: "b-nf", a: "nm", b: "cf", order: 2 }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+  ],
+});
+
+const hydrideAm = createSpecies({
+  id: "sp-hydride-am",
+  atoms: [createAtom({ id: "h9", element: "H", formalCharge: -1, lonePairs: 1 })],
+  bonds: [],
+});
+
+const methylamineOut = createSpecies({
+  id: "sp-methylamine-out",
+  atoms: [
+    createAtom({ id: "nm", element: "N", lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "cn", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "cf", element: "C" }),
+    createAtom({ id: "hf1", element: "H" }),
+    createAtom({ id: "hf2", element: "H" }),
+    createAtom({ id: "h9", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-nc", a: "nm", b: "cn" }),
+    createBond({ id: "b-nf", a: "nm", b: "cf" }),
+    createBond({ id: "b-cfh1", a: "cf", b: "hf1" }),
+    createBond({ id: "b-cfh2", a: "cf", b: "hf2" }),
+    createBond({ id: "b-cfh9", a: "cf", b: "h9" }),
+  ],
+});
+
+const IMINIUM_REDUCTION: MechanismStep = createStep({
+  id: "iminium-reduction",
+  from: createState({
+    id: "imr-before",
+    members: [
+      { species: hydrideAm, role: "nucleophile" },
+      { species: iminium, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "imr-after", members: [{ species: methylamineOut, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "reduction", reactionCenters: ["cf"] },
+  arrows: [
+    createArrow({ id: "a-hydride", source: fromLonePair("h9"), sink: toBondBetween("h9", "cf") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-nf"), sink: toAtom("nm") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1482,6 +1546,29 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       o1: { x: -2.05, y: 0.75 },
       c3: { x: -2.9, y: -0.95 },
       brm: { x: 1.95, y: -0.6 },
+    },
+  },
+  {
+    id: "iminium-reduction",
+    title: "Iminium reduction",
+    brief: "The heart of reductive amination: hydride picks the C=N carbon.",
+    successLine: "The hydride lands on the iminium carbon and the π electrons settle onto nitrogen: the amine is made, and NaBH₃CN's whole trick is that it reduces THIS species and leaves the plain carbonyl alone.",
+    step: IMINIUM_REDUCTION,
+    fromHints: {
+      h9: { x: -1.35, y: -0.35 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.55, y: -0.9 },
+      nm: { x: 1.05, y: 0.45 },
+      cn: { x: 2.05, y: 0.05 },
+    },
+    toHints: {
+      h9: { x: -0.85, y: -0.3 },
+      cf: { x: 0, y: 0 },
+      hf1: { x: -0.35, y: 0.94 },
+      hf2: { x: 0.55, y: -0.9 },
+      nm: { x: 1.05, y: 0.45 },
+      cn: { x: 2.05, y: 0.05 },
     },
   },
 ];

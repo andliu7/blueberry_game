@@ -580,3 +580,15 @@ says why no N-H left means enamine, not imine. Enolate alkylation closes the wav
 by SN2, three arrows.
 
 37 playable steps; 26 spine nodes linked on the map, plus Unit 4 now fully playable end to end.
+
+## 2026-08-26, coverage wave 5: tautomerism, the condensation's E1cb, the iminium
+
+Five steps, 121 tests green, first-run clean as every wave since the machine settled.
+
+Keto-enol tautomerism opens Unit 9a as a two-step sequence whose middle IS the enolate every later
+9-node leans on, and whose second step protonates on OXYGEN, which is the ambident lesson made
+playable. The aldol story closes: the condensation runs E1cb, deprotonate then the pi swings over
+and expels hydroxide, conjugation named as the paycheck. And reductive amination's heart lands as
+the iminium reduction, with NaBH3CN's selectivity trick in the success copy.
+
+42 playable steps; 29 spine nodes lit of 86.
