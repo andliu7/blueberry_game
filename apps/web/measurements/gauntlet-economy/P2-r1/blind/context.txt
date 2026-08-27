@@ -1,0 +1,1 @@
+This is the moment on a phone right after a student finishes a lesson: the app tells them the lesson is complete and shows what they earned for it, with the mascot reacting. Frames 1 to 4 are a burst at 0, 400, 900 and 2500 ms after the screen appears, ending on the settled screen with its continue button.

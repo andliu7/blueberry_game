@@ -49,6 +49,7 @@ import {
   type ReactionOutcome,
 } from "../mascot/berryReaction";
 import { progress } from "../app/progress";
+import type { Receipt } from "@blueberry/economy";
 import { useProgress } from "../app/hooks";
 import { ProblemView } from "./ProblemView";
 import { FeedbackBody, feedbackHeadline } from "./Feedback";
@@ -116,7 +117,18 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
   const [correct, setCorrect] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [videoDone, setVideoDone] = useState(!showVideo);
-  const [finished, setFinished] = useState<{ earned: number; returning: boolean } | null>(null);
+  // What the reward moment plays: the store's receipt for the clear, the
+  // balance the store derived after it, whether this was the student's first
+  // diamond ever (the long catch), and the session stopwatch. Nothing here is
+  // added up locally; ECONOMY.md, "the client animates what the server
+  // concluded".
+  const [finished, setFinished] = useState<{
+    receipt: Receipt;
+    diamondBalance: number;
+    firstDiamond: boolean;
+    elapsedMs: number;
+  } | null>(null);
+  const startedAtRef = useRef<number>(performance.now());
 
   // The reaction in play and a key that bumps each time one fires, so the
   // same reaction twice in a row still replays. `settled` is the post-sad
@@ -192,10 +204,19 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
       setReactionKey((k) => k + 1);
       return;
     }
-    const today = new Date().toISOString().slice(0, 10);
-    const returning = snapshot.activeDays.length > 0 && !snapshot.activeDays.includes(today);
-    const earned = progress.completeLesson(topic, correct, attempted, problems.map((p) => p.id));
-    setFinished({ earned, returning });
+    const firstDiamond = snapshot.economy.diamonds.earned === 0;
+    progress.completeLesson(topic, correct, attempted, problems.map((p) => p.id));
+    // The store commits synchronously, so the receipt for this clear is the
+    // snapshot's lastReceipt by the time completeLesson returns.
+    const after = progress.getSnapshot();
+    const receipt = after.lastReceipt;
+    if (receipt === null) return;
+    setFinished({
+      receipt,
+      diamondBalance: after.economy.diamonds.balance,
+      firstDiamond: firstDiamond && receipt.diamonds.length > 0,
+      elapsedMs: performance.now() - startedAtRef.current,
+    });
   };
 
   const advance = () => {
@@ -223,10 +244,12 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
   if (finished !== null) {
     return (
       <RewardMoment
-        diamondsEarned={finished.earned}
+        receipt={finished.receipt}
+        diamondBalance={finished.diamondBalance}
+        firstDiamond={finished.firstDiamond}
         correct={correct}
         attempted={attempted}
-        returning={finished.returning}
+        elapsedMs={finished.elapsedMs}
         reducedMotion={reducedMotion}
         onContinue={() => (onFinished === undefined ? onExit() : onFinished(correct, attempted))}
       />

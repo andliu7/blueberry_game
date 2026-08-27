@@ -131,6 +131,15 @@
      that carries meaning. sky-600 is 4.10:1 on white and 3.73:1 on cream, and
      is still recognisably the same blue. */
   --diamond: #0284c7;
+  /* The reward moment's text inks. --diamond at 4.10:1 on white clears the
+     graphic floor and not the body text one, so a diamond COUNT reads in
+     sky-700 (#0369a1, 5.9:1 on white); the amber count reads in the same
+     amber-800 the rejection triangle uses. The shine is a translucent white
+     over the diamond fill, never a literal white on a card. */
+  --diamond-ink: #0369a1;
+  --warn-ink: #92400e;
+  --reward-shine: rgba(255, 255, 255, 0.28);
+  --reward-ground: color-mix(in srgb, var(--primary) 7%, var(--background));
 }
 
 .dark {
@@ -190,6 +199,10 @@
   --not-requested: #fbbf24;
   --not-requested-soft: rgba(251, 191, 36, 0.16);
   --diamond: #38bdf8;
+  --diamond-ink: #7dd3fc;
+  --warn-ink: #fcd34d;
+  --reward-shine: rgba(255, 255, 255, 0.22);
+  --reward-ground: color-mix(in srgb, var(--primary) 12%, var(--background));
 }
 
 /* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,
@@ -221,6 +234,8 @@
   --color-not-requested: var(--not-requested);
   --color-not-requested-soft: var(--not-requested-soft);
   --color-diamond: var(--diamond);
+  --color-diamond-ink: var(--diamond-ink);
+  --color-warn-ink: var(--warn-ink);
 
   /* Type scale, defined once per the note in docs/DESIGN-TOKENS.md that the
      sibling repo never defined one. Seven steps, 1.25 ratio-ish, snapped to
@@ -606,5 +621,295 @@ body {
   .combo-bubble {
     animation-duration: 1ms;
     animation-delay: 0ms;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   The reward moment, piece P2. One full bleed stage, opaque from its first
+   frame (the same lesson ComboInterstitial learned in its round 2), tinted
+   away from the working ground so the state change is visible before any
+   text is read. Everything on it moves on transform and opacity only, and
+   every timing is driven by the component's one clock; the classes below are
+   the visual halves of beats the component decides. Under reduced motion the
+   component renders the final frame at once and these collapse to 1 ms. */
+.reward-stage {
+  background: var(--reward-ground);
+  touch-action: manipulation;
+}
+.reward-glow {
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 18%,
+    color-mix(in srgb, var(--primary) 22%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 8%, transparent) 50%,
+    transparent 100%
+  );
+}
+.reward-headline {
+  animation: badge-pop 520ms var(--ease-spring) 60ms both;
+}
+.reward-xp {
+  font-size: clamp(4rem, 19vw, 6rem);
+  letter-spacing: -0.02em;
+}
+/* The diamond count-up's shine pass, ECONOMY.md "The moment": a translucent
+   light sweeps the number while it counts. The colour under it is the ink
+   itself, so the count stays AA at every frame; only the highlight moves. */
+.reward-shine {
+  background-image: linear-gradient(100deg, transparent 20%, var(--reward-shine) 50%, transparent 80%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: reward-shine 700ms linear infinite;
+}
+@keyframes reward-shine {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+.reward-card__body--stat {
+  padding: 0.55rem 0.35rem;
+  min-height: 2.75rem;
+}
+.reward-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.reward-reveal {
+  animation: reward-reveal 320ms var(--ease-out) both;
+}
+/* badge-pop without its 200 ms delay: the component's clock already decided when. */
+.reward-pop {
+  animation: badge-pop 420ms var(--ease-spring) both;
+}
+@keyframes reward-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.reward-badge {
+  background: var(--good-soft);
+  color: var(--good-ink);
+  border: 1.5px solid color-mix(in srgb, var(--good) 45%, transparent);
+}
+
+/* The cards, the bar's shape: an outlined card whose header band carries the
+   accent, the body carrying an icon and a number. The band is the SOFT tint
+   with the strong ink, because a filled band in the accent itself fails AA
+   for the label in one theme or the other. */
+.reward-card {
+  --card-accent: var(--primary);
+  --card-band: var(--muted);
+  --card-band-ink: var(--foreground);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 2px solid var(--card-accent);
+  background: var(--card);
+}
+.reward-card__band {
+  background: var(--card-band);
+  color: var(--card-band-ink);
+  padding: 0.35rem 0.5rem;
+  text-align: center;
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.reward-card__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  min-height: 3.25rem;
+}
+.reward-card--xp,
+.reward-card--streak {
+  --card-accent: var(--warn);
+  --card-band: var(--warn-soft-solid);
+  --card-band-ink: var(--warn-ink);
+}
+.reward-card--good {
+  --card-accent: var(--good);
+  --card-band: var(--good-soft);
+  --card-band-ink: var(--good-ink);
+}
+.reward-card--time {
+  --card-accent: var(--primary);
+  --card-band: color-mix(in srgb, var(--primary) 12%, var(--card));
+  --card-band-ink: var(--primary-ink);
+}
+.reward-card--diamond {
+  --card-accent: var(--diamond);
+  --card-band: color-mix(in srgb, var(--diamond) 14%, var(--card));
+  --card-band-ink: var(--diamond-ink);
+}
+.reward-milestone {
+  background: var(--warn-soft-solid);
+  border: 2px solid var(--warn);
+}
+
+/* The diamond catch. Five positions on the component's clock: waiting (above
+   the frame), falling (into Bloom's arms), held (a beat, longer for the first
+   diamond ever), flying (to the counter), landed (gone; the counter has it). */
+.reward-diamond {
+  margin-left: -1.25rem;
+  transform: translateY(-120px);
+  opacity: 0;
+  will-change: transform;
+  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--diamond) 45%, transparent));
+}
+@media (min-width: 768px) {
+  .reward-diamond {
+    margin-left: -1.5rem;
+  }
+}
+.reward-diamond[data-stage="falling"] {
+  animation: reward-diamond-fall 300ms cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+.reward-stage[data-reward-first="true"] .reward-diamond[data-stage="falling"] {
+  animation-duration: 520ms;
+}
+.reward-diamond[data-stage="held"] {
+  opacity: 1;
+  transform: translateY(42px) scale(1.08);
+  animation: reward-diamond-held 500ms var(--ease-spring) both;
+}
+.reward-diamond[data-stage="flying"] {
+  opacity: 1;
+  transform: translate(var(--fly-dx, 0px), var(--fly-dy, -240px)) scale(0.45);
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reward-diamond[data-stage="landed"] {
+  opacity: 0;
+  transform: translate(var(--fly-dx, 0px), var(--fly-dy, -240px)) scale(0.3);
+}
+@keyframes reward-diamond-fall {
+  from {
+    opacity: 0;
+    transform: translateY(-120px) rotate(-18deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(42px) rotate(0deg);
+  }
+}
+@keyframes reward-diamond-held {
+  from {
+    transform: translateY(42px) scale(0.9);
+  }
+  to {
+    transform: translateY(42px) scale(1.08);
+  }
+}
+.reward-counter[data-landed="true"] {
+  animation: reward-counter-pop 360ms var(--ease-spring) both;
+}
+@keyframes reward-counter-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* The flame. Grey and small until the beat lights it, then the outer tongue
+   flickers on its own clock. Two fills, both tokens, no image. */
+.reward-flame__outer {
+  fill: var(--muted-foreground);
+  transition: fill 260ms var(--ease-out);
+}
+.reward-flame__inner {
+  fill: var(--muted);
+  transition: fill 260ms var(--ease-out);
+}
+.reward-flame[data-lit="true"] .reward-flame__outer {
+  fill: var(--warn);
+  transform-origin: 50% 90%;
+  animation: reward-flame-flicker 1.1s ease-in-out infinite;
+}
+.reward-flame[data-lit="true"] .reward-flame__inner {
+  fill: var(--warn-soft-solid);
+}
+@keyframes reward-flame-flicker {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+  50% {
+    transform: scaleY(1.06) scaleX(0.96);
+  }
+}
+
+/* The burst: sixteen token coloured pieces thrown outward from behind Bloom,
+   fading as they fall. CSS only; no particle engine. */
+.reward-spark {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 6px;
+  height: 14px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: reward-spark 900ms cubic-bezier(0.2, 0.8, 0.3, 1) var(--delay, 0ms) both;
+}
+.reward-spark--round {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+.reward-spark--primary { background: var(--primary); }
+.reward-spark--warn { background: var(--warn); }
+.reward-spark--good { background: var(--good); }
+.reward-spark--diamond { background: var(--diamond); }
+@keyframes reward-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), calc(var(--dy) + 60px)) rotate(200deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-headline,
+  .reward-reveal,
+  .reward-pop,
+  .reward-diamond[data-stage="falling"],
+  .reward-diamond[data-stage="held"],
+  .reward-counter[data-landed="true"],
+  .reward-spark {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .reward-diamond[data-stage="flying"] {
+    transition-duration: 1ms;
+  }
+  .reward-flame[data-lit="true"] .reward-flame__outer {
+    animation: none;
+  }
+  .reward-shine {
+    animation: none;
   }
 }

@@ -44,3 +44,25 @@ is empty ground in every frame.
 Builder note worth keeping: the round 1 edits were found in git stash@{0} (made on
 294c5ea, during this round, by an interrupted attempt), applied with the entry left in
 place. Foreign mistakeCard.test.ts still carries 2 failures of its own; not touched.
+
+## P2 The reward moment
+
+### Round 1: BAR WON, confidence 0.70
+
+Audit clean. Pairing: phone dark, ours vs run2 p74 to p77. Ours (B) lost on
+hierarchy: the settled screen shows XP three times (hero 25 XP, the First clear /
+Flawless / Daily goal chips, and an XP 25 tile at the bottom) and flawless twice
+(FLAWLESS pill, PERFECT 100% tile), so "the payoff decays into a dashboard" with seven
+bordered containers under the hero. Transient bugs the burst exposed: the Diamonds
+card reads +0 at 900 ms above a breakdown already summing to +95; TIME 0:02 is a
+nonsense tile; the diamond icon lands on Bloom's eyes at 900 ms; Bloom barely reacts.
+
+What the judge held against the BAR: its counter shows "00" at frame 1 and the "15"
+at 900 ms has its digits on different baselines, a rendering glitch in the exact beat.
+
+Gap for round 2: one hero number, at most two cards below the chips, stats row gone.
+
+BLOCKER FOUND, being fixed in parallel: the web app never journals node_started, so
+the mastery denominator (unlocked nodes) is 1 on a first clear and the receipt reads
++681 diamonds, New rank Exam Ready. The P2 capture seeds eight started intro nodes to
+mask it; the real fix is a course-sized universe in deriveEconomy.

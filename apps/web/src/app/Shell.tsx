@@ -35,7 +35,7 @@ function DiamondBadge({ count }: { readonly count: number }) {
     <span
       className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-scale-sm font-semibold text-foreground"
       aria-label={`${count} diamonds`}
-      title="Diamonds. Earned by finishing lessons and by coming back. Balances are kept by the server from Phase 6."
+      title="Diamonds. Earned by clearing nodes, flawless runs and streak milestones. Balances are kept by the server from Phase 6."
     >
       <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden>
         <path d="M4 2h12l3 5-9 11L1 7z" fill="var(--diamond)" />

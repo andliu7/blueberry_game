@@ -23,9 +23,36 @@
  * state clicks cannot reach, it seeds localStorage key blueberry.progress.v2
  * with an EconomyEvent journal (see src/app/progress.ts) and says so here.
  *
+ * P2, THE REWARD MOMENT, SEEDS THE JOURNAL, and here is why. The moment is
+ * reached by real clicks (three right answers, Finish lesson, Continue past
+ * the combo interstitial), but two of its beats depend on history no click in
+ * one session can create. "first" seeds nothing: the account has never earned
+ * a diamond, so the long first-diamond catch plays. "streak" seeds a casual
+ * daily goal and one concept clear on each of the six previous days, so
+ * today's clear is the seventh counted day: the streak lights, the 7 day
+ * milestone card shows, and the receipt carries the milestone's 75 diamonds
+ * and the daily goal's 10 XP. The seed is an EconomyEvent journal and nothing
+ * else; every number on the screen still comes out of deriveEconomy.
+ *
+ * BOTH P2 SEEDS ALSO UNLOCK THE INTRO COURSE, and this one is a workaround
+ * that is recorded rather than hidden. Mastery is the decayed strength of
+ * every UNLOCKED node (derive.ts, modelScoreAt), and a node is unlocked by a
+ * node_started or node_cleared event. The web app never journals
+ * node_started today, so a student's very first clear is one node of one,
+ * which is 100 percent mastery, which pays every rank badge at once: the
+ * real click path's first receipt reads "+681 diamonds, New rank: Exam
+ * Ready". That is an economy package and pathway problem, not a reward
+ * moment one, and it is reported with this piece. The seed puts eight of
+ * the intro course's other topics into the journal as started intro nodes
+ * (charge cost 0, no XP, no diamonds), which is the state the pathway will
+ * put a real account in once it journals unlocks. "first" therefore still
+ * has earned 0 diamonds before the lesson, so the long catch plays, and the
+ * capture refuses a "first" frame whose receipt carries a rank line.
+ *
  * Usage, from apps/web:
  *   npm run build
  *   node measurements/capture-economy.mjs --piece P1 --out measurements/gauntlet-economy/P1-r1/self-check
+ *   node measurements/capture-economy.mjs --piece P2 --out measurements/gauntlet-economy/P2-r1/self-check
  *
  * Exits nonzero if any moment did not appear: a shot of the wrong state is
  * never handed to a critic.
@@ -101,15 +128,31 @@ const origin = `http://127.0.0.1:${server.address().port}`;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** A fresh page on a hash route, in a theme, with nothing stored. */
-async function open(browser, viewport, theme, hash) {
+/**
+ * A fresh page on a hash route, in a theme, with nothing stored except an
+ * optional seeded journal under the progress store's key.
+ */
+async function open(browser, viewport, theme, hash, journal = null) {
   const page = await browser.newPage();
   await page.setViewport(viewport);
-  await page.evaluateOnNewDocument((wanted) => {
-    localStorage.clear();
-    localStorage.setItem("theme", wanted);
-    document.documentElement.classList.toggle("dark", wanted === "dark");
-  }, theme);
+  await page.evaluateOnNewDocument(
+    (wanted, seed) => {
+      localStorage.clear();
+      localStorage.setItem("theme", wanted);
+      // The seed is written BEFORE the class toggle. This runs before the
+      // document element exists, so the toggle throws, and anything after it
+      // silently never runs; P1's null seed hid that for a whole round.
+      if (seed !== null) {
+        localStorage.setItem(
+          "blueberry.progress.v2",
+          JSON.stringify({ course: null, startTopics: [], lessons: {}, attemptedProblems: [], onboardingDone: false, displayName: null, journal: seed }),
+        );
+      }
+      if (document.documentElement !== null) document.documentElement.classList.toggle("dark", wanted === "dark");
+    },
+    theme,
+    journal,
+  );
   await page.goto(`${origin}/${hash}`, { waitUntil: "networkidle0" });
   return page;
 }
@@ -234,7 +277,128 @@ async function captureP1(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1 };
+/** The machine's zone, which is also the headless browser's, so seeded days are the browser's days. */
+const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+/** An instant at local noon `daysAgo` days before today. Noon keeps it inside the day in any offset. */
+function noonDaysAgo(daysAgo) {
+  const at = new Date();
+  at.setHours(12, 0, 0, 0);
+  at.setDate(at.getDate() - daysAgo);
+  return at.toISOString();
+}
+
+/**
+ * Six counted days behind today. A casual goal is 10 XP, and a concept node's
+ * first clear pays exactly that, so one clear a day meets it (rules.ts).
+ */
+function streakSeed() {
+  const journal = [{ kind: "settings", at: noonDaysAgo(7), tz: LOCAL_TZ, dailyGoal: "casual" }];
+  for (let daysAgo = 6; daysAgo >= 1; daysAgo -= 1) {
+    journal.push({
+      kind: "node_cleared",
+      at: noonDaysAgo(daysAgo),
+      tz: LOCAL_TZ,
+      nodeId: `seed:day-${daysAgo}`,
+      nodeKind: "concept",
+      flawless: false,
+      stepsInOneSitting: 1,
+      spine: false,
+      difficulty: 2,
+    });
+  }
+  return journal;
+}
+
+/**
+ * The intro course's other topics, journalled as started (unlocked) intro
+ * nodes eight days ago. See the header: without these a first clear is 100
+ * percent mastery. Intro nodes cost 0 charge and earn nothing on start.
+ */
+const INTRO_COURSE_TOPICS = [
+  "stoichiometry",
+  "solutions_and_concentration",
+  "acid_base_equilibria",
+  "titration_curves",
+  "structure_and_bonding",
+  "resonance_and_delocalisation",
+  "nucleophiles_and_leaving_groups",
+  "substitution_and_elimination",
+];
+function unlockSeed() {
+  return INTRO_COURSE_TOPICS.map((topic) => ({
+    kind: "node_started",
+    at: noonDaysAgo(8),
+    tz: LOCAL_TZ,
+    nodeId: `lesson:${topic}`,
+    nodeKind: "intro",
+  }));
+}
+
+const P2_SEEDS = {
+  first: unlockSeed(),
+  streak: [...unlockSeed(), ...streakSeed()],
+};
+
+/** Play the intro lesson through to the reward moment and burst from the press that opens it. */
+async function captureReward(browser, viewport, theme, dir, tag, seedName) {
+  const page = await open(browser, viewport, theme, "?serveAll=1#/start/lesson", P2_SEEDS[seedName]);
+  for (let i = 0; i < INTRO.length; i += 1) {
+    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
+    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
+    await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
+    if (i < INTRO.length - 1) {
+      await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
+      await sleep(250);
+    }
+  }
+  // Three right in a row: Finish lesson shows the combo interstitial first,
+  // and its Continue is the press that opens the reward moment.
+  await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
+  await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 });
+  await sleep(300);
+  const at = await press(page, await buttonByText(page, "Continue"), "Continue (combo)");
+  const frames = await burst(page, dir, `${tag}-reward-${seedName}`, at);
+  const state = await page.evaluate(() => {
+    const stage = document.querySelector("[data-reward]");
+    if (stage === null) return null;
+    return {
+      first: stage.getAttribute("data-reward-first"),
+      streak: document.querySelector('[aria-label="Streak"]') !== null,
+      milestone: document.querySelector('[aria-label$="milestone"]') !== null,
+      xp: document.querySelector('[aria-label="XP earned"]')?.textContent ?? "",
+      diamonds: Number(stage.getAttribute("data-reward-diamonds")),
+      rankUp: stage.getAttribute("data-reward-rank-up") ?? "",
+      done: stage.getAttribute("data-reward"),
+      continueOnScreen: (() => {
+        const button = [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Continue");
+        if (button === undefined) return false;
+        const rect = button.getBoundingClientRect();
+        return rect.top >= 0 && rect.bottom <= window.innerHeight;
+      })(),
+    };
+  });
+  // A first lesson that pays a rank badge is the one-node-universe problem in
+  // the header, and a Continue the student has to scroll to is not a moment.
+  const wanted =
+    state !== null &&
+    state.continueOnScreen &&
+    (seedName === "first" ? state.first === "true" && state.rankUp === "" : state.streak === true && state.milestone === true);
+  await page.close();
+  return { moment: `reward-${seedName}`, reached: state !== null && wanted, frames, state };
+}
+
+async function captureP2(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const results = [];
+  for (const seedName of Object.keys(P2_SEEDS)) {
+    results.push(await captureReward(browser, viewport, theme, dir, tag, seedName));
+  }
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 
@@ -264,7 +428,8 @@ for (const entry of report) {
     const status = result.reached ? "reached" : "NOT REACHED";
     if (!result.reached) missed += 1;
     const offsets = result.frames.map((frame) => `${frame.at}`).join("/");
-    console.log(`${entry.viewport.padEnd(7)} ${entry.theme.padEnd(5)} ${result.moment.padEnd(7)} ${status}  frames at ${offsets} ms`);
+    const extra = result.state === undefined ? "" : `  ${JSON.stringify(result.state)}`;
+    console.log(`${entry.viewport.padEnd(7)} ${entry.theme.padEnd(5)} ${result.moment.padEnd(14)} ${status}  frames at ${offsets} ms${extra}`);
   }
 }
 await writeFile(path.join(OUT, "capture.json"), `${JSON.stringify({ piece: PIECE, viewports: VIEWPORTS, frames: FRAMES_MS, report }, null, 2)}\n`);
