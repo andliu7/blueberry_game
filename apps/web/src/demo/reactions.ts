@@ -1649,6 +1649,289 @@ const PHENOXIDE_ALKYLATION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 5 spine: epoxidation. Four arrows moving at once through the   */
+/* butterfly: the one concerted oxygen transfer in the course.         */
+/* ------------------------------------------------------------------ */
+
+const etheneXp = createSpecies({
+  id: "sp-ethene-xp",
+  atoms: [
+    createAtom({ id: "xc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "xc2", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [createBond({ id: "b-x12", a: "xc1", b: "xc2", order: 2 })],
+});
+
+const performicXp = createSpecies({
+  id: "sp-performic-xp",
+  atoms: [
+    createAtom({ id: "xhf", element: "H" }),
+    createAtom({ id: "xcf", element: "C" }),
+    createAtom({ id: "xof", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xoi", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xop", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xhp", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcfh", a: "xcf", b: "xhf" }),
+    createBond({ id: "b-xcfo", a: "xcf", b: "xof", order: 2 }),
+    createBond({ id: "b-xcfoi", a: "xcf", b: "xoi" }),
+    createBond({ id: "b-xoiop", a: "xoi", b: "xop" }),
+    createBond({ id: "b-xophp", a: "xop", b: "xhp" }),
+  ],
+});
+
+const oxiraneXp = createSpecies({
+  id: "sp-oxirane-xp",
+  atoms: [
+    createAtom({ id: "xc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "xc2", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "xop", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-x12", a: "xc1", b: "xc2" }),
+    createBond({ id: "b-xc1op", a: "xc1", b: "xop" }),
+    createBond({ id: "b-xc2op", a: "xc2", b: "xop" }),
+  ],
+});
+
+const formicXp = createSpecies({
+  id: "sp-formic-xp",
+  atoms: [
+    createAtom({ id: "xhf", element: "H" }),
+    createAtom({ id: "xcf", element: "C" }),
+    createAtom({ id: "xof", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xoi", element: "O", lonePairs: 2 }),
+    createAtom({ id: "xhp", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-xcfh", a: "xcf", b: "xhf" }),
+    createBond({ id: "b-xcfo", a: "xcf", b: "xof", order: 2 }),
+    createBond({ id: "b-xcfoi", a: "xcf", b: "xoi" }),
+    createBond({ id: "b-xoihp", a: "xoi", b: "xhp" }),
+  ],
+});
+
+const EPOXIDATION: MechanismStep = createStep({
+  id: "epoxidation",
+  from: createState({
+    id: "xp-before",
+    members: [
+      { species: etheneXp, role: "nucleophile" },
+      { species: performicXp, role: "electrophile" },
+    ],
+  }),
+  to: createState({
+    id: "xp-after",
+    members: [
+      { species: oxiraneXp, role: "product" },
+      { species: formicXp, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "pericyclic_step", route: "pericyclic", reactionCenters: ["xc1", "xc2", "xop"] },
+  arrows: [
+    createArrow({ id: "a-pi", source: fromBond("b-x12"), sink: toBondBetween("xc2", "xop") }),
+    createArrow({ id: "a-oo", source: fromBond("b-xoiop"), sink: toAtom("xop") }),
+    createArrow({ id: "a-h", source: fromBond("b-xophp"), sink: toBondBetween("xhp", "xoi") }),
+    createArrow({ id: "a-lp", source: fromLonePair("xop"), sink: toBondBetween("xop", "xc1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 3 / Unit 7 spine: the Wolff-Kishner ending. N2 tears itself    */
+/* free and takes the carbonyl's oxidation state with it.              */
+/* ------------------------------------------------------------------ */
+
+const diazenylAnionWk = createSpecies({
+  id: "sp-diazenyl-anion-wk",
+  atoms: [
+    createAtom({ id: "wkc", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "wkm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "wkm2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "wkn1", element: "N", lonePairs: 1 }),
+    createAtom({ id: "wkn2", element: "N", formalCharge: -1, lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-wkcm1", a: "wkc", b: "wkm1" }),
+    createBond({ id: "b-wkcm2", a: "wkc", b: "wkm2" }),
+    createBond({ id: "b-wkcn", a: "wkc", b: "wkn1" }),
+    createBond({ id: "b-wknn", a: "wkn1", b: "wkn2", order: 2 }),
+  ],
+});
+
+const carbanionWk = createSpecies({
+  id: "sp-carbanion-wk",
+  atoms: [
+    createAtom({ id: "wkc", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "wkm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "wkm2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-wkcm1", a: "wkc", b: "wkm1" }),
+    createBond({ id: "b-wkcm2", a: "wkc", b: "wkm2" }),
+  ],
+});
+
+const dinitrogenWk = createSpecies({
+  id: "sp-dinitrogen-wk",
+  atoms: [
+    createAtom({ id: "wkn1", element: "N", lonePairs: 1 }),
+    createAtom({ id: "wkn2", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [createBond({ id: "b-wknn", a: "wkn1", b: "wkn2", order: 3 })],
+});
+
+const WOLFF_EXTRUSION: MechanismStep = createStep({
+  id: "wolff-extrusion",
+  from: createState({
+    id: "wk-before",
+    members: [{ species: diazenylAnionWk, role: "substrate" }],
+  }),
+  to: createState({
+    id: "wk-after",
+    members: [
+      { species: carbanionWk, role: "product" },
+      { species: dinitrogenWk, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "reduction", reactionCenters: ["wkc"] },
+  arrows: [
+    createArrow({ id: "a-cn", source: fromBond("b-wkcn"), sink: toAtom("wkc") }),
+    createArrow({ id: "a-nn", source: fromLonePair("wkn2"), sink: toBondBetween("wkn1", "wkn2") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 7 spine: 1,2 vs 1,4, drawn from the 1,2 side. The hard         */
+/* organometallic hits the carbonyl head-on.                           */
+/* ------------------------------------------------------------------ */
+
+const carbanionTw = createSpecies({
+  id: "sp-carbanion-tw",
+  atoms: [createAtom({ id: "twg", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const mvkTw = createSpecies({
+  id: "sp-mvk-tw",
+  atoms: [
+    createAtom({ id: "twb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "twa", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "twk", element: "C" }),
+    createAtom({ id: "two", element: "O", lonePairs: 2 }),
+    createAtom({ id: "twm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-twba", a: "twb", b: "twa", order: 2 }),
+    createBond({ id: "b-twak", a: "twa", b: "twk" }),
+    createBond({ id: "b-twko", a: "twk", b: "two", order: 2 }),
+    createBond({ id: "b-twkm", a: "twk", b: "twm" }),
+  ],
+});
+
+const allylAlkoxideTw = createSpecies({
+  id: "sp-allyl-alkoxide-tw",
+  atoms: [
+    createAtom({ id: "twb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "twa", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "twk", element: "C" }),
+    createAtom({ id: "two", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "twm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "twg", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-twba", a: "twb", b: "twa", order: 2 }),
+    createBond({ id: "b-twak", a: "twa", b: "twk" }),
+    createBond({ id: "b-twko", a: "twk", b: "two" }),
+    createBond({ id: "b-twkm", a: "twk", b: "twm" }),
+    createBond({ id: "b-twkg", a: "twk", b: "twg" }),
+  ],
+});
+
+const GRIGNARD_12: MechanismStep = createStep({
+  id: "grignard-12",
+  from: createState({
+    id: "tw-before",
+    members: [
+      { species: carbanionTw, role: "nucleophile" },
+      { species: mvkTw, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "tw-after", members: [{ species: allylAlkoxideTw, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["twg", "twk"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("twg"), sink: toBondBetween("twg", "twk") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-twko"), sink: toAtom("two") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 10 spine: diazotization's first bond. The amine meets          */
+/* nitrosonium and the N-N bond of every diazonium salt is born here.  */
+/* Mechanistically an addition to a polar pi electrophile.             */
+/* ------------------------------------------------------------------ */
+
+const methylamineDz = createSpecies({
+  id: "sp-methylamine-dz",
+  atoms: [
+    createAtom({ id: "dzn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "dzh1", element: "H" }),
+    createAtom({ id: "dzh2", element: "H" }),
+    createAtom({ id: "dzc", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dznh1", a: "dzn", b: "dzh1" }),
+    createBond({ id: "b-dznh2", a: "dzn", b: "dzh2" }),
+    createBond({ id: "b-dznc", a: "dzn", b: "dzc" }),
+  ],
+});
+
+const nitrosoniumDz = createSpecies({
+  id: "sp-nitrosonium-dz",
+  atoms: [
+    createAtom({ id: "dznn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "dzo", element: "O", formalCharge: 1, lonePairs: 1 }),
+  ],
+  bonds: [createBond({ id: "b-dzno", a: "dznn", b: "dzo", order: 3 })],
+});
+
+const nitrosoammoniumDz = createSpecies({
+  id: "sp-nitrosoammonium-dz",
+  atoms: [
+    createAtom({ id: "dzn", element: "N", formalCharge: 1 }),
+    createAtom({ id: "dzh1", element: "H" }),
+    createAtom({ id: "dzh2", element: "H" }),
+    createAtom({ id: "dzc", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dznn", element: "N", lonePairs: 1 }),
+    createAtom({ id: "dzo", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dznh1", a: "dzn", b: "dzh1" }),
+    createBond({ id: "b-dznh2", a: "dzn", b: "dzh2" }),
+    createBond({ id: "b-dznc", a: "dzn", b: "dzc" }),
+    createBond({ id: "b-dznnn", a: "dzn", b: "dznn" }),
+    createBond({ id: "b-dzno", a: "dznn", b: "dzo", order: 2 }),
+  ],
+});
+
+const DIAZONIUM_FIRST: MechanismStep = createStep({
+  id: "diazonium-first",
+  from: createState({
+    id: "dz-before",
+    members: [
+      { species: methylamineDz, role: "nucleophile" },
+      { species: nitrosoniumDz, role: "electrophile" },
+    ],
+  }),
+  to: createState({ id: "dz-after", members: [{ species: nitrosoammoniumDz, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["dzn", "dznn"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("dzn"), sink: toBondBetween("dzn", "dznn") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-dzno"), sink: toAtom("dzo") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -2213,6 +2496,100 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       po: { x: -0.6, y: 0.85 },
       pcx: { x: 0.35, y: 0.5 },
       pbr: { x: 2.35, y: 0.2 },
+    },
+  },
+  {
+    id: "epoxidation",
+    title: "Epoxidation, the butterfly",
+    brief: "Four arrows, one moment: the peracid hands over its outer oxygen and leaves as a plain acid.",
+    successLine: "All four arrows fired at once: the alkene took the outer oxygen from both sides, the O-O bond snapped back, and the proton slid home to make formic acid. Fully concerted, which is why the alkene's geometry survives perfectly into the epoxide: cis stays cis.",
+    step: EPOXIDATION,
+    fromHints: {
+      xc1: { x: -2.15, y: 0.45 },
+      xc2: { x: -2.05, y: -0.7 },
+      xop: { x: -0.7, y: -0.1 },
+      xoi: { x: 0.45, y: 0.35 },
+      xhp: { x: -0.55, y: 1.1 },
+      xcf: { x: 1.55, y: -0.2 },
+      xof: { x: 1.5, y: -1.3 },
+      xhf: { x: 2.5, y: 0.35 },
+    },
+    toHints: {
+      xc1: { x: -2.35, y: 0.5 },
+      xc2: { x: -2.25, y: -0.65 },
+      xop: { x: -1.3, y: -0.05 },
+      xoi: { x: 0.75, y: 0.4 },
+      xhp: { x: 0.6, y: 1.45 },
+      xcf: { x: 1.85, y: -0.15 },
+      xof: { x: 1.8, y: -1.25 },
+      xhf: { x: 2.8, y: 0.4 },
+    },
+  },
+  {
+    id: "wolff-extrusion",
+    title: "Wolff-Kishner, the exit",
+    brief: "The diazenyl anion falls apart: N2 tears itself free and leaves a carbanion holding the ticket.",
+    successLine: "The C-N bond let go because the nitrogen pair could become N2's third bond: gas out, carbanion left behind, and the carbanion grabs a proton from solvent to finish carbonyl-to-CH2. The whole reduction is powered by how badly two nitrogens want to be dinitrogen.",
+    step: WOLFF_EXTRUSION,
+    fromHints: {
+      wkm1: { x: -2.45, y: 0.55 },
+      wkc: { x: -1.5, y: 0.0 },
+      wkm2: { x: -1.55, y: -1.1 },
+      wkn1: { x: -0.35, y: 0.5 },
+      wkn2: { x: 0.75, y: 0.15 },
+    },
+    toHints: {
+      wkm1: { x: -2.45, y: 0.55 },
+      wkc: { x: -1.5, y: 0.0 },
+      wkm2: { x: -1.55, y: -1.1 },
+      wkn1: { x: 0.15, y: 0.7 },
+      wkn2: { x: 1.25, y: 0.35 },
+    },
+  },
+  {
+    id: "grignard-12",
+    title: "1,2 on an enone",
+    brief: "The hard organometallic hits the carbonyl head-on and keeps the alkene. Compare the cuprate's choice.",
+    successLine: "Straight 1,2: the carbanion took the carbonyl carbon, the charge went to oxygen, and the C=C survived untouched: an allylic alkoxide. Hard nucleophiles read charge and hit the carbonyl; soft ones read orbitals and take the far seat. Same enone, two different products, your choice of reagent.",
+    step: GRIGNARD_12,
+    fromHints: {
+      twg: { x: 2.3, y: 1.15 },
+      twb: { x: -1.7, y: 0.7 },
+      twa: { x: -0.85, y: 0.0 },
+      twk: { x: 0.25, y: 0.25 },
+      two: { x: 0.6, y: 1.25 },
+      twm: { x: 1.05, y: -0.55 },
+    },
+    toHints: {
+      twg: { x: 1.35, y: 0.95 },
+      twb: { x: -1.7, y: 0.7 },
+      twa: { x: -0.85, y: 0.0 },
+      twk: { x: 0.25, y: 0.25 },
+      two: { x: 0.6, y: 1.25 },
+      twm: { x: 1.05, y: -0.55 },
+    },
+  },
+  {
+    id: "diazonium-first",
+    title: "Diazotization begins",
+    brief: "The amine's lone pair takes nitrosonium's nitrogen: the N-N bond every diazonium salt is built on.",
+    successLine: "The lone pair attacked NO+ and the triple bond relaxed onto oxygen: an N-nitrosoammonium ion, the first intermediate of diazotization. Proton hops and a dehydration later, this N-N bond is the diazonium's, and the aryl version is the doorway to the entire Sandmeyer toolbox.",
+    step: DIAZONIUM_FIRST,
+    fromHints: {
+      dzn: { x: -1.2, y: 0.3 },
+      dzh1: { x: -1.85, y: 1.15 },
+      dzh2: { x: -0.75, y: 1.3 },
+      dzc: { x: -2.15, y: -0.35 },
+      dznn: { x: 0.35, y: -0.15 },
+      dzo: { x: 1.5, y: -0.5 },
+    },
+    toHints: {
+      dzn: { x: -0.9, y: 0.3 },
+      dzh1: { x: -1.55, y: 1.15 },
+      dzh2: { x: -0.45, y: 1.3 },
+      dzc: { x: -1.85, y: -0.35 },
+      dznn: { x: 0.25, y: -0.1 },
+      dzo: { x: 1.4, y: -0.45 },
     },
   },
 ];

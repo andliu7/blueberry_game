@@ -3924,6 +3924,1085 @@ const AMIDE_PT: MechanismStep = createStep({
   ],
 });
 
+/* ------------------------------------------------------------------ */
+/* Unit 3 spine: EAS bromination. Same two beats as nitration, new     */
+/* electrophile: the ring attacks Br2 and bromide cleans up.           */
+/* ------------------------------------------------------------------ */
+
+const benzeneBr = createSpecies({
+  id: "sp-benzene-br",
+  atoms: [
+    createAtom({ id: "bc1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc6", element: "C", implicitHydrogens: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "bb12", a: "bc1", b: "bc2", order: 2 }),
+    createBond({ id: "bb23", a: "bc2", b: "bc3" }),
+    createBond({ id: "bb34", a: "bc3", b: "bc4", order: 2 }),
+    createBond({ id: "bb45", a: "bc4", b: "bc5" }),
+    createBond({ id: "bb56", a: "bc5", b: "bc6", order: 2 }),
+    createBond({ id: "bb61", a: "bc6", b: "bc1" }),
+  ],
+});
+
+const bromineB = createSpecies({
+  id: "sp-bromine-b",
+  atoms: [
+    createAtom({ id: "bba", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "bbb", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "bb-brbr", a: "bba", b: "bbb" })],
+});
+
+const areniumBr = createSpecies({
+  id: "sp-arenium-br",
+  atoms: [
+    createAtom({ id: "bc1", element: "C" }),
+    createAtom({ id: "bhx", element: "H" }),
+    createAtom({ id: "bc2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "bc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bba", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "bb1h", a: "bc1", b: "bhx" }),
+    createBond({ id: "bb12", a: "bc1", b: "bc2" }),
+    createBond({ id: "bb23", a: "bc2", b: "bc3" }),
+    createBond({ id: "bb34", a: "bc3", b: "bc4", order: 2 }),
+    createBond({ id: "bb45", a: "bc4", b: "bc5" }),
+    createBond({ id: "bb56", a: "bc5", b: "bc6", order: 2 }),
+    createBond({ id: "bb61", a: "bc6", b: "bc1" }),
+    createBond({ id: "bb-cbr", a: "bc1", b: "bba" }),
+  ],
+});
+
+const bromideB = createSpecies({
+  id: "sp-bromide-b",
+  atoms: [createAtom({ id: "bbb", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const EASBR_ATTACK: MechanismStep = createStep({
+  id: "easbr-attack",
+  from: createState({
+    id: "eb1-before",
+    members: [
+      { species: benzeneBr, role: "nucleophile" },
+      { species: bromineB, role: "electrophile" },
+    ],
+  }),
+  to: createState({
+    id: "eb1-after",
+    members: [
+      { species: areniumBr, role: "intermediate" },
+      { species: bromideB, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_aromatic_substitution", reactionCenters: ["bc1", "bba"] },
+  arrows: [
+    createArrow({ id: "a-ring-attacks", source: fromBond("bb12"), sink: toBondBetween("bc1", "bba") }),
+    createArrow({ id: "a-br-leaves", source: fromBond("bb-brbr"), sink: toAtom("bbb") }),
+  ],
+});
+
+const bromobenzeneB = createSpecies({
+  id: "sp-bromobenzene-b",
+  atoms: [
+    createAtom({ id: "bc1", element: "C" }),
+    createAtom({ id: "bc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "bba", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "bb12", a: "bc1", b: "bc2", order: 2 }),
+    createBond({ id: "bb23", a: "bc2", b: "bc3" }),
+    createBond({ id: "bb34", a: "bc3", b: "bc4", order: 2 }),
+    createBond({ id: "bb45", a: "bc4", b: "bc5" }),
+    createBond({ id: "bb56", a: "bc5", b: "bc6", order: 2 }),
+    createBond({ id: "bb61", a: "bc6", b: "bc1" }),
+    createBond({ id: "bb-cbr", a: "bc1", b: "bba" }),
+  ],
+});
+
+const hbrB = createSpecies({
+  id: "sp-hbr-b",
+  atoms: [
+    createAtom({ id: "bbb", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "bhx", element: "H" }),
+  ],
+  bonds: [createBond({ id: "bb-brh", a: "bbb", b: "bhx" })],
+});
+
+const EASBR_REAROMATIZE: MechanismStep = createStep({
+  id: "easbr-rearomatize",
+  from: createState({
+    id: "eb2-before",
+    members: [
+      { species: bromideB, role: "nucleophile" },
+      { species: areniumBr, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "eb2-after",
+    members: [
+      { species: bromobenzeneB, role: "product" },
+      { species: hbrB, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "electrophilic_aromatic_substitution", reactionCenters: ["bhx", "bc1"] },
+  arrows: [
+    createArrow({ id: "a-take-h", source: fromLonePair("bbb"), sink: toBondBetween("bbb", "bhx") }),
+    createArrow({ id: "a-rearomatize", source: fromBond("bb1h"), sink: toBondBetween("bc1", "bc2") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 3 spine: sulfonation. SO3 needs no helper cation, and the      */
+/* whole thing runs in reverse with steam. The reversible EAS.         */
+/* ------------------------------------------------------------------ */
+
+const benzeneSu = createSpecies({
+  id: "sp-benzene-su",
+  atoms: [
+    createAtom({ id: "uc1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc6", element: "C", implicitHydrogens: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "ub12", a: "uc1", b: "uc2", order: 2 }),
+    createBond({ id: "ub23", a: "uc2", b: "uc3" }),
+    createBond({ id: "ub34", a: "uc3", b: "uc4", order: 2 }),
+    createBond({ id: "ub45", a: "uc4", b: "uc5" }),
+    createBond({ id: "ub56", a: "uc5", b: "uc6", order: 2 }),
+    createBond({ id: "ub61", a: "uc6", b: "uc1" }),
+  ],
+});
+
+const so3U = createSpecies({
+  id: "sp-so3-u",
+  atoms: [
+    createAtom({ id: "us", element: "S" }),
+    createAtom({ id: "uo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "uo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "uo3", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "ub-so1", a: "us", b: "uo1", order: 2 }),
+    createBond({ id: "ub-so2", a: "us", b: "uo2", order: 2 }),
+    createBond({ id: "ub-so3", a: "us", b: "uo3", order: 2 }),
+  ],
+});
+
+const areniumSu = createSpecies({
+  id: "sp-arenium-su",
+  atoms: [
+    createAtom({ id: "uc1", element: "C" }),
+    createAtom({ id: "uhx", element: "H" }),
+    createAtom({ id: "uc2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "uc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "us", element: "S" }),
+    createAtom({ id: "uo1", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "uo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "uo3", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "ub1h", a: "uc1", b: "uhx" }),
+    createBond({ id: "ub12", a: "uc1", b: "uc2" }),
+    createBond({ id: "ub23", a: "uc2", b: "uc3" }),
+    createBond({ id: "ub34", a: "uc3", b: "uc4", order: 2 }),
+    createBond({ id: "ub45", a: "uc4", b: "uc5" }),
+    createBond({ id: "ub56", a: "uc5", b: "uc6", order: 2 }),
+    createBond({ id: "ub61", a: "uc6", b: "uc1" }),
+    createBond({ id: "ub-cs", a: "uc1", b: "us" }),
+    createBond({ id: "ub-so1", a: "us", b: "uo1" }),
+    createBond({ id: "ub-so2", a: "us", b: "uo2", order: 2 }),
+    createBond({ id: "ub-so3", a: "us", b: "uo3", order: 2 }),
+  ],
+});
+
+const SULFO_ATTACK: MechanismStep = createStep({
+  id: "sulfo-attack",
+  from: createState({
+    id: "su1-before",
+    members: [
+      { species: benzeneSu, role: "nucleophile" },
+      { species: so3U, role: "electrophile" },
+    ],
+  }),
+  to: createState({ id: "su1-after", members: [{ species: areniumSu, role: "intermediate" }] }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_aromatic_substitution", reactionCenters: ["uc1", "us"] },
+  arrows: [
+    createArrow({ id: "a-ring-attacks", source: fromBond("ub12"), sink: toBondBetween("uc1", "us") }),
+    createArrow({ id: "a-so-relief", source: fromBond("ub-so1"), sink: toAtom("uo1") }),
+  ],
+});
+
+const benzenesulfonicU = createSpecies({
+  id: "sp-benzenesulfonic-u",
+  atoms: [
+    createAtom({ id: "uc1", element: "C" }),
+    createAtom({ id: "uc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "uc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "us", element: "S" }),
+    createAtom({ id: "uo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "uhx", element: "H" }),
+    createAtom({ id: "uo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "uo3", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "ub12", a: "uc1", b: "uc2", order: 2 }),
+    createBond({ id: "ub23", a: "uc2", b: "uc3" }),
+    createBond({ id: "ub34", a: "uc3", b: "uc4", order: 2 }),
+    createBond({ id: "ub45", a: "uc4", b: "uc5" }),
+    createBond({ id: "ub56", a: "uc5", b: "uc6", order: 2 }),
+    createBond({ id: "ub61", a: "uc6", b: "uc1" }),
+    createBond({ id: "ub-cs", a: "uc1", b: "us" }),
+    createBond({ id: "ub-so1", a: "us", b: "uo1" }),
+    createBond({ id: "ub-o1h", a: "uo1", b: "uhx" }),
+    createBond({ id: "ub-so2", a: "us", b: "uo2", order: 2 }),
+    createBond({ id: "ub-so3", a: "us", b: "uo3", order: 2 }),
+  ],
+});
+
+const SULFO_REAROMATIZE: MechanismStep = createStep({
+  id: "sulfo-rearomatize",
+  from: createState({ id: "su2-before", members: [{ species: areniumSu, role: "substrate" }] }),
+  to: createState({ id: "su2-after", members: [{ species: benzenesulfonicU, role: "product" }] }),
+  identity: { elementaryStep: "proton_transfer", route: "electrophilic_aromatic_substitution", reactionCenters: ["uhx", "uo1"] },
+  arrows: [
+    createArrow({ id: "a-take-h", source: fromLonePair("uo1"), sink: toBondBetween("uo1", "uhx") }),
+    createArrow({ id: "a-rearomatize", source: fromBond("ub1h"), sink: toBondBetween("uc1", "uc2") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 3 spine: Friedel-Crafts acylation. The acylium is the whole    */
+/* point: it cannot rearrange, which is why acylation beats alkylation.*/
+/* ------------------------------------------------------------------ */
+
+const benzeneFc = createSpecies({
+  id: "sp-benzene-fc",
+  atoms: [
+    createAtom({ id: "rc1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc6", element: "C", implicitHydrogens: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "rb12", a: "rc1", b: "rc2", order: 2 }),
+    createBond({ id: "rb23", a: "rc2", b: "rc3" }),
+    createBond({ id: "rb34", a: "rc3", b: "rc4", order: 2 }),
+    createBond({ id: "rb45", a: "rc4", b: "rc5" }),
+    createBond({ id: "rb56", a: "rc5", b: "rc6", order: 2 }),
+    createBond({ id: "rb61", a: "rc6", b: "rc1" }),
+  ],
+});
+
+const acyliumFc = createSpecies({
+  id: "sp-acylium-fc",
+  atoms: [
+    createAtom({ id: "rca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "rcc", element: "C" }),
+    createAtom({ id: "rco", element: "O", formalCharge: 1, lonePairs: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "rb-cac", a: "rca", b: "rcc" }),
+    createBond({ id: "rb-co", a: "rcc", b: "rco", order: 3 }),
+  ],
+});
+
+const areniumFc = createSpecies({
+  id: "sp-arenium-fc",
+  atoms: [
+    createAtom({ id: "rc1", element: "C" }),
+    createAtom({ id: "rhx", element: "H" }),
+    createAtom({ id: "rc2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "rc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "rcc", element: "C" }),
+    createAtom({ id: "rco", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "rb1h", a: "rc1", b: "rhx" }),
+    createBond({ id: "rb12", a: "rc1", b: "rc2" }),
+    createBond({ id: "rb23", a: "rc2", b: "rc3" }),
+    createBond({ id: "rb34", a: "rc3", b: "rc4", order: 2 }),
+    createBond({ id: "rb45", a: "rc4", b: "rc5" }),
+    createBond({ id: "rb56", a: "rc5", b: "rc6", order: 2 }),
+    createBond({ id: "rb61", a: "rc6", b: "rc1" }),
+    createBond({ id: "rb-cc", a: "rc1", b: "rcc" }),
+    createBond({ id: "rb-cac", a: "rca", b: "rcc" }),
+    createBond({ id: "rb-co", a: "rcc", b: "rco", order: 2 }),
+  ],
+});
+
+const FC_ATTACK: MechanismStep = createStep({
+  id: "fc-attack",
+  from: createState({
+    id: "fc1-before",
+    members: [
+      { species: benzeneFc, role: "nucleophile" },
+      { species: acyliumFc, role: "electrophile" },
+    ],
+  }),
+  to: createState({ id: "fc1-after", members: [{ species: areniumFc, role: "intermediate" }] }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_aromatic_substitution", reactionCenters: ["rc1", "rcc"] },
+  arrows: [
+    createArrow({ id: "a-ring-attacks", source: fromBond("rb12"), sink: toBondBetween("rc1", "rcc") }),
+    createArrow({ id: "a-co-relief", source: fromBond("rb-co"), sink: toAtom("rco") }),
+  ],
+});
+
+const chlorideFc = createSpecies({
+  id: "sp-chloride-fc",
+  atoms: [createAtom({ id: "rcl", element: "Cl", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const acetophenoneFc = createSpecies({
+  id: "sp-acetophenone-fc",
+  atoms: [
+    createAtom({ id: "rc1", element: "C" }),
+    createAtom({ id: "rc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "rca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "rcc", element: "C" }),
+    createAtom({ id: "rco", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "rb12", a: "rc1", b: "rc2", order: 2 }),
+    createBond({ id: "rb23", a: "rc2", b: "rc3" }),
+    createBond({ id: "rb34", a: "rc3", b: "rc4", order: 2 }),
+    createBond({ id: "rb45", a: "rc4", b: "rc5" }),
+    createBond({ id: "rb56", a: "rc5", b: "rc6", order: 2 }),
+    createBond({ id: "rb61", a: "rc6", b: "rc1" }),
+    createBond({ id: "rb-cc", a: "rc1", b: "rcc" }),
+    createBond({ id: "rb-cac", a: "rca", b: "rcc" }),
+    createBond({ id: "rb-co", a: "rcc", b: "rco", order: 2 }),
+  ],
+});
+
+const hclFc = createSpecies({
+  id: "sp-hcl-fc",
+  atoms: [
+    createAtom({ id: "rcl", element: "Cl", lonePairs: 3 }),
+    createAtom({ id: "rhx", element: "H" }),
+  ],
+  bonds: [createBond({ id: "rb-clh", a: "rcl", b: "rhx" })],
+});
+
+const FC_REAROMATIZE: MechanismStep = createStep({
+  id: "fc-rearomatize",
+  from: createState({
+    id: "fc2-before",
+    members: [
+      { species: chlorideFc, role: "nucleophile" },
+      { species: areniumFc, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "fc2-after",
+    members: [
+      { species: acetophenoneFc, role: "product" },
+      { species: hclFc, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "electrophilic_aromatic_substitution", reactionCenters: ["rhx", "rc1"] },
+  arrows: [
+    createArrow({ id: "a-take-h", source: fromLonePair("rcl"), sink: toBondBetween("rcl", "rhx") }),
+    createArrow({ id: "a-rearomatize", source: fromBond("rb1h"), sink: toBondBetween("rc1", "rc2") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 1 spine: Br2 on butadiene, the 1,4 ending. The allyl cation    */
+/* is drawn in both of its costumes on the way.                        */
+/* ------------------------------------------------------------------ */
+
+const butadieneD = createSpecies({
+  id: "sp-butadiene-d",
+  atoms: [
+    createAtom({ id: "d1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "d2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d4", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "db12", a: "d1", b: "d2", order: 2 }),
+    createBond({ id: "db23", a: "d2", b: "d3" }),
+    createBond({ id: "db34", a: "d3", b: "d4", order: 2 }),
+  ],
+});
+
+const bromineD = createSpecies({
+  id: "sp-bromine-d",
+  atoms: [
+    createAtom({ id: "dba", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "dbb", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "db-brbr", a: "dba", b: "dbb" })],
+});
+
+const allylCation1D = createSpecies({
+  id: "sp-allyl-cation-1-d",
+  atoms: [
+    createAtom({ id: "d1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "d2", element: "C", formalCharge: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "d3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dba", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "db12", a: "d1", b: "d2" }),
+    createBond({ id: "db23", a: "d2", b: "d3" }),
+    createBond({ id: "db34", a: "d3", b: "d4", order: 2 }),
+    createBond({ id: "db-1br", a: "d1", b: "dba" }),
+  ],
+});
+
+const bromideD = createSpecies({
+  id: "sp-bromide-d",
+  atoms: [createAtom({ id: "dbb", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const DIENE_BR_ATTACK: MechanismStep = createStep({
+  id: "diene-br-attack",
+  from: createState({
+    id: "db1-before",
+    members: [
+      { species: butadieneD, role: "nucleophile" },
+      { species: bromineD, role: "electrophile" },
+    ],
+  }),
+  to: createState({
+    id: "db1-after",
+    members: [
+      { species: allylCation1D, role: "intermediate" },
+      { species: bromideD, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_addition_alkene", reactionCenters: ["d1", "dba"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromBond("db12"), sink: toBondBetween("d1", "dba") }),
+    createArrow({ id: "a-leave", source: fromBond("db-brbr"), sink: toAtom("dbb") }),
+  ],
+});
+
+/* The SAME cation, restated in its other contributing structure: the
+ * positive charge has moved to d4 and the pi bond sits at d2=d3. That
+ * relocation is the entire reason 1,4-addition exists. */
+const allylCation2D = createSpecies({
+  id: "sp-allyl-cation-2-d",
+  atoms: [
+    createAtom({ id: "d1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "d2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d4", element: "C", formalCharge: 1, implicitHydrogens: 2 }),
+    createAtom({ id: "dba", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "db12", a: "d1", b: "d2" }),
+    createBond({ id: "db23", a: "d2", b: "d3", order: 2 }),
+    createBond({ id: "db34", a: "d3", b: "d4" }),
+    createBond({ id: "db-1br", a: "d1", b: "dba" }),
+  ],
+});
+
+const dibromobuteneD = createSpecies({
+  id: "sp-dibromobutene-d",
+  atoms: [
+    createAtom({ id: "d1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "d2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "d4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dba", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "dbb", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "db12", a: "d1", b: "d2" }),
+    createBond({ id: "db23", a: "d2", b: "d3", order: 2 }),
+    createBond({ id: "db34", a: "d3", b: "d4" }),
+    createBond({ id: "db-1br", a: "d1", b: "dba" }),
+    createBond({ id: "db-4br", a: "d4", b: "dbb" }),
+  ],
+});
+
+const DIENE_BR_CAPTURE: MechanismStep = createStep({
+  id: "diene-br-capture",
+  from: createState({
+    id: "db2-before",
+    members: [
+      { species: bromideD, role: "nucleophile" },
+      { species: allylCation2D, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "db2-after", members: [{ species: dibromobuteneD, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "electrophilic_addition_alkene", reactionCenters: ["d4"] },
+  arrows: [
+    createArrow({ id: "a-capture", source: fromLonePair("dbb"), sink: toBondBetween("dbb", "d4") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 5 spine: alcohol to alkyl halide with HBr. Protonate the OH    */
+/* into a leaving group, then SN2. Two beats, no surprises.            */
+/* ------------------------------------------------------------------ */
+
+const ethanolOl = createSpecies({
+  id: "sp-ethanol-ol",
+  atoms: [
+    createAtom({ id: "olo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "olh", element: "H" }),
+    createAtom({ id: "olc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "olc2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-oloh", a: "olo", b: "olh" }),
+    createBond({ id: "b-oloc1", a: "olo", b: "olc1" }),
+    createBond({ id: "b-olc12", a: "olc1", b: "olc2" }),
+  ],
+});
+
+const hbrOl = createSpecies({
+  id: "sp-hbr-ol",
+  atoms: [
+    createAtom({ id: "olha", element: "H" }),
+    createAtom({ id: "olbr", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-olhbr", a: "olha", b: "olbr" })],
+});
+
+const oxoniumOl = createSpecies({
+  id: "sp-oxonium-ol",
+  atoms: [
+    createAtom({ id: "olo", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "olh", element: "H" }),
+    createAtom({ id: "olha", element: "H" }),
+    createAtom({ id: "olc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "olc2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-oloh", a: "olo", b: "olh" }),
+    createBond({ id: "b-oloha", a: "olo", b: "olha" }),
+    createBond({ id: "b-oloc1", a: "olo", b: "olc1" }),
+    createBond({ id: "b-olc12", a: "olc1", b: "olc2" }),
+  ],
+});
+
+const bromideOl = createSpecies({
+  id: "sp-bromide-ol",
+  atoms: [createAtom({ id: "olbr", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const ROH_PROTONATE: MechanismStep = createStep({
+  id: "roh-protonate",
+  from: createState({
+    id: "ol1-before",
+    members: [
+      { species: ethanolOl, role: "nucleophile" },
+      { species: hbrOl, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ol1-after",
+    members: [
+      { species: oxoniumOl, role: "product" },
+      { species: bromideOl, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["olha", "olo"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("olo"), sink: toBondBetween("olo", "olha") }),
+    createArrow({ id: "a-release", source: fromBond("b-olhbr"), sink: toAtom("olbr") }),
+  ],
+});
+
+const bromoethaneOl = createSpecies({
+  id: "sp-bromoethane-ol",
+  atoms: [
+    createAtom({ id: "olc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "olc2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "olbr", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-olc12", a: "olc1", b: "olc2" }),
+    createBond({ id: "b-olcbr", a: "olc1", b: "olbr" }),
+  ],
+});
+
+const waterOl = createSpecies({
+  id: "sp-water-ol",
+  atoms: [
+    createAtom({ id: "olo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "olh", element: "H" }),
+    createAtom({ id: "olha", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-oloh", a: "olo", b: "olh" }),
+    createBond({ id: "b-oloha", a: "olo", b: "olha" }),
+  ],
+});
+
+const ROH_SN2: MechanismStep = createStep({
+  id: "roh-sn2",
+  from: createState({
+    id: "ol2-before",
+    members: [
+      { species: bromideOl, role: "nucleophile" },
+      { species: oxoniumOl, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ol2-after",
+    members: [
+      { species: bromoethaneOl, role: "product" },
+      { species: waterOl, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["olbr", "olc1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("olbr"), sink: toBondBetween("olbr", "olc1") }),
+    createArrow({ id: "a-leave", source: fromBond("b-oloc1"), sink: toAtom("olo") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 5 spine: mesylate formation. Same OH problem, politer answer:  */
+/* no carbocation risk, stereochemistry untouched.                     */
+/* ------------------------------------------------------------------ */
+
+const ethanolVs = createSpecies({
+  id: "sp-ethanol-vs",
+  atoms: [
+    createAtom({ id: "vso", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vsh", element: "H" }),
+    createAtom({ id: "vsc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "vsc2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vsoh", a: "vso", b: "vsh" }),
+    createBond({ id: "b-vsoc1", a: "vso", b: "vsc1" }),
+    createBond({ id: "b-vsc12", a: "vsc1", b: "vsc2" }),
+  ],
+});
+
+const mesylClVs = createSpecies({
+  id: "sp-mesyl-cl-vs",
+  atoms: [
+    createAtom({ id: "vsm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vss", element: "S" }),
+    createAtom({ id: "vsk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vsk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vscl", element: "Cl", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vsms", a: "vsm", b: "vss" }),
+    createBond({ id: "b-vssk1", a: "vss", b: "vsk1", order: 2 }),
+    createBond({ id: "b-vssk2", a: "vss", b: "vsk2", order: 2 }),
+    createBond({ id: "b-vsscl", a: "vss", b: "vscl" }),
+  ],
+});
+
+const protMesylateVs = createSpecies({
+  id: "sp-prot-mesylate-vs",
+  atoms: [
+    createAtom({ id: "vso", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "vsh", element: "H" }),
+    createAtom({ id: "vsc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "vsc2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vsm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vss", element: "S" }),
+    createAtom({ id: "vsk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vsk2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vsoh", a: "vso", b: "vsh" }),
+    createBond({ id: "b-vsoc1", a: "vso", b: "vsc1" }),
+    createBond({ id: "b-vsc12", a: "vsc1", b: "vsc2" }),
+    createBond({ id: "b-vsos", a: "vso", b: "vss" }),
+    createBond({ id: "b-vsms", a: "vsm", b: "vss" }),
+    createBond({ id: "b-vssk1", a: "vss", b: "vsk1", order: 2 }),
+    createBond({ id: "b-vssk2", a: "vss", b: "vsk2", order: 2 }),
+  ],
+});
+
+const chlorideVs = createSpecies({
+  id: "sp-chloride-vs",
+  atoms: [createAtom({ id: "vscl", element: "Cl", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const MESYL_ATTACK: MechanismStep = createStep({
+  id: "mesyl-attack",
+  from: createState({
+    id: "vs1-before",
+    members: [
+      { species: ethanolVs, role: "nucleophile" },
+      { species: mesylClVs, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "vs1-after",
+    members: [
+      { species: protMesylateVs, role: "product" },
+      { species: chlorideVs, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["vso", "vss"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("vso"), sink: toBondBetween("vso", "vss") }),
+    createArrow({ id: "a-leave", source: fromBond("b-vsscl"), sink: toAtom("vscl") }),
+  ],
+});
+
+const mesylateVs = createSpecies({
+  id: "sp-mesylate-vs",
+  atoms: [
+    createAtom({ id: "vso", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vsc1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "vsc2", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vsm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vss", element: "S" }),
+    createAtom({ id: "vsk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vsk2", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vsoc1", a: "vso", b: "vsc1" }),
+    createBond({ id: "b-vsc12", a: "vsc1", b: "vsc2" }),
+    createBond({ id: "b-vsos", a: "vso", b: "vss" }),
+    createBond({ id: "b-vsms", a: "vsm", b: "vss" }),
+    createBond({ id: "b-vssk1", a: "vss", b: "vsk1", order: 2 }),
+    createBond({ id: "b-vssk2", a: "vss", b: "vsk2", order: 2 }),
+  ],
+});
+
+const hclVs = createSpecies({
+  id: "sp-hcl-vs",
+  atoms: [
+    createAtom({ id: "vscl", element: "Cl", lonePairs: 3 }),
+    createAtom({ id: "vsh", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-vsclh", a: "vscl", b: "vsh" })],
+});
+
+const MESYL_DEPROT: MechanismStep = createStep({
+  id: "mesyl-deprot",
+  from: createState({
+    id: "vs2-before",
+    members: [
+      { species: chlorideVs, role: "nucleophile" },
+      { species: protMesylateVs, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "vs2-after",
+    members: [
+      { species: mesylateVs, role: "product" },
+      { species: hclVs, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["vsh", "vscl"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("vscl"), sink: toBondBetween("vscl", "vsh") }),
+    createArrow({ id: "a-release", source: fromBond("b-vsoh"), sink: toAtom("vso") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 7 spine: hemiacetal formation under acid. Protonate the        */
+/* carbonyl, then the alcohol adds. Sugar chemistry starts here.       */
+/* ------------------------------------------------------------------ */
+
+const hydroniumHe = createSpecies({
+  id: "sp-hydronium-he",
+  atoms: [
+    createAtom({ id: "heo3", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "heh1", element: "H" }),
+    createAtom({ id: "heh2", element: "H" }),
+    createAtom({ id: "heh3", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-heo3h1", a: "heo3", b: "heh1" }),
+    createBond({ id: "b-heo3h2", a: "heo3", b: "heh2" }),
+    createBond({ id: "b-heo3h3", a: "heo3", b: "heh3" }),
+  ],
+});
+
+const acetaldehydeHe = createSpecies({
+  id: "sp-acetaldehyde-he",
+  atoms: [
+    createAtom({ id: "heca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "hec1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "heo1", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-hecac1", a: "heca", b: "hec1" }),
+    createBond({ id: "b-hec1o1", a: "hec1", b: "heo1", order: 2 }),
+  ],
+});
+
+const protAldehydeHe = createSpecies({
+  id: "sp-prot-aldehyde-he",
+  atoms: [
+    createAtom({ id: "heca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "hec1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "heo1", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "heh1", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-hecac1", a: "heca", b: "hec1" }),
+    createBond({ id: "b-hec1o1", a: "hec1", b: "heo1", order: 2 }),
+    createBond({ id: "b-heo1h", a: "heo1", b: "heh1" }),
+  ],
+});
+
+const waterHe = createSpecies({
+  id: "sp-water-he",
+  atoms: [
+    createAtom({ id: "heo3", element: "O", lonePairs: 2 }),
+    createAtom({ id: "heh2", element: "H" }),
+    createAtom({ id: "heh3", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-heo3h2", a: "heo3", b: "heh2" }),
+    createBond({ id: "b-heo3h3", a: "heo3", b: "heh3" }),
+  ],
+});
+
+const HEMI_PROTONATE: MechanismStep = createStep({
+  id: "hemi-protonate",
+  from: createState({
+    id: "he1-before",
+    members: [
+      { species: acetaldehydeHe, role: "nucleophile" },
+      { species: hydroniumHe, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "he1-after",
+    members: [
+      { species: protAldehydeHe, role: "product" },
+      { species: waterHe, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["heh1", "heo1"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("heo1"), sink: toBondBetween("heo1", "heh1") }),
+    createArrow({ id: "a-release", source: fromBond("b-heo3h1"), sink: toAtom("heo3") }),
+  ],
+});
+
+const methanolHe = createSpecies({
+  id: "sp-methanol-he",
+  atoms: [
+    createAtom({ id: "heom", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hehm", element: "H" }),
+    createAtom({ id: "hecm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-heomh", a: "heom", b: "hehm" }),
+    createBond({ id: "b-heomc", a: "heom", b: "hecm" }),
+  ],
+});
+
+const protHemiacetalHe = createSpecies({
+  id: "sp-prot-hemiacetal-he",
+  atoms: [
+    createAtom({ id: "heca", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "hec1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "heo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "heh1", element: "H" }),
+    createAtom({ id: "heom", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "hehm", element: "H" }),
+    createAtom({ id: "hecm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-hecac1", a: "heca", b: "hec1" }),
+    createBond({ id: "b-hec1o1", a: "hec1", b: "heo1" }),
+    createBond({ id: "b-heo1h", a: "heo1", b: "heh1" }),
+    createBond({ id: "b-hec1om", a: "hec1", b: "heom" }),
+    createBond({ id: "b-heomh", a: "heom", b: "hehm" }),
+    createBond({ id: "b-heomc", a: "heom", b: "hecm" }),
+  ],
+});
+
+const HEMI_ATTACK: MechanismStep = createStep({
+  id: "hemi-attack",
+  from: createState({
+    id: "he2-before",
+    members: [
+      { species: methanolHe, role: "nucleophile" },
+      { species: protAldehydeHe, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "he2-after", members: [{ species: protHemiacetalHe, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["heom", "hec1"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("heom"), sink: toBondBetween("heom", "hec1") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-hec1o1"), sink: toAtom("heo1") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 10 spine: diazonium substitution. N2 is the best leaving group */
+/* in chemistry, and this is the step that proves it.                  */
+/* ------------------------------------------------------------------ */
+
+const benzenediazoniumG = createSpecies({
+  id: "sp-benzenediazonium-g",
+  atoms: [
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "gc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gn1", element: "N", formalCharge: 1 }),
+    createAtom({ id: "gn2", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "gb12", a: "gc1", b: "gc2", order: 2 }),
+    createBond({ id: "gb23", a: "gc2", b: "gc3" }),
+    createBond({ id: "gb34", a: "gc3", b: "gc4", order: 2 }),
+    createBond({ id: "gb45", a: "gc4", b: "gc5" }),
+    createBond({ id: "gb56", a: "gc5", b: "gc6", order: 2 }),
+    createBond({ id: "gb61", a: "gc6", b: "gc1" }),
+    createBond({ id: "gb-cn", a: "gc1", b: "gn1" }),
+    createBond({ id: "gb-nn", a: "gn1", b: "gn2", order: 3 }),
+  ],
+});
+
+const phenylCationG = createSpecies({
+  id: "sp-phenyl-cation-g",
+  atoms: [
+    createAtom({ id: "gc1", element: "C", formalCharge: 1 }),
+    createAtom({ id: "gc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc6", element: "C", implicitHydrogens: 1 }),
+  ],
+  bonds: [
+    createBond({ id: "gb12", a: "gc1", b: "gc2", order: 2 }),
+    createBond({ id: "gb23", a: "gc2", b: "gc3" }),
+    createBond({ id: "gb34", a: "gc3", b: "gc4", order: 2 }),
+    createBond({ id: "gb45", a: "gc4", b: "gc5" }),
+    createBond({ id: "gb56", a: "gc5", b: "gc6", order: 2 }),
+    createBond({ id: "gb61", a: "gc6", b: "gc1" }),
+  ],
+});
+
+const dinitrogenG = createSpecies({
+  id: "sp-dinitrogen-g",
+  atoms: [
+    createAtom({ id: "gn1", element: "N", lonePairs: 1 }),
+    createAtom({ id: "gn2", element: "N", lonePairs: 1 }),
+  ],
+  bonds: [createBond({ id: "gb-nn", a: "gn1", b: "gn2", order: 3 })],
+});
+
+const DIAZO_LOSS: MechanismStep = createStep({
+  id: "diazo-loss",
+  from: createState({
+    id: "gz1-before",
+    members: [{ species: benzenediazoniumG, role: "substrate" }],
+  }),
+  to: createState({
+    id: "gz1-after",
+    members: [
+      { species: phenylCationG, role: "intermediate" },
+      { species: dinitrogenG, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "bond_heterolysis", route: "sn1", reactionCenters: ["gc1"] },
+  arrows: [
+    createArrow({ id: "a-leave", source: fromBond("gb-cn"), sink: toAtom("gn1") }),
+  ],
+});
+
+const waterG = createSpecies({
+  id: "sp-water-g",
+  atoms: [
+    createAtom({ id: "gwo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "gw1", element: "H" }),
+    createAtom({ id: "gw2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "gb-wo1", a: "gwo", b: "gw1" }),
+    createBond({ id: "gb-wo2", a: "gwo", b: "gw2" }),
+  ],
+});
+
+const protPhenolG = createSpecies({
+  id: "sp-prot-phenol-g",
+  atoms: [
+    createAtom({ id: "gc1", element: "C" }),
+    createAtom({ id: "gc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc3", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc4", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc5", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gc6", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "gwo", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "gw1", element: "H" }),
+    createAtom({ id: "gw2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "gb12", a: "gc1", b: "gc2", order: 2 }),
+    createBond({ id: "gb23", a: "gc2", b: "gc3" }),
+    createBond({ id: "gb34", a: "gc3", b: "gc4", order: 2 }),
+    createBond({ id: "gb45", a: "gc4", b: "gc5" }),
+    createBond({ id: "gb56", a: "gc5", b: "gc6", order: 2 }),
+    createBond({ id: "gb61", a: "gc6", b: "gc1" }),
+    createBond({ id: "gb-co", a: "gc1", b: "gwo" }),
+    createBond({ id: "gb-wo1", a: "gwo", b: "gw1" }),
+    createBond({ id: "gb-wo2", a: "gwo", b: "gw2" }),
+  ],
+});
+
+const DIAZO_CAPTURE: MechanismStep = createStep({
+  id: "diazo-capture",
+  from: createState({
+    id: "gz2-before",
+    members: [
+      { species: waterG, role: "nucleophile" },
+      { species: phenylCationG, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "gz2-after", members: [{ species: protPhenolG, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "sn1", reactionCenters: ["gc1"] },
+  arrows: [
+    createArrow({ id: "a-capture", source: fromLonePair("gwo"), sink: toBondBetween("gwo", "gc1") }),
+  ],
+});
+
 export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
   {
     id: "seq-hydration",
@@ -5562,6 +6641,463 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
           xc1: { x: 0, y: 0 },
           xo1: { x: 0.45, y: 0.95 },
           xoh: { x: -0.75, y: 0.65 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-eas-br",
+    title: "EAS bromination · 2 steps",
+    brief: "Same dance as nitration, new partner: the ring attacks Br2 and bromide comes back for the proton.",
+    successLine: "The ring broke its aromaticity to take the bromine, and got it back by handing bromide the proton. Every EAS you will ever draw is these two beats; only the electrophile changes costume.",
+    steps: [
+      {
+        step: EASBR_ATTACK,
+        stepBrief: "Step 1 · The ring's pi bond attacks Br2. Aromaticity spent, on purpose.",
+        fromHints: {
+          bc1: { x: -1.15, y: 0.15 },
+          bc2: { x: -1.85, y: 1.0 },
+          bc3: { x: -2.95, y: 0.85 },
+          bc4: { x: -3.35, y: -0.15 },
+          bc5: { x: -2.65, y: -1.0 },
+          bc6: { x: -1.55, y: -0.85 },
+          bba: { x: 0.35, y: 0.5 },
+          bbb: { x: 1.55, y: 0.85 },
+        },
+        toHints: {
+          bc1: { x: -1.15, y: 0.15 },
+          bhx: { x: -1.05, y: 1.25 },
+          bc2: { x: -1.85, y: 1.0 },
+          bc3: { x: -2.95, y: 0.85 },
+          bc4: { x: -3.35, y: -0.15 },
+          bc5: { x: -2.65, y: -1.0 },
+          bc6: { x: -1.55, y: -0.85 },
+          bba: { x: 0.0, y: 0.4 },
+          bbb: { x: 1.95, y: 1.0 },
+        },
+      },
+      {
+        step: EASBR_REAROMATIZE,
+        stepBrief: "Step 2 · Bromide takes the sp3 proton; the ring is aromatic again.",
+        fromHints: {
+          bbb: { x: 0.3, y: 2.0 },
+          bc1: { x: -1.15, y: 0.15 },
+          bhx: { x: -1.05, y: 1.25 },
+          bc2: { x: -1.85, y: 1.0 },
+          bc3: { x: -2.95, y: 0.85 },
+          bc4: { x: -3.35, y: -0.15 },
+          bc5: { x: -2.65, y: -1.0 },
+          bc6: { x: -1.55, y: -0.85 },
+          bba: { x: 0.0, y: 0.4 },
+        },
+        toHints: {
+          bbb: { x: 0.55, y: 2.25 },
+          bhx: { x: -0.4, y: 1.95 },
+          bc1: { x: -1.15, y: 0.15 },
+          bc2: { x: -1.85, y: 1.0 },
+          bc3: { x: -2.95, y: 0.85 },
+          bc4: { x: -3.35, y: -0.15 },
+          bc5: { x: -2.65, y: -1.0 },
+          bc6: { x: -1.55, y: -0.85 },
+          bba: { x: 0.0, y: 0.4 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-sulfonation",
+    title: "Sulfonation · 2 steps",
+    brief: "SO3 is electrophilic enough on its own, and the whole reaction runs backwards in steam. The reversible EAS.",
+    successLine: "The ring attacked sulfur, the charge parked on oxygen, and the same oxygen reached back for the proton. Sulfonation is the one EAS you can undo: park a sulfonic acid on a position to block it, do your chemistry, then steam it off. That trick is the entire blocking-group strategy.",
+    steps: [
+      {
+        step: SULFO_ATTACK,
+        stepBrief: "Step 1 · The ring attacks SO3's sulfur; an S=O relieves the strain.",
+        fromHints: {
+          uc1: { x: -1.15, y: 0.15 },
+          uc2: { x: -1.85, y: 1.0 },
+          uc3: { x: -2.95, y: 0.85 },
+          uc4: { x: -3.35, y: -0.15 },
+          uc5: { x: -2.65, y: -1.0 },
+          uc6: { x: -1.55, y: -0.85 },
+          us: { x: 0.35, y: 0.45 },
+          uo1: { x: 0.6, y: 1.5 },
+          uo2: { x: 1.35, y: -0.2 },
+          uo3: { x: -0.05, y: -0.6 },
+        },
+        toHints: {
+          uc1: { x: -1.15, y: 0.15 },
+          uhx: { x: -1.05, y: 1.25 },
+          uc2: { x: -1.85, y: 1.0 },
+          uc3: { x: -2.95, y: 0.85 },
+          uc4: { x: -3.35, y: -0.15 },
+          uc5: { x: -2.65, y: -1.0 },
+          uc6: { x: -1.55, y: -0.85 },
+          us: { x: 0.1, y: 0.35 },
+          uo1: { x: 0.35, y: 1.4 },
+          uo2: { x: 1.1, y: -0.3 },
+          uo3: { x: -0.3, y: -0.7 },
+        },
+      },
+      {
+        step: SULFO_REAROMATIZE,
+        stepBrief: "Step 2 · The oxygen that took the charge reaches back for the proton.",
+        fromHints: {
+          uc1: { x: -1.15, y: 0.15 },
+          uhx: { x: -1.05, y: 1.25 },
+          uc2: { x: -1.85, y: 1.0 },
+          uc3: { x: -2.95, y: 0.85 },
+          uc4: { x: -3.35, y: -0.15 },
+          uc5: { x: -2.65, y: -1.0 },
+          uc6: { x: -1.55, y: -0.85 },
+          us: { x: 0.1, y: 0.35 },
+          uo1: { x: 0.35, y: 1.4 },
+          uo2: { x: 1.1, y: -0.3 },
+          uo3: { x: -0.3, y: -0.7 },
+        },
+        toHints: {
+          uc1: { x: -1.15, y: 0.15 },
+          uc2: { x: -1.85, y: 1.0 },
+          uc3: { x: -2.95, y: 0.85 },
+          uc4: { x: -3.35, y: -0.15 },
+          uc5: { x: -2.65, y: -1.0 },
+          uc6: { x: -1.55, y: -0.85 },
+          us: { x: 0.1, y: 0.35 },
+          uo1: { x: 0.35, y: 1.4 },
+          uhx: { x: 1.05, y: 1.95 },
+          uo2: { x: 1.1, y: -0.3 },
+          uo3: { x: -0.3, y: -0.7 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-fc-acyl",
+    title: "Friedel-Crafts acylation · 2 steps",
+    brief: "The acylium cannot rearrange, so what you aim is what you get. The reason acylation beats alkylation.",
+    successLine: "The ring took the acylium's carbon and chloride cleaned up the proton: acetophenone. The acylium is resonance-stabilised and cannot shift the way alkyl cations do, and the ketone it leaves deactivates the ring against a second hit. Both problems of FC alkylation, solved by one carbonyl.",
+    steps: [
+      {
+        step: FC_ATTACK,
+        stepBrief: "Step 1 · The ring attacks the acylium carbon; the triple bond relaxes to C=O.",
+        fromHints: {
+          rc1: { x: -1.15, y: 0.15 },
+          rc2: { x: -1.85, y: 1.0 },
+          rc3: { x: -2.95, y: 0.85 },
+          rc4: { x: -3.35, y: -0.15 },
+          rc5: { x: -2.65, y: -1.0 },
+          rc6: { x: -1.55, y: -0.85 },
+          rcc: { x: 0.35, y: 0.5 },
+          rco: { x: 1.3, y: 1.05 },
+          rca: { x: 0.75, y: -0.55 },
+        },
+        toHints: {
+          rc1: { x: -1.15, y: 0.15 },
+          rhx: { x: -1.05, y: 1.25 },
+          rc2: { x: -1.85, y: 1.0 },
+          rc3: { x: -2.95, y: 0.85 },
+          rc4: { x: -3.35, y: -0.15 },
+          rc5: { x: -2.65, y: -1.0 },
+          rc6: { x: -1.55, y: -0.85 },
+          rcc: { x: 0.1, y: 0.4 },
+          rco: { x: 1.05, y: 0.95 },
+          rca: { x: 0.5, y: -0.65 },
+        },
+      },
+      {
+        step: FC_REAROMATIZE,
+        stepBrief: "Step 2 · Chloride takes the proton; acetophenone stands aromatic again.",
+        fromHints: {
+          rcl: { x: 0.3, y: 2.1 },
+          rc1: { x: -1.15, y: 0.15 },
+          rhx: { x: -1.05, y: 1.25 },
+          rc2: { x: -1.85, y: 1.0 },
+          rc3: { x: -2.95, y: 0.85 },
+          rc4: { x: -3.35, y: -0.15 },
+          rc5: { x: -2.65, y: -1.0 },
+          rc6: { x: -1.55, y: -0.85 },
+          rcc: { x: 0.1, y: 0.4 },
+          rco: { x: 1.05, y: 0.95 },
+          rca: { x: 0.5, y: -0.65 },
+        },
+        toHints: {
+          rcl: { x: 0.55, y: 2.35 },
+          rhx: { x: -0.4, y: 2.05 },
+          rc1: { x: -1.15, y: 0.15 },
+          rc2: { x: -1.85, y: 1.0 },
+          rc3: { x: -2.95, y: 0.85 },
+          rc4: { x: -3.35, y: -0.15 },
+          rc5: { x: -2.65, y: -1.0 },
+          rc6: { x: -1.55, y: -0.85 },
+          rcc: { x: 0.1, y: 0.4 },
+          rco: { x: 1.05, y: 0.95 },
+          rca: { x: 0.5, y: -0.65 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-diene-br2",
+    title: "Br2 + butadiene, 1,4 · 2 steps",
+    brief: "Bromine makes an allyl cation, and the cation wears two costumes. Warm conditions pick the far seat.",
+    successLine: "Bromine went on at C1 and made an allyl cation that lives at C2 AND C4 at once. Bromide chose the far end: 1,4-addition, the thermodynamic product, with the internal alkene as its prize. Cold it, and the same bromide grabs the near seat instead.",
+    steps: [
+      {
+        step: DIENE_BR_ATTACK,
+        stepBrief: "Step 1 · The terminal alkene attacks Br2. An allyl cation is born.",
+        fromHints: {
+          d1: { x: -2.3, y: 0.35 },
+          d2: { x: -1.35, y: -0.25 },
+          d3: { x: -0.3, y: 0.25 },
+          d4: { x: 0.65, y: -0.35 },
+          dba: { x: -2.5, y: 1.75 },
+          dbb: { x: -1.45, y: 2.5 },
+        },
+        toHints: {
+          d1: { x: -2.3, y: 0.35 },
+          dba: { x: -2.55, y: 1.45 },
+          d2: { x: -1.35, y: -0.25 },
+          d3: { x: -0.3, y: 0.25 },
+          d4: { x: 0.65, y: -0.35 },
+          dbb: { x: -1.3, y: 2.75 },
+        },
+      },
+      {
+        step: DIENE_BR_CAPTURE,
+        stepBrief: "Step 2 · Same cation, other costume: bromide takes the FAR end.",
+        fromHints: {
+          dbb: { x: 1.75, y: 0.95 },
+          d1: { x: -2.3, y: 0.35 },
+          dba: { x: -2.55, y: 1.45 },
+          d2: { x: -1.35, y: -0.25 },
+          d3: { x: -0.3, y: 0.25 },
+          d4: { x: 0.65, y: -0.35 },
+        },
+        toHints: {
+          dbb: { x: 1.45, y: 0.55 },
+          d1: { x: -2.3, y: 0.35 },
+          dba: { x: -2.55, y: 1.45 },
+          d2: { x: -1.35, y: -0.25 },
+          d3: { x: -0.3, y: 0.25 },
+          d4: { x: 0.65, y: -0.35 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-roh-hbr",
+    title: "Alcohol → alkyl halide · 2 steps",
+    brief: "OH is a terrible leaving group. Protonate it and it is water, which leaves happily. Then SN2.",
+    successLine: "HBr's proton turned the hydroxyl into water, and the bromide it left behind did the SN2. Every alcohol activation in the course is a variation on this: make the oxygen WANT to leave, then push.",
+    steps: [
+      {
+        step: ROH_PROTONATE,
+        stepBrief: "Step 1 · The alcohol oxygen takes HBr's proton.",
+        fromHints: {
+          olo: { x: -0.6, y: 0.55 },
+          olh: { x: -1.35, y: 1.1 },
+          olc1: { x: 0.0, y: -0.4 },
+          olc2: { x: -0.85, y: -1.15 },
+          olha: { x: 0.35, y: 1.55 },
+          olbr: { x: 1.55, y: 1.95 },
+        },
+        toHints: {
+          olo: { x: -0.6, y: 0.55 },
+          olh: { x: -1.35, y: 1.1 },
+          olha: { x: 0.15, y: 1.35 },
+          olc1: { x: 0.0, y: -0.4 },
+          olc2: { x: -0.85, y: -1.15 },
+          olbr: { x: 1.85, y: 2.15 },
+        },
+      },
+      {
+        step: ROH_SN2,
+        stepBrief: "Step 2 · Bromide attacks from the back; water walks away.",
+        fromHints: {
+          olbr: { x: 1.6, y: -0.75 },
+          olo: { x: -0.6, y: 0.55 },
+          olh: { x: -1.35, y: 1.1 },
+          olha: { x: 0.15, y: 1.35 },
+          olc1: { x: 0.0, y: -0.4 },
+          olc2: { x: -0.85, y: -1.15 },
+        },
+        toHints: {
+          olbr: { x: 1.05, y: -0.6 },
+          olc1: { x: 0.0, y: -0.4 },
+          olc2: { x: -0.85, y: -1.15 },
+          olo: { x: -0.95, y: 0.9 },
+          olh: { x: -1.7, y: 1.45 },
+          olha: { x: -0.2, y: 1.7 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-mesylate",
+    title: "Mesylate formation · 2 steps",
+    brief: "The polite way to fix a bad leaving group: no acid, no carbocation, stereocentre untouched.",
+    successLine: "The alcohol attacked sulfur, chloride left, and chloride then collected the proton: an ethyl mesylate, ready for any SN2 you point at it. Unlike the HBr route there was never a cation on the map, which is why this is the move when a stereocentre is nearby.",
+    steps: [
+      {
+        step: MESYL_ATTACK,
+        stepBrief: "Step 1 · The alcohol oxygen attacks sulfur; chloride is pushed out.",
+        fromHints: {
+          vso: { x: -1.15, y: 0.45 },
+          vsh: { x: -1.9, y: 1.0 },
+          vsc1: { x: -1.55, y: -0.6 },
+          vsc2: { x: -2.6, y: -0.95 },
+          vss: { x: 0.35, y: 0.2 },
+          vsm: { x: 0.8, y: -0.85 },
+          vsk1: { x: 0.55, y: 1.3 },
+          vsk2: { x: 1.3, y: 0.75 },
+          vscl: { x: 0.05, y: -1.35 },
+        },
+        toHints: {
+          vso: { x: -0.85, y: 0.45 },
+          vsh: { x: -1.6, y: 1.0 },
+          vsc1: { x: -1.25, y: -0.6 },
+          vsc2: { x: -2.3, y: -0.95 },
+          vss: { x: 0.35, y: 0.2 },
+          vsm: { x: 0.8, y: -0.85 },
+          vsk1: { x: 0.55, y: 1.3 },
+          vsk2: { x: 1.45, y: 0.6 },
+          vscl: { x: 0.0, y: -1.85 },
+        },
+      },
+      {
+        step: MESYL_DEPROT,
+        stepBrief: "Step 2 · Chloride comes back for the proton. Mesylate done.",
+        fromHints: {
+          vscl: { x: -2.85, y: 1.6 },
+          vso: { x: -0.85, y: 0.45 },
+          vsh: { x: -1.6, y: 1.0 },
+          vsc1: { x: -1.25, y: -0.6 },
+          vsc2: { x: -2.3, y: -0.95 },
+          vss: { x: 0.35, y: 0.2 },
+          vsm: { x: 0.8, y: -0.85 },
+          vsk1: { x: 0.55, y: 1.3 },
+          vsk2: { x: 1.45, y: 0.6 },
+        },
+        toHints: {
+          vscl: { x: -2.95, y: 1.7 },
+          vsh: { x: -2.15, y: 1.35 },
+          vso: { x: -0.85, y: 0.45 },
+          vsc1: { x: -1.25, y: -0.6 },
+          vsc2: { x: -2.3, y: -0.95 },
+          vss: { x: 0.35, y: 0.2 },
+          vsm: { x: 0.8, y: -0.85 },
+          vsk1: { x: 0.55, y: 1.3 },
+          vsk2: { x: 1.45, y: 0.6 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-hemiacetal",
+    title: "Hemiacetal formation · 2 steps",
+    brief: "Protonate the carbonyl, then the alcohol adds. Do it twice and you have an acetal; do it in a ring and you have glucose.",
+    successLine: "The proton switched the carbonyl on, and methanol added to give the protonated hemiacetal. Run the same pair of moves again with a second methanol and you reach the acetal; let a sugar's own C5 hydroxyl do the attacking and this exact chemistry closes glucose into its ring.",
+    steps: [
+      {
+        step: HEMI_PROTONATE,
+        stepBrief: "Step 1 · Hydronium protonates the aldehyde oxygen.",
+        fromHints: {
+          heca: { x: -1.05, y: -0.7 },
+          hec1: { x: 0, y: 0 },
+          heo1: { x: 0.35, y: 1.05 },
+          heo3: { x: 1.5, y: 1.9 },
+          heh1: { x: 0.85, y: 1.6 },
+          heh2: { x: 2.2, y: 1.55 },
+          heh3: { x: 1.55, y: 2.65 },
+        },
+        toHints: {
+          heca: { x: -1.05, y: -0.7 },
+          hec1: { x: 0, y: 0 },
+          heo1: { x: 0.35, y: 1.05 },
+          heh1: { x: 1.05, y: 1.6 },
+          heo3: { x: 1.85, y: 2.2 },
+          heh2: { x: 2.55, y: 1.85 },
+          heh3: { x: 1.9, y: 2.95 },
+        },
+      },
+      {
+        step: HEMI_ATTACK,
+        stepBrief: "Step 2 · Methanol attacks the switched-on carbonyl.",
+        fromHints: {
+          heom: { x: -1.55, y: 0.6 },
+          hehm: { x: -2.3, y: 0.25 },
+          hecm: { x: -1.65, y: 1.7 },
+          heca: { x: -1.05, y: -0.7 },
+          hec1: { x: 0, y: 0 },
+          heo1: { x: 0.35, y: 1.05 },
+          heh1: { x: 1.05, y: 1.6 },
+        },
+        toHints: {
+          heom: { x: -0.85, y: 0.7 },
+          hehm: { x: -1.6, y: 0.35 },
+          hecm: { x: -0.95, y: 1.8 },
+          heca: { x: -1.05, y: -0.7 },
+          hec1: { x: 0, y: 0 },
+          heo1: { x: 0.4, y: 1.05 },
+          heh1: { x: 1.1, y: 1.6 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-diazo-sub",
+    title: "Diazonium substitution · 2 steps",
+    brief: "N2 is the best leaving group in chemistry. It leaves on its own, and whatever is nearby takes the cation.",
+    successLine: "The C-N bond broke by itself because nitrogen gas is the one leaving group that never comes back, and water captured the phenyl cation the instant it existed. Swap the water for CuBr, CuCN or KI and the same skeleton delivers the whole Sandmeyer family.",
+    steps: [
+      {
+        step: DIAZO_LOSS,
+        stepBrief: "Step 1 · N2 leaves. Nothing pushed it; it just left.",
+        fromHints: {
+          gc1: { x: -0.9, y: 0.15 },
+          gc2: { x: -1.6, y: 1.0 },
+          gc3: { x: -2.7, y: 0.85 },
+          gc4: { x: -3.1, y: -0.15 },
+          gc5: { x: -2.4, y: -1.0 },
+          gc6: { x: -1.3, y: -0.85 },
+          gn1: { x: 0.35, y: 0.5 },
+          gn2: { x: 1.5, y: 0.8 },
+        },
+        toHints: {
+          gc1: { x: -0.9, y: 0.15 },
+          gc2: { x: -1.6, y: 1.0 },
+          gc3: { x: -2.7, y: 0.85 },
+          gc4: { x: -3.1, y: -0.15 },
+          gc5: { x: -2.4, y: -1.0 },
+          gc6: { x: -1.3, y: -0.85 },
+          gn1: { x: 0.9, y: 0.65 },
+          gn2: { x: 2.05, y: 0.95 },
+        },
+      },
+      {
+        step: DIAZO_CAPTURE,
+        stepBrief: "Step 2 · Water captures the phenyl cation. Phenol after one more proton hop.",
+        fromHints: {
+          gwo: { x: 0.55, y: 0.7 },
+          gw1: { x: 1.35, y: 0.15 },
+          gw2: { x: 0.85, y: 1.7 },
+          gc1: { x: -0.9, y: 0.15 },
+          gc2: { x: -1.6, y: 1.0 },
+          gc3: { x: -2.7, y: 0.85 },
+          gc4: { x: -3.1, y: -0.15 },
+          gc5: { x: -2.4, y: -1.0 },
+          gc6: { x: -1.3, y: -0.85 },
+        },
+        toHints: {
+          gwo: { x: 0.2, y: 0.6 },
+          gw1: { x: 1.0, y: 0.1 },
+          gw2: { x: 0.5, y: 1.6 },
+          gc1: { x: -0.9, y: 0.15 },
+          gc2: { x: -1.6, y: 1.0 },
+          gc3: { x: -2.7, y: 0.85 },
+          gc4: { x: -3.1, y: -0.15 },
+          gc5: { x: -2.4, y: -1.0 },
+          gc6: { x: -1.3, y: -0.85 },
         },
       },
     ],
