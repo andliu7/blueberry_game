@@ -1,0 +1,747 @@
+{
+  "date": "2026-08-27",
+  "results": [
+    {
+      "pass": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 3,
+        "isMobile": true,
+        "hasTouch": true
+      },
+      "outcome": "no-continue",
+      "answerKeyPrompts": 6,
+      "notes": [
+        "match advanced straight after CHECK with no feedback ribbon, so it has no feedback shot",
+        "match advanced straight after CHECK with no feedback ribbon, so it has no feedback shot",
+        "after lesson: nothing to press on streak-5"
+      ],
+      "shots": [
+        {
+          "file": "p01-landing.png",
+          "what": "landing",
+          "did": "Opened duolingo.com as a guest, no account",
+          "heading": "The most fun way to learn languages, chess, and more!",
+          "url": "https://www.duolingo.com/"
+        },
+        {
+          "file": "p02-landing-header.png",
+          "what": "landing-header",
+          "did": "The landing header, site language control at the right",
+          "heading": "The most fun way to learn languages, chess, and more!",
+          "url": "https://www.duolingo.com/"
+        },
+        {
+          "file": "p03-course-picker.png",
+          "what": "course-picker",
+          "did": "Pressed Get started; the I want to learn grid",
+          "heading": "I want to learn...",
+          "url": "https://www.duolingo.com/register"
+        },
+        {
+          "file": "p04-course-picker-loading.png",
+          "what": "course-picker-loading",
+          "did": "Chose Spanish; the funnel is loading the first beat",
+          "heading": "I want to learn...",
+          "url": "https://www.duolingo.com/register"
+        },
+        {
+          "file": "p05-onboarding-beat-1.png",
+          "what": "onboarding-beat-1",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome"
+        },
+        {
+          "file": "p06-onboarding-beat-2.png",
+          "what": "onboarding-beat-2",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome"
+        },
+        {
+          "file": "p07-onboarding-hdyhau.png",
+          "what": "onboarding-hdyhau",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=hdyhau"
+        },
+        {
+          "file": "p08-onboarding-hdyhau-picked.png",
+          "what": "onboarding-hdyhau-picked",
+          "did": "Chose the first option, \"TikTok\"",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=hdyhau"
+        },
+        {
+          "file": "p09-onboarding-learningreason.png",
+          "what": "onboarding-learningreason",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=learningReason"
+        },
+        {
+          "file": "p10-onboarding-learningreason-picked.png",
+          "what": "onboarding-learningreason-picked",
+          "did": "Chose the first option, \"Just for fun\"",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=learningReason"
+        },
+        {
+          "file": "p11-onboarding-proficiency.png",
+          "what": "onboarding-proficiency",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=proficiency"
+        },
+        {
+          "file": "p12-onboarding-proficiency-picked.png",
+          "what": "onboarding-proficiency-picked",
+          "did": "Chose the first option, \"I’m new to Spanish\"",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=proficiency"
+        },
+        {
+          "file": "p13-onboarding-courseoverview.png",
+          "what": "onboarding-courseoverview",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=courseOverview"
+        },
+        {
+          "file": "p14-onboarding-dailygoal.png",
+          "what": "onboarding-dailygoal",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=dailyGoal"
+        },
+        {
+          "file": "p15-onboarding-dailygoal-picked.png",
+          "what": "onboarding-dailygoal-picked",
+          "did": "Chose the first option, \"5 min / day Casual\"",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=dailyGoal"
+        },
+        {
+          "file": "p16-onboarding-choosepath.png",
+          "what": "onboarding-choosepath",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=choosePath"
+        },
+        {
+          "file": "p17-onboarding-choosepath-picked.png",
+          "what": "onboarding-choosepath-picked",
+          "did": "Chose the first option, \"Start from scratch Take the easiest lesson of the Spanish co\"",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=choosePath"
+        },
+        {
+          "file": "p18-onboarding-choosepath-2.png",
+          "what": "onboarding-choosepath-2",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=choosePath"
+        },
+        {
+          "file": "p19-onboarding-choosepath-3.png",
+          "what": "onboarding-choosepath-3",
+          "did": "Arrived on this onboarding beat; nothing chosen yet",
+          "heading": "",
+          "url": "https://www.duolingo.com/welcome?welcomeStep=choosePath"
+        },
+        {
+          "file": "p20-lesson-01-select-prompt.png",
+          "what": "lesson-01-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p21-lesson-hud.png",
+          "what": "lesson-hud",
+          "did": "The lesson HUD: quit, progress bar, hearts",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p22-lesson-01-select-answered.png",
+          "what": "lesson-01-select-answered",
+          "did": "Chose \"papá\" on purpose, which is not the answer, to capture the wrong-answer feedback",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p23-lesson-01-select-wrong.png",
+          "what": "lesson-01-select-wrong",
+          "did": "Pressed CHECK; the wrong feedback ribbon",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p24-energy-hearts-primer-0000ms.png",
+          "what": "energy-hearts-primer-0000ms",
+          "did": "Lost the first heart; the hearts primer appeared over the player",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p25-energy-hearts-primer-0400ms.png",
+          "what": "energy-hearts-primer-0400ms",
+          "did": "Lost the first heart; the hearts primer appeared over the player",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 405
+        },
+        {
+          "file": "p26-energy-hearts-primer-0900ms.png",
+          "what": "energy-hearts-primer-0900ms",
+          "did": "Lost the first heart; the hearts primer appeared over the player",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 917
+        },
+        {
+          "file": "p27-energy-hearts-primer-2500ms.png",
+          "what": "energy-hearts-primer-2500ms",
+          "did": "Lost the first heart; the hearts primer appeared over the player",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2502
+        },
+        {
+          "file": "p28-lesson-02-select-prompt.png",
+          "what": "lesson-02-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “dog”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p29-lesson-02-select-answered.png",
+          "what": "lesson-02-select-answered",
+          "did": "Chose \"perro\" (the answer key says perro)",
+          "heading": "Which one of these is “dog”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p30-lesson-02-select-right.png",
+          "what": "lesson-02-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “dog”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p31-lesson-03-select-prompt.png",
+          "what": "lesson-03-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “water”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p32-lesson-03-select-answered.png",
+          "what": "lesson-03-select-answered",
+          "did": "Chose \"agua\" (the answer key says agua)",
+          "heading": "Which one of these is “water”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p33-lesson-03-select-right.png",
+          "what": "lesson-03-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “water”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p34-lesson-04-select-prompt.png",
+          "what": "lesson-04-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “milk”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p35-lesson-04-select-answered.png",
+          "what": "lesson-04-select-answered",
+          "did": "Chose \"leche\" (the answer key says leche)",
+          "heading": "Which one of these is “milk”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p36-lesson-04-select-right.png",
+          "what": "lesson-04-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “milk”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p37-lesson-05-match-prompt.png",
+          "what": "lesson-05-match-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Tap the matching pairs",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p38-lesson-05-match-answered.png",
+          "what": "lesson-05-match-answered",
+          "did": "Paired every token (matched-all)",
+          "heading": "Tap the matching pairs",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p39-lesson-06-assist-prompt.png",
+          "what": "lesson-06-assist-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p40-lesson-06-assist-answered.png",
+          "what": "lesson-06-assist-answered",
+          "did": "Chose \"perro\" (the answer key says perro)",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p41-lesson-06-assist-right.png",
+          "what": "lesson-06-assist-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p42-character-reaction-1-0000ms.png",
+          "what": "character-reaction-1-0000ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p43-character-reaction-1-0400ms.png",
+          "what": "character-reaction-1-0400ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 401
+        },
+        {
+          "file": "p44-character-reaction-1-0900ms.png",
+          "what": "character-reaction-1-0900ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 902
+        },
+        {
+          "file": "p45-character-reaction-1-2500ms.png",
+          "what": "character-reaction-1-2500ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2503
+        },
+        {
+          "file": "p46-lesson-08-assist-prompt.png",
+          "what": "lesson-08-assist-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p47-lesson-08-assist-answered.png",
+          "what": "lesson-08-assist-answered",
+          "did": "Chose \"agua\" (the answer key says agua)",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p48-lesson-08-assist-right.png",
+          "what": "lesson-08-assist-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p49-lesson-09-select-prompt.png",
+          "what": "lesson-09-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “mom”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p50-lesson-09-select-answered.png",
+          "what": "lesson-09-select-answered",
+          "did": "Chose \"mamá\" (the answer key says mamá)",
+          "heading": "Which one of these is “mom”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p51-lesson-09-select-right.png",
+          "what": "lesson-09-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “mom”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p52-lesson-10-select-prompt.png",
+          "what": "lesson-10-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “dad”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p53-lesson-10-select-answered.png",
+          "what": "lesson-10-select-answered",
+          "did": "Chose \"papá\" (the answer key says papá)",
+          "heading": "Which one of these is “dad”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p54-lesson-10-select-right.png",
+          "what": "lesson-10-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “dad”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p55-lesson-11-assist-prompt.png",
+          "what": "lesson-11-assist-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p56-lesson-11-assist-answered.png",
+          "what": "lesson-11-assist-answered",
+          "did": "Chose \"papá\" (the answer key says papá)",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p57-lesson-11-assist-right.png",
+          "what": "lesson-11-assist-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p58-lesson-12-assist-prompt.png",
+          "what": "lesson-12-assist-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p59-lesson-12-assist-answered.png",
+          "what": "lesson-12-assist-answered",
+          "did": "Chose \"gato\" (the answer key says gato)",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p60-lesson-12-assist-right.png",
+          "what": "lesson-12-assist-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Select the correct meaning",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p61-character-reaction-2-0000ms.png",
+          "what": "character-reaction-2-0000ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p62-character-reaction-2-0400ms.png",
+          "what": "character-reaction-2-0400ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 408
+        },
+        {
+          "file": "p63-character-reaction-2-0900ms.png",
+          "what": "character-reaction-2-0900ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 902
+        },
+        {
+          "file": "p64-character-reaction-2-2500ms.png",
+          "what": "character-reaction-2-2500ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2507
+        },
+        {
+          "file": "p65-lesson-14-match-prompt.png",
+          "what": "lesson-14-match-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Tap the matching pairs",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p66-lesson-14-match-answered.png",
+          "what": "lesson-14-match-answered",
+          "did": "Paired every token (matched-all)",
+          "heading": "Tap the matching pairs",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p67-character-reaction-3-0000ms.png",
+          "what": "character-reaction-3-0000ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p68-character-reaction-3-0400ms.png",
+          "what": "character-reaction-3-0400ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 402
+        },
+        {
+          "file": "p69-character-reaction-3-0900ms.png",
+          "what": "character-reaction-3-0900ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 901
+        },
+        {
+          "file": "p70-character-reaction-3-2500ms.png",
+          "what": "character-reaction-3-2500ms",
+          "did": "Mid lesson, the player handed over to the character instead of the next challenge",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2503
+        },
+        {
+          "file": "p71-lesson-16-select-prompt.png",
+          "what": "lesson-16-select-prompt",
+          "did": "A challenge, before answering",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p72-lesson-16-select-answered.png",
+          "what": "lesson-16-select-answered",
+          "did": "Chose \"gato\" (the answer key says gato)",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p73-lesson-16-select-right.png",
+          "what": "lesson-16-select-right",
+          "did": "Pressed CHECK; the right feedback ribbon",
+          "heading": "Which one of these is “cat”?",
+          "url": "https://www.duolingo.com/lesson"
+        },
+        {
+          "file": "p74-reward-lesson-complete-1-0000ms.png",
+          "what": "reward-lesson-complete-1-0000ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p75-reward-lesson-complete-1-0400ms.png",
+          "what": "reward-lesson-complete-1-0400ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 413
+        },
+        {
+          "file": "p76-reward-lesson-complete-1-0900ms.png",
+          "what": "reward-lesson-complete-1-0900ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 908
+        },
+        {
+          "file": "p77-reward-lesson-complete-1-2500ms.png",
+          "what": "reward-lesson-complete-1-2500ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2501
+        },
+        {
+          "file": "p78-after-lesson-2-0000ms.png",
+          "what": "after-lesson-2-0000ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p79-after-lesson-2-0400ms.png",
+          "what": "after-lesson-2-0400ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 403
+        },
+        {
+          "file": "p80-after-lesson-2-0900ms.png",
+          "what": "after-lesson-2-0900ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 900
+        },
+        {
+          "file": "p81-after-lesson-2-2500ms.png",
+          "what": "after-lesson-2-2500ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2506
+        },
+        {
+          "file": "p82-after-lesson-3-0000ms.png",
+          "what": "after-lesson-3-0000ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p83-after-lesson-3-0400ms.png",
+          "what": "after-lesson-3-0400ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 408
+        },
+        {
+          "file": "p84-after-lesson-3-0900ms.png",
+          "what": "after-lesson-3-0900ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 902
+        },
+        {
+          "file": "p85-after-lesson-3-2500ms.png",
+          "what": "after-lesson-3-2500ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2504
+        },
+        {
+          "file": "p86-streak-4-0000ms.png",
+          "what": "streak-4-0000ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p87-streak-4-0400ms.png",
+          "what": "streak-4-0400ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 410
+        },
+        {
+          "file": "p88-streak-4-0900ms.png",
+          "what": "streak-4-0900ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 901
+        },
+        {
+          "file": "p89-streak-4-2500ms.png",
+          "what": "streak-4-2500ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2502
+        },
+        {
+          "file": "p90-streak-5-0000ms.png",
+          "what": "streak-5-0000ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 0,
+          "burstActualMs": 0
+        },
+        {
+          "file": "p91-streak-5-0400ms.png",
+          "what": "streak-5-0400ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 400,
+          "burstActualMs": 410
+        },
+        {
+          "file": "p92-streak-5-0900ms.png",
+          "what": "streak-5-0900ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 900,
+          "burstActualMs": 914
+        },
+        {
+          "file": "p93-streak-5-2500ms.png",
+          "what": "streak-5-2500ms",
+          "did": "This screen appeared on its own after the lesson ended",
+          "heading": "",
+          "url": "https://www.duolingo.com/lesson",
+          "burstNominalMs": 2500,
+          "burstActualMs": 2510
+        }
+      ]
+    }
+  ]
+}
