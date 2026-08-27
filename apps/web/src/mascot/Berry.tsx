@@ -136,7 +136,8 @@ function jitterAt(now: number): { x: number; y: number } {
 const PARTICLES = [0, 1, 2, 3];
 
 export interface BerryProps {
-  readonly mood?: BerryMood;
+  /** An explicit mood wins over the behaviour's own. Omit it to let the behaviour decide. */
+  readonly mood?: BerryMood | undefined;
   /** The behaviour to play. Changing it retargets the blend mid flight. */
   readonly behaviour?: BerryBehaviour;
   /** A counter the caller bumps to replay the same event behaviour twice in a row. */
@@ -151,18 +152,64 @@ export interface BerryProps {
    * because an empty meter still has to be visibly a meter.
    */
   readonly chargeLevel?: number;
+  /**
+   * Behaviours to play AFTER `behaviour` finishes, in order. This is how
+   * "squash then bounce" and "bounce x n" are expressed without a new
+   * keyframe track: each entry replays an existing event behaviour, and each
+   * successive entry is scaled up a little (see GAIN_STEP) so a combo reads as
+   * escalating rather than as a loop. Only event and reactive behaviours with
+   * a `returnTo` can be chained from; an ambient one never finishes.
+   */
+  readonly chain?: readonly BerryBehaviour[];
+  /**
+   * The berry is mid task. Cosmetic, read only by the lab coat: goggles come
+   * down over the eyes while working and sit on the forehead when idle.
+   */
+  readonly working?: boolean;
+  /** Bump to fire three sparkles around the head. 0 draws none. */
+  readonly sparkleKey?: number;
+  /** Bump to fire the brighter puff that clears a charred berry. 0 draws none. */
+  readonly flashKey?: number;
   readonly reducedMotion: boolean;
   readonly sizePx?: number;
   readonly className?: string;
 }
 
+/**
+ * How much each chained repeat grows. The third bounce of a combo is 1.4x the
+ * first in lift and squash; capped so an eight combo does not leave the card.
+ */
+const GAIN_STEP = 0.2;
+const GAIN_MAX = 1.6;
+
+const NO_CHAIN: readonly BerryBehaviour[] = [];
+
+/** A pose scaled about rest, so a repeat can be bigger without new keyframes. */
+function gained(pose: SampledPose, gain: number): SampledPose {
+  if (gain === 1) return pose;
+  return {
+    scaleY: 1 + (pose.scaleY - 1) * gain,
+    scaleX: 1 + (pose.scaleX - 1) * gain,
+    scaleZ: 1 + (pose.scaleZ - 1) * gain,
+    lift: pose.lift * gain,
+    tilt: pose.tilt * gain,
+    pitch: pose.pitch * gain,
+  };
+}
+
+const SPARKLES = [0, 1, 2];
+
 export function Berry({
-  mood = "curious",
+  mood,
   behaviour = "idle",
   behaviourKey = 0,
   state = "neutral",
   costume,
   chargeLevel,
+  chain = NO_CHAIN,
+  working = false,
+  sparkleKey = 0,
+  flashKey = 0,
   reducedMotion,
   sizePx = 96,
   className = "",
@@ -175,6 +222,12 @@ export function Berry({
   const startedAtRef = useRef<number>(0);
   const currentRef = useRef<BerryBehaviour>(behaviour);
   const lastPoseRef = useRef<SampledPose>(REST);
+  // What is still to play after the current behaviour, and how many repeats
+  // deep we are (the escalation index). Refs for the same reason as above.
+  const queueRef = useRef<BerryBehaviour[]>([]);
+  const gainIndexRef = useRef(0);
+  const chainRef = useRef(chain);
+  chainRef.current = chain;
 
   const shape = STATE_SHAPE[state];
   // A ref so the loop sees the current state without being torn down and
@@ -190,6 +243,10 @@ export function Berry({
     fromPoseRef.current = lastPoseRef.current;
     startedAtRef.current = performance.now();
     currentRef.current = behaviour;
+    // A new event replaces whatever was queued: feedback never waits behind
+    // the tail of the last combo.
+    queueRef.current = [...chainRef.current];
+    gainIndexRef.current = 0;
   }, [behaviour, behaviourKey]);
 
   useEffect(() => {
@@ -214,7 +271,8 @@ export function Berry({
       } else {
         progress = Math.min(1, elapsed / config.durationMs);
       }
-      const target = poseAt(name, progress);
+      const gain = Math.min(GAIN_MAX, 1 + GAIN_STEP * gainIndexRef.current);
+      const target = gained(poseAt(name, progress), gain);
       const blend = Math.min(1, elapsed / Math.max(1, config.blendMs));
       const pose = blendPose(fromPoseRef.current, target, blend);
       lastPoseRef.current = pose;
@@ -241,7 +299,14 @@ export function Berry({
       if (config.family !== "ambient" && progress >= 1 && config.returnTo !== undefined) {
         fromPoseRef.current = pose;
         startedAtRef.current = now;
-        currentRef.current = config.returnTo;
+        const next = queueRef.current.shift();
+        if (next === undefined) {
+          currentRef.current = config.returnTo;
+          gainIndexRef.current = 0;
+        } else {
+          currentRef.current = next;
+          gainIndexRef.current += 1;
+        }
       }
       frameRef.current = requestAnimationFrame(tick);
     };
@@ -251,7 +316,13 @@ export function Berry({
     };
   }, [reducedMotion, sizePx]);
 
-  const impliedMood = (BEHAVIOURS[behaviour].mood as BerryMood | undefined) ?? mood;
+  // An EXPLICIT mood wins over the behaviour's own; the behaviour's mood is
+  // the default for callers that pass none. docs/MASCOT.md's tables compose
+  // moods the behaviour does not imply (thinking + leanIn, curious + leanIn,
+  // sad + stressed), and those rows are unreachable if the behaviour always
+  // has the last word. A caller that wants the old behaviour passes no mood.
+  const impliedMood: BerryMood =
+    mood ?? (BEHAVIOURS[behaviour].mood as BerryMood | undefined) ?? "curious";
   const composed = composeStateAndMood(state, impliedMood);
 
   // `charged` is the one state whose halo is data rather than a constant: the
@@ -269,7 +340,13 @@ export function Berry({
   } as CSSProperties;
 
   const face = (
-    <BlueberryMark eyes mood={impliedMood} costume={costume} className="h-full w-full drop-shadow-md" />
+    <BlueberryMark
+      eyes
+      mood={impliedMood}
+      costume={costume}
+      goggles={working ? "down" : "up"}
+      className="h-full w-full drop-shadow-md"
+    />
   );
 
   return (
@@ -321,6 +398,21 @@ export function Berry({
           {shape.badge}
         </span>
       ) : null}
+
+      {/* Three sparkles, keyed so a second correct answer restarts them. Four
+          point stars drawn once each, animated on opacity and transform only. */}
+      {sparkleKey > 0 ? (
+        <span className="berry-sparkles" key={`s${sparkleKey}`} aria-hidden>
+          {SPARKLES.map((index) => (
+            <svg key={index} className="berry-sparkle" data-i={index} viewBox="0 0 24 24">
+              <path d="M12 0 C12.8 7 17 11.2 24 12 C17 12.8 12.8 17 12 24 C11.2 17 7 12.8 0 12 C7 11.2 11.2 7 12 0 Z" />
+            </svg>
+          ))}
+        </span>
+      ) : null}
+
+      {/* The brighter puff: one ring that swells and fades, clearing a char. */}
+      {flashKey > 0 ? <span className="berry-flash" key={`f${flashKey}`} aria-hidden /> : null}
     </div>
   );
 }

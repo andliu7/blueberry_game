@@ -50,6 +50,9 @@ import { useStepProgress } from "../../demo/useStepProgress";
 import { Press } from "../../app/ui/Press";
 import { Berry } from "../../mascot/Berry";
 import type { BerryBehaviour } from "../../mascot/berryBehaviour";
+import type { BerryMood } from "../../mascot/berryMood";
+import { costumeForSurface } from "../../mascot/berryCostume";
+import { SETTLED_AFTER_MISS, reactionFor, type ReactionOutcome } from "../../mascot/berryReaction";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
 import { applySpeciesOffsets,
   applyAtomOrbits,
@@ -238,6 +241,23 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   const [notice, setNotice] = useState<InteractionNotice | null>(null);
   const [behaviour, setBehaviour] = useState<BerryBehaviour>("idle");
   const [behaviourKey, setBehaviourKey] = useState(0);
+  // Bloom's reaction axes, piece P1. `mood` undefined lets the behaviour's own
+  // face show (leanIn is focused); a reaction sets it explicitly. The run
+  // counters and the charred flag are the same three-miss rule the lesson
+  // player applies, read from the same table in berryReaction.ts.
+  const [berryMood, setBerryMood] = useState<BerryMood | undefined>(undefined);
+  const [berryChain, setBerryChain] = useState<readonly BerryBehaviour[]>([]);
+  const [sparkleKey, setSparkleKey] = useState(0);
+  const [flashKey, setFlashKey] = useState(0);
+  const [charred, setCharred] = useState(false);
+  const runRef = useRef({ correctRun: 0, missRun: 0 });
+  const settleTimerRef = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (settleTimerRef.current !== null) window.clearTimeout(settleTimerRef.current);
+    },
+    [],
+  );
   const { progress, playing, play, scrub } = useStepProgress(STEP_DURATION_MS, AUTO_LOOP);
 
   // The targets depend on the draft (revealed lone pairs, the armed atom), and
@@ -316,9 +336,44 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const bump = (next: BerryBehaviour) => {
+  const bump = (next: BerryBehaviour, mood?: BerryMood, chain: readonly BerryBehaviour[] = []) => {
     setBehaviour(next);
     setBehaviourKey((k) => k + 1);
+    setBerryMood(mood);
+    setBerryChain(chain);
+  };
+
+  /**
+   * A graded arrow as a mascot reaction. Mapping, and the one assumption in
+   * it: chem-core's `not_requested` is a legal arrow the requested route did
+   * not ask for, which is the "valid, not requested" near miss in CLAUDE.md's
+   * result types, so it gets thinking plus leanIn rather than the wrong
+   * answer's squash. `invalid` is the wrong answer.
+   */
+  const react = (outcome: ReactionOutcome) => {
+    if (settleTimerRef.current !== null) window.clearTimeout(settleTimerRef.current);
+    const run = runRef.current;
+    if (outcome === "correct") {
+      run.correctRun += 1;
+      run.missRun = 0;
+      if (charred) {
+        setCharred(false);
+        setFlashKey((k) => k + 1);
+      }
+    } else if (outcome === "wrong") {
+      run.correctRun = 0;
+      run.missRun += 1;
+    }
+    const reaction = reactionFor(outcome, run);
+    if (reaction.state === "charred") setCharred(true);
+    if (reaction.sparkles) setSparkleKey((k) => k + 1);
+    bump(reaction.behaviour, reaction.mood, reaction.chain);
+    if (reaction.holdMs !== null) {
+      settleTimerRef.current = window.setTimeout(
+        () => bump(SETTLED_AFTER_MISS.behaviour, SETTLED_AFTER_MISS.mood),
+        reducedMotion ? 1 : reaction.holdMs,
+      );
+    }
   };
 
   /**
@@ -356,7 +411,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       // tutorial's Continue button below hands off only when the student
       // chooses, never on a timer and never before the copy has been read.
       setDistractor(null);
-      bump("bounce");
+      react("correct");
       setMode("play");
       if (!reducedMotion) play();
       return;
@@ -369,7 +424,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       setDistractor(null);
       playWrongSound();
       if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
-      bump("squash");
+      react("wrong");
       setFailure({ kind: "snapBack", key: Date.now() });
       window.setTimeout(() => {
         setFailure(null);
@@ -389,7 +444,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
       setDistractor(matched);
       playWrongSound();
       if (typeof navigator.vibrate === "function") navigator.vibrate([24, 60, 24]);
-      bump("squash");
+      react("nearMiss");
       const sentTo = last === undefined ? null : last.sink.kind === "atom" ? last.sink.atomId : last.sink.atomIds[1];
       setFailure({ kind: "wobble", atomIds: sentTo === null ? [] : [sentTo], key: Date.now() });
       window.setTimeout(() => {
@@ -472,7 +527,19 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
             <p className="mt-1 text-scale-xs text-muted-foreground">One species on purpose: nothing reacts here, only the electrons move.</p>
           ) : null}
         </div>
-        <Berry behaviour={behaviour} behaviourKey={behaviourKey} mood="curious" reducedMotion={reducedMotion} sizePx={56} />
+        <Berry
+          behaviour={behaviour}
+          behaviourKey={behaviourKey}
+          mood={berryMood}
+          chain={berryChain}
+          sparkleKey={sparkleKey}
+          flashKey={flashKey}
+          state={charred ? "charred" : "neutral"}
+          costume={costumeForSurface("trainer")}
+          working={mode === "draw"}
+          reducedMotion={reducedMotion}
+          sizePx={72}
+        />
       </header>
 
       {tutorialIndex >= 0 ? (

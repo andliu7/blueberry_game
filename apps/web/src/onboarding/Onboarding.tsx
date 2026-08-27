@@ -181,7 +181,12 @@ function IntroLesson({ reducedMotion }: { readonly reducedMotion: boolean }) {
   const topic = useMemo(() => {
     const preferred = snapshot.startTopics.find((candidate) => problemsForTopic(candidate).length > 0);
     if (preferred !== undefined) return preferred;
-    return SEED_CORPUS[0]?.topic ?? null;
+    // The first topic the lesson player can actually serve, not the corpus's
+    // first problem: the corpus opens on gas laws, whose numeric problems are
+    // gated (CoursesTab's SERVED_KINDS), and a student who skipped the quiz
+    // was landing on "No problems are authored for this topic yet".
+    const served = SEED_CORPUS.find((candidate) => problemsForTopic(candidate.topic).length > 0);
+    return served?.topic ?? null;
   }, [snapshot.startTopics]);
 
   if (topic === null) {

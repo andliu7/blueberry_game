@@ -15,10 +15,19 @@
  * Grading calls gradeAttempt and nothing else, so the tier order (notation
  * causes, authored distractors, diagnostic causes, the logged tail) is the
  * package's decision and this file cannot reorder it by accident.
+ *
+ * BLOOM'S REACTIONS, piece P1, 2026-08-27. The character has an opinion in
+ * the same render as the grade: `submit` decides the outcome and the run, and
+ * `reactionFor` (src/mascot/berryReaction.ts) turns those into the face, the
+ * motion and the state. Nothing here names a mood directly, so the lesson and
+ * the trainer make the same face for the same outcome. The two timers below
+ * are the tone rule: a sad face settles inside a second, and a charred berry
+ * clears with a flash on the next correct answer, never on a clock.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  curriculumCause,
   gradeAttempt,
   topicDefinition,
   type AnswerState,
@@ -29,13 +38,24 @@ import {
 import { Press } from "../app/ui/Press";
 import { Card, Pill } from "../app/ui/Card";
 import { Berry } from "../mascot/Berry";
+import { costumeForSurface, type BerrySurface } from "../mascot/berryCostume";
+import type { BerryState } from "../mascot/berryState";
+import type { BerryMood } from "../mascot/berryMood";
+import {
+  CHARRED_LINE,
+  SETTLED_AFTER_MISS,
+  reactionFor,
+  type Reaction,
+  type ReactionOutcome,
+} from "../mascot/berryReaction";
 import { progress } from "../app/progress";
 import { useProgress } from "../app/hooks";
 import { ProblemView } from "./ProblemView";
-import { Feedback } from "./Feedback";
+import { FeedbackBody, feedbackHeadline } from "./Feedback";
+import { ReactionStrip } from "./ReactionStrip";
+import { ComboInterstitial } from "./ComboInterstitial";
 import { RewardMoment } from "./RewardMoment";
 import { LessonVideo } from "./LessonVideo";
-import type { BerryBehaviour } from "../mascot/berryBehaviour";
 
 export interface LessonPlayerProps {
   readonly topic: TopicId;
@@ -45,6 +65,12 @@ export interface LessonPlayerProps {
   /** Called after the reward moment. Onboarding uses it to move to the paywall card. */
   readonly onFinished?: (correct: number, attempted: number) => void;
   readonly showVideo?: boolean;
+  /**
+   * Where the lesson is standing, for the costume. When absent it is derived
+   * per problem: a reagent, product or structure question is reaction work
+   * (lab coat), anything else is concept work (tweed).
+   */
+  readonly surface?: BerrySurface;
 }
 
 const KIND_LABEL: Record<Problem["answer"]["kind"], string> = {
@@ -57,7 +83,32 @@ const KIND_LABEL: Record<Problem["answer"]["kind"], string> = {
   structure: "Draw",
 };
 
-export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinished, showVideo = true }: LessonPlayerProps) {
+function surfaceForProblem(problem: Problem): BerrySurface {
+  switch (problem.answer.kind) {
+    case "reagents":
+    case "major_product":
+    case "structure":
+      return "reactionNode";
+    default:
+      return "conceptNode";
+  }
+}
+
+/** The working face: focused, and leaning in when a new problem arrives. */
+const WORKING_MOOD: BerryMood = "focused";
+
+/**
+ * A graded result as an outcome the mascot understands. A notation cause is
+ * the near miss: the chemistry was right and the reporting slipped, which is
+ * the curriculum's counterpart of the trainer's valid but not requested route.
+ */
+function outcomeOf(result: GradingResult): ReactionOutcome {
+  if (result.kind === "correct") return "correct";
+  if (result.kind === "named_cause" && curriculumCause(result.cause).specificity === "notation") return "nearMiss";
+  return "wrong";
+}
+
+export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinished, showVideo = true, surface }: LessonPlayerProps) {
   const snapshot = useProgress();
   const definition = useMemo(() => topicDefinition(topic), [topic]);
   const [index, setIndex] = useState(0);
@@ -66,35 +117,79 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
   const [attempted, setAttempted] = useState(0);
   const [videoDone, setVideoDone] = useState(!showVideo);
   const [finished, setFinished] = useState<{ earned: number; returning: boolean } | null>(null);
-  const [behaviour, setBehaviour] = useState<BerryBehaviour>("idle");
-  const [behaviourKey, setBehaviourKey] = useState(0);
+
+  // The reaction in play and a key that bumps each time one fires, so the
+  // same reaction twice in a row still replays. `settled` is the post-sad
+  // face; `charred` outlives the reaction it arrived with (see the header).
+  const [reaction, setReaction] = useState<Reaction | null>(null);
+  const [reactionKey, setReactionKey] = useState(0);
+  const [settled, setSettled] = useState(false);
+  const [charred, setCharred] = useState(false);
+  const [flashKey, setFlashKey] = useState(0);
+  const [combo, setCombo] = useState<number | null>(null);
+  const [showCombo, setShowCombo] = useState(false);
+  const correctRunRef = useRef(0);
+  const missRunRef = useRef(0);
+  const settleTimer = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    },
+    [],
+  );
 
   const problem = problems[index];
   const total = problems.length;
+  const costume = costumeForSurface(surface ?? (problem === undefined ? "conceptNode" : surfaceForProblem(problem)));
 
-  const play = (next: BerryBehaviour) => {
-    setBehaviour(next);
-    setBehaviourKey((k) => k + 1);
+  const fire = (next: Reaction) => {
+    if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    setReaction(next);
+    setReactionKey((k) => k + 1);
+    setSettled(false);
+    if (next.holdMs !== null) {
+      // The sad beat ends on this timer; the face settles to the hint offer.
+      settleTimer.current = window.setTimeout(() => setSettled(true), reducedMotion ? 1 : next.holdMs);
+    }
   };
 
   const submit = (state: AnswerState) => {
     if (problem === undefined || result !== null) return;
     const graded = gradeAttempt(problem, state);
+    const outcome = outcomeOf(graded);
     setResult(graded);
     setAttempted((n) => n + 1);
-    if (graded.kind === "correct") {
+
+    if (outcome === "correct") {
       setCorrect((n) => n + 1);
-      play("bounce");
+      correctRunRef.current += 1;
+      missRunRef.current = 0;
+      if (charred) {
+        // The recovery beat: a brighter puff clears the char.
+        setCharred(false);
+        setFlashKey((k) => k + 1);
+      }
+    } else if (outcome === "wrong") {
+      correctRunRef.current = 0;
+      missRunRef.current += 1;
     } else {
-      play("squash");
+      // A near miss breaks neither run: the chemistry was right.
     }
+
+    const next = reactionFor(outcome, { correctRun: correctRunRef.current, missRun: missRunRef.current });
+    if (next.state === "charred") setCharred(true);
+    setCombo(next.combo);
+    fire(next);
   };
 
-  const advance = () => {
+  const goToNext = () => {
     if (index + 1 < total) {
       setIndex(index + 1);
       setResult(null);
-      play("leanIn");
+      setReaction(null);
+      setSettled(false);
+      setReactionKey((k) => k + 1);
       return;
     }
     const today = new Date().toISOString().slice(0, 10);
@@ -103,13 +198,25 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
     setFinished({ earned, returning });
   };
 
+  const advance = () => {
+    // A milestone answer shows its interstitial before the next problem.
+    if (combo !== null && !showCombo) {
+      setShowCombo(true);
+      return;
+    }
+    setShowCombo(false);
+    setCombo(null);
+    goToNext();
+  };
+
   const skip = () => {
     // A structure problem the shell cannot draw: not counted, not penalised.
     if (index + 1 < total) {
       setIndex(index + 1);
       setResult(null);
+      setReaction(null);
     } else {
-      advance();
+      goToNext();
     }
   };
 
@@ -136,6 +243,37 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
       </Card>
     );
   }
+
+  // The berry's props for the moment. While working: focused, goggles down
+  // when the coat has them, leaning in at a fresh problem. After grading: the
+  // reaction, then the settled face once a sad beat has had its second.
+  const state: BerryState = charred ? "charred" : "neutral";
+  const berryReacting = reaction !== null && result !== null;
+  const berry = berryReacting
+    ? {
+        mood: settled && reaction.holdMs !== null ? SETTLED_AFTER_MISS.mood : reaction.mood,
+        behaviour: settled && reaction.holdMs !== null ? SETTLED_AFTER_MISS.behaviour : reaction.behaviour,
+        behaviourKey: reactionKey + (settled ? 1000 : 0),
+        chain: reaction.chain,
+        sparkleKey: reaction.sparkles ? reactionKey : 0,
+        flashKey,
+        state,
+        costume,
+        working: false,
+        reducedMotion,
+      }
+    : {
+        mood: WORKING_MOOD,
+        behaviour: "leanIn" as const,
+        behaviourKey: reactionKey,
+        state,
+        costume,
+        working: true,
+        reducedMotion,
+      };
+
+  const outcome = result === null ? null : outcomeOf(result);
+  const nextLabel = index + 1 < total ? "Next" : "Finish lesson";
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
@@ -166,25 +304,44 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
             </div>
             <p className="mt-2 text-scale-lg font-medium leading-relaxed text-foreground">{problem.prompt}</p>
           </div>
-          <Berry behaviour={behaviour} behaviourKey={behaviourKey} mood="focused" reducedMotion={reducedMotion} sizePx={56} className="shrink-0" />
+          {!berryReacting ? <Berry {...berry} sizePx={72} className="shrink-0" /> : null}
         </div>
 
         <ProblemView key={problem.id} problem={problem} locked={result !== null} onSubmit={submit} onSkip={skip} />
 
-        {result !== null ? (
-          <>
-            <Feedback result={result} />
+        {result !== null && outcome !== null && berryReacting ? (
+          <ReactionStrip
+            outcome={outcome}
+            headline={feedbackHeadline(result)}
+            caption={reaction.state === "charred" ? CHARRED_LINE : null}
+            berry={berry}
+            continueLabel={nextLabel}
+            onContinue={advance}
+          >
+            <FeedbackBody result={result} />
             {result.kind !== "correct" ? (
-              <details className="rounded-xl bg-muted p-3 text-scale-sm">
+              <details className="rounded-xl bg-card/70 p-3 text-scale-sm">
                 <summary className="cursor-pointer font-semibold text-foreground">Show the worked answer</summary>
                 <p className="mt-2 text-muted-foreground">{problem.solution.whatHappened}</p>
                 <p className="mt-1 text-muted-foreground">{problem.solution.why}</p>
               </details>
             ) : null}
-            <Press onPointerDown={advance}>{index + 1 < total ? "Next" : "Finish lesson"}</Press>
-          </>
+          </ReactionStrip>
         ) : null}
       </Card>
+
+      {showCombo && combo !== null && reaction !== null ? (
+        <ComboInterstitial
+          count={combo}
+          topicLabel={definition.label}
+          reaction={reaction}
+          reactionKey={reactionKey + 5000}
+          costume={costume}
+          reducedMotion={reducedMotion}
+          progress={{ index: index + 1, total }}
+          onContinue={advance}
+        />
+      ) : null}
     </div>
   );
 }

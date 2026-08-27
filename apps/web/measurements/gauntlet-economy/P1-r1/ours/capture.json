@@ -1,0 +1,311 @@
+{
+  "piece": "P1",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "correct",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 66
+            },
+            {
+              "wanted": 400,
+              "at": 400
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ]
+        },
+        {
+          "moment": "wrong",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 75
+            },
+            {
+              "wanted": 400,
+              "at": 409
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2511
+            }
+          ]
+        },
+        {
+          "moment": "combo",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 49
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2508
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "correct",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 85
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 904
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ]
+        },
+        {
+          "moment": "wrong",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 87
+            },
+            {
+              "wanted": 400,
+              "at": 418
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ]
+        },
+        {
+          "moment": "combo",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 50
+            },
+            {
+              "wanted": 400,
+              "at": 412
+            },
+            {
+              "wanted": 900,
+              "at": 912
+            },
+            {
+              "wanted": 2500,
+              "at": 2501
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "correct",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 85
+            },
+            {
+              "wanted": 400,
+              "at": 465
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ]
+        },
+        {
+          "moment": "wrong",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 87
+            },
+            {
+              "wanted": 400,
+              "at": 401
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2501
+            }
+          ]
+        },
+        {
+          "moment": "combo",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 47
+            },
+            {
+              "wanted": 400,
+              "at": 433
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2508
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "correct",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 83
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ]
+        },
+        {
+          "moment": "wrong",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 91
+            },
+            {
+              "wanted": 400,
+              "at": 403
+            },
+            {
+              "wanted": 900,
+              "at": 912
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ]
+        },
+        {
+          "moment": "combo",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 50
+            },
+            {
+              "wanted": 400,
+              "at": 452
+            },
+            {
+              "wanted": 900,
+              "at": 916
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

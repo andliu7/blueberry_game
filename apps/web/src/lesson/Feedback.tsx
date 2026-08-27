@@ -9,8 +9,13 @@
  *   unmatched_wrong     Tier 3, logged; here it says so and offers the chat tab
  *   indeterminate       the shell sent something the checker could not read
  *
- * Colour: --good for correct, the soft purple card for everything else. There
+ * Colour: --good for correct, the soft purple band for everything else. There
  * is no red on this screen. The student is learning, not being marked down.
+ *
+ * Split in two on 2026-08-27 for the reaction strip (ReactionStrip.tsx): the
+ * HEADLINE sits beside the character in the strip's band and the BODY sits
+ * under it. `Feedback` still renders both as one card for any caller that
+ * wants the old shape.
  */
 
 import { curriculumCause, type GradingResult } from "@blueberry/curriculum";
@@ -18,7 +23,7 @@ import { hrefForTab } from "../app/routes";
 
 function Explain({ what, why, next }: { readonly what: string; readonly why: string; readonly next: string }) {
   return (
-    <dl className="mt-2 flex flex-col gap-2 text-scale-sm">
+    <dl className="flex flex-col gap-2 text-scale-sm">
       <div>
         <dt className="font-semibold text-foreground">What happened</dt>
         <dd className="text-muted-foreground">{what}</dd>
@@ -35,60 +40,82 @@ function Explain({ what, why, next }: { readonly what: string; readonly why: str
   );
 }
 
-export function Feedback({ result }: { readonly result: GradingResult }) {
+/** The one line beside the character. */
+export function feedbackHeadline(result: GradingResult): string {
   switch (result.kind) {
     case "correct":
-      return (
-        <section className="fade-in rounded-2xl border border-good/40 bg-good-soft p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-good-ink">That is it.</h3>
-          <Explain what={result.explanation.whatHappened} why={result.explanation.why} next={result.explanation.lookAt} />
-        </section>
-      );
+      return "That is it.";
     case "matched_distractor":
-      return (
-        <section className="fade-in rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">Not yet, and this is a common road.</h3>
-          <Explain what={result.explanation.whatHappened} why={result.explanation.why} next={result.explanation.lookAt} />
-        </section>
-      );
+      return "Not yet, and this is a common road.";
+    case "named_cause":
+      return curriculumCause(result.cause).specificity === "notation"
+        ? "Right chemistry. The notation slipped."
+        : "Close, and there is one idea to check.";
+    case "unmatched_wrong":
+      return "Not the answer, and not one we anticipated.";
+    case "indeterminate":
+      return "We could not read that answer.";
+    default: {
+      const unreachable: never = result;
+      return unreachable;
+    }
+  }
+}
+
+/** Everything under the headline. */
+export function FeedbackBody({ result }: { readonly result: GradingResult }) {
+  switch (result.kind) {
+    case "correct":
+    case "matched_distractor":
+      return <Explain what={result.explanation.whatHappened} why={result.explanation.why} next={result.explanation.lookAt} />;
     case "named_cause": {
       // The registry's `summary` is engine facing by contract (causes.ts says
-      // never shown to a student), so the card leads with `teaches`, which is
+      // never shown to a student), so the body leads with `teaches`, which is
       // the idea to check, and the checker's detail, which names the value.
       // Authored student copy per curriculum cause is an open item in STATUS.
       const cause = curriculumCause(result.cause);
       return (
-        <section className="fade-in rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">Close, and there is one idea to check.</h3>
-          <p className="mt-2 text-scale-sm text-muted-foreground">{cause.teaches}</p>
+        <div className="text-scale-sm">
+          <p className="text-muted-foreground">{cause.teaches}</p>
           {result.detail !== "" ? <p className="mt-2 text-scale-xs text-muted-foreground">{result.detail}</p> : null}
-        </section>
+        </div>
       );
     }
     case "unmatched_wrong":
       return (
-        <section className="fade-in rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">Not the answer, and not one we anticipated.</h3>
-          <p className="mt-2 text-scale-sm text-muted-foreground">
-            That is useful: it means this exact answer needs its own explanation written, and it
-            has been logged so one gets authored. Until then,{" "}
-            <a href={hrefForTab("chat")} className="font-semibold text-primary underline">
-              ask Blueberry
-            </a>{" "}
-            about it, or look at the solution below.
-          </p>
-        </section>
+        <p className="text-scale-sm text-muted-foreground">
+          That is useful: it means this exact answer needs its own explanation written, and it
+          has been logged so one gets authored. Until then,{" "}
+          <a href={hrefForTab("chat")} className="font-semibold text-primary underline">
+            ask Blueberry
+          </a>{" "}
+          about it, or look at the solution below.
+        </p>
       );
     case "indeterminate":
-      return (
-        <section className="fade-in rounded-2xl border border-border bg-muted p-4" aria-live="polite">
-          <h3 className="text-scale-base font-semibold text-foreground">We could not read that answer.</h3>
-          <p className="mt-2 text-scale-sm text-muted-foreground">{result.detail}</p>
-        </section>
-      );
+      return <p className="text-scale-sm text-muted-foreground">{result.detail}</p>;
     default: {
       const unreachable: never = result;
       return <>{unreachable}</>;
     }
   }
+}
+
+/** Headline and body as one card, the pre strip shape. */
+export function Feedback({ result }: { readonly result: GradingResult }) {
+  const tone =
+    result.kind === "correct"
+      ? "border-good/40 bg-good-soft"
+      : result.kind === "indeterminate"
+        ? "border-border bg-muted"
+        : "border-primary/30 bg-primary/5";
+  const ink = result.kind === "correct" ? "text-good-ink" : "text-foreground";
+  return (
+    <section className={`fade-in rounded-2xl border p-4 ${tone}`} aria-live="polite">
+      <h3 className={`text-scale-base font-semibold ${ink}`}>{feedbackHeadline(result)}</h3>
+      <div className="mt-2">
+        <FeedbackBody result={result} />
+      </div>
+    </section>
+  );
 }

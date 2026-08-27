@@ -86,8 +86,30 @@ function CostumeBehind({ costume }: { readonly costume: BerryCostume }) {
   }
 }
 
+export type Goggles = "up" | "down";
+
+/**
+ * Goggles DOWN: worn over the eyes as two clear rims, so the eyes still show
+ * through and the mood survives. The rims sit around the eye ellipses (23.5,33)
+ * and (40.5,33) with a bridge and a strap, and the lens fill is nearly
+ * transparent on purpose: a goggle that tints the eye deletes the mood, which
+ * is the one rule the costume layer has.
+ */
+function GogglesDown() {
+  return (
+    <g>
+      <path d="M11 33 Q10 28 16.5 27.5 M53 33 Q54 28 47.5 27.5" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+      <ellipse cx="23.5" cy="33.5" rx="7" ry="7.4" fill="#bdefff" opacity="0.18" />
+      <ellipse cx="40.5" cy="33.5" rx="7" ry="7.4" fill="#bdefff" opacity="0.18" />
+      <ellipse cx="23.5" cy="33.5" rx="7" ry="7.4" fill="none" stroke={INK} strokeWidth="1.9" />
+      <ellipse cx="40.5" cy="33.5" rx="7" ry="7.4" fill="none" stroke={INK} strokeWidth="1.9" />
+      <path d="M30.5 33.5 H33.5" stroke={INK} strokeWidth="1.9" strokeLinecap="round" />
+    </g>
+  );
+}
+
 /** Worn in front. Rendered after the face, so it never hides the eyes. */
-function CostumeFront({ costume }: { readonly costume: BerryCostume }) {
+function CostumeFront({ costume, goggles }: { readonly costume: BerryCostume; readonly goggles: Goggles }) {
   switch (costume) {
     case "labcoat":
       return (
@@ -96,6 +118,7 @@ function CostumeFront({ costume }: { readonly costume: BerryCostume }) {
           <g clipPath="url(#bb-body-clip)">
             <path d="M6 50 H26 L32 56 L38 50 H58 V62 H6 Z" fill={CLOTH} />
           </g>
+          {goggles === "down" ? <GogglesDown /> : null}
           <path
             d="M26 50 L32 56 L38 50"
             fill="none"
@@ -104,16 +127,20 @@ function CostumeFront({ costume }: { readonly costume: BerryCostume }) {
             strokeLinejoin="round"
           />
           {/* Goggles, pushed up onto the forehead. Idle, not working. */}
-          <path
-            d="M12 27 Q13 22 18.5 21.5 M52 27 Q51 22 45.5 21.5"
-            fill="none"
-            stroke={INK}
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <ellipse cx="24" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
-          <ellipse cx="40" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
-          <path d="M29.4 23.5 H34.6" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+          {goggles === "up" ? (
+            <g>
+              <path
+                d="M12 27 Q13 22 18.5 21.5 M52 27 Q51 22 45.5 21.5"
+                fill="none"
+                stroke={INK}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <ellipse cx="24" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
+              <ellipse cx="40" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
+              <path d="M29.4 23.5 H34.6" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+            </g>
+          ) : null}
         </g>
       );
     case "tweed":
@@ -198,12 +225,15 @@ export function BlueberryMark({
   eyes = false,
   mood,
   costume,
+  goggles = "up",
 }: {
   readonly className?: string;
   readonly eyes?: boolean;
   readonly mood?: BerryMood;
   /** Cosmetic only. See berryCostume.ts: it never touches mood, behaviour or state. */
   readonly costume?: BerryCostume | undefined;
+  /** Lab coat only: down over the eyes while working, up on the forehead when idle. */
+  readonly goggles?: Goggles;
 }) {
   return (
     <svg viewBox="0 0 64 64" role="img" aria-label="Blueberry" className={`block ${className}`}>
@@ -262,7 +292,7 @@ export function BlueberryMark({
         </g>
       ) : null}
 
-      {costume !== undefined ? <CostumeFront costume={costume} /> : null}
+      {costume !== undefined ? <CostumeFront costume={costume} goggles={goggles} /> : null}
     </svg>
   );
 }
