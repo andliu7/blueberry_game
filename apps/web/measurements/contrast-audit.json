@@ -1,0 +1,1032 @@
+{
+  "measured": 1195,
+  "distinct": 52,
+  "failing": 0,
+  "unresolved": 175,
+  "rows": [
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "line",
+      "text": "",
+      "fg": "rgb(117,131,154)",
+      "bg": "rgb(236,234,227)",
+      "ratio": 3.19,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 1,
+      "where": [
+        "trainer:line"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(117,131,154)",
+      "bg": "rgb(236,234,227)",
+      "ratio": 3.19,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "trainer:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "leaderboards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(217,70,239)",
+      "ratio": 3.46,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 1,
+      "where": [
+        "leaderboards:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "leaderboards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(217,70,239)",
+      "ratio": 3.46,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 1,
+      "where": [
+        "leaderboards:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(42,39,36)",
+      "ratio": 3.78,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg13",
+      "count": 3,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(2,132,199)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 4.1,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg9",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "pathway",
+      "kind": "text",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "Take the placement quiz",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(130,80,240)",
+      "ratio": 4.82,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "pathway:button.press.inline-flex.min-h-11",
+        "leaderboards:button.press.min-h-11.rounded-full",
+        "leaderboards:button.press.min-h-11.rounded-[9px]",
+        "periodic:button.press.min-h-11.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hidden.md:inline",
+      "text": "Mechanism Trainer",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 4.95,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.hidden.md:inline",
+        "pathway:span.hidden.md:inline",
+        "courses:span.hidden.md:inline",
+        "search:span.hidden.md:inline"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 4.95,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(51,65,85)",
+      "bg": "rgb(236,234,227)",
+      "ratio": 5.35,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg13",
+      "count": 3,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "pathway",
+      "kind": "text",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "Take the placement quiz",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(124,58,237)",
+      "ratio": 5.7,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "pathway:button.press.inline-flex.min-h-11",
+        "leaderboards:button.press.min-h-11.rounded-full",
+        "leaderboards:button.press.min-h-11.rounded-[9px]",
+        "periodic:button.press.min-h-11.rounded-full"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "leaderboards",
+      "kind": "text",
+      "element": "button.press.min-h-11.rounded-full",
+      "text": "This week",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(41,37,36)",
+      "ratio": 6.01,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "leaderboards:button.press.min-h-11.rounded-full",
+        "leaderboards:span.inline-flex.items-center.rounded-full",
+        "periodic:span.inline-flex.items-center.rounded-full",
+        "chat:span.inline-flex.items-center.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hidden.md:inline",
+      "text": "Pathway",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.58,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 63,
+      "where": [
+        "trainer:span.hidden.md:inline",
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground",
+        "pathway:span.hidden.md:inline"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.58,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 56,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "line",
+      "text": "",
+      "fg": "rgb(181,174,168)",
+      "bg": "rgb(42,39,36)",
+      "ratio": 6.78,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 1,
+      "where": [
+        "trainer:line"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hidden.md:inline",
+      "text": "Mechanism Trainer",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 6.83,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.hidden.md:inline",
+        "pathway:span.hidden.md:inline",
+        "courses:span.hidden.md:inline",
+        "search:span.hidden.md:inline"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 6.83,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "leaderboards",
+      "kind": "text",
+      "element": "button.press.min-h-11.rounded-full",
+      "text": "This week",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(241,245,249)",
+      "ratio": 6.92,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "leaderboards:button.press.min-h-11.rounded-full",
+        "leaderboards:span.inline-flex.items-center.rounded-full",
+        "periodic:span.inline-flex.items-center.rounded-full",
+        "chat:span.inline-flex.items-center.rounded-full"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-xs.font-normal.text-muted-foreground",
+      "text": "· change",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 6.93,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 38,
+      "where": [
+        "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
+        "pathway:p.text-scale-sm.text-muted-foreground",
+        "courses:p.text-scale-sm.text-muted-foreground",
+        "courses:p.mt-auto.text-scale-xs.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hidden.md:inline",
+      "text": "Pathway",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 7.37,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 63,
+      "where": [
+        "trainer:span.hidden.md:inline",
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground",
+        "pathway:span.hidden.md:inline"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 7.37,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 56,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-xs.font-normal.text-muted-foreground",
+      "text": "· change",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 7.58,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 38,
+      "where": [
+        "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
+        "pathway:p.text-scale-sm.text-muted-foreground",
+        "courses:p.text-scale-sm.text-muted-foreground",
+        "courses:p.mt-auto.text-scale-xs.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(56,189,248)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 8.16,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg9",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "3",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(254,202,202)",
+      "ratio": 10.11,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 12,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "3",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(254,202,202)",
+      "ratio": 10.11,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 12,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "1",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 10.3,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 23,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "periodic:span.text-scale-xs"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-semibold",
+      "text": "C",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 10.3,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "periodic:span.title-face.text-scale-2xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "1",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 10.3,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 23,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "periodic:span.text-scale-xs"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-semibold",
+      "text": "C",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 10.3,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "periodic:span.title-face.text-scale-2xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(221,214,207)",
+      "bg": "rgb(42,39,36)",
+      "ratio": 10.32,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg11",
+      "carriedBy": "fill",
+      "count": 2,
+      "where": [
+        "trainer:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "2",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(221,214,254)",
+      "ratio": 10.54,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 14,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "2",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(221,214,254)",
+      "ratio": 10.54,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 14,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "57",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(251,207,232)",
+      "ratio": 10.58,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 30,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "57",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(251,207,232)",
+      "ratio": 10.58,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 30,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "89",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(245,208,254)",
+      "ratio": 10.68,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 30,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "89",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(245,208,254)",
+      "ratio": 10.68,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 30,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "4",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(254,215,170)",
+      "ratio": 10.81,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 12,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "4",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(254,215,170)",
+      "ratio": 10.81,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 12,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "5",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(167,243,208)",
+      "ratio": 11.41,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 14,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "5",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(167,243,208)",
+      "ratio": 11.41,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 14,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "21",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(253,230,138)",
+      "ratio": 11.75,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 76,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "21",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(253,230,138)",
+      "ratio": 11.75,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 76,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "13",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(187,247,208)",
+      "ratio": 12.07,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 26,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "13",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(187,247,208)",
+      "ratio": 12.07,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 26,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.title-face.text-scale-lg.font-semibold",
+      "text": "Blueberry",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 12.69,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 17,
+      "where": [
+        "trainer:span.title-face.text-scale-lg.font-semibold",
+        "trainer:h1.hidden.text-scale-lg.font-semibold",
+        "trainer:h2.title-face.text-scale-xl.font-semibold",
+        "pathway:span.title-face.text-scale-lg.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "onboarding",
+      "kind": "large-text",
+      "element": "h1.title-face.text-scale-display.font-semibold",
+      "text": "Blueberry",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 12.69,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "onboarding:h1.title-face.text-scale-display.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.inline-flex.min-h-11.items-center",
+      "text": "0",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 13.93,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 36,
+      "where": [
+        "trainer:span.inline-flex.min-h-11.items-center",
+        "trainer:button.press.inline-flex.min-h-11",
+        "trainer:button.press.mt-2.inline-flex",
+        "trainer:span"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.inline-flex.min-h-11.items-center",
+      "text": "0",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 14.63,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 36,
+      "where": [
+        "trainer:span.inline-flex.min-h-11.items-center",
+        "trainer:button.press.inline-flex.min-h-11",
+        "trainer:button.press.mt-2.inline-flex",
+        "trainer:span"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.title-face.text-scale-lg.font-semibold",
+      "text": "Blueberry",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 14.81,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 17,
+      "where": [
+        "trainer:span.title-face.text-scale-lg.font-semibold",
+        "trainer:h1.hidden.text-scale-lg.font-semibold",
+        "trainer:h2.title-face.text-scale-xl.font-semibold",
+        "pathway:span.title-face.text-scale-lg.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "onboarding",
+      "kind": "large-text",
+      "element": "h1.title-face.text-scale-display.font-semibold",
+      "text": "Blueberry",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 14.81,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "onboarding:h1.title-face.text-scale-display.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "pathway",
+      "kind": "text",
+      "element": "h2.title-face.text-scale-xl.font-semibold",
+      "text": "Pick a track",
+      "fg": "rgb(245,245,244)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 16.03,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 18,
+      "where": [
+        "pathway:h2.title-face.text-scale-xl.font-semibold",
+        "courses:h2.title-face.text-scale-lg.font-semibold",
+        "leaderboards:h2.text-scale-lg.font-semibold.leading-tight",
+        "leaderboards:h2.text-scale-base.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "pathway",
+      "kind": "text",
+      "element": "h2.title-face.text-scale-xl.font-semibold",
+      "text": "Pick a track",
+      "fg": "rgb(15,23,42)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 17.85,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 18,
+      "where": [
+        "pathway:h2.title-face.text-scale-xl.font-semibold",
+        "courses:h2.title-face.text-scale-lg.font-semibold",
+        "leaderboards:h2.text-scale-lg.font-semibold.leading-tight",
+        "leaderboards:h2.text-scale-base.font-semibold"
+      ]
+    }
+  ]
+}

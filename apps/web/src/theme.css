@@ -38,6 +38,10 @@
   --primary: #7c3aed;
   --primary-bright: #8b5cf6;
   --primary-foreground: #ffffff;
+  /* Light mode needs no split: #7c3aed is 5.70:1 under white and 5.18:1 on the
+     cream ground, so one value serves both roles. The token exists anyway so a
+     component names the same thing in both themes. */
+  --primary-ink: #7c3aed;
   --secondary: #f1f5f9;
   --muted: #f1f5f9;
   --muted-foreground: #475569;
@@ -56,8 +60,20 @@
      rods are the LIGHT layer so they read as connectors you act on, and ours
      inverted that figure-ground. The joint is lighter still: it is the grab
      handle. */
-  --bond-stroke: #8e9aab;
-  --bond-joint: #c8d0da;
+  /* #8e9aab measured 2.37:1 on the scene ground's lower stop, under the 3:1
+     WCAG 1.4.11 floor for an interface component, and a bond is the object a
+     student grabs. Darkened one step to 3.19:1 on the lower stop and 3.68:1 on
+     the upper. Still lighter than every atom it joins, so the figure-ground
+     call the video-frame critic made is intact. */
+  --bond-stroke: #75839a;
+  /* The joint stays LIGHTER than the rod, which is the whole point of it, and
+     that is exactly why no fill value works here: nothing lighter than the rod
+     also clears 3:1 against a near white ground. So the fill is not what
+     identifies it. --bond-joint-ring is a hairline in the rod's own colour, and
+     the ring is the boundary that carries the contrast. A border, rather than
+     fighting the fill, is the standard answer to this shape of conflict. */
+  --bond-joint: #eef2f6;
+  --bond-joint-ring: #75839a;
   /* The lone pair ring and dots. Raised from 0.5 alpha slate, which a blind
      critic measured as under any reasonable contrast floor on the warm off
      white ground: pale grey dots in a pale ring, and the lone pair is the one
@@ -111,7 +127,10 @@
   --alt-route-soft: #ccfbf1;
   --not-requested: #92400e;
   --not-requested-soft: #fef3c7;
-  --diamond: #0ea5e9;
+  /* sky-500 measured 2.77:1 on a white card, under the 3:1 floor for an icon
+     that carries meaning. sky-600 is 4.10:1 on white and 3.73:1 on cream, and
+     is still recognisably the same blue. */
+  --diamond: #0284c7;
 }
 
 .dark {
@@ -119,9 +138,18 @@
   --foreground: #e7e5e4;
   --card: #1c1917;
   --card-foreground: #f5f5f4;
-  --primary: #8b5cf6;
+  /* TWO ROLES, and one value cannot serve both. As a SURFACE, white sits on
+     it, and #8b5cf6 gave white only 4.23:1, under the 4.5:1 body floor, on the
+     most pressed control in the app. As INK it sits on the near black page,
+     and fixing the surface by darkening makes the ink worse: the two
+     requirements pull in opposite directions, which is why this is a split and
+     not a compromise value that fails both. #8250f0 gives white 4.82:1. */
+  --primary: #8250f0;
   --primary-bright: #a78bfa;
   --primary-foreground: #ffffff;
+  /* Primary coloured TEXT and canvas marks. 6.81:1 on the card, 7.26:1 on the
+     page. Same shape as --good and --good-ink below, for the same reason. */
+  --primary-ink: #a78bfa;
   --secondary: #292524;
   --muted: #292524;
   --muted-foreground: #a8a29e;
@@ -132,7 +160,12 @@
   --grid-line: rgba(255, 255, 255, 0.035);
   --bond-stroke: #b5aea8;
   --bond-joint: #ddd6cf;
-  --scene-faint: rgba(168, 162, 158, 0.55);
+  --bond-joint-ring: #b5aea8;
+  /* 0.55 alpha composited to 2.80:1 on the scene ground, under the 3:1
+     graphics floor. 0.72 gives 3.4:1. The light variant was already raised to
+     0.82 for the same reason, by hand, one theme at a time; measuring both
+     themes in one run is what caught the half that was missed. */
+  --scene-faint: rgba(168, 162, 158, 0.72);
   /* Lifted well clear of the page's #0c0a09, or a near-black carbon has
      nothing to be seen against. */
   --scene-ground-top: #2a2724;
@@ -169,6 +202,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
   --color-primary-bright: var(--primary-bright);
+  --color-primary-ink: var(--primary-ink);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-muted: var(--muted);

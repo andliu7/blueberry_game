@@ -221,8 +221,14 @@ export function BondCapsule({
                 handles, so they are brighter than the rod on purpose. */}
             {order === 1 ? (
               <>
-                <circle cx={start.x} cy={start.y} r={width * 0.42} fill="var(--bond-joint)" />
-                <circle cx={end.x} cy={end.y} r={width * 0.42} fill="var(--bond-joint)" />
+                {/* The ring, not the fill, is what makes the handle findable.
+                    A joint lighter than the rod is the point of it, and
+                    nothing lighter than the rod also clears 3:1 against a
+                    near white ground, so the fill cannot carry that contrast
+                    and the boundary carries it instead. --bond-joint-ring is
+                    the rod's own colour, which already clears the ground. */}
+                <circle cx={start.x} cy={start.y} r={width * 0.42} fill="var(--bond-joint)" stroke="var(--bond-joint-ring)" strokeWidth={Math.max(0.75, width * 0.1)} />
+                <circle cx={end.x} cy={end.y} r={width * 0.42} fill="var(--bond-joint)" stroke="var(--bond-joint-ring)" strokeWidth={Math.max(0.75, width * 0.1)} />
                 <circle cx={start.x - 0.8} cy={start.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.7} />
                 <circle cx={end.x - 0.8} cy={end.y - 1.1} r={width * 0.17} fill="#ffffff" fillOpacity={0.7} />
               </>

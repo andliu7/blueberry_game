@@ -49,10 +49,46 @@ Blueberry mark gradient: `#bdefff` to `#3fa9ff` to `#3d63f5` to `#2b2fb0`.
 Body carries a 28 by 28 px hairline grid, `rgba(15,23,42,0.025)` light and
 `rgba(255,255,255,0.035)` dark. That 28 px is the app's soft spatial unit.
 
-**Gap to close.** There is no success or warning token, only `--destructive`. This app needs
-both, because the four-way result taxonomy in `CLAUDE.md` has four outcomes and two of them are
-neither correct nor destructive. Define `--valid-not-requested` and `--alternative-route` in
-Phase 0, run them through the contrast gate, and add them here. Do not reach for raw amber.
+**Gap closed, 2026-08-27.** The success and non-binary outcome tokens exist in `theme.css`:
+`--good` / `--good-ink` / `--good-soft`, `--alt-route`, `--not-requested`, and the warning family
+`--warn` / `--warn-soft-solid` / `--warn-ink-strong`. None of them is red.
+
+**The contrast gate is a script now: `apps/web/measurements/contrast-audit.mjs`.**
+
+Run it after `npm run build`. It walks the BUILT app on every tab in both themes and measures every
+composed pair the browser actually drew, rather than the pairs this table declares. That distinction
+is the whole point: this table was right about the charge chip and the component drew a literal
+`#ffffff` anyway, so a token table cannot be the gate. It exits nonzero on any pair under its floor.
+
+Floors are WCAG 2.1: 4.5 for body text, 3.0 for large text and for graphics and interface
+components under 1.4.11. Two rules in it are worth knowing before reading its output:
+
+- **A shape is one component.** A shape's fill and its boundary collapse to the better of the two,
+  because 1.4.11 asks whether a component is identifiable, not whether every colour in it clears the
+  floor. `--bond-joint` is why: it must stay lighter than the rod it sits on, so no fill value can
+  also clear a near white ground, and `--bond-joint-ring` in the rod's colour is what identifies it
+- **What it cannot resolve, it refuses to score.** A mark sitting on another mark rather than on a
+  styled box is reported UNRESOLVED and listed for a person, never counted either way. 175 marks are
+  in that bucket today, nearly all of them mascot internals, where a white specular highlight is
+  inside an illustration and is not an interface component at all
+
+**Six failures it found on its first run, all fixed, each recorded with its reason in `theme.css`:**
+
+| Token | Was | Now | Why |
+|---|---|---|---|
+| `--bond-stroke` light | `#8e9aab`, 2.37:1 | `#75839a`, 3.19:1 | A bond is the object a student grabs |
+| `--bond-joint` light | `#c8d0da`, 1.29:1 | `#eef2f6` plus `--bond-joint-ring` | The ring carries it; see above |
+| `--scene-faint` dark | alpha 0.55, 2.80:1 | alpha 0.72, 3.4:1 | The light half had been raised by hand; the dark half was missed |
+| `--diamond` light | `#0ea5e9`, 2.77:1 | `#0284c7`, 4.10:1 | An icon that carries meaning |
+| `--primary` dark | `#8b5cf6`, white on it 4.23:1 | `#8250f0`, 4.82:1 | The most pressed control in the app |
+| `--primary` dark as TEXT | 4.39:1 on the card | new `--primary-ink` `#a78bfa`, 6.81:1 | See the split below |
+
+**`--primary` carries two roles and one value cannot serve both.** As a surface it has white on it,
+so it must be dark enough; as ink it sits on the near black page, so it must be light enough. The
+two pull in opposite directions and there is no compromise value that clears both. `--primary` is
+now the surface and `--primary-ink` is the ink, the same split `--good` and `--good-ink` already
+use. Light mode needs no split and defines the token anyway so a component names one thing in both
+themes.
 
 **Do not use red for a wrong answer.** Per the game shell rules, an incorrect arrow snaps back and
 a leaving group that will not leave wobbles. `--destructive` is for destructive actions, such as
@@ -67,8 +103,15 @@ deleting saved work, not for a student learning.
   never body copy
 - `.playful-body` keeps Inter at `letter-spacing: 0.01em; line-height: 1.7` for warm long copy
 
-There is no numeric type scale token set. Sizes are per-component Tailwind utilities. If this app
-defines a scale, define it once and say so here.
+**This app defines one**, in `theme.css` under `@theme inline`: seven steps, roughly a 1.25 ratio,
+snapped to whole pixels, used as `text-scale-xs` through `text-scale-display`.
+
+| Step | Value | | Step | Value |
+|---|---|---|---|---|
+| `scale-xs` | 0.75rem | | `scale-xl` | 1.375rem |
+| `scale-sm` | 0.875rem | | `scale-2xl` | 1.75rem |
+| `scale-base` | 1rem | | `scale-display` | 2.5rem |
+| `scale-lg` | 1.125rem | | | |
 
 ## Shape, depth, glass
 

@@ -521,6 +521,49 @@ licences and D1 is about repository size. What each is worth reading for is a ta
 blind comparison: the bars in CLAUDE.md stay the bars, and a critic judging our pathway compares
 against the committed capture, not against someone else's clone of the same product.
 
+## Contrast audit, 2026-08-27. The gate is a script and it found six real failures
+
+`apps/web/measurements/contrast-audit.mjs`, run after `npm run build`. It walks the BUILT app on
+all eight tabs plus onboarding, in both themes, and measures every pair the browser actually
+composed. Full detail and the fix table are in `docs/DESIGN-TOKENS.md`.
+
+**Why measured and not declared.** theme.css reasons about contrast in its own comments, carefully,
+and the charge sign still shipped as a literal `#ffffff` on a near white disc. The token table was
+right; the component did not use it. A pair only fails where it is composed, so the audit reads what
+was drawn. Same reason the capture script drives real PointerEvents.
+
+**Six failures, all fixed.** `--bond-stroke` light at 2.37:1 and `--bond-joint` light at 1.29:1,
+both interface components a student grabs; `--scene-faint` dark at 2.80:1, where the light half had
+been raised by hand months earlier and the dark half was simply missed; `--diamond` light at 2.77:1;
+and dark `--primary` failing in BOTH directions at once, 4.23:1 with white on it and 4.39:1 as text.
+
+**The one that is a design finding rather than a number.** Dark `--primary` carries two roles, a
+surface with white on it and ink on the near black page, and they pull in opposite directions: no
+single value clears both. Split into `--primary` and `--primary-ink`, the shape `--good` and
+`--good-ink` already had. Similarly `--bond-joint` has to stay lighter than the rod it sits on, so
+no fill can also clear a near white ground; it got `--bond-joint-ring` in the rod's colour instead,
+because a boundary is what identifies a shape.
+
+**Three findings were the AUDIT being wrong, and are recorded because the corrections are the
+interesting part.** It reported the leaderboard's white trophy as white on white, because the
+backdrop climb kept collecting layers underneath an OPAQUE gradient. It reported twelve black on
+black marks that draw nothing, because `<g>` and `<line>` inherit the initial black fill and neither
+paints one. And it reported the oxygen's white "O" as white on cream, because an SVG mark usually
+sits on another mark and the climb reads CSS boxes: 175 marks are UNRESOLVED for that reason now,
+listed for a person, never scored either way.
+
+**Negative control run.** Reverting `--primary` and `--bond-stroke` to their old values reproduces
+exactly those two failures and nothing else, so the green result is a measurement rather than a
+tautology.
+
+Measured: audit 0 failing over 1195 composed pairs, `tsc -b apps/web` clean, 219 of 219 web tests,
+`npm run validate` 30 of 30.
+
+**Queued from the same request, not started:** the trainer visual pass (the forming bond reading as
+a chain of beads; the pathway node faces flat where the bar carries a sheen band) and a hand
+authored SVG app icon. Gemini backed generation is unavailable, no `GEMINI_API_KEY` is set, so the
+icon is authored rather than generated.
+
 ## Done outside the phase plan
 
 **Reference material filed.** 28 raw captures triaged. 10 into the required manifest slots, 9 more

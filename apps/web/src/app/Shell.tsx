@@ -69,7 +69,7 @@ function TabLink({ tab, active }: { readonly tab: TabId; readonly active: boolea
       href={hrefForTab(tab)}
       aria-current={active ? "page" : undefined}
       className={`press flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-scale-xs font-semibold md:flex-row md:justify-start md:gap-3 md:px-3 md:text-scale-sm ${
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+        active ? "bg-primary/10 text-primary-ink" : "text-muted-foreground hover:text-foreground"
       }`}
     >
       <TabIcon tab={tab} className="h-5 w-5" />
