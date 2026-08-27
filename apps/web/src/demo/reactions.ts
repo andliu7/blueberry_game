@@ -1316,6 +1316,138 @@ const DECARBOXYLATION: MechanismStep = createStep({
 });
 
 /* ------------------------------------------------------------------ */
+/* Unit 9b spine: intramolecular aldol. The enolate end of the chain   */
+/* bites its own tail and a five-membered ring appears in one move.    */
+/* ------------------------------------------------------------------ */
+
+const hexanedioneEnolate = createSpecies({
+  id: "sp-hexanedione-enolate",
+  atoms: [
+    createAtom({ id: "q1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q2", element: "C" }),
+    createAtom({ id: "qo2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "q3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q5", element: "C" }),
+    createAtom({ id: "qo5", element: "O", lonePairs: 2 }),
+    createAtom({ id: "q6", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-q12", a: "q1", b: "q2", order: 2 }),
+    createBond({ id: "b-q2o", a: "q2", b: "qo2" }),
+    createBond({ id: "b-q23", a: "q2", b: "q3" }),
+    createBond({ id: "b-q34", a: "q3", b: "q4" }),
+    createBond({ id: "b-q45", a: "q4", b: "q5" }),
+    createBond({ id: "b-q5o", a: "q5", b: "qo5", order: 2 }),
+    createBond({ id: "b-q56", a: "q5", b: "q6" }),
+  ],
+});
+
+const cyclopentanolate = createSpecies({
+  id: "sp-cyclopentanolate",
+  atoms: [
+    createAtom({ id: "q1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q2", element: "C" }),
+    createAtom({ id: "qo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "q3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "q5", element: "C" }),
+    createAtom({ id: "qo5", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "q6", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-q12", a: "q1", b: "q2" }),
+    createBond({ id: "b-q2o", a: "q2", b: "qo2", order: 2 }),
+    createBond({ id: "b-q23", a: "q2", b: "q3" }),
+    createBond({ id: "b-q34", a: "q3", b: "q4" }),
+    createBond({ id: "b-q45", a: "q4", b: "q5" }),
+    createBond({ id: "b-q5o", a: "q5", b: "qo5" }),
+    createBond({ id: "b-q56", a: "q5", b: "q6" }),
+    createBond({ id: "b-q15", a: "q1", b: "q5" }),
+  ],
+});
+
+const INTRA_ALDOL: MechanismStep = createStep({
+  id: "intra-aldol",
+  from: createState({
+    id: "ia-before",
+    members: [{ species: hexanedioneEnolate, role: "substrate" }],
+  }),
+  to: createState({ id: "ia-after", members: [{ species: cyclopentanolate, role: "product" }] }),
+  identity: { elementaryStep: "ring_closure", route: "nucleophilic_addition_carbonyl", reactionCenters: ["q1", "q5"] },
+  arrows: [
+    createArrow({ id: "a-bite", source: fromBond("b-q12"), sink: toBondBetween("q1", "q5") }),
+    createArrow({ id: "a-reform", source: fromLonePair("qo2"), sink: toBondBetween("qo2", "q2") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-q5o"), sink: toAtom("qo5") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9c spine: cuprate conjugate addition. The soft carbon picks    */
+/* the far end of the enone, on purpose.                               */
+/* ------------------------------------------------------------------ */
+
+const cuprateCarbanion = createSpecies({
+  id: "sp-cuprate-carbanion",
+  atoms: [createAtom({ id: "vg", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 3 })],
+  bonds: [],
+});
+
+const mvkC = createSpecies({
+  id: "sp-mvk-c",
+  atoms: [
+    createAtom({ id: "vb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "va", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "vk", element: "C" }),
+    createAtom({ id: "vo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "vm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vbva", a: "vb", b: "va", order: 2 }),
+    createBond({ id: "b-vavk", a: "va", b: "vk" }),
+    createBond({ id: "b-vkvo", a: "vk", b: "vo", order: 2 }),
+    createBond({ id: "b-vkvm", a: "vk", b: "vm" }),
+  ],
+});
+
+const cuprateEnolate = createSpecies({
+  id: "sp-cuprate-enolate",
+  atoms: [
+    createAtom({ id: "vg", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "vb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "va", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "vk", element: "C" }),
+    createAtom({ id: "vo", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "vm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-vgvb", a: "vg", b: "vb" }),
+    createBond({ id: "b-vbva", a: "vb", b: "va" }),
+    createBond({ id: "b-vavk", a: "va", b: "vk", order: 2 }),
+    createBond({ id: "b-vkvo", a: "vk", b: "vo" }),
+    createBond({ id: "b-vkvm", a: "vk", b: "vm" }),
+  ],
+});
+
+const CUPRATE_CONJUGATE: MechanismStep = createStep({
+  id: "cuprate-conjugate",
+  from: createState({
+    id: "cup-before",
+    members: [
+      { species: cuprateCarbanion, role: "nucleophile" },
+      { species: mvkC, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "cup-after", members: [{ species: cuprateEnolate, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["vg", "vb"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("vg"), sink: toBondBetween("vg", "vb") }),
+    createArrow({ id: "a-shift", source: fromBond("b-vbva"), sink: toBondBetween("va", "vk") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-vkvo"), sink: toAtom("vo") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
 
 export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
@@ -1763,6 +1895,56 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
       kcc: { x: 1.6, y: 0.2 },
       koa: { x: 2.1, y: -0.7 },
       koh: { x: 1.9, y: 1.15 },
+    },
+  },
+  {
+    id: "intra-aldol",
+    title: "Intramolecular aldol",
+    brief: "The chain bites its own tail: one molecule, one move, one new five-membered ring.",
+    successLine: "The enolate end reached around and took its own far carbonyl: a five-membered ring in a single step. Rings of five and six win because the chain barely has to bend; this closure is why 2,5-diketones cyclise so eagerly.",
+    step: INTRA_ALDOL,
+    fromHints: {
+      q1: { x: -1.9, y: 0.75 },
+      q2: { x: -1.75, y: -0.35 },
+      qo2: { x: -2.6, y: -1.05 },
+      q3: { x: -0.7, y: -0.9 },
+      q4: { x: 0.45, y: -0.55 },
+      q5: { x: 0.55, y: 0.6 },
+      qo5: { x: 1.45, y: 1.25 },
+      q6: { x: 1.5, y: -0.2 },
+    },
+    toHints: {
+      q1: { x: -0.95, y: 0.95 },
+      q2: { x: -1.6, y: 0.0 },
+      qo2: { x: -2.7, y: 0.0 },
+      q3: { x: -0.95, y: -0.95 },
+      q4: { x: 0.2, y: -0.6 },
+      q5: { x: 0.2, y: 0.6 },
+      qo5: { x: 1.05, y: 1.35 },
+      q6: { x: 1.3, y: -0.05 },
+    },
+  },
+  {
+    id: "cuprate-conjugate",
+    title: "Cuprate 1,4-addition",
+    brief: "The soft carbanion picks the FAR end of the enone. Three arrows relay the charge onto oxygen.",
+    successLine: "The cuprate's carbon landed on the beta position and the relay carried the electrons home to oxygen: 1,4-addition, the enolate as the product. A Grignard would have hit the carbonyl head-on; the soft cuprate reads the enone's whole surface and takes the gentler seat.",
+    step: CUPRATE_CONJUGATE,
+    fromHints: {
+      vg: { x: -1.6, y: 0.45 },
+      vb: { x: -0.55, y: 0.75 },
+      va: { x: 0.3, y: 0.05 },
+      vk: { x: 1.4, y: 0.3 },
+      vo: { x: 1.75, y: 1.3 },
+      vm: { x: 2.2, y: -0.5 },
+    },
+    toHints: {
+      vg: { x: -1.35, y: 0.35 },
+      vb: { x: -0.55, y: 0.75 },
+      va: { x: 0.3, y: 0.05 },
+      vk: { x: 1.4, y: 0.3 },
+      vo: { x: 1.75, y: 1.3 },
+      vm: { x: 2.2, y: -0.5 },
     },
   },
 ];

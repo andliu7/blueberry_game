@@ -2115,6 +2115,804 @@ const ANHYDRIDE_PT: MechanismStep = createStep({
   ],
 });
 
+/* ------------------------------------------------------------------ */
+/* Unit 9a spine: acid-side alpha-halogenation. The enol does the      */
+/* attacking, and bromide cleans up its own mess.                      */
+/* ------------------------------------------------------------------ */
+
+const propenolH = createSpecies({
+  id: "sp-propenol-h",
+  atoms: [
+    createAtom({ id: "ecm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ece", element: "C" }),
+    createAtom({ id: "eoe", element: "O", lonePairs: 2 }),
+    createAtom({ id: "ehe", element: "H" }),
+    createAtom({ id: "eca", element: "C", implicitHydrogens: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cmece", a: "ecm", b: "ece" }),
+    createBond({ id: "b-ceoe", a: "ece", b: "eoe" }),
+    createBond({ id: "b-oehe", a: "eoe", b: "ehe" }),
+    createBond({ id: "b-ceca", a: "ece", b: "eca", order: 2 }),
+  ],
+});
+
+const bromineH = createSpecies({
+  id: "sp-bromine-h",
+  atoms: [
+    createAtom({ id: "bra", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "brb", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-brbr", a: "bra", b: "brb" })],
+});
+
+const protBromoketoneH = createSpecies({
+  id: "sp-prot-bromoketone-h",
+  atoms: [
+    createAtom({ id: "ecm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ece", element: "C" }),
+    createAtom({ id: "eoe", element: "O", formalCharge: 1, lonePairs: 1 }),
+    createAtom({ id: "ehe", element: "H" }),
+    createAtom({ id: "eca", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "bra", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cmece", a: "ecm", b: "ece" }),
+    createBond({ id: "b-ceoe", a: "ece", b: "eoe", order: 2 }),
+    createBond({ id: "b-oehe", a: "eoe", b: "ehe" }),
+    createBond({ id: "b-ceca", a: "ece", b: "eca" }),
+    createBond({ id: "b-cabr", a: "eca", b: "bra" }),
+  ],
+});
+
+const bromideH = createSpecies({
+  id: "sp-bromide-h",
+  atoms: [createAtom({ id: "brb", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const HALO_ACID_ATTACK: MechanismStep = createStep({
+  id: "halo-acid-attack",
+  from: createState({
+    id: "ha1-before",
+    members: [
+      { species: propenolH, role: "nucleophile" },
+      { species: bromineH, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ha1-after",
+    members: [
+      { species: protBromoketoneH, role: "product" },
+      { species: bromideH, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "pi_bond_attack", route: "electrophilic_addition_alkene", reactionCenters: ["eca", "bra"] },
+  arrows: [
+    createArrow({ id: "a-push", source: fromLonePair("eoe"), sink: toBondBetween("eoe", "ece") }),
+    createArrow({ id: "a-attack", source: fromBond("b-ceca"), sink: toBondBetween("eca", "bra") }),
+    createArrow({ id: "a-leave", source: fromBond("b-brbr"), sink: toAtom("brb") }),
+  ],
+});
+
+const bromoketoneH = createSpecies({
+  id: "sp-bromoketone-h",
+  atoms: [
+    createAtom({ id: "ecm", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "ece", element: "C" }),
+    createAtom({ id: "eoe", element: "O", lonePairs: 2 }),
+    createAtom({ id: "eca", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "bra", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-cmece", a: "ecm", b: "ece" }),
+    createBond({ id: "b-ceoe", a: "ece", b: "eoe", order: 2 }),
+    createBond({ id: "b-ceca", a: "ece", b: "eca" }),
+    createBond({ id: "b-cabr", a: "eca", b: "bra" }),
+  ],
+});
+
+const hbrH = createSpecies({
+  id: "sp-hbr-h",
+  atoms: [
+    createAtom({ id: "brb", element: "Br", lonePairs: 3 }),
+    createAtom({ id: "ehe", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-brh", a: "brb", b: "ehe" })],
+});
+
+const HALO_ACID_PT: MechanismStep = createStep({
+  id: "halo-acid-pt",
+  from: createState({
+    id: "ha2-before",
+    members: [
+      { species: bromideH, role: "nucleophile" },
+      { species: protBromoketoneH, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ha2-after",
+    members: [
+      { species: bromoketoneH, role: "product" },
+      { species: hbrH, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["ehe", "brb"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("brb"), sink: toBondBetween("brb", "ehe") }),
+    createArrow({ id: "a-release", source: fromBond("b-oehe"), sink: toAtom("eoe") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9b spine: crossed aldol, done the only safe way. The partner   */
+/* has no alpha hydrogens, so only one enolate can exist.              */
+/* ------------------------------------------------------------------ */
+
+const acetoneEnolateX = createSpecies({
+  id: "sp-acetone-enolate-x",
+  atoms: [
+    createAtom({ id: "ka", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "kb", element: "C" }),
+    createAtom({ id: "ko", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "kc", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-kakb", a: "ka", b: "kb", order: 2 }),
+    createBond({ id: "b-kbko", a: "kb", b: "ko" }),
+    createBond({ id: "b-kbkc", a: "kb", b: "kc" }),
+  ],
+});
+
+const formaldehydeX = createSpecies({
+  id: "sp-formaldehyde-x",
+  atoms: [
+    createAtom({ id: "fc", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "fo", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [createBond({ id: "b-fcfo", a: "fc", b: "fo", order: 2 })],
+});
+
+const crossedAlkoxideX = createSpecies({
+  id: "sp-crossed-alkoxide-x",
+  atoms: [
+    createAtom({ id: "ka", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "kb", element: "C" }),
+    createAtom({ id: "ko", element: "O", lonePairs: 2 }),
+    createAtom({ id: "kc", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "fo", element: "O", formalCharge: -1, lonePairs: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-kakb", a: "ka", b: "kb" }),
+    createBond({ id: "b-kbko", a: "kb", b: "ko", order: 2 }),
+    createBond({ id: "b-kbkc", a: "kb", b: "kc" }),
+    createBond({ id: "b-kafc", a: "ka", b: "fc" }),
+    createBond({ id: "b-fcfo", a: "fc", b: "fo" }),
+  ],
+});
+
+const CROSSED_ATTACK: MechanismStep = createStep({
+  id: "crossed-attack",
+  from: createState({
+    id: "cx1-before",
+    members: [
+      { species: acetoneEnolateX, role: "nucleophile" },
+      { species: formaldehydeX, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "cx1-after", members: [{ species: crossedAlkoxideX, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["ka", "fc"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromBond("b-kakb"), sink: toBondBetween("ka", "fc") }),
+    createArrow({ id: "a-reform", source: fromLonePair("ko"), sink: toBondBetween("ko", "kb") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-fcfo"), sink: toAtom("fo") }),
+  ],
+});
+
+const waterX = createSpecies({
+  id: "sp-water-x",
+  atoms: [
+    createAtom({ id: "wo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "wh1", element: "H" }),
+    createAtom({ id: "wh2", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-wowh1", a: "wo", b: "wh1" }),
+    createBond({ id: "b-wowh2", a: "wo", b: "wh2" }),
+  ],
+});
+
+const crossedAldolX = createSpecies({
+  id: "sp-crossed-aldol-x",
+  atoms: [
+    createAtom({ id: "ka", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "kb", element: "C" }),
+    createAtom({ id: "ko", element: "O", lonePairs: 2 }),
+    createAtom({ id: "kc", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "fc", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "fo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "wh1", element: "H" }),
+  ],
+  bonds: [
+    createBond({ id: "b-kakb", a: "ka", b: "kb" }),
+    createBond({ id: "b-kbko", a: "kb", b: "ko", order: 2 }),
+    createBond({ id: "b-kbkc", a: "kb", b: "kc" }),
+    createBond({ id: "b-kafc", a: "ka", b: "fc" }),
+    createBond({ id: "b-fcfo", a: "fc", b: "fo" }),
+    createBond({ id: "b-foh", a: "fo", b: "wh1" }),
+  ],
+});
+
+const hydroxideX = createSpecies({
+  id: "sp-hydroxide-x",
+  atoms: [
+    createAtom({ id: "wo", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "wh2", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-wowh2", a: "wo", b: "wh2" })],
+});
+
+const CROSSED_PROTONATE: MechanismStep = createStep({
+  id: "crossed-protonate",
+  from: createState({
+    id: "cx2-before",
+    members: [
+      { species: crossedAlkoxideX, role: "nucleophile" },
+      { species: waterX, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "cx2-after",
+    members: [
+      { species: crossedAldolX, role: "product" },
+      { species: hydroxideX, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["wh1", "fo"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("fo"), sink: toBondBetween("fo", "wh1") }),
+    createArrow({ id: "a-release", source: fromBond("b-wowh1"), sink: toAtom("wo") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9b spine: Dieckmann. The Claisen goes intramolecular and a     */
+/* five-membered ring keto-ester falls out.                            */
+/* ------------------------------------------------------------------ */
+
+const adipateEnolateD = createSpecies({
+  id: "sp-adipate-enolate-d",
+  atoms: [
+    createAtom({ id: "dm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dm1o", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc1", element: "C" }),
+    createAtom({ id: "dk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc2", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "dc3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc6", element: "C" }),
+    createAtom({ id: "dk6", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dm6o", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dm6", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dm1o", a: "dm1o", b: "dm1" }),
+    createBond({ id: "b-dc1o", a: "dc1", b: "dm1o" }),
+    createBond({ id: "b-dc1k1", a: "dc1", b: "dk1", order: 2 }),
+    createBond({ id: "b-dc12", a: "dc1", b: "dc2" }),
+    createBond({ id: "b-dc23", a: "dc2", b: "dc3" }),
+    createBond({ id: "b-dc34", a: "dc3", b: "dc4" }),
+    createBond({ id: "b-dc45", a: "dc4", b: "dc5" }),
+    createBond({ id: "b-dc56", a: "dc5", b: "dc6" }),
+    createBond({ id: "b-dc6k6", a: "dc6", b: "dk6", order: 2 }),
+    createBond({ id: "b-dc6o", a: "dc6", b: "dm6o" }),
+    createBond({ id: "b-dm6o", a: "dm6o", b: "dm6" }),
+  ],
+});
+
+const dieckmannTI = createSpecies({
+  id: "sp-dieckmann-ti",
+  atoms: [
+    createAtom({ id: "dm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dm1o", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc1", element: "C" }),
+    createAtom({ id: "dk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "dc3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc6", element: "C" }),
+    createAtom({ id: "dk6", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "dm6o", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dm6", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dm1o", a: "dm1o", b: "dm1" }),
+    createBond({ id: "b-dc1o", a: "dc1", b: "dm1o" }),
+    createBond({ id: "b-dc1k1", a: "dc1", b: "dk1", order: 2 }),
+    createBond({ id: "b-dc12", a: "dc1", b: "dc2" }),
+    createBond({ id: "b-dc23", a: "dc2", b: "dc3" }),
+    createBond({ id: "b-dc34", a: "dc3", b: "dc4" }),
+    createBond({ id: "b-dc45", a: "dc4", b: "dc5" }),
+    createBond({ id: "b-dc56", a: "dc5", b: "dc6" }),
+    createBond({ id: "b-dc6k6", a: "dc6", b: "dk6" }),
+    createBond({ id: "b-dc6o", a: "dc6", b: "dm6o" }),
+    createBond({ id: "b-dm6o", a: "dm6o", b: "dm6" }),
+    createBond({ id: "b-dc26", a: "dc2", b: "dc6" }),
+  ],
+});
+
+const DIECKMANN_ATTACK: MechanismStep = createStep({
+  id: "dieckmann-attack",
+  from: createState({
+    id: "dk1-before",
+    members: [{ species: adipateEnolateD, role: "substrate" }],
+  }),
+  to: createState({ id: "dk1-after", members: [{ species: dieckmannTI, role: "product" }] }),
+  identity: { elementaryStep: "ring_closure", route: "nucleophilic_acyl_substitution", reactionCenters: ["dc2", "dc6"] },
+  arrows: [
+    createArrow({ id: "a-bite", source: fromLonePair("dc2"), sink: toBondBetween("dc2", "dc6") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-dc6k6"), sink: toAtom("dk6") }),
+  ],
+});
+
+const ketoEsterD = createSpecies({
+  id: "sp-keto-ester-d",
+  atoms: [
+    createAtom({ id: "dm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "dm1o", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc1", element: "C" }),
+    createAtom({ id: "dk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "dc2", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "dc3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "dc6", element: "C" }),
+    createAtom({ id: "dk6", element: "O", lonePairs: 2 }),
+  ],
+  bonds: [
+    createBond({ id: "b-dm1o", a: "dm1o", b: "dm1" }),
+    createBond({ id: "b-dc1o", a: "dc1", b: "dm1o" }),
+    createBond({ id: "b-dc1k1", a: "dc1", b: "dk1", order: 2 }),
+    createBond({ id: "b-dc12", a: "dc1", b: "dc2" }),
+    createBond({ id: "b-dc23", a: "dc2", b: "dc3" }),
+    createBond({ id: "b-dc34", a: "dc3", b: "dc4" }),
+    createBond({ id: "b-dc45", a: "dc4", b: "dc5" }),
+    createBond({ id: "b-dc56", a: "dc5", b: "dc6" }),
+    createBond({ id: "b-dc6k6", a: "dc6", b: "dk6", order: 2 }),
+    createBond({ id: "b-dc26", a: "dc2", b: "dc6" }),
+  ],
+});
+
+const methoxideD = createSpecies({
+  id: "sp-methoxide-d",
+  atoms: [
+    createAtom({ id: "dm6o", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "dm6", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [createBond({ id: "b-dm6o", a: "dm6o", b: "dm6" })],
+});
+
+const DIECKMANN_COLLAPSE: MechanismStep = createStep({
+  id: "dieckmann-collapse",
+  from: createState({ id: "dk2-before", members: [{ species: dieckmannTI, role: "substrate" }] }),
+  to: createState({
+    id: "dk2-after",
+    members: [
+      { species: ketoEsterD, role: "product" },
+      { species: methoxideD, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "nucleophilic_acyl_substitution", reactionCenters: ["dc6"] },
+  arrows: [
+    createArrow({ id: "a-reform", source: fromLonePair("dk6"), sink: toBondBetween("dk6", "dc6") }),
+    createArrow({ id: "a-leave", source: fromBond("b-dc6o"), sink: toAtom("dm6o") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9c spine: malonic ester synthesis, the two moves that matter.  */
+/* Deprotonate the doubly activated carbon, then alkylate it.          */
+/* ------------------------------------------------------------------ */
+
+const ethoxideM = createSpecies({
+  id: "sp-ethoxide-m",
+  atoms: [
+    createAtom({ id: "moe", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "mce1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "mce2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-moece1", a: "moe", b: "mce1" }),
+    createBond({ id: "b-mce12", a: "mce1", b: "mce2" }),
+  ],
+});
+
+const malonateM = createSpecies({
+  id: "sp-malonate-m",
+  atoms: [
+    createAtom({ id: "mm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "mo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mc1", element: "C" }),
+    createAtom({ id: "mk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mch", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "mhx", element: "H" }),
+    createAtom({ id: "mc2", element: "C" }),
+    createAtom({ id: "mk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mm2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-m1o1", a: "mm1", b: "mo1" }),
+    createBond({ id: "b-o1c1", a: "mo1", b: "mc1" }),
+    createBond({ id: "b-c1k1", a: "mc1", b: "mk1", order: 2 }),
+    createBond({ id: "b-c1ch", a: "mc1", b: "mch" }),
+    createBond({ id: "b-chhx", a: "mch", b: "mhx" }),
+    createBond({ id: "b-chc2", a: "mch", b: "mc2" }),
+    createBond({ id: "b-c2k2", a: "mc2", b: "mk2", order: 2 }),
+    createBond({ id: "b-c2o2", a: "mc2", b: "mo2" }),
+    createBond({ id: "b-o2m2", a: "mo2", b: "mm2" }),
+  ],
+});
+
+const ethanolM = createSpecies({
+  id: "sp-ethanol-m",
+  atoms: [
+    createAtom({ id: "moe", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mhx", element: "H" }),
+    createAtom({ id: "mce1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "mce2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-moeh", a: "moe", b: "mhx" }),
+    createBond({ id: "b-moece1", a: "moe", b: "mce1" }),
+    createBond({ id: "b-mce12", a: "mce1", b: "mce2" }),
+  ],
+});
+
+const malonateAnionM = createSpecies({
+  id: "sp-malonate-anion-m",
+  atoms: [
+    createAtom({ id: "mm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "mo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mc1", element: "C" }),
+    createAtom({ id: "mk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mch", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "mc2", element: "C" }),
+    createAtom({ id: "mk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mm2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-m1o1", a: "mm1", b: "mo1" }),
+    createBond({ id: "b-o1c1", a: "mo1", b: "mc1" }),
+    createBond({ id: "b-c1k1", a: "mc1", b: "mk1", order: 2 }),
+    createBond({ id: "b-c1ch", a: "mc1", b: "mch" }),
+    createBond({ id: "b-chc2", a: "mch", b: "mc2" }),
+    createBond({ id: "b-c2k2", a: "mc2", b: "mk2", order: 2 }),
+    createBond({ id: "b-c2o2", a: "mc2", b: "mo2" }),
+    createBond({ id: "b-o2m2", a: "mo2", b: "mm2" }),
+  ],
+});
+
+const MALONIC_DEPROT: MechanismStep = createStep({
+  id: "malonic-deprot",
+  from: createState({
+    id: "ma1-before",
+    members: [
+      { species: ethoxideM, role: "nucleophile" },
+      { species: malonateM, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ma1-after",
+    members: [
+      { species: malonateAnionM, role: "product" },
+      { species: ethanolM, role: "product" },
+    ],
+  }),
+  identity: { elementaryStep: "proton_transfer", route: "acid_base_proton_transfer", reactionCenters: ["mhx", "moe"] },
+  arrows: [
+    createArrow({ id: "a-grab", source: fromLonePair("moe"), sink: toBondBetween("moe", "mhx") }),
+    createArrow({ id: "a-release", source: fromBond("b-chhx"), sink: toAtom("mch") }),
+  ],
+});
+
+const bromomethaneM = createSpecies({
+  id: "sp-bromomethane-m",
+  atoms: [
+    createAtom({ id: "mcx", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "mbr", element: "Br", lonePairs: 3 }),
+  ],
+  bonds: [createBond({ id: "b-cxbr", a: "mcx", b: "mbr" })],
+});
+
+const methylMalonateM = createSpecies({
+  id: "sp-methyl-malonate-m",
+  atoms: [
+    createAtom({ id: "mm1", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "mo1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mc1", element: "C" }),
+    createAtom({ id: "mk1", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mch", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "mcx", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "mc2", element: "C" }),
+    createAtom({ id: "mk2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mo2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "mm2", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-m1o1", a: "mm1", b: "mo1" }),
+    createBond({ id: "b-o1c1", a: "mo1", b: "mc1" }),
+    createBond({ id: "b-c1k1", a: "mc1", b: "mk1", order: 2 }),
+    createBond({ id: "b-c1ch", a: "mc1", b: "mch" }),
+    createBond({ id: "b-chcx", a: "mch", b: "mcx" }),
+    createBond({ id: "b-chc2", a: "mch", b: "mc2" }),
+    createBond({ id: "b-c2k2", a: "mc2", b: "mk2", order: 2 }),
+    createBond({ id: "b-c2o2", a: "mc2", b: "mo2" }),
+    createBond({ id: "b-o2m2", a: "mo2", b: "mm2" }),
+  ],
+});
+
+const bromideM = createSpecies({
+  id: "sp-bromide-m",
+  atoms: [createAtom({ id: "mbr", element: "Br", formalCharge: -1, lonePairs: 4 })],
+  bonds: [],
+});
+
+const MALONIC_ALKYLATE: MechanismStep = createStep({
+  id: "malonic-alkylate",
+  from: createState({
+    id: "ma2-before",
+    members: [
+      { species: malonateAnionM, role: "nucleophile" },
+      { species: bromomethaneM, role: "substrate" },
+    ],
+  }),
+  to: createState({
+    id: "ma2-after",
+    members: [
+      { species: methylMalonateM, role: "product" },
+      { species: bromideM, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "concerted_substitution", route: "sn2", reactionCenters: ["mch", "mcx"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromLonePair("mch"), sink: toBondBetween("mch", "mcx") }),
+    createArrow({ id: "a-leave", source: fromBond("b-cxbr"), sink: toAtom("mbr") }),
+  ],
+});
+
+/* ------------------------------------------------------------------ */
+/* Unit 9c capstone: Robinson annulation. Michael, then the ring       */
+/* closes, then the water leaves. Three moves, one new six-ring.       */
+/* ------------------------------------------------------------------ */
+
+const acetoneEnolateR = createSpecies({
+  id: "sp-acetone-enolate-r",
+  atoms: [
+    createAtom({ id: "ra", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "rb", element: "C" }),
+    createAtom({ id: "ro", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "rc", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-rarb", a: "ra", b: "rb", order: 2 }),
+    createBond({ id: "b-rbro", a: "rb", b: "ro" }),
+    createBond({ id: "b-rbrc", a: "rb", b: "rc" }),
+  ],
+});
+
+const mvkR = createSpecies({
+  id: "sp-mvk-r",
+  atoms: [
+    createAtom({ id: "wb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "wa", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "wk", element: "C" }),
+    createAtom({ id: "wo", element: "O", lonePairs: 2 }),
+    createAtom({ id: "wm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-wbwa", a: "wb", b: "wa", order: 2 }),
+    createBond({ id: "b-wawk", a: "wa", b: "wk" }),
+    createBond({ id: "b-wkwo", a: "wk", b: "wo", order: 2 }),
+    createBond({ id: "b-wkwm", a: "wk", b: "wm" }),
+  ],
+});
+
+const michaelAdductR = createSpecies({
+  id: "sp-michael-adduct-r",
+  atoms: [
+    createAtom({ id: "ra", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "rb", element: "C" }),
+    createAtom({ id: "ro", element: "O", lonePairs: 2 }),
+    createAtom({ id: "rc", element: "C", implicitHydrogens: 3 }),
+    createAtom({ id: "wb", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "wa", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "wk", element: "C" }),
+    createAtom({ id: "wo", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "wm", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-rarb", a: "ra", b: "rb" }),
+    createBond({ id: "b-rbro", a: "rb", b: "ro", order: 2 }),
+    createBond({ id: "b-rbrc", a: "rb", b: "rc" }),
+    createBond({ id: "b-rawb", a: "ra", b: "wb" }),
+    createBond({ id: "b-wbwa", a: "wb", b: "wa" }),
+    createBond({ id: "b-wawk", a: "wa", b: "wk", order: 2 }),
+    createBond({ id: "b-wkwo", a: "wk", b: "wo" }),
+    createBond({ id: "b-wkwm", a: "wk", b: "wm" }),
+  ],
+});
+
+const ROBINSON_MICHAEL: MechanismStep = createStep({
+  id: "robinson-michael",
+  from: createState({
+    id: "rb1-before",
+    members: [
+      { species: acetoneEnolateR, role: "nucleophile" },
+      { species: mvkR, role: "substrate" },
+    ],
+  }),
+  to: createState({ id: "rb1-after", members: [{ species: michaelAdductR, role: "product" }] }),
+  identity: { elementaryStep: "nucleophilic_attack", route: "nucleophilic_addition_carbonyl", reactionCenters: ["ra", "wb"] },
+  arrows: [
+    createArrow({ id: "a-attack", source: fromBond("b-rarb"), sink: toBondBetween("ra", "wb") }),
+    createArrow({ id: "a-reform", source: fromLonePair("ro"), sink: toBondBetween("ro", "rb") }),
+    createArrow({ id: "a-shift", source: fromBond("b-wbwa"), sink: toBondBetween("wa", "wk") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-wkwo"), sink: toAtom("wo") }),
+  ],
+});
+
+const heptanedioneEnolateR = createSpecies({
+  id: "sp-heptanedione-enolate-r",
+  atoms: [
+    createAtom({ id: "h1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h2", element: "C" }),
+    createAtom({ id: "ho2", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "h3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h6", element: "C" }),
+    createAtom({ id: "ho6", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h7", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-h12", a: "h1", b: "h2", order: 2 }),
+    createBond({ id: "b-h2o", a: "h2", b: "ho2" }),
+    createBond({ id: "b-h23", a: "h2", b: "h3" }),
+    createBond({ id: "b-h34", a: "h3", b: "h4" }),
+    createBond({ id: "b-h45", a: "h4", b: "h5" }),
+    createBond({ id: "b-h56", a: "h5", b: "h6" }),
+    createBond({ id: "b-h6o", a: "h6", b: "ho6", order: 2 }),
+    createBond({ id: "b-h67", a: "h6", b: "h7" }),
+  ],
+});
+
+const cyclicAldolR = createSpecies({
+  id: "sp-cyclic-aldol-r",
+  atoms: [
+    createAtom({ id: "h1", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h2", element: "C" }),
+    createAtom({ id: "ho2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h6", element: "C" }),
+    createAtom({ id: "ho6", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "h7", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-h12", a: "h1", b: "h2" }),
+    createBond({ id: "b-h2o", a: "h2", b: "ho2", order: 2 }),
+    createBond({ id: "b-h23", a: "h2", b: "h3" }),
+    createBond({ id: "b-h34", a: "h3", b: "h4" }),
+    createBond({ id: "b-h45", a: "h4", b: "h5" }),
+    createBond({ id: "b-h56", a: "h5", b: "h6" }),
+    createBond({ id: "b-h6o", a: "h6", b: "ho6" }),
+    createBond({ id: "b-h67", a: "h6", b: "h7" }),
+    createBond({ id: "b-h16", a: "h1", b: "h6" }),
+  ],
+});
+
+const ROBINSON_CLOSE: MechanismStep = createStep({
+  id: "robinson-close",
+  from: createState({
+    id: "rb2-before",
+    members: [{ species: heptanedioneEnolateR, role: "substrate" }],
+  }),
+  to: createState({ id: "rb2-after", members: [{ species: cyclicAldolR, role: "product" }] }),
+  identity: { elementaryStep: "ring_closure", route: "nucleophilic_addition_carbonyl", reactionCenters: ["h1", "h6"] },
+  arrows: [
+    createArrow({ id: "a-bite", source: fromBond("b-h12"), sink: toBondBetween("h1", "h6") }),
+    createArrow({ id: "a-reform", source: fromLonePair("ho2"), sink: toBondBetween("ho2", "h2") }),
+    createArrow({ id: "a-pi-up", source: fromBond("b-h6o"), sink: toAtom("ho6") }),
+  ],
+});
+
+const aldolCarbanionR = createSpecies({
+  id: "sp-aldol-carbanion-r",
+  atoms: [
+    createAtom({ id: "h1", element: "C", formalCharge: -1, lonePairs: 1, implicitHydrogens: 1 }),
+    createAtom({ id: "h2", element: "C" }),
+    createAtom({ id: "ho2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h6", element: "C" }),
+    createAtom({ id: "ho6", element: "O", lonePairs: 2 }),
+    createAtom({ id: "hoh", element: "H" }),
+    createAtom({ id: "h7", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-h12", a: "h1", b: "h2" }),
+    createBond({ id: "b-h2o", a: "h2", b: "ho2", order: 2 }),
+    createBond({ id: "b-h23", a: "h2", b: "h3" }),
+    createBond({ id: "b-h34", a: "h3", b: "h4" }),
+    createBond({ id: "b-h45", a: "h4", b: "h5" }),
+    createBond({ id: "b-h56", a: "h5", b: "h6" }),
+    createBond({ id: "b-h6o", a: "h6", b: "ho6" }),
+    createBond({ id: "b-oh", a: "ho6", b: "hoh" }),
+    createBond({ id: "b-h67", a: "h6", b: "h7" }),
+    createBond({ id: "b-h16", a: "h1", b: "h6" }),
+  ],
+});
+
+const enoneR = createSpecies({
+  id: "sp-enone-r",
+  atoms: [
+    createAtom({ id: "h1", element: "C", implicitHydrogens: 1 }),
+    createAtom({ id: "h2", element: "C" }),
+    createAtom({ id: "ho2", element: "O", lonePairs: 2 }),
+    createAtom({ id: "h3", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h4", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h5", element: "C", implicitHydrogens: 2 }),
+    createAtom({ id: "h6", element: "C" }),
+    createAtom({ id: "h7", element: "C", implicitHydrogens: 3 }),
+  ],
+  bonds: [
+    createBond({ id: "b-h12", a: "h1", b: "h2" }),
+    createBond({ id: "b-h2o", a: "h2", b: "ho2", order: 2 }),
+    createBond({ id: "b-h23", a: "h2", b: "h3" }),
+    createBond({ id: "b-h34", a: "h3", b: "h4" }),
+    createBond({ id: "b-h45", a: "h4", b: "h5" }),
+    createBond({ id: "b-h56", a: "h5", b: "h6" }),
+    createBond({ id: "b-h67", a: "h6", b: "h7" }),
+    createBond({ id: "b-h16", a: "h1", b: "h6", order: 2 }),
+  ],
+});
+
+const hydroxideR = createSpecies({
+  id: "sp-hydroxide-r",
+  atoms: [
+    createAtom({ id: "ho6", element: "O", formalCharge: -1, lonePairs: 3 }),
+    createAtom({ id: "hoh", element: "H" }),
+  ],
+  bonds: [createBond({ id: "b-oh", a: "ho6", b: "hoh" })],
+});
+
+const ROBINSON_E1CB: MechanismStep = createStep({
+  id: "robinson-e1cb",
+  from: createState({
+    id: "rb3-before",
+    members: [{ species: aldolCarbanionR, role: "substrate" }],
+  }),
+  to: createState({
+    id: "rb3-after",
+    members: [
+      { species: enoneR, role: "product" },
+      { species: hydroxideR, role: "leaving_group" },
+    ],
+  }),
+  identity: { elementaryStep: "leaving_group_departure", route: "e1cb", reactionCenters: ["h1", "h6"] },
+  arrows: [
+    createArrow({ id: "a-pi", source: fromLonePair("h1"), sink: toBondBetween("h1", "h6") }),
+    createArrow({ id: "a-leave", source: fromBond("b-h6o"), sink: toAtom("ho6") }),
+  ],
+});
+
 export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
   {
     id: "seq-hydration",
@@ -2979,6 +3777,344 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
           aa1: { x: -0.9, y: -0.85 },
           ac1: { x: 0, y: 0 },
           ao1: { x: 0.4, y: 0.95 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-halo-acid",
+    title: "Acid α-bromination · 2 steps",
+    brief: "The ENOL attacks bromine, and bromide comes back for the proton. Acid-side halogenation stops at one Br.",
+    successLine: "The enol's alkene took bromine, the oxygen relayed the charge, and bromide collected the proton. Under acid the product ketone is LESS reactive than the starting one, so it stops at a single bromine; under base it would run away to the haloform. Same reagent, opposite endings.",
+    steps: [
+      {
+        step: HALO_ACID_ATTACK,
+        stepBrief: "Step 1 · The enol attacks bromine, oxygen backs it up.",
+        fromHints: {
+          ecm: { x: -2.55, y: -0.15 },
+          ece: { x: -1.55, y: 0.3 },
+          eoe: { x: -1.5, y: 1.4 },
+          ehe: { x: -2.25, y: 1.95 },
+          eca: { x: -0.55, y: -0.3 },
+          bra: { x: 0.75, y: 0.15 },
+          brb: { x: 1.95, y: 0.6 },
+        },
+        toHints: {
+          ecm: { x: -2.55, y: -0.15 },
+          ece: { x: -1.55, y: 0.3 },
+          eoe: { x: -1.5, y: 1.4 },
+          ehe: { x: -2.25, y: 1.95 },
+          eca: { x: -0.55, y: -0.3 },
+          bra: { x: 0.55, y: 0.1 },
+          brb: { x: 2.35, y: 0.75 },
+        },
+      },
+      {
+        step: HALO_ACID_PT,
+        stepBrief: "Step 2 · Bromide takes the O-H proton. Neutral ketone, HBr out.",
+        fromHints: {
+          brb: { x: -3.3, y: 2.3 },
+          ecm: { x: -2.55, y: -0.15 },
+          ece: { x: -1.55, y: 0.3 },
+          eoe: { x: -1.5, y: 1.4 },
+          ehe: { x: -2.25, y: 1.95 },
+          eca: { x: -0.55, y: -0.3 },
+          bra: { x: 0.55, y: 0.1 },
+        },
+        toHints: {
+          brb: { x: -3.4, y: 2.4 },
+          ehe: { x: -2.6, y: 2.05 },
+          ecm: { x: -2.55, y: -0.15 },
+          ece: { x: -1.55, y: 0.3 },
+          eoe: { x: -1.5, y: 1.4 },
+          eca: { x: -0.55, y: -0.3 },
+          bra: { x: 0.55, y: 0.1 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-crossed-aldol",
+    title: "Crossed aldol · 2 steps",
+    brief: "The partner has NO alpha hydrogens, so only one enolate can exist. That choice is the whole strategy.",
+    successLine: "One enolate, one electrophile, one product: because the partner had no alpha hydrogens it could never fight back with an enolate of its own. Pick partners like this and a crossed aldol gives one clean product instead of four.",
+    steps: [
+      {
+        step: CROSSED_ATTACK,
+        stepBrief: "Step 1 · The enolate's carbon attacks the partner carbonyl.",
+        fromHints: {
+          ka: { x: -1.05, y: 0.35 },
+          kb: { x: -2.0, y: -0.25 },
+          ko: { x: -2.1, y: 0.85 },
+          kc: { x: -2.95, y: -0.85 },
+          fc: { x: 0.35, y: -0.15 },
+          fo: { x: 1.3, y: 0.4 },
+        },
+        toHints: {
+          ka: { x: -1.05, y: 0.35 },
+          kb: { x: -2.0, y: -0.25 },
+          ko: { x: -2.1, y: 0.85 },
+          kc: { x: -2.95, y: -0.85 },
+          fc: { x: 0.05, y: -0.2 },
+          fo: { x: 1.0, y: 0.35 },
+        },
+      },
+      {
+        step: CROSSED_PROTONATE,
+        stepBrief: "Step 2 · Water hands the new alkoxide its proton.",
+        fromHints: {
+          ka: { x: -1.05, y: 0.35 },
+          kb: { x: -2.0, y: -0.25 },
+          ko: { x: -2.1, y: 0.85 },
+          kc: { x: -2.95, y: -0.85 },
+          fc: { x: 0.05, y: -0.2 },
+          fo: { x: 1.0, y: 0.35 },
+          wo: { x: 2.5, y: 1.05 },
+          wh1: { x: 1.75, y: 0.85 },
+          wh2: { x: 3.1, y: 0.45 },
+        },
+        toHints: {
+          ka: { x: -1.05, y: 0.35 },
+          kb: { x: -2.0, y: -0.25 },
+          ko: { x: -2.1, y: 0.85 },
+          kc: { x: -2.95, y: -0.85 },
+          fc: { x: 0.05, y: -0.2 },
+          fo: { x: 1.0, y: 0.35 },
+          wh1: { x: 1.7, y: 0.75 },
+          wo: { x: 2.65, y: 1.15 },
+          wh2: { x: 3.25, y: 0.55 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-dieckmann",
+    title: "Dieckmann condensation · 2 steps",
+    brief: "A Claisen that bites its own tail: the ester enolate closes a five-ring, then methoxide is thrown out.",
+    successLine: "The enolate reached its own far ester, closed the five-membered ring, and the collapse ejected methoxide. Same two beats as every Claisen; the only new idea is that both ends live on one chain, which is why five- and six-ring keto-esters come out so cleanly.",
+    steps: [
+      {
+        step: DIECKMANN_ATTACK,
+        stepBrief: "Step 1 · The ester enolate attacks its own far carbonyl. Ring closed.",
+        fromHints: {
+          dm1: { x: -3.9, y: -0.5 },
+          dm1o: { x: -3.15, y: 0.25 },
+          dc1: { x: -2.2, y: -0.2 },
+          dk1: { x: -2.25, y: -1.3 },
+          dc2: { x: -1.2, y: 0.4 },
+          dc3: { x: -1.05, y: -0.75 },
+          dc4: { x: 0.1, y: -1.0 },
+          dc5: { x: 0.9, y: -0.2 },
+          dc6: { x: 0.35, y: 0.8 },
+          dk6: { x: 0.9, y: 1.75 },
+          dm6o: { x: 1.45, y: 0.3 },
+          dm6: { x: 2.45, y: 0.75 },
+        },
+        toHints: {
+          dm1: { x: -3.9, y: -0.5 },
+          dm1o: { x: -3.15, y: 0.25 },
+          dc1: { x: -2.2, y: -0.2 },
+          dk1: { x: -2.25, y: -1.3 },
+          dc2: { x: -1.1, y: 0.35 },
+          dc3: { x: -1.0, y: -0.8 },
+          dc4: { x: 0.15, y: -1.05 },
+          dc5: { x: 0.85, y: -0.25 },
+          dc6: { x: 0.1, y: 0.7 },
+          dk6: { x: 0.55, y: 1.7 },
+          dm6o: { x: 1.2, y: 0.35 },
+          dm6: { x: 2.2, y: 0.8 },
+        },
+      },
+      {
+        step: DIECKMANN_COLLAPSE,
+        stepBrief: "Step 2 · The alkoxide collapses and methoxide leaves.",
+        fromHints: {
+          dm1: { x: -3.9, y: -0.5 },
+          dm1o: { x: -3.15, y: 0.25 },
+          dc1: { x: -2.2, y: -0.2 },
+          dk1: { x: -2.25, y: -1.3 },
+          dc2: { x: -1.1, y: 0.35 },
+          dc3: { x: -1.0, y: -0.8 },
+          dc4: { x: 0.15, y: -1.05 },
+          dc5: { x: 0.85, y: -0.25 },
+          dc6: { x: 0.1, y: 0.7 },
+          dk6: { x: 0.55, y: 1.7 },
+          dm6o: { x: 1.2, y: 0.35 },
+          dm6: { x: 2.2, y: 0.8 },
+        },
+        toHints: {
+          dm1: { x: -3.9, y: -0.5 },
+          dm1o: { x: -3.15, y: 0.25 },
+          dc1: { x: -2.2, y: -0.2 },
+          dk1: { x: -2.25, y: -1.3 },
+          dc2: { x: -1.1, y: 0.35 },
+          dc3: { x: -1.0, y: -0.8 },
+          dc4: { x: 0.15, y: -1.05 },
+          dc5: { x: 0.85, y: -0.25 },
+          dc6: { x: 0.1, y: 0.7 },
+          dk6: { x: 0.55, y: 1.7 },
+          dm6o: { x: 1.75, y: 0.1 },
+          dm6: { x: 2.75, y: 0.55 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-malonic",
+    title: "Malonic ester synthesis · 2 steps",
+    brief: "Two esters make one proton cheap. Take it, then alkylate the carbanion. The decarboxylation comes later, free.",
+    successLine: "Ethoxide took the doubly activated proton, and the stabilised carbanion did a clean SN2 on the halide. Hydrolyse and warm it later and CO2 walks away, leaving exactly the acetic acid you designed. Two esters, one of which was only ever scaffolding.",
+    steps: [
+      {
+        step: MALONIC_DEPROT,
+        stepBrief: "Step 1 · Ethoxide takes the proton BETWEEN the two esters.",
+        fromHints: {
+          moe: { x: -1.15, y: 1.7 },
+          mce1: { x: -2.15, y: 2.15 },
+          mce2: { x: -3.05, y: 1.6 },
+          mm1: { x: -3.7, y: -0.7 },
+          mo1: { x: -2.75, y: -0.15 },
+          mc1: { x: -1.75, y: -0.6 },
+          mk1: { x: -1.8, y: -1.7 },
+          mch: { x: -0.7, y: 0.0 },
+          mhx: { x: -0.75, y: 1.1 },
+          mc2: { x: 0.45, y: -0.5 },
+          mk2: { x: 0.5, y: -1.6 },
+          mo2: { x: 1.45, y: 0.1 },
+          mm2: { x: 2.45, y: -0.35 },
+        },
+        toHints: {
+          moe: { x: -1.05, y: 1.85 },
+          mhx: { x: -0.35, y: 2.5 },
+          mce1: { x: -2.05, y: 2.3 },
+          mce2: { x: -2.95, y: 1.75 },
+          mm1: { x: -3.7, y: -0.7 },
+          mo1: { x: -2.75, y: -0.15 },
+          mc1: { x: -1.75, y: -0.6 },
+          mk1: { x: -1.8, y: -1.7 },
+          mch: { x: -0.7, y: 0.0 },
+          mc2: { x: 0.45, y: -0.5 },
+          mk2: { x: 0.5, y: -1.6 },
+          mo2: { x: 1.45, y: 0.1 },
+          mm2: { x: 2.45, y: -0.35 },
+        },
+      },
+      {
+        step: MALONIC_ALKYLATE,
+        stepBrief: "Step 2 · The carbanion does SN2 on the halide. New C-C bond.",
+        fromHints: {
+          mm1: { x: -3.7, y: -0.7 },
+          mo1: { x: -2.75, y: -0.15 },
+          mc1: { x: -1.75, y: -0.6 },
+          mk1: { x: -1.8, y: -1.7 },
+          mch: { x: -0.7, y: 0.0 },
+          mc2: { x: 0.45, y: -0.5 },
+          mk2: { x: 0.5, y: -1.6 },
+          mo2: { x: 1.45, y: 0.1 },
+          mm2: { x: 2.45, y: -0.35 },
+          mcx: { x: -0.75, y: 1.35 },
+          mbr: { x: 0.3, y: 2.05 },
+        },
+        toHints: {
+          mm1: { x: -3.7, y: -0.7 },
+          mo1: { x: -2.75, y: -0.15 },
+          mc1: { x: -1.75, y: -0.6 },
+          mk1: { x: -1.8, y: -1.7 },
+          mch: { x: -0.7, y: 0.0 },
+          mcx: { x: -0.75, y: 1.15 },
+          mc2: { x: 0.45, y: -0.5 },
+          mk2: { x: 0.5, y: -1.6 },
+          mo2: { x: 1.45, y: 0.1 },
+          mm2: { x: 2.45, y: -0.35 },
+          mbr: { x: 0.75, y: 2.35 },
+        },
+      },
+    ],
+  },
+  {
+    id: "seq-robinson",
+    title: "Robinson annulation · 3 steps",
+    brief: "The capstone: Michael addition, intramolecular aldol, dehydration. Everything Unit 9 taught, in one build.",
+    successLine: "Michael set the chain, the aldol closed the six-ring, and E1cb burned in the enone. That is the Robinson annulation, and it is three lessons you already knew stacked into one synthesis. Steroid chemists have lived on this ring-build since 1935.",
+    steps: [
+      {
+        step: ROBINSON_MICHAEL,
+        stepBrief: "Step 1 · Michael: the enolate adds 1,4 to the enone.",
+        fromHints: {
+          ra: { x: -1.15, y: 0.35 },
+          rb: { x: -2.1, y: -0.25 },
+          ro: { x: -2.2, y: 0.85 },
+          rc: { x: -3.05, y: -0.85 },
+          wb: { x: 0.25, y: 0.7 },
+          wa: { x: 1.1, y: 0.0 },
+          wk: { x: 2.2, y: 0.25 },
+          wo: { x: 2.55, y: 1.25 },
+          wm: { x: 3.0, y: -0.55 },
+        },
+        toHints: {
+          ra: { x: -1.15, y: 0.35 },
+          rb: { x: -2.1, y: -0.25 },
+          ro: { x: -2.2, y: 0.85 },
+          rc: { x: -3.05, y: -0.85 },
+          wb: { x: -0.05, y: 0.7 },
+          wa: { x: 0.85, y: 0.05 },
+          wk: { x: 1.95, y: 0.3 },
+          wo: { x: 2.3, y: 1.3 },
+          wm: { x: 2.75, y: -0.5 },
+        },
+      },
+      {
+        step: ROBINSON_CLOSE,
+        stepBrief: "Step 2 · The new enolate reaches around and closes the six-ring.",
+        fromHints: {
+          h1: { x: -1.35, y: 1.1 },
+          h2: { x: -1.95, y: 0.15 },
+          ho2: { x: -3.05, y: 0.15 },
+          h3: { x: -1.35, y: -0.85 },
+          h4: { x: -0.2, y: -1.05 },
+          h5: { x: 0.85, y: -0.6 },
+          h6: { x: 0.95, y: 0.55 },
+          ho6: { x: 1.85, y: 1.2 },
+          h7: { x: 1.9, y: -0.25 },
+        },
+        toHints: {
+          h1: { x: -0.45, y: 1.0 },
+          h2: { x: -1.35, y: 0.5 },
+          ho2: { x: -2.4, y: 0.75 },
+          h3: { x: -1.35, y: -0.55 },
+          h4: { x: -0.45, y: -1.05 },
+          h5: { x: 0.5, y: -0.55 },
+          h6: { x: 0.5, y: 0.5 },
+          ho6: { x: 1.4, y: 1.15 },
+          h7: { x: 1.45, y: -0.15 },
+        },
+      },
+      {
+        step: ROBINSON_E1CB,
+        stepBrief: "Step 3 · E1cb: the carbanion pushes, hydroxide leaves, the enone appears.",
+        fromHints: {
+          h1: { x: -0.45, y: 1.0 },
+          h2: { x: -1.35, y: 0.5 },
+          ho2: { x: -2.4, y: 0.75 },
+          h3: { x: -1.35, y: -0.55 },
+          h4: { x: -0.45, y: -1.05 },
+          h5: { x: 0.5, y: -0.55 },
+          h6: { x: 0.5, y: 0.5 },
+          ho6: { x: 1.4, y: 1.15 },
+          hoh: { x: 2.15, y: 1.7 },
+          h7: { x: 1.45, y: -0.15 },
+        },
+        toHints: {
+          h1: { x: -0.45, y: 1.0 },
+          h2: { x: -1.35, y: 0.5 },
+          ho2: { x: -2.4, y: 0.75 },
+          h3: { x: -1.35, y: -0.55 },
+          h4: { x: -0.45, y: -1.05 },
+          h5: { x: 0.5, y: -0.55 },
+          h6: { x: 0.5, y: 0.5 },
+          h7: { x: 1.45, y: -0.15 },
+          ho6: { x: 1.75, y: 1.5 },
+          hoh: { x: 2.5, y: 2.0 },
         },
       },
     ],
