@@ -96,8 +96,11 @@ The periodic table then also appears as a summoned sheet inside a lesson when a 
 cash, not diamonds." One of the two has to be edited and I will not pick silently. If cash wins I
 will edit `CLAUDE.md` in the same turn, per the routers rule.
 
-Related: the anatomy app and Duolingo both show **two** currencies (gems + energy). We are dropping
-energy. Is cash the only currency, or is there a second, non-purchasable one?
+Related: the anatomy app and Duolingo both show **two** currencies (gems + energy). **Answered
+2026-08-27**, and more broadly than this question asked: there are five systems, not two. Diamonds
+are the spendable one, XP and Mastery are non-purchasable, Charge is the energy-style limiter, and
+the streak is protectable but not buyable. `docs/ECONOMY.md` has the tables. The naming half of this
+question, diamonds versus cash, resolved to diamonds.
 
 ## 6. Free tier: daily counter, or permanent free unit?
 
@@ -112,8 +115,11 @@ comparison. It is also a change to a Budgets-table row, which I will not touch w
 
 ## 7. Does negative XP subtract?
 
-Section 3: "Time limit challenge for negative XP. Opt in, not default." Section 10 and `CLAUDE.md`
-both say reward returning, never punish leaving.
+Section 3: "Time limit challenge for negative XP. Opt in, not default."
+
+Still open, and the 2026-08-27 amendment does not settle it. That amendment allows a streak, a
+charge limiter and a decaying mastery score, but `docs/ECONOMY.md` keeps XP as the one number that
+moves up only, forever. Negative XP would break that, so the question stands on its own terms.
 
 If a timed run can drive the XP total DOWN, a student can end a study session worse off than they
 started, which is the punishment mechanic in a different costume. Two readings:

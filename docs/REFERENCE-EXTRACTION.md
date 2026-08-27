@@ -167,7 +167,7 @@ choices are worth understanding and are not evidence about what works at scale.
 
 | Pattern | Source | Why |
 |---|---|---|
-| **Hearts** | duolingo-clone `MAX_HEARTS`, `reduceHearts` | A wrong answer costs a life and eventually locks the lesson. This is the anxiety loop CLAUDE.md bans, and §12 bans the energy variant too. We keep XP and streak, and a wrong answer costs nothing but a review-queue entry |
+| **Hearts** | duolingo-clone `MAX_HEARTS`, `reduceHearts` | A wrong answer costs a life and eventually locks the lesson. Hearts stay rejected. **Amended 2026-08-27:** the energy variant is no longer rejected wholesale, it is corrected. `docs/ECONOMY.md` ships Charge, which is spent when a node starts rather than per question, so a student is never stranded mid-mechanism. The load-bearing half of this row survives unchanged: **a wrong answer costs nothing** but a review-queue entry |
 | The 8-step indentation cycle | duolingo-clone `lesson-button.tsx` `cycleLength = 8` | Our own gauntlet round already measured this: at period 8 the five nodes a viewport holds are all one limb of the wave, so the track reads as a diagonal list. We use period 4. **Our version is better and the measurement is recorded** |
 | `react-circular-progressbar` | duolingo-clone | A dependency for one ring. Ours is an SVG `stroke-dasharray`, already built |
 | Client-side grading | duolingo-clone `quiz.tsx` compares `correctOption.id === selectedOption` in the browser | Fine for a tutorial build. Ours grades in `chem-core` / `curriculum` for feedback, and the server re-grades anything that moves XP, rating, or entitlement |
@@ -187,4 +187,7 @@ choices are worth understanding and are not evidence about what works at scale.
 3. **A beat is not a problem.** Our `Problem` is a graded question. A `Beat` can also be an animation
    or a drawing drill, and the lesson is a sequence of beats.
 4. **Track is a first-class entity**, because unlock state is per-track.
-5. **Hearts and energy are both out**, and that is now written down with the reason.
+5. **Hearts are out. Energy is in, corrected**, per the 2026-08-27 amendment. Hearts stay rejected
+   because a wrong answer must never cost anything. The energy variant ships as Charge, spent when
+   a node starts rather than per question, so it paces volume without pricing mistakes. See
+   `docs/ECONOMY.md`.

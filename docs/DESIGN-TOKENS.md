@@ -173,6 +173,13 @@ axes are separate.
 Named as inspiration for the game shell only, not for the chemistry. What is worth taking is the
 shape of the reward moment: a large single number for the session result, a full-bleed celebration
 state that is visually distinct from the working state, and a tiered badge that means something
-because it was scarce. What is not worth taking is the streak-loss anxiety loop. This is a study
-tool used before exams by people who are already stressed, and a mechanic built on fear of losing
-a number is the wrong tool for that audience. Reward returning. Do not punish leaving.
+because it was scarce.
+
+**Amended 2026-08-27.** The paragraph that stood here rejected the streak-loss anxiety loop
+outright. Owner direction now ships a streak, a charge limiter and a decaying mastery score. Its
+reasoning was not wrong and is preserved in `docs/ECONOMY.md`: this is a study tool used before
+exams by people who are already stressed, and a mechanic built on fear of losing a number is the
+wrong tool for that audience. What answers it is the mitigation set in that file. For token
+purposes the consequence is narrow: a streak, charge or mastery surface never uses the critical
+or error ramp, never counts down, and never animates a number falling. Loss states in this
+product are rendered in the calm ramp, not the alarm one.

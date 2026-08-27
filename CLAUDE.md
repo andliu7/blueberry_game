@@ -36,10 +36,12 @@ student against a problem, so the honest implementation is an Elo LIKE rating wh
 difficulty and a student's rating moves by expected against actual outcome. It feeds the leaderboards
 and placement. Computed server side, from the append only attempt history, never client supplied.
 
-**The currency.** Diamonds, earned by lessons and streak style returns, spent on unlocks or cosmetic
-reward. An economy is an entitlement system, so balances and spends live in Postgres behind RLS with
-the same column level GRANT discipline as roles: a client that can write its own balance has a free
-store. Rewarding returning stays the rule; the anxiety loop stays banned.
+**The currencies.** Five systems, one per question a student actually asks: XP for effort, mastery
+for ability, diamonds for spending, charge for pacing, streak for ritual. Full tables and the
+reasoning in `docs/ECONOMY.md`. An economy is an entitlement system, so every balance lives in
+Postgres behind RLS with the same column level GRANT discipline as roles: a client that can write
+its own balance has a free store. Nothing buys correctness, and no wrong answer costs anything;
+the retention loop ships with the mitigation set recorded in that file, amended 2026-08-27.
 
 **Leaderboards.** Daily, weekly, monthly, global. Two rules that are not optional. Computed server
 side from attempts, never client reported. And the privacy floor: assume minors, so leaderboards show
@@ -230,12 +232,21 @@ specific mechanic fits, and each one carries what to take and what to leave:
 - **Brilliant.** Problem first lessons, where the lesson IS doing the thing. Already the shape of
   our tutorial rule, real mechanisms not a UI tour, so this is confirmation more than borrowing
 
-**Duolingo is the bar for the reward moment only.** Take the large single number for a session
-result, the full bleed celebration distinct from the working state, and the tiered badge that means
-something because it was scarce. Do not take the streak loss anxiety loop. This is used before exams
-by people who are already stressed, and a mechanic built on fear of losing a number is the wrong
-tool for that audience. Reward returning. Do not punish leaving. The mascot is already built and is
-imported, never rebuilt. See `docs/INHERITED-DECISIONS.md` D4.
+**Duolingo is the bar for the reward moment, and since 2026-08-27 for the retention loop too.**
+Take the large single number for a session result, the full bleed celebration distinct from the
+working state, and the tiered badge that means something because it was scarce. The mascot is
+already built and is imported, never rebuilt. See `docs/INHERITED-DECISIONS.md` D4 and
+`docs/MASCOT.md`.
+
+**Amended 2026-08-27, superseding "do not take the streak loss anxiety loop."** A streak, a charge
+limiter and a decaying mastery score all ship. Owner direction: these mechanics work and the
+product should use what works. The original objection is not retracted, only answered, and it
+still reads true on its own terms: this is used before exams by people who are already stressed,
+and a mechanic built on fear of losing a number is the wrong tool for that audience. The answer is
+the mitigation set in `docs/ECONOMY.md`, namely weekly rest days, automatic freezes, an
+exam-window pause on both charge and streak, charge that never prices a mistake, a capped visible
+mastery dip, and permanent rank floors. Those are load bearing, not decoration. Do not strip one
+without recording why in that file's Supersession section.
 
 Interaction patterns are fair reference. Alchemie's assets, visual design, problem sets, and
 authored content are theirs. Author your own content and keep the visual language recognizably
