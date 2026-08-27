@@ -51,7 +51,9 @@ import { ALCOHOL_ETHER_EPOXIDE_PROBLEMS } from "./alcoholsEthersEpoxides.js";
 import { AROMATIC_PROBLEMS } from "./aromatics.js";
 import { DIENE_PROBLEMS } from "./dienes.js";
 import { GAS_LAW_PROBLEMS } from "./gasLaws.js";
+import { MATCHING_PROBLEMS } from "./matching.js";
 import { NMR_PROBLEMS } from "./nmr.js";
+import { ORDERING_PROBLEMS } from "./ordering.js";
 import { ORGANIC_PROBLEMS } from "./organic.js";
 import { PKA_PROBLEMS } from "./pkaAcidity.js";
 import { SPECTROSCOPY_PROBLEMS } from "./spectroscopy.js";
@@ -75,6 +77,10 @@ export const SEED_CORPUS: readonly Problem[] = Object.freeze([
   ...AROMATIC_PROBLEMS,
   // Mixed course, authored before the outline landed.
   ...ORGANIC_PROBLEMS,
+  // The lesson beats that are not arrow pushing, grouped by answer kind while
+  // both kinds are new. Both files say why in their headers.
+  ...ORDERING_PROBLEMS,
+  ...MATCHING_PROBLEMS,
 ]);
 
 export {
@@ -83,7 +89,9 @@ export {
   AROMATIC_PROBLEMS,
   DIENE_PROBLEMS,
   GAS_LAW_PROBLEMS,
+  MATCHING_PROBLEMS,
   NMR_PROBLEMS,
+  ORDERING_PROBLEMS,
   ORGANIC_PROBLEMS,
   PKA_PROBLEMS,
   SPECTROSCOPY_PROBLEMS,

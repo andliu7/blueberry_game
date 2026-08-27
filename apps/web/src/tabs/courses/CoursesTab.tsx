@@ -62,8 +62,19 @@ function isCourseId(value: string): value is CourseId {
  */
 const SERVED_KINDS = new Set(["major_product", "reagents", "structure"]);
 
+/**
+ * `?serveAll=1` lifts the gate for the capture scripts and nothing else. No
+ * served topic has three problems today, so the combo interstitial at three
+ * in a row is unreachable through the gate by real clicks; the gated gas law
+ * questions are the shortest real path to it. This widens WHICH authored
+ * problems are served, never how one is graded, the same family as
+ * App.tsx's ?measure flag. See measurements/capture-economy.mjs.
+ */
+const SERVE_ALL =
+  typeof window !== "undefined" && new URLSearchParams(window.location.search).get("serveAll") === "1";
+
 export function problemsForTopic(topic: TopicId): readonly Problem[] {
-  return SEED_CORPUS.filter((problem) => problem.topic === topic && SERVED_KINDS.has(problem.answer.kind));
+  return SEED_CORPUS.filter((problem) => problem.topic === topic && (SERVE_ALL || SERVED_KINDS.has(problem.answer.kind)));
 }
 
 function CourseList() {

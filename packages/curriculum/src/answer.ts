@@ -35,6 +35,18 @@ import {
   type MultipleChoiceState,
 } from "./answers/choice.js";
 import {
+  checkMatching,
+  matchingStateMatches,
+  type MatchingAnswerSpec,
+  type MatchingState,
+} from "./answers/matching.js";
+import {
+  checkOrdering,
+  orderingStateMatches,
+  type OrderingAnswerSpec,
+  type OrderingState,
+} from "./answers/ordering.js";
+import {
   checkNumeric,
   numericStateMatches,
   type NumericAnswerSpec,
@@ -59,14 +71,18 @@ export type AnswerSpec =
   | MultipleChoiceAnswerSpec
   | StructureAnswerSpec
   | ReagentsAnswerSpec
-  | MajorProductAnswerSpec;
+  | MajorProductAnswerSpec
+  | OrderingAnswerSpec
+  | MatchingAnswerSpec;
 
 export type AnswerState =
   | NumericState
   | MultipleChoiceState
   | StructureState
   | ReagentState
-  | MajorProductState;
+  | MajorProductState
+  | OrderingState
+  | MatchingState;
 
 export type AnswerVerdict =
   | { readonly outcome: "correct" }
@@ -104,6 +120,10 @@ export function checkAnswer(spec: AnswerSpec, state: AnswerState): AnswerVerdict
       return checkReagents(spec, state as ReagentState);
     case "major_product":
       return checkMajorProduct(spec, state as MajorProductState);
+    case "ordering":
+      return checkOrdering(spec, state as OrderingState);
+    case "matching":
+      return checkMatching(spec, state as MatchingState);
     default: {
       // Exhaustiveness: adding a kind without a checker is a compile error here.
       const unreachable: never = spec;
@@ -150,6 +170,10 @@ export function statesMatch(
     }
     case "major_product":
       return majorProductStateMatches(target, submitted as MajorProductState);
+    case "ordering":
+      return orderingStateMatches(target, submitted as OrderingState);
+    case "matching":
+      return matchingStateMatches(target, submitted as MatchingState);
     default: {
       const unreachable: never = target;
       void unreachable;

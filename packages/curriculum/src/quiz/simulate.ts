@@ -60,6 +60,10 @@ function correctStateFor(problem: Problem): AnswerState {
       return { kind: "reagents", steps: spec.steps };
     case "structure":
       return { kind: "structure", state: spec.state };
+    case "ordering":
+      return { kind: "ordering", order: spec.correctOrder };
+    case "matching":
+      return { kind: "matching", pairs: spec.pairs };
   }
 }
 

@@ -18,7 +18,7 @@
  *
  * WHAT IS IN HERE, in the order it is worth reading:
  *
- *   kinds.ts           The five answer kinds, and why `mechanism` is not one.
+ *   kinds.ts           The answer kinds, and why `mechanism` is not one.
  *   ids.ts             Identifier aliases, and why a ProblemId never changes.
  *   placement.ts       Course and topic taxonomy, the Organic Chemistry II tree
  *                      and its prerequisite edges, the three acts, the cross
@@ -35,6 +35,8 @@
  *   answers/units.ts   A small unit registry. Case sensitive on purpose.
  *   answers/numeric.ts Value, significant figures, and units. Read the header.
  *   answers/choice.ts  Multiple choice, and major product with its reason.
+ *   answers/ordering.ts A ranked list, and the near miss it can name.
+ *   answers/matching.ts A board of pairs, graded pair by pair.
  *   answers/reagents.ts Reagent sets, and the ordered synthesis read backwards.
  *   answers/structure.ts Constitution comparison, and everything it cannot do.
  *   answer.ts          The spec against state distinction. Read this one early.
@@ -203,6 +205,39 @@ export {
   reagentStateMatches,
 } from "./answers/reagents.js";
 
+export type {
+  OrderingAnswerInput,
+  OrderingAnswerSpec,
+  OrderingBreakdown,
+  OrderingItem,
+  OrderingState,
+  OrderingVerdict,
+} from "./answers/ordering.js";
+export {
+  acceptedOrderings,
+  checkOrdering,
+  createOrderingAnswer,
+  orderingBreakdown,
+  orderingStateMatches,
+} from "./answers/ordering.js";
+
+export type {
+  MatchingAnswerInput,
+  MatchingAnswerSpec,
+  MatchingBreakdown,
+  MatchingPair,
+  MatchingPrompt,
+  MatchingState,
+  MatchingTarget,
+  MatchingVerdict,
+} from "./answers/matching.js";
+export {
+  checkMatching,
+  createMatchingAnswer,
+  matchingBreakdown,
+  matchingStateMatches,
+} from "./answers/matching.js";
+
 export type { StructureAnswerSpec, StructureState, StructureVerdict } from "./answers/structure.js";
 export {
   ISOMORPHISM_NODE_BUDGET,
@@ -223,7 +258,13 @@ export type { Attempt, FeedbackTier, GradingResult, Tier3Entry, TierBreakdown } 
 export { gradeAttempt, isWrong, tier3Entries, tierBreakdown } from "./grading.js";
 
 export type { CorpusShape } from "./corpus/index.js";
-export { SEED_CORPUS, corpusShape, problemById } from "./corpus/index.js";
+export {
+  MATCHING_PROBLEMS,
+  ORDERING_PROBLEMS,
+  SEED_CORPUS,
+  corpusShape,
+  problemById,
+} from "./corpus/index.js";
 
 export type {
   ChemicalClass,

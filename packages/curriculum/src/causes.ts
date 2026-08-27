@@ -38,7 +38,7 @@
  * the argument for it.
  */
 
-import type { AnswerKind } from "./kinds.js";
+import { ANSWER_KINDS, type AnswerKind } from "./kinds.js";
 
 export type CurriculumCauseCategory =
   | "success"
@@ -87,7 +87,19 @@ export type CurriculumCauseId =
   | "structure_charge_differs"
   | "structure_species_count_differs"
   | "structure_does_not_match"
+  // ordering, a ranked list
+  | "ordering_is_incomplete"
+  | "ordering_one_adjacent_pair_swapped"
+  | "ordering_is_reversed"
+  | "ordering_does_not_match"
+  // matching, a board of pairs
+  | "matching_board_incomplete"
+  | "matching_one_pair_wrong"
+  | "matching_pairs_swapped"
+  | "matching_does_not_match"
   // undecided, the checker refuses to guess
+  | "ordering_submission_is_not_from_the_item_list"
+  | "matching_submission_is_not_on_the_board"
   | "structure_comparison_needs_stereochemistry"
   | "structure_comparison_budget_exhausted"
   | "submission_kind_does_not_match_problem";
@@ -104,13 +116,17 @@ export interface CurriculumCauseDefinition {
   readonly teaches: string;
 }
 
-const ALL_KINDS: readonly AnswerKind[] = Object.freeze([
-  "numeric",
-  "multiple_choice",
-  "structure",
-  "reagents",
-  "major_product",
-]);
+/**
+ * Every kind, taken from the registry rather than retyped.
+ *
+ * This list used to be a second copy of `ANSWER_KINDS`, and a second copy is a
+ * list that goes stale the first time a kind is added: a cause declared to
+ * apply to "all kinds" would quietly stop applying to the newest one. Reading
+ * the registry makes that impossible by construction, which is the same
+ * argument the header makes for counting causes rather than writing the number
+ * down.
+ */
+const ALL_KINDS: readonly AnswerKind[] = ANSWER_KINDS;
 
 export const CURRICULUM_CAUSES: Readonly<
   Record<CurriculumCauseId, CurriculumCauseDefinition>
@@ -326,6 +342,93 @@ export const CURRICULUM_CAUSES: Readonly<
     appliesTo: Object.freeze(["structure"] as const),
     summary: "structures differ and the checker found no named difference to report",
     teaches: "nothing on its own. This cause is the Tier 3 tail for structure answers",
+  }),
+
+  ordering_is_incomplete: Object.freeze({
+    id: "ordering_is_incomplete",
+    category: "procedure",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["ordering"] as const),
+    summary: "fewer items were placed on the track than the problem offers, with no duplicates",
+    teaches: "that a ranking is a claim about every item, including the one that is hardest to place",
+  }),
+  ordering_one_adjacent_pair_swapped: Object.freeze({
+    id: "ordering_one_adjacent_pair_swapped",
+    category: "chemistry",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["ordering"] as const),
+    summary: "the accepted order with exactly one adjacent pair exchanged, everything else in place",
+    teaches: "the single comparison that separates two neighbouring rungs, which is the whole gap here",
+  }),
+  ordering_is_reversed: Object.freeze({
+    id: "ordering_is_reversed",
+    category: "procedure",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["ordering"] as const),
+    summary: "the accepted order back to front, so the ladder is right and it is read the other way",
+    teaches: "which end of the track the prompt asked for. The chemistry underneath is already sound",
+  }),
+  ordering_does_not_match: Object.freeze({
+    id: "ordering_does_not_match",
+    category: "chemistry",
+    specificity: "generic",
+    appliesTo: Object.freeze(["ordering"] as const),
+    summary: "the order differs from every accepted one in more than one adjacent swap or a reversal",
+    teaches: "nothing on its own. This cause is the Tier 3 tail for ordering answers",
+  }),
+
+  matching_board_incomplete: Object.freeze({
+    id: "matching_board_incomplete",
+    category: "procedure",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["matching"] as const),
+    summary: "at least one prompt was left with no target, so part of the board has no answer on it",
+    teaches: "which row is the one with nothing obvious to attach to, which is usually the row worth reading again",
+  }),
+  matching_one_pair_wrong: Object.freeze({
+    id: "matching_one_pair_wrong",
+    category: "chemistry",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["matching"] as const),
+    summary: "every prompt is paired and exactly one sits on a target the authored board does not give it",
+    teaches: "the one correspondence that moved, with the rest of the board already standing as evidence",
+  }),
+  matching_pairs_swapped: Object.freeze({
+    id: "matching_pairs_swapped",
+    category: "chemistry",
+    specificity: "diagnostic",
+    appliesTo: Object.freeze(["matching"] as const),
+    summary: "two prompts hold each other's targets and nothing else differs",
+    teaches: "the property that tells those two apart, since they were confused with each other rather than with the board",
+  }),
+  matching_does_not_match: Object.freeze({
+    id: "matching_does_not_match",
+    category: "chemistry",
+    specificity: "generic",
+    appliesTo: Object.freeze(["matching"] as const),
+    summary: "more than two pairs differ from the authored board and they are not a single exchange",
+    teaches: "nothing on its own. This cause is the Tier 3 tail for matching answers",
+  }),
+
+  ordering_submission_is_not_from_the_item_list: Object.freeze({
+    id: "ordering_submission_is_not_from_the_item_list",
+    category: "undecided",
+    specificity: "undecided",
+    appliesTo: Object.freeze(["ordering"] as const),
+    summary:
+      "the submitted order names an item the problem does not carry, or names one twice, so it " +
+      "is not a ranking of this problem's items and there is nothing to compare",
+    teaches: "nothing. This is a defect in the calling shell rather than a student error",
+  }),
+  matching_submission_is_not_on_the_board: Object.freeze({
+    id: "matching_submission_is_not_on_the_board",
+    category: "undecided",
+    specificity: "undecided",
+    appliesTo: Object.freeze(["matching"] as const),
+    summary:
+      "the submitted board names a prompt or a target the problem does not carry, or gives one " +
+      "prompt two targets, so which pairing is being claimed is undecidable",
+    teaches: "nothing. This is a defect in the calling shell rather than a student error",
   }),
 
   structure_comparison_needs_stereochemistry: Object.freeze({

@@ -62,6 +62,11 @@ export const WORST_CASE_SECONDS_BY_KIND: Readonly<Record<AnswerKind, number>> = 
   major_product: 30,
   reagents: 40,
   structure: 45,
+  // Both are drag boards: reading every card once, then arranging. Modelled at
+  // the reagent cost rather than the structure cost, because the cards carry the
+  // vocabulary with them and nothing has to be recalled from a blank canvas.
+  ordering: 40,
+  matching: 40,
 });
 
 export interface QuizConfig {

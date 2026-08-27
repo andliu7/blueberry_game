@@ -49,6 +49,10 @@ function correctSubmission(spec: AnswerSpec): AnswerState {
         candidateId: spec.correctCandidateId,
         reasonId: spec.correctReasonId,
       };
+    case "ordering":
+      return { kind: "ordering", order: spec.correctOrder };
+    case "matching":
+      return { kind: "matching", pairs: spec.pairs };
   }
 }
 

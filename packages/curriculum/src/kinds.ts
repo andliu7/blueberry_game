@@ -26,6 +26,24 @@
  *
  *   numeric         A number, with significant figures and a unit.
  *   multiple_choice A choice from an authored list.
+ *
+ * The last two arrived with the lesson beats, and both exist because the
+ * chemistry they grade is a RELATIONSHIP rather than a value. Seventeen of the
+ * pathway's required nodes are not arrow pushing: the acyl reactivity ladder,
+ * the alpha proton pKa hierarchy, the oxidation ladder, protecting group
+ * orthogonality. Every one of those is either a rank or a correspondence.
+ *
+ *   ordering        A ranked list. Grades the whole order, and names the near
+ *                   miss: one adjacent pair swapped is a different mistake from
+ *                   a list built backwards.
+ *   matching        A set of prompt to target pairs. Grades pair by pair, so
+ *                   three reagents on the right job stay on the right job while
+ *                   the fourth is picked back up.
+ *
+ * Neither is a dressed up multiple choice, and the corpus shows why: the
+ * ranking problem `org2-pka-rank-four-acids` offers four written out orderings
+ * to pick between, which is three of the twenty three wrong answers four items
+ * have. `org2-order-acidity-ladder` grades all twenty three.
  */
 
 export type AnswerKind =
@@ -33,7 +51,9 @@ export type AnswerKind =
   | "multiple_choice"
   | "structure"
   | "reagents"
-  | "major_product";
+  | "major_product"
+  | "ordering"
+  | "matching";
 
 export const ANSWER_KINDS: readonly AnswerKind[] = Object.freeze([
   "numeric",
@@ -41,6 +61,8 @@ export const ANSWER_KINDS: readonly AnswerKind[] = Object.freeze([
   "structure",
   "reagents",
   "major_product",
+  "ordering",
+  "matching",
 ]);
 
 export function answerKindCount(): number {
