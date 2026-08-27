@@ -27,6 +27,7 @@
     { "path": "../../packages/chem-core" },
     { "path": "../../packages/interaction" },
     { "path": "../../packages/feedback" },
-    { "path": "../../packages/curriculum" }
+    { "path": "../../packages/curriculum" },
+    { "path": "../../packages/economy" }
   ]
 }

@@ -63,6 +63,24 @@ export function ProblemView({ problem, locked, onSubmit, onSkip }: ProblemViewPr
           </Press>
         </div>
       );
+    case "ordering":
+    case "matching":
+      // The ordering and matching answer kinds arrived with the beats work
+      // (apps/web/src/beats/), which carries its own runners for them. Until
+      // the lesson player is wired to those runners, this problem is skipped
+      // without counting, the same contract as the structure kind above.
+      return (
+        <div className="rounded-2xl border border-dashed border-border p-4 text-scale-sm text-muted-foreground">
+          <p>
+            This one is a {answer.kind === "ordering" ? "put-in-order" : "matching"} question. Its
+            board lives in the beats runner and is not wired into lessons yet, so it is skipped
+            without counting against you.
+          </p>
+          <Press variant="secondary" className="mt-3" onPointerDown={onSkip} disabled={locked}>
+            Skip this one
+          </Press>
+        </div>
+      );
     default: {
       const unreachable: never = answer;
       return <>{unreachable}</>;

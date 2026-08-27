@@ -127,5 +127,10 @@ function correctFor(problem: (typeof SEED_CORPUS)[number]) {
       return { kind: "reagents", steps: spec.steps } as const;
     case "structure":
       return { kind: "structure", state: spec.state } as const;
+    case "ordering":
+    case "matching":
+      // Neither kind is in the seed corpus this test walks. The throw keeps the
+      // switch exhaustive without inventing a correct answer shape here.
+      throw new Error(`correctFor has no case for the ${spec.kind} kind`);
   }
 }

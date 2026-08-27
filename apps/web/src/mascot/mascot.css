@@ -96,3 +96,366 @@
     transition: none;
   }
 }
+
+/* =========================================================================
+ * STATES. The third axis, per docs/MASCOT.md and src/mascot/berryState.ts.
+ *
+ * Everything below is keyed off attributes Berry.tsx writes once when the
+ * state changes: `data-state`, `data-halo`, `data-ghosts` and `data-blush`,
+ * plus the `--berry-*` custom properties. Nothing here runs on
+ * the per frame path: the rAF loop writes one transform on `.berry-origin`
+ * and never touches these rules, so a state costs no frames.
+ *
+ * Every animation below is opacity or transform only, which are the two
+ * properties the compositor can run without a layout or a paint. The two
+ * exceptions are static: the charred filter and the halo's border, both set
+ * once per state and never animated.
+ *
+ * CONTRAST. Anything here that carries meaning is measured against the page
+ * ground in BOTH themes, at the 3:1 floor WCAG 1.4.11 sets for a graphic:
+ *
+ *   charged halo    --good on the ground        4.99:1 light, 10.28:1 dark
+ *   charged, empty  --muted-foreground          6.90:1 light,  7.83:1 dark
+ *   aromatic ring   --primary-ink               5.18:1 light,  7.26:1 dark
+ *   radical dot     --warn-ink-strong           6.45:1 light, 13.70:1 dark
+ *   sparks          --warn-ink-strong           6.45:1 light, 13.70:1 dark
+ *   badge chip      --charge-chip               9.94:1 light, 15.71:1 dark
+ *   badge glyph     --charge-ink on the chip   10.90:1 light, 14.06:1 dark
+ *
+ * The badge pair is the same one the canvas already uses for a formal charge
+ * sign, and it is used here for the reason it exists: a literal white sign on
+ * a near white disc shipped once (STATUS.md, 2026-08-27) and the fix was a
+ * token pair that is light chip with dark sign in one theme and the reverse in
+ * the other. Smoke is the one mark below with no contrast row, because the
+ * darkening is what says "charred" and the puffs are embellishment on top of
+ * it; its peak opacity is still held at 0.85 so it measures 3.66:1 anyway.
+ * ====================================================================== */
+
+.berry-origin {
+  position: relative;
+  /*
+   * Never shrink. The berry's box is set in pixels by the caller and every
+   * halo, spark and puff below is positioned as a PERCENTAGE of it, so a flex
+   * parent that squeezed the box would turn every circle into an oval. Found
+   * by screenshotting the gallery, where three berries in a narrow cell were
+   * squashed to 59 percent width and the charged halo rendered as a stadium.
+   * Guaranteeing the box here means no caller can reintroduce it.
+   */
+  flex: none;
+}
+
+.berry-stack,
+.berry-face,
+.berry-ghost,
+.berry-half,
+.berry-sparks,
+.berry-smoke {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------- blush ---- */
+/* Only a state that ADDS blush takes it over from the mood rules above, so
+   every mood the shell already renders keeps the numbers it shipped with. */
+.berry-origin[data-blush="state"] .bb-blush {
+  opacity: var(--berry-blush, 0);
+}
+
+/* -------------------------------------------------------------- halo ---- */
+/*
+ * One element, three shapes. It sits BEHIND the stack in DOM order and is
+ * sized wider than the body (the body is 71.9 percent of the box, centred at
+ * 50 percent by 53.1 percent), so only the annulus outside the berry shows.
+ */
+.berry-halo {
+  position: absolute;
+  left: 4%;
+  top: 7.1%;
+  width: 92%;
+  height: 92%;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* charged: thickness IS the Charge meter, and empty is flat grey rather than
+   absent, because a meter that vanishes at zero stops being a meter. */
+.berry-origin[data-halo="static"] .berry-halo {
+  border: max(1.5px, calc(var(--berry-size, 96px) * (0.018 + 0.05 * var(--berry-halo, 1)))) solid
+    color-mix(in srgb, var(--good) calc(var(--berry-halo, 1) * 100%), var(--muted-foreground));
+}
+
+/* aromatic: the ring, which is also the notation. Sway is pinned to zero in
+   the transform, so this is the one state that is genuinely still. */
+.berry-origin[data-halo="ring"] .berry-halo {
+  border: max(1.5px, calc(var(--berry-size, 96px) * 0.035)) solid var(--primary-ink);
+  box-shadow: 0 0 calc(var(--berry-size, 96px) * 0.06)
+    color-mix(in srgb, var(--primary-ink) 45%, transparent);
+}
+
+/* radical: not a ring at all. One unpaired electron, sitting above the seam
+   between the two halves. */
+.berry-origin[data-halo="unpaired"] .berry-halo {
+  left: 44.5%;
+  top: 9%;
+  width: 11%;
+  height: 11%;
+  background: var(--warn-ink-strong);
+  box-shadow: 0 0 calc(var(--berry-size, 96px) * 0.09) var(--warn-ink-strong);
+  animation: berry-unpaired 1600ms ease-in-out infinite;
+}
+@keyframes berry-unpaired {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12%) scale(1.18);
+  }
+}
+
+/* ------------------------------------------------------------ charred ---- */
+/* A filter, set once, never animated. Not fully black: berryState.ts holds
+   darken at 0.75 so the face still reads and has something to recover to. */
+.berry-origin[data-state="charred"] .berry-stack {
+  filter: brightness(calc(1 - var(--berry-darken, 0) * 0.72))
+    saturate(calc(1 - var(--berry-darken, 0) * 0.85));
+}
+
+/* ---------------------------------------------------------- resonance ---- */
+/*
+ * Two copies trading opacity, and NEVER one: neither keyframe reaches 1, so at
+ * no frame is the berry a single solid drawing. That is the entire lesson, so
+ * it is a property of the numbers rather than a note in a comment.
+ */
+.berry-ghost {
+  transform: translateX(6%);
+}
+.berry-origin[data-ghosts="2"] .berry-face {
+  animation: berry-resonate-a 1900ms ease-in-out infinite;
+}
+.berry-origin[data-ghosts="2"] .berry-ghost {
+  animation: berry-resonate-b 1900ms ease-in-out infinite;
+}
+@keyframes berry-resonate-a {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+@keyframes berry-resonate-b {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* -------------------------------------------------------------- split ---- */
+/* clip-path on two full copies, rather than two half drawings: the art stays
+   one file and the seam is exactly the middle by construction. */
+.berry-half--l {
+  clip-path: inset(0 50% 0 0);
+  animation: berry-split-l 2400ms ease-in-out infinite;
+}
+.berry-half--r {
+  clip-path: inset(0 0 0 50%);
+  animation: berry-split-r 2400ms ease-in-out infinite;
+}
+@keyframes berry-split-l {
+  0%,
+  100% {
+    transform: translateX(-3%) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateX(-7%) rotate(-3.5deg);
+  }
+}
+@keyframes berry-split-r {
+  0%,
+  100% {
+    transform: translateX(3%) rotate(1.5deg);
+  }
+  50% {
+    transform: translateX(7%) rotate(3.5deg);
+  }
+}
+
+/* ------------------------------------------------------------- sparks ---- */
+/*
+ * Four dots on staggered delays, not a particle engine. berryState.ts asks for
+ * sparkRate 3 per second; four dots on a 1333ms cycle emit exactly three a
+ * second, so the number in the data is the number on the screen.
+ */
+.berry-spark {
+  position: absolute;
+  width: 7%;
+  height: 7%;
+  border-radius: 999px;
+  background: var(--warn-ink-strong);
+  opacity: 0;
+  animation: berry-spark 1333ms linear infinite;
+}
+.berry-spark[data-i="0"] {
+  left: 16%;
+  top: 24%;
+  animation-delay: 0ms;
+}
+.berry-spark[data-i="1"] {
+  left: 76%;
+  top: 30%;
+  animation-delay: -333ms;
+}
+.berry-spark[data-i="2"] {
+  left: 30%;
+  top: 14%;
+  animation-delay: -666ms;
+}
+.berry-spark[data-i="3"] {
+  left: 62%;
+  top: 18%;
+  animation-delay: -999ms;
+}
+@keyframes berry-spark {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-30%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120%) scale(0.4);
+  }
+}
+
+/* -------------------------------------------------------------- smoke ---- */
+/* smokeRate 1.5 per second across four puffs is a 2666ms cycle each. */
+.berry-puff {
+  position: absolute;
+  width: 11%;
+  height: 11%;
+  border-radius: 999px;
+  background: var(--muted-foreground);
+  opacity: 0;
+  animation: berry-puff 2666ms ease-out infinite;
+}
+.berry-puff[data-i="0"] {
+  left: 28%;
+  top: 22%;
+  animation-delay: 0ms;
+}
+.berry-puff[data-i="1"] {
+  left: 52%;
+  top: 24%;
+  animation-delay: -666ms;
+}
+.berry-puff[data-i="2"] {
+  left: 40%;
+  top: 18%;
+  animation-delay: -1333ms;
+}
+.berry-puff[data-i="3"] {
+  left: 62%;
+  top: 21%;
+  animation-delay: -2000ms;
+}
+@keyframes berry-puff {
+  0% {
+    opacity: 0;
+    transform: translateY(10%) scale(0.4);
+  }
+  30% {
+    opacity: 0.85;
+    transform: translateY(-20%) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80%) scale(1.5);
+  }
+}
+
+/* -------------------------------------------------------------- badge ---- */
+/*
+ * H+, plus, or the unpaired dot. aria-hidden, because a role="img" element
+ * hides its own contents from the accessibility tree: the state reaches a
+ * screen reader through Berry.tsx's aria-label instead.
+ *
+ * The chip and ink pair is the canvas's formal charge chip, unchanged, for the
+ * reason recorded at the top of this block.
+ */
+.berry-badge {
+  position: absolute;
+  right: -2%;
+  top: 8%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: max(14px, calc(var(--berry-size, 96px) * 0.26));
+  height: max(14px, calc(var(--berry-size, 96px) * 0.26));
+  padding: 0 calc(var(--berry-size, 96px) * 0.05);
+  border-radius: 999px;
+  background: var(--charge-chip);
+  color: var(--charge-ink);
+  box-shadow: 0 0 0 max(1px, calc(var(--berry-size, 96px) * 0.015)) var(--charge-ring);
+  font-family: var(--font-sans);
+  font-size: max(9px, calc(var(--berry-size, 96px) * 0.15));
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------- reduced motion ---- */
+/*
+ * Every state renders its representative static frame rather than vanishing.
+ * A student who asked the OS for less motion still has to be able to see that
+ * the berry is split, doubled, sparking or smoking, so each animation is
+ * pinned to the frame that carries the meaning instead of being switched off.
+ */
+@media (prefers-reduced-motion: reduce) {
+  /* The selectors below MATCH the specificity of the rules they are turning
+     off. `.berry-face { animation: none }` alone loses to
+     `.berry-origin[data-ghosts="2"] .berry-face`, which is three classes to
+     one, and the state would keep animating for the one person who asked it
+     not to. */
+  .berry-origin[data-ghosts="2"] .berry-face,
+  .berry-origin[data-ghosts="2"] .berry-ghost,
+  .berry-origin[data-halo="unpaired"] .berry-halo,
+  .berry-half--l,
+  .berry-half--r,
+  .berry-spark,
+  .berry-puff {
+    animation: none;
+  }
+  /* Resonance: both copies visible, neither solid. */
+  .berry-origin[data-ghosts="2"] .berry-face {
+    opacity: 0.78;
+  }
+  .berry-origin[data-ghosts="2"] .berry-ghost {
+    opacity: 0.5;
+  }
+  /* Radical: the halves stay apart. */
+  .berry-half--l {
+    transform: translateX(-5%) rotate(-2.5deg);
+  }
+  .berry-half--r {
+    transform: translateX(5%) rotate(2.5deg);
+  }
+  /* Carbocation and charred: one frame of each, mid flight and visible. */
+  .berry-spark {
+    opacity: 1;
+    transform: translateY(-30%) scale(1);
+  }
+  .berry-puff {
+    opacity: 0.85;
+    transform: translateY(-20%) scale(0.9);
+  }
+}

@@ -45,3 +45,5 @@ which is how the thing is assembled.
 Both ludolang repos are one author's non commercial portfolio project, stated in their README. The
 duolingo-clone repo is a tutorial build. Neither is a shipped product, so their choices are worth
 understanding and are not evidence about what works at scale. Our four bars are.
+
+| docs/reference/competitors/duolingo-live/ | Lossless PNG captures of the live guest flow, dated folders with a MANIFEST.md each. The bar for the reward moment, HUD, streak, limiter, and onboarding critics. Regenerate with apps/web/measurements/capture-duolingo.mjs |

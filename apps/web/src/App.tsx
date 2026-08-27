@@ -22,6 +22,17 @@ import { TabSkeleton } from "./app/ui/Skeleton";
 
 const Onboarding = lazy(() => import("./onboarding/Onboarding"));
 
+/**
+ * The mascot gallery, a development surface at #/gallery/berry.
+ *
+ * Lazy for the same reason everything else here is, and for one more: it
+ * imports every state, every costume and a control panel, none of which a
+ * student ever sees. React.lazy puts the whole subtree in its own chunk, so
+ * the game route's initial payload does not reach it and the budget gate in
+ * packages/validators keeps measuring the app rather than the workbench.
+ */
+const BerryGallery = lazy(() => import("./mascot/BerryGallery"));
+
 const params = new URLSearchParams(window.location.search);
 /** The measurement scripts need the canvas with no onboarding in front of it. */
 const MEASURING = params.get("auto") === "1" || params.get("stats") === "1" || params.get("targets") === "1";
@@ -31,10 +42,21 @@ export default function App() {
   const snapshot = useProgress();
   const reducedMotion = useReducedMotion();
 
-  const needsOnboarding = !snapshot.onboardingDone && !MEASURING;
+  // The gallery is exempt from the onboarding redirect: it is a development
+  // surface whose audience is a critic with a fresh profile, and a workbench
+  // that first demands a placement quiz is a workbench nobody reaches.
+  const needsOnboarding = !snapshot.onboardingDone && !MEASURING && route.kind !== "gallery";
   useEffect(() => {
     if (needsOnboarding && route.kind !== "onboarding") navigate(hrefForOnboarding("welcome"));
   }, [needsOnboarding, route.kind]);
+
+  if (route.kind === "gallery") {
+    return (
+      <Suspense fallback={<TabSkeleton label="the mascot gallery" />}>
+        <BerryGallery reducedMotion={reducedMotion} />
+      </Suspense>
+    );
+  }
 
   if (route.kind === "onboarding") {
     return (

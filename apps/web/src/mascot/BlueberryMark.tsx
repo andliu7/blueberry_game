@@ -7,21 +7,203 @@
  * hearts variant is dropped because nothing in this shell presses the mark.
  * The art, the gradient ids, and the mood CSS contract (`.bb-eyes[data-mood]`
  * in mascot.css) are unchanged so a student sees the same character.
+ *
+ * COSTUMES, added 2026-08-27 for docs/MASCOT.md's fourth axis. Everything the
+ * costume draws is additive: no existing path moved, and with no `costume` prop
+ * the emitted SVG is byte for byte what it was. Two layers, because half of
+ * them are worn and half are carried: `CostumeBehind` renders before the body
+ * circle (a pack, a cape) and `CostumeFront` after the face (goggles, a bow, a
+ * loupe, stripes, a cap). Nothing is drawn inside x 17..47 by y 28..47, which
+ * is the face, because a costume that covers the eyes has deleted the mood.
+ *
+ * WHY THE ART IS LITERAL HEX AND NOT THEME TOKENS. The berry itself is a fixed
+ * blue gradient in both themes, because it is an illustration of a character
+ * rather than a piece of chrome; a lab coat that went dark in dark mode would
+ * be a different character at night. Contrast tokens govern text and interface
+ * marks, and the badge in Berry.tsx is exactly that, so the badge uses them and
+ * the clothes do not. Each colour below is picked to clear roughly 3:1 against
+ * the berry's own blue so the silhouette survives at 40px.
+ *
+ * SIZE BUDGET. Each costume is under fifteen drawn elements and every stroke is
+ * at least 1.5 viewBox units, which is about one device pixel at the 40px size
+ * the tab rail and the notification thumbnail use.
  */
 
+import type { BerryCostume } from "./berryCostume";
 import type { BerryMood } from "./berryMood";
 
 const LOBE =
   "M0 -11 C2.8 -6.7 3.7 -2.8 2.6 0 C1.6 2.2 -1.6 2.2 -2.6 0 C-3.7 -2.8 -2.8 -6.7 0 -11 Z";
 
+/* The wardrobe palette. Warm and light against the berry's cool blue. */
+const CLOTH = "#f4f2ec";
+const CLOTH_SHADE = "#d8d3c8";
+const INK = "#241f7a";
+const TWEED = "#a97d3e";
+const TAN = "#cba36a";
+const PACK = "#b45309";
+const WHISTLE = "#f0a02a";
+const CAP = "#7c3aed";
+
+/**
+ * One clip path shared by every costume that has to stop at the berry's edge.
+ *
+ * The id is document global, as `bb-berry` and `bb-calyx` already are in the
+ * imported original: several marks on one page emit the same id and the browser
+ * resolves every reference to the first, which is correct here only because all
+ * copies are identical. That is a property of this file, not a general licence.
+ */
+function CostumeDefs() {
+  return (
+    <clipPath id="bb-body-clip">
+      <circle cx="32" cy="34" r="23" />
+    </clipPath>
+  );
+}
+
+/** Worn behind the berry. Rendered before the body so the body occludes it. */
+function CostumeBehind({ costume }: { readonly costume: BerryCostume }) {
+  switch (costume) {
+    case "backpack":
+      return (
+        <g className="bb-costume">
+          <rect x="41" y="23" width="19" height="26" rx="6" fill={PACK} />
+          <rect x="41" y="31" width="19" height="7" rx="2.5" fill="#7c3d06" />
+        </g>
+      );
+    case "cape":
+      return (
+        <g className="bb-costume">
+          <path
+            d="M13 25 Q3 44 10 61 Q32 53 54 61 Q61 44 51 25 Q32 34 13 25 Z"
+            fill={CAP}
+          />
+          <path d="M13 25 Q32 34 51 25 Q32 30 13 25 Z" fill="#5b21b6" />
+        </g>
+      );
+    default:
+      return null;
+  }
+}
+
+/** Worn in front. Rendered after the face, so it never hides the eyes. */
+function CostumeFront({ costume }: { readonly costume: BerryCostume }) {
+  switch (costume) {
+    case "labcoat":
+      return (
+        <g className="bb-costume">
+          {/* The coat, a hem with a V opening, cut to the berry's outline. */}
+          <g clipPath="url(#bb-body-clip)">
+            <path d="M6 50 H26 L32 56 L38 50 H58 V62 H6 Z" fill={CLOTH} />
+          </g>
+          <path
+            d="M26 50 L32 56 L38 50"
+            fill="none"
+            stroke={CLOTH_SHADE}
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          {/* Goggles, pushed up onto the forehead. Idle, not working. */}
+          <path
+            d="M12 27 Q13 22 18.5 21.5 M52 27 Q51 22 45.5 21.5"
+            fill="none"
+            stroke={INK}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <ellipse cx="24" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
+          <ellipse cx="40" cy="23.5" rx="5.4" ry="3.9" fill="#bdefff" opacity="0.85" stroke={INK} strokeWidth="1.8" />
+          <path d="M29.4 23.5 H34.6" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+        </g>
+      );
+    case "tweed":
+      return (
+        <g className="bb-costume">
+          <path d="M32 51 L23.5 46.5 L23.5 55.5 Z" fill={TWEED} />
+          <path d="M32 51 L40.5 46.5 L40.5 55.5 Z" fill={TWEED} />
+          <circle cx="32" cy="51" r="2.4" fill="#7a5626" />
+          {/* The pointer, held out to the side and away from the face. */}
+          <path d="M47 48 L61 27" stroke="#5b4327" strokeWidth="2.2" strokeLinecap="round" />
+          <circle cx="61" cy="26.5" r="1.9" fill={CLOTH} />
+        </g>
+      );
+    case "trench":
+      return (
+        <g className="bb-costume">
+          <g clipPath="url(#bb-body-clip)">
+            <rect x="6" y="49" width="52" height="4.6" fill={TAN} />
+          </g>
+          <rect x="29" y="48.4" width="6" height="5.8" rx="1.2" fill="#8a6a3f" />
+          <path d="M14 45 L24.5 43 L20.5 54 Z" fill={TAN} />
+          <path d="M50 45 L39.5 43 L43.5 54 Z" fill={TAN} />
+          {/* The loupe, held clear of the berry so the ring reads as a ring. */}
+          <circle cx="50" cy="24" r="6.2" fill="#e8f6ff" opacity="0.9" stroke={INK} strokeWidth="2.2" />
+          <path d="M54.6 28.6 L59.5 34" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+        </g>
+      );
+    case "backpack":
+      return (
+        <g className="bb-costume">
+          <g clipPath="url(#bb-body-clip)">
+            <path
+              d="M21 12 Q27 32 24 58"
+              fill="none"
+              stroke={PACK}
+              strokeWidth="4.4"
+              strokeLinecap="round"
+            />
+          </g>
+          <rect x="21" y="37" width="6.4" height="4.4" rx="1.2" fill="#7c3d06" />
+        </g>
+      );
+    case "referee":
+      return (
+        <g className="bb-costume">
+          <g clipPath="url(#bb-body-clip)">
+            <rect x="6" y="46" width="52" height="16" fill={CLOTH} />
+            <rect x="17" y="46" width="5" height="16" fill="#2a2724" />
+            <rect x="29.5" y="46" width="5" height="16" fill="#2a2724" />
+            <rect x="42" y="46" width="5" height="16" fill="#2a2724" />
+          </g>
+          {/* The whistle hangs off to the side. Neutral: it does not cheer. */}
+          <path d="M40 44 Q47 44 49.5 47.5" fill="none" stroke={CLOTH_SHADE} strokeWidth="1.6" />
+          <circle cx="51" cy="50" r="3.8" fill={WHISTLE} />
+          <rect x="53.6" y="48.4" width="4.6" height="3.2" rx="1.4" fill={WHISTLE} />
+        </g>
+      );
+    case "nightcap":
+      return (
+        <g className="bb-costume">
+          <path d="M16 21 Q20 5 33 5 Q47 5 48 15 Q42 21 32 21.5 Q22 22 16 21 Z" fill={CAP} />
+          <path d="M47.5 12 Q58 15 55.5 24" fill="none" stroke={CAP} strokeWidth="4" strokeLinecap="round" />
+          <circle cx="55" cy="26" r="3.6" fill={CLOTH} />
+          <path d="M15 18 Q32 26 49 13 L50.5 18 Q32 32 14.5 23 Z" fill={CLOTH} />
+        </g>
+      );
+    case "cape":
+      // Nothing in front. Two tries at a collar both failed a zoomed read: a
+      // band across the brow became a headband, and shoulder ties beside the
+      // eyes became ears. The cape behind the body already reads as a cape,
+      // and the cheapest fix for a mark that reads wrong is to not draw it.
+      return null;
+    default: {
+      const unreachable: never = costume;
+      return <>{unreachable}</>;
+    }
+  }
+}
+
 export function BlueberryMark({
   className = "",
   eyes = false,
   mood,
+  costume,
 }: {
   readonly className?: string;
   readonly eyes?: boolean;
   readonly mood?: BerryMood;
+  /** Cosmetic only. See berryCostume.ts: it never touches mood, behaviour or state. */
+  readonly costume?: BerryCostume | undefined;
 }) {
   return (
     <svg viewBox="0 0 64 64" role="img" aria-label="Blueberry" className={`block ${className}`}>
@@ -36,7 +218,10 @@ export function BlueberryMark({
           <stop offset="0%" stopColor="#4a6cff" />
           <stop offset="100%" stopColor="#2a2496" />
         </linearGradient>
+        {costume !== undefined ? <CostumeDefs /> : null}
       </defs>
+
+      {costume !== undefined ? <CostumeBehind costume={costume} /> : null}
 
       <circle cx="32" cy="34" r="23" fill="url(#bb-berry)" />
       <ellipse cx="19" cy="26" rx="6" ry="4.1" fill="#ffffff" opacity="0.26" transform="rotate(-30 19 26)" />
@@ -76,6 +261,8 @@ export function BlueberryMark({
           />
         </g>
       ) : null}
+
+      {costume !== undefined ? <CostumeFront costume={costume} /> : null}
     </svg>
   );
 }

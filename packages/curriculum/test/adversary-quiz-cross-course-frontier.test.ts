@@ -61,6 +61,9 @@ function wrongStateFor(problem: Problem): AnswerState {
     }
     case "structure":
       throw new Error(`problem ${problem.id} has structure kind and no distractor to reuse`);
+    case "ordering":
+    case "matching":
+      throw new Error(`problem ${problem.id} has ${spec.kind} kind and no distractor to reuse`);
   }
 }
 

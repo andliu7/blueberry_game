@@ -52,6 +52,8 @@ const KIND_LABEL: Record<Problem["answer"]["kind"], string> = {
   major_product: "Major product",
   numeric: "Calculate",
   reagents: "Supply the reagents",
+  ordering: "Put in order",
+  matching: "Match the pairs",
   structure: "Draw",
 };
 

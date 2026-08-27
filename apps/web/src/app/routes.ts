@@ -43,7 +43,14 @@ export const TABS: readonly TabDefinition[] = Object.freeze([
 
 export type Route =
   | { readonly kind: "tab"; readonly tab: TabId; readonly rest: readonly string[] }
-  | { readonly kind: "onboarding"; readonly step: string };
+  | { readonly kind: "onboarding"; readonly step: string }
+  /**
+   * Development surfaces. Deliberately NOT in TABS, so nothing renders a link
+   * to them and the tab bar's grid keeps its eight columns. Reached by typing
+   * the hash, which is the right amount of friction for a page whose audience
+   * is a critic and an author rather than a student.
+   */
+  | { readonly kind: "gallery"; readonly name: string };
 
 const TAB_IDS = new Set<string>(TABS.map((tab) => tab.id));
 
@@ -58,6 +65,7 @@ export function parseHash(hash: string): Route {
 
   const head = parts[0];
   if (head === "start") return { kind: "onboarding", step: parts[1] ?? "welcome" };
+  if (head === "gallery") return { kind: "gallery", name: parts[1] ?? "berry" };
   if (head !== undefined && TAB_IDS.has(head)) {
     return { kind: "tab", tab: head as TabId, rest: parts.slice(1) };
   }
@@ -70,6 +78,11 @@ export function hrefForTab(tab: TabId, ...rest: readonly string[]): string {
 
 export function hrefForOnboarding(step: string): string {
   return `#/start/${encodeURIComponent(step)}`;
+}
+
+/** Development only. Nothing in the shell renders this; it is typed by hand. */
+export function hrefForGallery(name: string): string {
+  return `#/gallery/${encodeURIComponent(name)}`;
 }
 
 export function tabDefinition(id: TabId): TabDefinition {
