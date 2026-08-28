@@ -20,7 +20,11 @@ export function Card({
 export function Pill({ children, tone = "muted" }: { readonly children: ReactNode; readonly tone?: "muted" | "primary" | "good" }) {
   const toneClass =
     tone === "primary"
-      ? "bg-primary/10 text-primary"
+      // primary-ink, not primary: --primary is a surface colour with white on
+      // it, and as ink on a card it measured 3.63:1 in dark against a 4.5
+      // floor. The split into --primary and --primary-ink exists for exactly
+      // this, and DESIGN-TOKENS.md records why.
+      ? "bg-primary/10 text-primary-ink"
       : tone === "good"
         ? "bg-[color:var(--good-soft)] text-[color:var(--good)]"
         : "bg-muted text-muted-foreground";

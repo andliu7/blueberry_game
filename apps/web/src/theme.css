@@ -25,6 +25,7 @@
  */
 @import "tailwindcss";
 @import "./mascot/mascot.css";
+@import "./app/ui/hud.css";
 
 /* Class based dark mode, same mechanism as the sibling repo. Tailwind v4 repoints
    the dark: variant at the .dark class instead of prefers-color-scheme. */
@@ -140,6 +141,40 @@
   --warn-ink: #92400e;
   --reward-shine: rgba(255, 255, 255, 0.28);
   --reward-ground: color-mix(in srgb, var(--primary) 7%, var(--background));
+  /* The header HUD. One hue per economy system, so two numbers never answer the
+     same question in the same colour: XP is --primary, diamonds are --diamond,
+     charge is --good (Bloom's charged halo already uses it), and only the
+     streak needed a hue of its own.
+     THE GROUND HERE IS THE HEADER, NOT THE PAGE, and that distinction moved
+     this value twice. The header is background/85 with a blur, so whatever is
+     scrolled under it composes through: the audit measures that ground at
+     rgb(240,239,234), darker than the bare #f6f4ef. orange-500 #f97316 measures
+     2.62:1 there and orange-600 #ea580c only 3.09:1, barely over the 3:1 floor
+     WCAG 1.4.11 sets for a graphic. #d94a06 measures 3.70:1 on that ground,
+     3.87:1 on the page and 4.26:1 on a card, so it clears everywhere the flame
+     is actually drawn. The core sits ON the flame, never on a ground, so it
+     carries no floor of its own.
+     --streak-ink is orange-800, 6.35:1 on the same ground, because a NUMBER is
+     text and text is held to 4.5:1: the fill/ink split --good and --primary
+     already carry, for the same reason. */
+  --streak: #d94a06;
+  --streak-core: #fbbf24;
+  --streak-ink: #9a3412;
+  /* The unlit flame and the empty half of every HUD gauge. --hud-out is the
+     body colour of a guttering flame and has to READ as a shape, so it is the
+     text-grade muted foreground rather than a wash. --hud-track is the empty
+     half of a gauge and is context, not information, so it sits at the border
+     value: the FILL is what carries the meaning and it has its own row. */
+  --hud-out: #475569;
+  /* A gauge's empty half. color-mix over whatever it is drawn on, because the
+     ring sits on the cream page in the header and on a white card in the coach
+     mark, and a flat value that reads on one is invisible on the other.
+     65 percent, not 26: at 26 the track measured 1.07:1 light and 1.81:1 dark,
+     which is not "context, not information", it is invisible. A track you
+     cannot see means the ring reads as a closed circle at every value, so the
+     goal always looks met. The FILL still carries the meaning; the track has to
+     carry the EXTENT. */
+  --hud-track: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
 }
 
 .dark {
@@ -203,6 +238,15 @@
   --warn-ink: #fcd34d;
   --reward-shine: rgba(255, 255, 255, 0.22);
   --reward-ground: color-mix(in srgb, var(--primary) 12%, var(--background));
+  /* orange-400 #fb923c is 8.42:1 on the near black page; orange-300 #fdba74 is
+     10.94:1 as the number. Both are comfortably clear, which is the usual shape
+     of this pair: the dark half of a warm hue is the easy half. */
+  --streak: #fb923c;
+  --streak-core: #fcd34d;
+  --streak-ink: #fdba74;
+  --hud-out: #a8a29e;
+  /* See the light half: 65 percent so the gauge's extent is visible. */
+  --hud-track: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
 }
 
 /* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,
@@ -236,6 +280,11 @@
   --color-diamond: var(--diamond);
   --color-diamond-ink: var(--diamond-ink);
   --color-warn-ink: var(--warn-ink);
+  --color-streak: var(--streak);
+  --color-streak-core: var(--streak-core);
+  --color-streak-ink: var(--streak-ink);
+  --color-hud-out: var(--hud-out);
+  --color-hud-track: var(--hud-track);
 
   /* Type scale, defined once per the note in docs/DESIGN-TOKENS.md that the
      sibling repo never defined one. Seven steps, 1.25 ratio-ish, snapped to

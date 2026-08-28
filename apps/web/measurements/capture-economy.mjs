@@ -84,11 +84,13 @@ import {
   HUD_HASH,
   LESSON_HASH,
   P2_SEEDS,
+  P3_LIT_SEED,
   P3_SEED,
   P3_STORED,
   driveCombo,
   driveFeedback,
   driveHudCharge,
+  driveHudLit,
   driveHudRest,
   driveReward,
   openSeeded,
@@ -263,6 +265,19 @@ async function captureP3(browser, viewportName, theme, dir) {
     const page = await open(browser, viewport, theme, HUD_HASH, P3_SEED, P3_STORED);
     const { moment, reached, trigger, state } = await driveHudCharge(page, {
       onTrigger: (at) => burst(page, dir, `${tag}-hud-charge`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  // The lit half of the pair. Not one of the two moments the piece was asked
+  // for, and named so a judge can leave it out of the comparison: it is here
+  // because "the flame lights when today counted" is a claim, and a claim with
+  // no frame behind it is the sort of thing a still capture quietly hides.
+  {
+    const page = await open(browser, viewport, theme, HUD_HASH, P3_LIT_SEED, P3_STORED);
+    const { moment, reached, trigger, state } = await driveHudLit(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-hud-lit`, at),
     });
     results.push({ moment, reached, frames: trigger, state });
     await page.close();

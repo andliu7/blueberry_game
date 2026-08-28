@@ -232,6 +232,19 @@ const DIFFICULTY_BY_NODE: ReadonlyMap<string, Difficulty> = new Map(
 /** Built once per course, because the course graph is static content. */
 const universeCache = new Map<CourseId, readonly UniverseNode[]>();
 
+/**
+ * The derive options for a course, cached.
+ *
+ * Exported because the header HUD re-derives against the wall clock (this
+ * file's own header says a live meter should), and a re-derivation that does
+ * not pass the course reports a different DIAMOND balance, not merely a
+ * different mastery: rank awards pay diamonds and mastery is scored out of a
+ * course. Two surfaces reading the same journal must read the same denominator.
+ */
+export function economyOptions(course: CourseId | null): DeriveOptions | undefined {
+  return deriveOptions(course);
+}
+
 function deriveOptions(course: CourseId | null): DeriveOptions | undefined {
   if (course === null) return undefined;
   const cached = universeCache.get(course);

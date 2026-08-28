@@ -1,0 +1,731 @@
+{
+  "piece": "P3",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "hud-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 409
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        },
+        {
+          "moment": "hud-charge",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 78
+            },
+            {
+              "wanted": 400,
+              "at": 467
+            },
+            {
+              "wanted": 900,
+              "at": 918
+            },
+            {
+              "wanted": 2500,
+              "at": 2508
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": "charge",
+            "sheetHeadline": "17 of 30 charge",
+            "sheetLines": [
+              "Charge",
+              "Charge refills a point every 30 minutes. Starting a node costs some. Getting things wrong never does."
+            ]
+          }
+        },
+        {
+          "moment": "hud-lit",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 474
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal met, 44 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "157 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 6 days, today counted",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 20 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "hud-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 409
+            },
+            {
+              "wanted": 900,
+              "at": 1077
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        },
+        {
+          "moment": "hud-charge",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 51
+            },
+            {
+              "wanted": 400,
+              "at": 424
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": "charge",
+            "sheetHeadline": "17 of 30 charge",
+            "sheetLines": [
+              "Charge",
+              "Charge refills a point every 30 minutes. Starting a node costs some. Getting things wrong never does."
+            ]
+          }
+        },
+        {
+          "moment": "hud-lit",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 476
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal met, 44 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "157 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 6 days, today counted",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 20 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 1040,
+            "headerClientWidth": 1040,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "hud-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 530
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2577
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        },
+        {
+          "moment": "hud-charge",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 61
+            },
+            {
+              "wanted": 400,
+              "at": 611
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": "charge",
+            "sheetHeadline": "17 of 30 charge",
+            "sheetLines": [
+              "Charge",
+              "Charge refills a point every 30 minutes. Starting a node costs some. Getting things wrong never does."
+            ]
+          }
+        },
+        {
+          "moment": "hud-lit",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 415
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2527
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal met, 44 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "157 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 6 days, today counted",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 20 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "hud-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 414
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        },
+        {
+          "moment": "hud-charge",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 53
+            },
+            {
+              "wanted": 400,
+              "at": 420
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2547
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal, 14 of 20 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "137 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 5 days, today not counted yet",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 17 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": "charge",
+            "sheetHeadline": "17 of 30 charge",
+            "sheetLines": [
+              "Charge",
+              "Charge refills a point every 30 minutes. Starting a node costs some. Getting things wrong never does."
+            ]
+          }
+        },
+        {
+          "moment": "hud-lit",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 454
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "items": [
+              {
+                "id": "xp",
+                "label": "Daily goal met, 44 XP today",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "diamonds",
+                "label": "157 diamonds",
+                "width": 52.2,
+                "height": 44
+              },
+              {
+                "id": "streak",
+                "label": "Streak, 6 days, today counted",
+                "width": 44,
+                "height": 44
+              },
+              {
+                "id": "charge",
+                "label": "Charge, 20 of 30",
+                "width": 50.1,
+                "height": 44
+              }
+            ],
+            "headerScrollWidth": 390,
+            "headerClientWidth": 390,
+            "headerHeight": 61,
+            "sheet": null,
+            "sheetHeadline": "",
+            "sheetLines": []
+          }
+        }
+      ]
+    }
+  ]
+}

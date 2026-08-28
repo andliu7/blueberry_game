@@ -166,6 +166,25 @@ const LEGEND: readonly { readonly state: NodeState; readonly label: string }[] =
 const STAR_PATH = "M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.7L12 17.5l-5.9 3.3 1.3-6.7L2.5 9.5l6.6-.8z";
 
 /** The glyph on the face. SVG so it scales and never depends on a font's emoji. */
+/**
+ * A map unit's title is authored as "Unit 1 · Conjugation, Resonance & Dienes".
+ * The banner sets the number as its eyebrow and the name as its headline, so
+ * the thing a student is looking for is the largest text in the banner. A title
+ * with no separator has no number to lift, and keeps the whole string as its
+ * name rather than inventing one.
+ */
+const UNIT_TITLE_SEPARATOR = " · ";
+
+export function unitNumber(title: string): string {
+  const at = title.indexOf(UNIT_TITLE_SEPARATOR);
+  return at === -1 ? "Unit" : title.slice(0, at);
+}
+
+export function unitName(title: string): string {
+  const at = title.indexOf(UNIT_TITLE_SEPARATOR);
+  return at === -1 ? title : title.slice(at + UNIT_TITLE_SEPARATOR.length);
+}
+
 function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index: number }) {
   switch (state) {
     case "done":
@@ -360,8 +379,18 @@ function OrgoMapTrack() {
           <section key={unit.id} className="flex flex-col gap-3" aria-label={unit.title}>
             <header className="path-banner flex items-stretch overflow-hidden" style={{ "--banner": "var(--primary)" } as CSSProperties}>
               <div className="flex-1 px-4 py-3">
-                <p className="text-scale-xs font-bold uppercase tracking-wide text-white/80">{unit.note}</p>
-                <h3 className="text-scale-base font-semibold text-white">{unit.title}</h3>
+                {/*
+                  The eyebrow is the unit's own number, split off the title,
+                  NOT `unit.note`. A blind critic reading the pathway called the
+                  old eyebrow out as engineering metadata leaking at the
+                  student: `note` is the dependency ledger the authoring waves
+                  burn down ("Gates Unit 9's control logic and all of Unit 12"),
+                  it was set in caps above the title, and it was the first thing
+                  the eye landed on. It stays in the data, where it is useful,
+                  and off the screen, where it is not.
+                */}
+                <p className="text-scale-xs font-bold uppercase tracking-wide text-white/80">{unitNumber(unit.title)}</p>
+                <h3 className="text-scale-base font-semibold text-white">{unitName(unit.title)}</h3>
               </div>
             </header>
 

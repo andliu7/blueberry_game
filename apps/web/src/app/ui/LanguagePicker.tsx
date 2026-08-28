@@ -98,7 +98,14 @@ export function LanguageSheet({ open, onClose }: { readonly open: boolean; reado
   );
 }
 
-/** The header control. Shows the current language's code, not a globe glyph. */
+/**
+ * The header control. Shows the current language's code, not a globe glyph.
+ *
+ * Ghost rather than a bordered pill, matching ThemeToggle for the reason
+ * recorded there: the header carries four economy readouts now, and two 44px
+ * white discs beside them made the loudest marks in the row the two that say
+ * the least. The 44px target and the press are unchanged.
+ */
 export function LanguageButton({ onOpen }: { readonly onOpen: () => void }) {
   const current = useLanguage();
   const language = languageByCode(current);
@@ -108,7 +115,7 @@ export function LanguageButton({ onOpen }: { readonly onOpen: () => void }) {
       onPointerDown={onOpen}
       aria-label={`Language: ${language.english}. Change it.`}
       title={`Language: ${language.english}`}
-      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border bg-card px-3 text-scale-sm font-bold uppercase tracking-wide text-foreground"
+      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-2 text-scale-sm font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
     >
       {language.code}
     </button>

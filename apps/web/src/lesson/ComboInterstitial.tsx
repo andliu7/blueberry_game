@@ -76,8 +76,9 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
 
       {/* The count. flex-1 here and on the character block splits the vertical space between them. */}
       <div className="relative flex flex-1 flex-col items-center justify-center gap-2 px-6 pt-2 text-center">
-        <p className="text-scale-sm font-bold uppercase tracking-[0.2em] text-primary">In a row</p>
-        <p className="combo-count title-face font-semibold leading-none text-primary tabular-nums" aria-hidden>
+        {/* primary-ink: --primary as ink measured 4.10:1 in dark against the 4.5 body floor. */}
+        <p className="text-scale-sm font-bold uppercase tracking-[0.2em] text-primary-ink">In a row</p>
+        <p className="combo-count title-face font-semibold leading-none text-primary-ink tabular-nums" aria-hidden>
           {count}
         </p>
         <ol className="combo-track mt-4 flex items-center gap-3" aria-label="Combo milestones">

@@ -485,7 +485,14 @@
   position: absolute;
   width: 22%;
   height: 22%;
-  fill: var(--warn);
+  /* --warn-ink-strong, not --warn, and for the reason the table at the top of
+     this file already gives for the radical dot and the sparks: in light,
+     --warn lands between 2.76 and 2.90:1 on the three light grounds a sparkle
+     is actually drawn on (the reward stage, the good-soft feedback strip, the
+     combo interstitial). It passed nowhere it mattered and was nearly
+     invisible. The extended contrast audit found it, once it started finishing
+     a lesson. */
+  fill: var(--warn-ink-strong);
   opacity: 0;
   transform-origin: center;
   animation: berry-sparkle 900ms cubic-bezier(0.2, 0.8, 0.3, 1) both;

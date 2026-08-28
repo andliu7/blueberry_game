@@ -1,0 +1,176 @@
+/* ======================================================================
+ * The header HUD. Imported by theme.css, the same way mascot.css is.
+ *
+ * Only four things need real CSS: the ring's transition, the guttering flame,
+ * the charge meter, and where the coach mark sits. Everything else in Hud.tsx
+ * is Tailwind utilities, because a utility that appears once has no business
+ * being a class name in here.
+ *
+ * Every animation below is transform or opacity only, the two properties the
+ * compositor can run without a layout or a paint, and every one of them stops
+ * under prefers-reduced-motion. The trainer's 60fps budget is measured with
+ * this header on screen.
+ *
+ * CONTRAST. Measured against the ground these are actually composed on, which
+ * is the HEADER and not the page: the header is background/85 with a blur, so
+ * content scrolling under it composes through, and the audit reads that ground
+ * at rgb(240,239,234) light and rgb(20,18,17) dark. Marks are held to the 3:1
+ * floor WCAG 1.4.11 sets for a graphic:
+ *
+ *   flame lit      --streak                      3.70:1 light,  8.25:1 dark
+ *   flame out      --hud-out                     6.58:1 light,  7.41:1 dark
+ *   meter fill     --good                        4.76:1 light,  9.72:1 dark
+ *   ring arc       --primary                     4.95:1 light,  3.87:1 dark
+ *   ring, goal met --good                        4.76:1 light,  9.72:1 dark
+ *   diamond        --diamond                     3.56:1 light,  8.72:1 dark
+ *
+ * The numbers beside them are TEXT and are held to 4.5:1 instead, which is why
+ * each one is drawn in its family's `-ink` token rather than in the mark's own
+ * fill:
+ *
+ *   XP             --primary-ink                 4.95:1 light,  6.86:1 dark
+ *   diamonds       --diamond-ink                 5.15:1 light,  8.72:1 dark
+ *   streak lit     --streak-ink                  6.35:1 light, 11.07:1 dark
+ *   streak out     --muted-foreground            6.58:1 light,  7.41:1 dark
+ *   charge         --good-ink                    6.67:1 light, 12.25:1 dark
+ *
+ * That split is the same one --good/--good-ink and --primary/--primary-ink
+ * already carry, and it exists because a fill bright enough to read as a flame
+ * is not dark enough to read as a word.
+ *
+ * The facet washes inside the marks are white or black at low alpha ON the
+ * mark, never on the page, so they carry no floor of their own.
+ * ====================================================================== */
+
+/* ---------------------------------------------------------- the ring ---- */
+/* XP landing mid session sweeps the arc round rather than jumping it. The
+   transition is on the geometry, so nothing repaints the ring's box. */
+.hud-ring-arc {
+  transition: stroke-dashoffset 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --------------------------------------------------------- the flame ---- */
+/*
+ * Guttering, not disabled. docs/ECONOMY.md's mitigation set argues against
+ * rendering an unmet day as a loss, so an uncounted day is a flame that is
+ * still burning and leaning, never a crossed out one and never a red one. The
+ * lean is about a degree and a half either side, from the base, which reads at
+ * 20px as a flicker and not as a wobble.
+ */
+.hud-flame-out .hud-flame-body {
+  transform-origin: 50% 92%;
+  animation: hud-gutter 2600ms ease-in-out infinite;
+}
+@keyframes hud-gutter {
+  0%,
+  100% {
+    transform: rotate(-1.6deg) scaleY(1);
+  }
+  38% {
+    transform: rotate(1.4deg) scaleY(0.955);
+  }
+  64% {
+    transform: rotate(-0.6deg) scaleY(1.02);
+  }
+}
+
+/* --------------------------------------------------------- the meter ---- */
+/*
+ * The charge cap, drawn. It is under Bloom rather than beside the number
+ * because the header has no width to spend on a "/ 30", and a bar answers the
+ * same question in 4 pixels of height.
+ */
+.hud-meter {
+  display: block;
+  width: 1.75rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--hud-track);
+  overflow: hidden;
+}
+.hud-meter-wide {
+  width: 7rem;
+  height: 0.4375rem;
+}
+.hud-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--good);
+  transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Inside the exam window the meter is not a meter, it is a statement. Full,
+   and in the app's own purple rather than the charge green, so the difference
+   is visible before any words are read. */
+.hud-meter-fill.hud-meter-exam {
+  background: var(--primary);
+}
+
+/* ----------------------------------------------------- the coach mark ---- */
+/*
+ * A <dialog> sits in the top layer and centres itself by default. This pins it
+ * under the header instead, which is where the thing it explains was, and
+ * right aligns it on a wide screen for the same reason. Fixed positioning is
+ * correct here rather than a hack: the top layer has no scroll container.
+ */
+.hud-sheet {
+  position: fixed;
+  inset: auto;
+  top: 4.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(21rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 6rem);
+  overflow: auto;
+  box-shadow: 0 18px 48px -12px rgb(0 0 0 / 0.35);
+}
+@media (min-width: 768px) {
+  .hud-sheet {
+    left: auto;
+    right: 1.5rem;
+    transform: none;
+  }
+}
+.hud-sheet[open] {
+  animation: hud-sheet-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hud-sheet[open]::backdrop {
+  animation: hud-backdrop-in 180ms linear;
+}
+@keyframes hud-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.5rem) scale(0.97);
+  }
+}
+@media (min-width: 768px) {
+  @keyframes hud-sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.97);
+    }
+  }
+}
+@keyframes hud-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------- reduced motion ---- */
+/* The frozen state still says everything: the arc is where it is, the flame is
+   leaning, the meter is filled. Nothing here is animation-only information. */
+@media (prefers-reduced-motion: reduce) {
+  .hud-ring-arc,
+  .hud-meter-fill {
+    transition: none;
+  }
+  .hud-flame-out .hud-flame-body {
+    animation: none;
+    transform: rotate(-1.6deg);
+  }
+  .hud-sheet[open],
+  .hud-sheet[open]::backdrop {
+    animation: none;
+  }
+}

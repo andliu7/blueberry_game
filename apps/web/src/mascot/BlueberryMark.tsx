@@ -2,11 +2,13 @@
  * The flat berry. Imported from the sibling repo's blueberry-mark.tsx per
  * docs/INHERITED-DECISIONS.md D4: the mascot is imported, never rebuilt.
  *
- * Two edits from the original, both mechanical: the `cn` helper is replaced by
- * string concatenation because this app does not carry clsx, and the `loved`
- * hearts variant is dropped because nothing in this shell presses the mark.
- * The art, the gradient ids, and the mood CSS contract (`.bb-eyes[data-mood]`
- * in mascot.css) are unchanged so a student sees the same character.
+ * Three edits from the original, all mechanical: the `cn` helper is replaced by
+ * string concatenation because this app does not carry clsx, the `loved` hearts
+ * variant is dropped because nothing in this shell presses the mark, and the
+ * three internal SVG ids are now per instance instead of document global. The
+ * third is a bug fix and CostumeDefs below records what it fixes and how it was
+ * measured. The art and the mood CSS contract (`.bb-eyes[data-mood]` in
+ * mascot.css) are unchanged, so a student sees the same character.
  *
  * COSTUMES, added 2026-08-27 for docs/MASCOT.md's fourth axis. Everything the
  * costume draws is additive: no existing path moved, and with no `costume` prop
@@ -29,6 +31,7 @@
  * the tab rail and the notification thumbnail use.
  */
 
+import { useId } from "react";
 import type { BerryCostume } from "./berryCostume";
 import type { BerryMood } from "./berryMood";
 
@@ -46,16 +49,31 @@ const WHISTLE = "#f0a02a";
 const CAP = "#7c3aed";
 
 /**
- * One clip path shared by every costume that has to stop at the berry's edge.
+ * One clip path, stopping a costume at the berry's edge.
  *
- * The id is document global, as `bb-berry` and `bb-calyx` already are in the
- * imported original: several marks on one page emit the same id and the browser
- * resolves every reference to the first, which is correct here only because all
- * copies are identical. That is a property of this file, not a general licence.
+ * THE IDS ARE PER INSTANCE NOW, and this is a bug fix rather than a tidy up.
+ * The imported original emitted `bb-berry`, `bb-calyx` and `bb-body-clip` as
+ * document global ids, on the reasoning that several marks on one page emit the
+ * same id and the browser resolves every reference to the first, which is
+ * harmless while all copies are identical.
+ *
+ * It is not harmless when the FIRST copy is inside a `display: none` subtree.
+ * Chrome does not build a paint server for a resource in a subtree that is not
+ * rendered, so `fill={`url(#${berryId})`}` resolves to nothing and the shape paints
+ * nothing. The shell has exactly that arrangement: the left rail's mark is
+ * `hidden md:flex`, so on any viewport under 768px the first `bb-berry` in the
+ * document is hidden and EVERY berry in the app renders as a bodyless face.
+ * Measured on a two SVG reduction in the same headless Chrome the captures use,
+ * and visible in the phone frames of the P3 capture, where Bloom in the header
+ * and Bloom on the pathway were both hollow.
+ *
+ * `useId` gives each instance its own suffix, so no mark can depend on whether
+ * another one happens to be visible. React's own hook rather than a counter,
+ * because a counter differs between the server render and the client one.
  */
-function CostumeDefs() {
+function CostumeDefs({ clipId }: { readonly clipId: string }) {
   return (
-    <clipPath id="bb-body-clip">
+    <clipPath id={clipId}>
       <circle cx="32" cy="34" r="23" />
     </clipPath>
   );
@@ -109,13 +127,13 @@ function GogglesDown() {
 }
 
 /** Worn in front. Rendered after the face, so it never hides the eyes. */
-function CostumeFront({ costume, goggles }: { readonly costume: BerryCostume; readonly goggles: Goggles }) {
+function CostumeFront({ costume, goggles, clipId }: { readonly costume: BerryCostume; readonly goggles: Goggles; readonly clipId: string }) {
   switch (costume) {
     case "labcoat":
       return (
         <g className="bb-costume">
           {/* The coat, a hem with a V opening, cut to the berry's outline. */}
-          <g clipPath="url(#bb-body-clip)">
+          <g clipPath={`url(#${clipId})`}>
             <path d="M6 50 H26 L32 56 L38 50 H58 V62 H6 Z" fill={CLOTH} />
           </g>
           {goggles === "down" ? <GogglesDown /> : null}
@@ -157,7 +175,7 @@ function CostumeFront({ costume, goggles }: { readonly costume: BerryCostume; re
     case "trench":
       return (
         <g className="bb-costume">
-          <g clipPath="url(#bb-body-clip)">
+          <g clipPath={`url(#${clipId})`}>
             <rect x="6" y="49" width="52" height="4.6" fill={TAN} />
           </g>
           <rect x="29" y="48.4" width="6" height="5.8" rx="1.2" fill="#8a6a3f" />
@@ -171,7 +189,7 @@ function CostumeFront({ costume, goggles }: { readonly costume: BerryCostume; re
     case "backpack":
       return (
         <g className="bb-costume">
-          <g clipPath="url(#bb-body-clip)">
+          <g clipPath={`url(#${clipId})`}>
             <path
               d="M21 12 Q27 32 24 58"
               fill="none"
@@ -186,7 +204,7 @@ function CostumeFront({ costume, goggles }: { readonly costume: BerryCostume; re
     case "referee":
       return (
         <g className="bb-costume">
-          <g clipPath="url(#bb-body-clip)">
+          <g clipPath={`url(#${clipId})`}>
             <rect x="6" y="46" width="52" height="16" fill={CLOTH} />
             <rect x="17" y="46" width="5" height="16" fill="#2a2724" />
             <rect x="29.5" y="46" width="5" height="16" fill="#2a2724" />
@@ -235,28 +253,33 @@ export function BlueberryMark({
   /** Lab coat only: down over the eyes while working, up on the forehead when idle. */
   readonly goggles?: Goggles;
 }) {
+  // Per instance ids. See CostumeDefs above for the bug this fixes.
+  const uid = useId();
+  const berryId = `bb-berry${uid}`;
+  const calyxId = `bb-calyx${uid}`;
+  const clipId = `bb-body-clip${uid}`;
   return (
     <svg viewBox="0 0 64 64" role="img" aria-label="Blueberry" className={`block ${className}`}>
       <defs>
-        <radialGradient id="bb-berry" cx="33%" cy="27%" r="84%">
+        <radialGradient id={berryId} cx="33%" cy="27%" r="84%">
           <stop offset="0%" stopColor="#bdefff" />
           <stop offset="28%" stopColor="#3fa9ff" />
           <stop offset="66%" stopColor="#3d63f5" />
           <stop offset="100%" stopColor="#2b2fb0" />
         </radialGradient>
-        <linearGradient id="bb-calyx" x1="0.3" y1="0" x2="0.7" y2="1">
+        <linearGradient id={calyxId} x1="0.3" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor="#4a6cff" />
           <stop offset="100%" stopColor="#2a2496" />
         </linearGradient>
-        {costume !== undefined ? <CostumeDefs /> : null}
+        {costume !== undefined ? <CostumeDefs clipId={clipId} /> : null}
       </defs>
 
       {costume !== undefined ? <CostumeBehind costume={costume} /> : null}
 
-      <circle cx="32" cy="34" r="23" fill="url(#bb-berry)" />
+      <circle cx="32" cy="34" r="23" fill={`url(#${berryId})`} />
       <ellipse cx="19" cy="26" rx="6" ry="4.1" fill="#ffffff" opacity="0.26" transform="rotate(-30 19 26)" />
 
-      <g fill="url(#bb-calyx)" transform="translate(32 15.5) scale(1 0.62)">
+      <g fill={`url(#${calyxId})`} transform="translate(32 15.5) scale(1 0.62)">
         <path d={LOBE} />
         <path d={LOBE} transform="rotate(72)" />
         <path d={LOBE} transform="rotate(144)" />
@@ -292,7 +315,7 @@ export function BlueberryMark({
         </g>
       ) : null}
 
-      {costume !== undefined ? <CostumeFront costume={costume} goggles={goggles} /> : null}
+      {costume !== undefined ? <CostumeFront costume={costume} goggles={goggles} clipId={clipId} /> : null}
     </svg>
   );
 }

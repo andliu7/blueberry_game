@@ -16,8 +16,9 @@
 import { lazy, Suspense, useState, type ReactNode } from "react";
 import { TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
 import { TabSkeleton } from "./ui/Skeleton";
-import { useProgress, useReducedMotion, useTheme, setTheme } from "./hooks";
+import { useReducedMotion, useTheme, setTheme } from "./hooks";
 import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
+import { Hud } from "./ui/Hud";
 import { BlueberryMark } from "../mascot/BlueberryMark";
 import { TrainerTab } from "../tabs/trainer/TrainerTab";
 import { TabIcon } from "./ui/TabIcon";
@@ -30,29 +31,22 @@ const PeriodicTab = lazy(() => import("../tabs/periodic/PeriodicTab"));
 const ChatTab = lazy(() => import("../tabs/chat/ChatTab"));
 const MessagesTab = lazy(() => import("../tabs/messages/MessagesTab"));
 
-function DiamondBadge({ count }: { readonly count: number }) {
-  return (
-    <span
-      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-scale-sm font-semibold text-foreground"
-      aria-label={`${count} diamonds`}
-      title="Diamonds. Earned by clearing nodes, flawless runs and streak milestones. Balances are kept by the server from Phase 6."
-    >
-      <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden>
-        <path d="M4 2h12l3 5-9 11L1 7z" fill="var(--diamond)" />
-        <path d="M4 2l6 16L1 7z" fill="#fff" opacity="0.25" />
-      </svg>
-      {count}
-    </span>
-  );
-}
-
+/**
+ * Theme and language are CHROME, and the header now has readouts in it.
+ *
+ * They shipped as bordered white pills, which on a phone put two 44px discs
+ * beside four flat numbers and made the loudest things in the header the two
+ * that say the least. They are ghost buttons now: same 44px target, same press,
+ * no box. The border was carrying "this is pressable", and next to four things
+ * that are visibly NOT pressable it no longer has to.
+ */
 function ThemeToggle() {
   const theme = useTheme();
   const next = theme === "dark" ? "light" : "dark";
   return (
     <button
       type="button"
-      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border bg-card text-scale-sm text-foreground"
+      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-scale-base text-muted-foreground hover:text-foreground"
       onPointerDown={() => setTheme(next)}
       aria-label={`Switch to ${next} mode`}
       title={`Switch to ${next} mode`}
@@ -110,7 +104,6 @@ function Outlet({ route }: { readonly route: Route }) {
 }
 
 export function Shell({ route, children }: { readonly route: Route; readonly children?: ReactNode }) {
-  const snapshot = useProgress();
   const [languageOpen, setLanguageOpen] = useState(false);
   const activeTab = route.kind === "tab" ? route.tab : null;
   const label = activeTab === null ? "the page" : tabDefinition(activeTab).label;
@@ -131,14 +124,18 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
       </nav>
 
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 py-2 backdrop-blur-md md:px-6">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 border-b border-border bg-background/85 px-2 py-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
+          {/* The wordmark is the first thing to go on a phone: four readouts,
+              a language code and a theme toggle do not fit beside it at 390px,
+              and the tab bar already says which app this is. The mark stays as
+              the home link and keeps the accessible name. */}
           <a href={hrefForTab("trainer")} className="flex items-center gap-2 md:hidden" aria-label="Blueberry home">
-            <BlueberryMark className="h-7 w-7" />
-            <span className="title-face text-scale-base font-semibold">Blueberry</span>
+            <BlueberryMark className="h-7 w-7 shrink-0" />
+            <span className="title-face hidden text-scale-base font-semibold sm:inline">Blueberry</span>
           </a>
           <h1 className="hidden text-scale-lg font-semibold text-foreground md:block">{label}</h1>
-          <div className="flex items-center gap-2">
-            <DiamondBadge count={snapshot.diamonds} />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Hud />
             <LanguageButton onOpen={() => setLanguageOpen(true)} />
             <ThemeToggle />
           </div>

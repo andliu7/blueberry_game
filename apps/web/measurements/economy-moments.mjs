@@ -421,6 +421,41 @@ export function hudSeed() {
 export const P3_SEED = hudSeed();
 export const P3_STORED = { course: "orgo_2", startTopics: [], onboardingDone: true };
 
+/**
+ * The same account, with today already counted.
+ *
+ * The rest moment above is deliberately the state a student OPENS the app in:
+ * goal unmet, flame guttering. That leaves the lit half of every pair
+ * unphotographed, and "the flame is lit when today counted" is half of what
+ * this piece claims. So this seed appends one more flawless spine clear today,
+ * which pays 20 XP against the Regular goal and therefore meets it: the ring
+ * closes and turns, the flame lights, and the streak reads six.
+ *
+ * Its assertion is structural rather than numeric, on purpose. The rest moment
+ * pins all four numbers exactly, because the seed was built backwards from
+ * them and a drift there is a bug. Here what matters is the STATE, so the check
+ * is that the goal reads met and the day reads counted; pinning the arithmetic
+ * a second time would only be a second place to update.
+ */
+export function hudLitSeed() {
+  return [
+    ...hudSeed(),
+    {
+      kind: "node_cleared",
+      at: minutesAgo(3),
+      tz: LOCAL_TZ,
+      nodeId: "lesson:diels_alder",
+      nodeKind: "reaction",
+      flawless: true,
+      stepsInOneSitting: 1,
+      spine: true,
+      difficulty: 3,
+    },
+  ];
+}
+
+export const P3_LIT_SEED = hudLitSeed();
+
 /** The tab the header is judged on. */
 export const HUD_HASH = "#/pathway";
 
@@ -464,16 +499,45 @@ async function readHud(page) {
   });
 }
 
-/** True when every readout says what the seed was built to make it say. */
-function hudMatches(state) {
+/**
+ * Four readouts, every target at least 44 by 44, and a header that did not
+ * overflow its own box. True of every HUD moment whatever the numbers say.
+ *
+ * CLAUDE.md's budget table sets the 44 point floor. Half a pixel of slack,
+ * because a fractional layout can land on 43.98.
+ */
+function hudGeometryHolds(state) {
   if (state.items.length !== 4) return false;
   for (const item of state.items) {
-    if (HUD_EXPECTED[item.id] !== item.label) return false;
-    // CLAUDE.md's budget table: minimum hit target 44 by 44 points. Half a
-    // pixel of slack, because a fractional layout can land on 43.98.
     if (item.width < 43.5 || item.height < 43.5) return false;
   }
   return state.headerScrollWidth <= state.headerClientWidth + 1;
+}
+
+/** True when every readout says what the seed was built to make it say. */
+function hudMatches(state) {
+  if (!hudGeometryHolds(state)) return false;
+  return state.items.every((item) => HUD_EXPECTED[item.id] === item.label);
+}
+
+/** The label a readout is currently showing, or the empty string. */
+function labelOf(state, id) {
+  return state.items.find((item) => item.id === id)?.label ?? "";
+}
+
+/** The header with today's goal met: ring closed, flame lit, streak up one. */
+export async function driveHudLit(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("[data-hud='charge']", { timeout: 10_000 });
+  await page.waitForSelector("[role='region']", { timeout: 10_000 }).catch(() => {});
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await readHud(page);
+  const reached =
+    hudGeometryHolds(state) &&
+    labelOf(state, "xp").startsWith("Daily goal met") &&
+    labelOf(state, "streak").endsWith("today counted");
+  return { moment: "hud-lit", reached, at, trigger, state };
 }
 
 /** The header at rest on the pathway. The burst runs from the moment it settles. */
@@ -532,4 +596,5 @@ export const MOMENTS = {
   "reward-streak": { seed: P2_SEEDS.streak, drive: (page, options) => driveReward(page, "streak", options) },
   "hud-rest": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudRest(page, options) },
   "hud-charge": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudCharge(page, options) },
+  "hud-lit": { seed: P3_LIT_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudLit(page, options) },
 };
