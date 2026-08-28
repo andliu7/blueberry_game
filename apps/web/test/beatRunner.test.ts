@@ -36,8 +36,11 @@ describe("the ladder table", () => {
 
 describe("resolution", () => {
   it("gives nothing for a node with no authored content", () => {
-    expect(resolveBeat("u3-blocking", 1)).toBeNull();
-    expect(nodeHasBeat("u3-blocking")).toBe(false);
+    // u1-nbs is a branch node with nothing authored for it. It replaced
+    // u3-blocking here the day u3-blocking got its MCQs: an example of "empty"
+    // has to be a node that is actually still empty, or the test proves nothing.
+    expect(resolveBeat("u1-nbs", 1)).toBeNull();
+    expect(nodeHasBeat("u1-nbs")).toBe(false);
   });
 
   it("gives nothing for an id that is not a node at all", () => {

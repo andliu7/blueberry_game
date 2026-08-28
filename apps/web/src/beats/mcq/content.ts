@@ -67,6 +67,8 @@ export const MCQ_NODES: readonly string[] = Object.freeze([
   "u3-nitro-red",
   "u10-nitro-red",
   "u11-acidity",
+  "u3-blocking",
+  "u7-protect",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -566,11 +568,148 @@ const PHENOL_ACIDITY: readonly McqBeat[] = Object.freeze([
  * Everything above, in one list. The runner reads this; the groups above exist
  * so the file can be read a topic at a time.
  */
+/* ------------------------------------------------------------------ */
+/* Blocking group strategy                                              */
+/*                                                                      */
+/* The whole idea rests on one fact the student already met in the      */
+/* sulfonation lesson: this is the EAS you can undo. Park a sulfonic    */
+/* acid on the position you want to defend, do the chemistry that would */
+/* otherwise go there, then steam it off.                               */
+/* ------------------------------------------------------------------ */
+
+const BLOCKING: readonly McqBeat[] = Object.freeze([
+  {
+    kind: "mcq",
+    id: "mcq-blocking-why-sulfonate",
+    node: "u3-blocking",
+    conceptIds: ["ewg_edg_rubric"],
+    levels: [0],
+    prompt: "You want the para spot on toluene left empty. Pick the group to park there.",
+    brief: "The point of a blocking group is that it does not have to stay.",
+    diamonds: 5,
+    correctOptionId: "sulfonic",
+    options: [
+      {
+        id: "sulfonic",
+        text: "A sulfonic acid, SO3H",
+        why: "Sulfonation is the one electrophilic aromatic substitution that runs backwards. Hot dilute acid with steam takes the SO3H off again, so the group can hold a seat and then give it up. Nothing else on this list leaves.",
+      },
+      {
+        id: "nitro",
+        text: "A nitro group, NO2",
+        why: "A nitro group would hold the position, but there is no gentle way to take it off the ring again. Reducing it gives an amine and leaves you with a different molecule, not the one you were protecting.",
+      },
+      {
+        id: "acyl",
+        text: "An acyl group",
+        why: "The ketone from a Friedel Crafts is stuck there for good in this course, and it deactivates the ring on top of that. Useful chemistry, wrong job.",
+      },
+    ],
+  },
+  {
+    kind: "mcq",
+    id: "mcq-blocking-order",
+    node: "u3-blocking",
+    conceptIds: ["ewg_edg_rubric"],
+    levels: [1],
+    prompt: "Ortho bromination of toluene. Put the three steps in order.",
+    brief: "One of these orders wastes the blocking group entirely.",
+    diamonds: 6,
+    correctOptionId: "block-first",
+    options: [
+      {
+        id: "block-first",
+        text: "Sulfonate, brominate, then steam it off",
+        why: "The sulfonic acid takes the para seat first, so bromine has nowhere to go but ortho. Steam then removes it and leaves the ortho bromide you wanted. Block, react, unblock.",
+      },
+      {
+        id: "brominate-first",
+        text: "Brominate, sulfonate, then steam it off",
+        why: "Bromine arriving first goes mostly para, because that is the seat it prefers when nothing is in the way. The blocking group is then defending a position that is already taken.",
+      },
+      {
+        id: "no-unblock",
+        text: "Sulfonate, then brominate, and stop",
+        why: "The first two steps are right and the product is wrong: the sulfonic acid is still sitting on the ring. A blocking group that never comes off is just a substituent.",
+      },
+    ],
+  },
+]);
+
+/* ------------------------------------------------------------------ */
+/* Acetal as a protecting group                                         */
+/*                                                                      */
+/* The acetal lesson teaches how to make one. This node teaches WHY, and */
+/* the why is a single sentence: it survives everything basic and comes  */
+/* back off in aqueous acid.                                             */
+/* ------------------------------------------------------------------ */
+
+const ACETAL_PROTECTION: readonly McqBeat[] = Object.freeze([
+  {
+    kind: "mcq",
+    id: "mcq-acetal-what-survives",
+    node: "u7-protect",
+    conceptIds: ["oxidation_state_ladder"],
+    levels: [0],
+    prompt: "A ketone is hidden as an acetal. Pick the reagent that leaves it alone.",
+    brief: "An acetal has no carbonyl left for a nucleophile to attack.",
+    diamonds: 5,
+    correctOptionId: "grignard",
+    options: [
+      {
+        id: "grignard",
+        text: "A Grignard reagent",
+        why: "The acetal carbon carries two single bonded oxygens and no pi bond, so there is nothing for a carbanion to add to. That is the entire point: the ketone becomes invisible to every nucleophile and hydride in the course.",
+      },
+      {
+        id: "aqueous-acid",
+        text: "Aqueous acid",
+        why: "Aqueous acid is exactly what takes the acetal back OFF. Every step of the protection runs in reverse under it, which is how you get the ketone back at the end.",
+      },
+      {
+        id: "water-heat",
+        text: "Water with heat and a trace of acid",
+        why: "Same problem: acetal formation is an equilibrium, and flooding it with water pushes the whole thing back toward the ketone. Acetals are made by REMOVING water and undone by adding it.",
+      },
+    ],
+  },
+  {
+    kind: "mcq",
+    id: "mcq-acetal-which-carbonyl",
+    node: "u7-protect",
+    conceptIds: ["oxidation_state_ladder"],
+    levels: [1],
+    prompt: "You want to reduce only the ester, not the ketone. Pick the first move.",
+    brief: "Both react with hydride, and one of them reacts faster.",
+    diamonds: 6,
+    correctOptionId: "protect-ketone",
+    options: [
+      {
+        id: "protect-ketone",
+        text: "Protect the ketone as an acetal",
+        why: "The ketone is the MORE reactive of the two toward hydride, so left alone it goes first. Hiding it behind an acetal lets LiAlH4 reach the ester, and aqueous acid brings the ketone back afterwards.",
+      },
+      {
+        id: "protect-ester",
+        text: "Protect the ester as an acetal",
+        why: "Esters do not form acetals: the reaction needs a ketone or an aldehyde carbonyl. And the ester is the one you want to change, so protecting it would defeat the plan.",
+      },
+      {
+        id: "just-add",
+        text: "Add one equivalent of hydride and stop",
+        why: "Counting equivalents does not choose between two groups. The hydride goes to the faster one, which is the ketone, so careful measuring gives you the wrong product in the right amount.",
+      },
+    ],
+  },
+]);
+
 export const MCQ_BEATS: readonly McqBeat[] = Object.freeze([
   ...DIRECTING,
   ...KINETIC_VS_THERMO,
   ...NITRO_REDUCTION,
   ...PHENOL_ACIDITY,
+  ...BLOCKING,
+  ...ACETAL_PROTECTION,
 ]);
 
 /** Every beat authored for one pathway node, in authored order. */
