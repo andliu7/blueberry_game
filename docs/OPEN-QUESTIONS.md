@@ -243,3 +243,44 @@ Owner ruling, 2026-08-26, after reviewing the three generated options
 - **Not final.** More options get generated and the pick is discussed with the team before any
   backdrop ships. Do not wire a backdrop into PathwayTab until that happens.
 - The two unpicked themes remain candidates for the diamond store per `docs/ECONOMY.md`.
+
+## Motion stack for the web MVP
+
+Owner ruling, 2026-08-28. **Lenis and GSAP ScrollTrigger are approved for `apps/web`.**
+
+- **Lenis**, about 3 KB gzipped, for momentum smooth scroll.
+- **GSAP ScrollTrigger**, about 30 KB gzipped, for scroll timelines and pinning.
+- **Three.js and any WebGL are NOT approved** and are refused by default. The depth-map
+  2.5D effect the reference site uses costs roughly 600 KB, which is more than three
+  times the entire current game route payload, and the effect a viewer actually reads
+  is the `clip-path` reveal sitting on top of it, which is free. See the motion brief
+  in the Blueberry Compendium artifact for the full priced table.
+- Rive stays deferred. It is the right tool if Bloom ever outgrows CSS keyframes, and
+  it is not needed for the pathway.
+
+**The budget still binds.** The game route ceiling is 400 KB gzipped and it sits at
+183.6 KB. Both libraries together are about 33 KB, so the expected landing point is
+roughly 217 KB. Report the measured delta when they land; approval is for these two
+libraries at these sizes, not for a general motion budget.
+
+Everything else in the motion brief (layered parallax, clip-path lens reveals, SVG
+mask panels, per-letter stagger, stroke-dashoffset line draws, per-unit palette swaps,
+the loader-to-page wipe) is transform, opacity, clip-path or mask, and needs no library
+at all. Gate the whole motion layer behind `prefers-reduced-motion` with a real static
+frame as the fallback, never an empty box.
+
+## Pathway backdrop theme, reopened
+
+Owner direction, 2026-08-28, superseding the 2026-08-26 ruling above.
+
+The pathway descends rather than ascends, and the backdrop is designed to match the
+flow of the lessons, so a backdrop IS now wired into `PathwayTab`. The motif is the
+reaction coordinate: units are wells, gate quizzes are the humps between them, and a
+multi-step unit carries a shallow local minimum for its intermediate. Clouds stay, and
+small chemistry props (an Erlenmeyer on a far shelf, a condenser silhouette) stay, kept
+rare and small. Studio Ghibli is explicitly NOT a requirement.
+
+**Art sourcing:** regeneration restarts from `blueberry_pathway-theme-{a,b,c}`. The
+later set, `theme-d` through `theme-h`, chased the Ghibli reference harder and moved
+away from what the owner wanted; it is not a starting point. The two approved card
+concepts in `generations/` are the tone reference.
