@@ -32,7 +32,7 @@
  * proves it against every number in the snapshot.
  */
 
-import type { DailyGoalTier, EconomyEvent, NodeKind } from "./journal.js";
+import type { DailyGoalTier, Difficulty, EconomyEvent, NodeKind } from "./journal.js";
 import type { MasteryRank } from "./rules.js";
 import {
   CHARGE_CAP,
@@ -60,6 +60,7 @@ import {
   MASTERY_HALF_LIFE_FACTOR,
   MASTERY_HALF_LIFE_MAX_DAYS,
   MASTERY_HALF_LIFE_START_DAYS,
+  MASTERY_MIN_UNIVERSE_DIFFICULTY,
   MASTERY_RANKS,
   MASTERY_VISIBLE_DIP_CAP,
   REST_DAYS_PER_WEEK,
@@ -168,6 +169,32 @@ export interface EconomySnapshot {
   readonly firstClears: Readonly<Record<string, true>>;
 }
 
+/** One node of the course the mastery score is measured against. */
+export interface UniverseNode {
+  readonly nodeId: string;
+  readonly difficulty: Difficulty;
+}
+
+export interface DeriveOptions {
+  /**
+   * The course: every node mastery is scored out of, cleared or not.
+   *
+   * ECONOMY.md says Mastery is "0 to 100 per course", so the denominator is
+   * the course and not whatever the journal happened to unlock. Without this
+   * the derivation falls back to the unlocked set, which is enough to keep a
+   * first clear in Reader but not enough to make the number mean "of the
+   * course". A shell that knows the course should pass it.
+   *
+   * Either denominator is floored at MASTERY_MIN_UNIVERSE_DIFFICULTY, so a
+   * course narrower than the floor caps below 100. That is deliberate; the
+   * constant says why.
+   *
+   * A node the journal unlocked that is missing from the universe still
+   * counts, on both sides of the fraction, so the score never exceeds 100.
+   */
+  readonly universe?: readonly UniverseNode[];
+}
+
 export interface ReceiptLine {
   readonly label: string;
   readonly amount: number;
@@ -252,7 +279,7 @@ function inExamWindow(date: string, examDate: string | null): boolean {
 
 /* ---------------------------------------------------------------- the run -- */
 
-function run(journal: readonly EconomyEvent[], now: string): RunResult {
+function run(journal: readonly EconomyEvent[], now: string, options: DeriveOptions = {}): RunResult {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) {
     throw new TypeError(`deriveEconomy needs an ISO instant for "now", received ${JSON.stringify(now)}`);
@@ -623,12 +650,24 @@ function run(journal: readonly EconomyEvent[], now: string): RunResult {
 
   const nodeList = [...nodes.entries()];
 
+  // The denominator is the course when the caller named one. A universe node
+  // the journal has also seen is weighted at the journal's difficulty on both
+  // sides, so the two never disagree and the fraction cannot pass 1. A node the
+  // journal unlocked outside the universe is added on both sides for the same
+  // reason. With no universe the unlocked set stands in, floored so a single
+  // clear cannot read as a whole course: see MASTERY_MIN_UNIVERSE_DIFFICULTY.
+  const universe = options.universe;
+  const universeById = new Map<string, number>();
+  if (universe !== undefined) for (const item of universe) universeById.set(item.nodeId, item.difficulty);
+  let universeBase = 0;
+  for (const difficulty of universeById.values()) universeBase += difficulty;
+
   const modelScoreAt = (ms: number): number => {
     let numerator = 0;
-    let denominator = 0;
-    for (const [, node] of nodeList) {
+    let denominator = universeBase;
+    for (const [nodeId, node] of nodeList) {
       if (node.unlockedAt > ms) continue;
-      denominator += node.difficulty;
+      denominator += node.difficulty - (universeById.get(nodeId) ?? 0);
       let reviews = -1;
       let last = Number.NEGATIVE_INFINITY;
       for (const moment of node.moments) {
@@ -641,7 +680,11 @@ function run(journal: readonly EconomyEvent[], now: string): RunResult {
       const elapsedDays = (ms - last) / MS_PER_DAY;
       numerator += node.difficulty * Math.pow(0.5, elapsedDays / halfLife);
     }
-    if (denominator === 0) return 0;
+    // The floor applies to both denominators, not only the fallback: three of
+    // the four content courses are currently narrower than it, so a named course
+    // was reintroducing the same bug. See MASTERY_MIN_UNIVERSE_DIFFICULTY, which
+    // carries the arithmetic and the reason the cap on a small course is right.
+    denominator = Math.max(denominator, MASTERY_MIN_UNIVERSE_DIFFICULTY);
     return (100 * numerator) / denominator;
   };
 
@@ -734,8 +777,8 @@ function run(journal: readonly EconomyEvent[], now: string): RunResult {
 /**
  * The whole package in one call. Pure: same journal and same `now`, same result.
  */
-export function deriveEconomy(journal: readonly EconomyEvent[], now: string): EconomySnapshot {
-  return run(journal, now).snapshot;
+export function deriveEconomy(journal: readonly EconomyEvent[], now: string, options?: DeriveOptions): EconomySnapshot {
+  return run(journal, now, options).snapshot;
 }
 
 /**
@@ -748,9 +791,16 @@ export function deriveEconomy(journal: readonly EconomyEvent[], now: string): Ec
  * ECONOMY.md: "The client animates what the server concluded. The reward moment
  * plays from the server's receipt, never from local math."
  */
-export function receiptFor(journal: readonly EconomyEvent[], event: EconomyEvent, now: string): Receipt {
-  const before = run(journal, now);
-  const after = run([...journal, event], now);
+export function receiptFor(
+  journal: readonly EconomyEvent[],
+  event: EconomyEvent,
+  now: string,
+  options?: DeriveOptions,
+): Receipt {
+  // Both sides read the same universe, so a rank up on the receipt is a rank
+  // up in the snapshot and never an artefact of a different denominator.
+  const before = run(journal, now, options);
+  const after = run([...journal, event], now, options);
   const mine = after.awards[after.awards.length - 1] ?? { xp: [], diamonds: [] };
 
   const xp: ReceiptLine[] = [...mine.xp];

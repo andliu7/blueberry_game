@@ -217,6 +217,48 @@ export const MASTERY_CRACKING_THRESHOLD = 0.5;
  */
 export const MASTERY_DEFAULT_DIFFICULTY = 3;
 
+/**
+ * The smallest denominator the mastery score is ever divided by. It applies to
+ * every denominator, named course or fallback, and the reason is below.
+ *
+ * ECONOMY.md: Mastery is "0 to 100 per course" and "a single node should move
+ * it a point at most." The honest denominator is the whole course, which
+ * `deriveEconomy` takes as an explicit `universe` option. Without one the
+ * derivation can only see the nodes the journal unlocked, and a journal whose
+ * first event is a clear then reads as one of one: 100 percent, Exam Ready,
+ * 750 diamonds for one lesson.
+ *
+ * The arithmetic. Strength is 1.0 the instant a node is cleared, so a fresh
+ * single clear scores 100 * difficulty / max(course difficulty, floor).
+ * Reader ends at 15 and Arrow Pusher starts at 16, so a single clear must stay
+ * at or below 15 whatever its difficulty, and the hardest node is 5:
+ *
+ *   default difficulty 3:  100 * 3 / 40 =  7.5   Reader
+ *   hardest difficulty 5:  100 * 5 / 40 = 12.5   Reader
+ *   the bound for 5:       500 / 15 = 33.3, so any floor above 34 is enough
+ *
+ * 40 is chosen above that bound because it is also a plausible small course:
+ * about 13 nodes at the default difficulty, a unit's worth.
+ *
+ * WHY IT FLOORS A NAMED COURSE TOO, which is not where this started. The floor
+ * was first written to guard only the fallback, on the assumption that a real
+ * course is comfortably wider than it. That assumption is false today: the
+ * curriculum homes 3 topics in General Chemistry I, 2 in General Chemistry II
+ * and 9 in Organic Chemistry I, so naming the course put the same bug back with
+ * a different denominator. One finished lesson of General Chemistry I was
+ * 100 * 3 / 9, which is 33: rank Mechanist, "predict a product from an unseen
+ * mechanism", and 250 diamonds of rank money for one lesson of a course the
+ * product has barely authored.
+ *
+ * The consequence is deliberate and it is the honest one: a course smaller than
+ * this cannot reach the top ranks, because clearing every node of a three topic
+ * stub does not back the claim Exam Ready makes. ECONOMY.md says of exactly this
+ * kind of claim, "Do not make the claim until the data supports it." When those
+ * courses are authored out past the floor, this stops binding on them by itself
+ * and nothing here has to change.
+ */
+export const MASTERY_MIN_UNIVERSE_DIFFICULTY = 40;
+
 /** Rank for a score, by the thresholds above. Never returns undefined: Reader is 0. */
 export function rankFor(score: number): MasteryRank {
   let found = MASTERY_RANKS[0] as MasteryRank;

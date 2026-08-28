@@ -22,9 +22,17 @@ function total(lines: readonly { readonly amount: number }[]): number {
 
 /**
  * Forty unlocked, uncleared tutorial nodes. Same reason as diamonds.test.ts: a
- * journal that unlocks only what it clears is a student at 100 percent mastery,
- * so every receipt would also carry a rank up and these assertions would be
- * about two systems at once. Tutorial nodes are free, so the meter is untouched.
+ * journal that unlocks only what it clears is a student measured against a
+ * one node course, so every receipt would also carry a rank up and these
+ * assertions would be about two systems at once.
+ *
+ * This used to read "a student at 100 percent mastery", and that is no longer
+ * true: a caller that names no `universe` now divides by the unlocked set
+ * floored at MASTERY_MIN_UNIVERSE_DIFFICULTY, so a bare first clear is 7.5 and
+ * sits in Reader. The filler is still here, and still earns its place, because
+ * it makes the denominator a realistic pathway rather than the floor, which is
+ * what these receipts should be read against. Tutorial nodes are free, so the
+ * charge meter is untouched.
  */
 const FILLER: readonly EconomyEvent[] = Array.from({ length: 40 }, (unused, i) =>
   started(`filler-${i}`, "tutorial", DAY, "08:00"),
@@ -129,11 +137,43 @@ describe("the mastery line", () => {
   });
 
   it("names a rank up and pays it once", () => {
-    const unlockedOnly = Array.from({ length: 5 }, (unused, i) => started(`n${i}`, "tutorial", DAY, "09:00"));
-    const event = cleared("n0", "concept", DAY, { time: "12:00" });
-    const receipt = receiptFor(unlockedOnly, event, NOW);
+    // A fourteen node course at difficulty 3 is a denominator of 42, just clear
+    // of MASTERY_MIN_UNIVERSE_DIFFICULTY. Two clears is 14 and change, inside
+    // Reader; the third crosses 16 into Arrow Pusher. It takes three, because
+    // the floor means no single clear can ever cross a rank on its own, which
+    // is the property this file's neighbours pin.
+    const universe = Array.from({ length: 14 }, (unused, i) => ({ nodeId: `n${i}`, difficulty: 3 as const }));
+    const already = [cleared("n0", "concept", DAY, { time: "12:00" }), cleared("n1", "concept", DAY, { time: "12:00" })];
+    expect(deriveEconomy(already, NOW, { universe }).mastery.rank).toBe("Reader");
+    const event = cleared("n2", "concept", DAY, { time: "12:00" });
+    const receipt = receiptFor(already, event, NOW, { universe });
     expect(receipt.mastery.rankUp).toBe("Arrow Pusher");
     expect(receipt.diamonds).toContainEqual({ label: "New rank: Arrow Pusher", amount: 125 });
+  });
+
+  it("pays a first clear on an empty journal for the clear and nothing else", () => {
+    // The bug this option was added for. Before the floor, this receipt named
+    // five rank ups and paid 750 diamonds for one lesson, because one node
+    // cleared out of one node unlocked is 100 percent.
+    const event = cleared("n0", "concept", DAY, { time: "12:00" });
+    const receipt = receiptFor([], event, NOW);
+    expect(receipt.mastery.rankUp).toBeNull();
+    expect(receipt.diamonds).toEqual([{ label: "First clear", amount: 10 }]);
+  });
+
+  it("reads the same universe on both sides, so a rank up is never a denominator artefact", () => {
+    // before is derived from `journal`, after from `journal + event`. If only one
+    // side saw the course, the first clear would cross four ranks on the way in.
+    const universe = Array.from({ length: 40 }, (unused, i) => ({ nodeId: `n${i}`, difficulty: 3 as const }));
+    const event = cleared("n0", "concept", DAY, { time: "12:00" });
+    const receipt = receiptFor([], event, NOW, { universe });
+    expect(receipt.mastery.rankUp).toBeNull();
+    expect(receipt.mastery.visibleBefore).toBe(0);
+    // 100 * 3 / 120, less eight hours of decay. The exact number is asserted
+    // against the snapshot rather than a literal, which is this file's rule.
+    expect(receipt.mastery.visibleAfter).toBeGreaterThan(2);
+    expect(receipt.mastery.visibleAfter).toBeLessThan(2.5);
+    expect(deriveEconomy([event], NOW, { universe }).mastery.visible).toBe(receipt.mastery.visibleAfter);
   });
 });
 

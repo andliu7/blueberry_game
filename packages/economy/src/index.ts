@@ -68,6 +68,7 @@ export {
   MASTERY_HALF_LIFE_FACTOR,
   MASTERY_HALF_LIFE_MAX_DAYS,
   MASTERY_HALF_LIFE_START_DAYS,
+  MASTERY_MIN_UNIVERSE_DIFFICULTY,
   MASTERY_RANKS,
   MASTERY_VISIBLE_DIP_CAP,
   REST_DAYS_PER_WEEK,
@@ -93,6 +94,7 @@ export {
 
 export type {
   ChargeState,
+  DeriveOptions,
   DiamondState,
   EconomySnapshot,
   MasteryState,
@@ -100,6 +102,7 @@ export type {
   ReceiptLine,
   StreakSave,
   StreakState,
+  UniverseNode,
   XpState,
 } from "./derive.js";
 export { canAfford, chargeCostFor, crackingNodes, deriveEconomy, emptyEconomy, nextDay, receiptFor } from "./derive.js";

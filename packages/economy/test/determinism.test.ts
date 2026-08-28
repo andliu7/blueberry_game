@@ -145,6 +145,29 @@ describe("replaying in chunks equals deriving once", () => {
     }
   });
 
+  it("reaches the same snapshot however the journal is split up, with a course named", () => {
+    // The universe option is an argument, not state, so it must not change this.
+    // Half the course is nodes the journal touches and half is nodes it never
+    // does, so both branches of the denominator are exercised on every chunk.
+    const universe = [
+      ...Array.from({ length: 20 }, (unused, i) => ({ nodeId: `pathway-${i}`, difficulty: 3 as const })),
+      ...Array.from({ length: 20 }, (unused, i) => ({ nodeId: `untouched-${i}`, difficulty: 4 as const })),
+    ];
+    const journal = generate(8, 200);
+    const once = deriveEconomy(journal, NOW, { universe });
+    for (const chunkSize of [1, 3, 17, 64, 199]) {
+      const rebuilt: EconomyEvent[] = [];
+      for (let i = 0; i < journal.length; i += chunkSize) {
+        rebuilt.push(...journal.slice(i, i + chunkSize));
+        deriveEconomy(rebuilt, NOW, { universe });
+      }
+      expect(deriveEconomy(rebuilt, NOW, { universe })).toEqual(once);
+    }
+    // And a course actually changes the answer, so the test above is not
+    // passing because the option was quietly ignored.
+    expect(once.mastery.score).not.toBe(deriveEconomy(journal, NOW).mastery.score);
+  });
+
   it("grows XP monotonically as the journal grows, because XP moves up only", () => {
     const journal = generate(6, 200);
     let last = 0;

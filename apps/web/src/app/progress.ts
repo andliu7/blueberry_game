@@ -21,9 +21,15 @@
  * f(attempt history, spend history). Recomputable from scratch." So this store
  * no longer keeps a diamond count, an XP count, a streak, or a charge meter. It
  * keeps the JOURNAL, which is the list of things that happened, and every number
- * on screen comes out of `deriveEconomy(journal, now)` in @blueberry/economy.
- * The shape of the local cache is now the same shape the server will hold, which
- * is what makes the Phase 6 swap a change of transport rather than a rewrite.
+ * on screen comes out of `deriveEconomy(journal, now, options)` in
+ * @blueberry/economy. The shape of the local cache is now the same shape the
+ * server will hold, which is what makes the Phase 6 swap a change of transport
+ * rather than a rewrite.
+ *
+ * The `options` is the COURSE, and `courseUniverse` below explains at length why
+ * leaving it out was a bug rather than a default. In one line: mastery is scored
+ * out of a course, and a shell that does not name one is scored out of whatever
+ * it happened to unlock.
  *
  * The reward moment reads `lastReceipt` and animates it. It never adds anything
  * up itself: ECONOMY.md, "The client animates what the server concluded."
@@ -35,25 +41,31 @@
  * last commit. A surface that needs a live meter should derive it itself with
  * `deriveEconomy(snapshot.journal, new Date().toISOString())` on its own timer,
  * which is cheap and is the honest way to do it. Phase 6's source will poll.
+ * Charge does not depend on the course, so that call needs no universe. A
+ * surface that re-derives MASTERY that way must pass `courseUniverse(course)`,
+ * or it will show a different number from the pathway.
  *
  * The store is an external store (subscribe plus getSnapshot), the same shape
  * as packages/interaction/src/store.ts, so tabs read it with
  * useSyncExternalStore and nothing here imports React.
  */
 
-import type { CourseId, ProblemId, TopicId } from "@blueberry/curriculum";
+import { probeTopicIdsForCourse, topicDefinition, type CourseId, type ProblemId, type TopicId } from "@blueberry/curriculum";
 import {
   deriveEconomy,
   isEconomyEvent,
   localDate,
+  MASTERY_DEFAULT_DIFFICULTY,
   receiptFor,
   type DailyGoalTier,
   type Difficulty,
+  type DeriveOptions,
   type EconomyEvent,
   type EconomySnapshot,
   type NodeKind,
   type Receipt,
   type SpendSink,
+  type UniverseNode,
 } from "@blueberry/economy";
 
 export interface LessonRecord {
@@ -149,7 +161,79 @@ export function lessonNodeId(topic: TopicId): string {
 }
 
 /** Difficulty a lesson node is journalled at until the corpus carries one per lesson. */
-const LESSON_DIFFICULTY: Difficulty = 3;
+const LESSON_DIFFICULTY: Difficulty = MASTERY_DEFAULT_DIFFICULTY;
+
+const DIFFICULTIES: readonly Difficulty[] = [1, 2, 3, 4, 5];
+
+function isDifficulty(value: unknown): value is Difficulty {
+  return (DIFFICULTIES as readonly unknown[]).includes(value);
+}
+
+/**
+ * What one topic weighs in the mastery fraction.
+ *
+ * TopicDefinition carries no difficulty today, so every lesson node weighs
+ * MASTERY_DEFAULT_DIFFICULTY. The lookup is written anyway, and it is the ONE
+ * place to change when the curriculum grows the field, so the universe and the
+ * clears we journal cannot start disagreeing about what a node is worth.
+ */
+function topicDifficulty(topic: TopicId): Difficulty {
+  let definition: object;
+  try {
+    definition = topicDefinition(topic);
+  } catch {
+    // topicDefinition throws on an unknown id, which is right for authored
+    // content and wrong here: the v1 migration replays topic ids out of a
+    // localStorage blob that may name a topic the corpus has since renamed. A
+    // stale cache entry must not take down the store.
+    return LESSON_DIFFICULTY;
+  }
+  const own = "difficulty" in definition ? (definition as { readonly difficulty: unknown }).difficulty : undefined;
+  return isDifficulty(own) ? own : LESSON_DIFFICULTY;
+}
+
+/**
+ * THE MASTERY DENOMINATOR, and the reason this function exists at all.
+ *
+ * Mastery is "0 to 100 per course" (docs/ECONOMY.md), so the score has to be
+ * divided by the whole course. The economy package can only see the journal, and
+ * a node is unlocked there by node_started or node_cleared. This shell never
+ * journals node_started for a lesson: LessonPlayer goes straight to
+ * completeLesson, which appends the attempts and the clear. So without this, a
+ * student's first finished lesson was one node cleared out of one node unlocked,
+ * which is 100 percent, Exam Ready, and a receipt paying every rank award for one
+ * lesson. deriveEconomy floors every denominator at
+ * MASTERY_MIN_UNIVERSE_DIFFICULTY so that can never be a catastrophe; naming the
+ * course is what makes the number MEAN something.
+ *
+ * The ids have to be the ids the journal uses, so this goes through
+ * `lessonNodeId` exactly as `completeLesson` does. DAT and MCAT home no topics
+ * and probe all four content courses, which is the right universe for a review
+ * course: it is what they are actually measured over.
+ *
+ * KNOWN GAP, and it is content rather than code. Gen Chem I homes 3 topics,
+ * Gen Chem II 2 and Organic I 9, all narrower than the floor, so mastery on
+ * those three caps below 100 until they are authored out. test/masteryUniverse
+ * keeps the ledger of which courses those are.
+ */
+export function courseUniverse(course: CourseId): readonly UniverseNode[] {
+  return probeTopicIdsForCourse(course).map((topic) => ({
+    nodeId: lessonNodeId(topic),
+    difficulty: topicDifficulty(topic),
+  }));
+}
+
+/** Built once per course, because the course graph is static content. */
+const universeCache = new Map<CourseId, readonly UniverseNode[]>();
+
+function deriveOptions(course: CourseId | null): DeriveOptions | undefined {
+  if (course === null) return undefined;
+  const cached = universeCache.get(course);
+  if (cached !== undefined) return { universe: cached };
+  const built = courseUniverse(course);
+  universeCache.set(course, built);
+  return { universe: built };
+}
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -164,7 +248,7 @@ function localZone(): string {
 }
 
 function project(stored: StoredProgress, receipt: Receipt | null, now: string): ProgressSnapshot {
-  const economy = deriveEconomy(stored.journal, now);
+  const economy = deriveEconomy(stored.journal, now, deriveOptions(stored.course));
   const days = new Set<string>();
   for (const event of stored.journal) {
     const ms = Date.parse(event.at);
@@ -243,7 +327,7 @@ function migrateFromV1(raw: string): StoredProgress {
       flawless: false,
       stepsInOneSitting: 1,
       spine: true,
-      difficulty: LESSON_DIFFICULTY,
+      difficulty: topicDifficulty(record.topic),
     });
   }
 
@@ -300,7 +384,9 @@ export function createLocalProgress(): ProgressSource {
   const appendOne = (make: (at: string, tz: string) => EconomyEvent): Receipt => {
     const at = nowIso();
     const event = make(at, localZone());
-    const next = receiptFor(stored.journal, event, at);
+    // The receipt and the snapshot must read the same course, or a rank up on
+    // the reward moment would not be a rank up on the pathway.
+    const next = receiptFor(stored.journal, event, at, deriveOptions(stored.course));
     commit({ ...stored, journal: [...stored.journal, event] }, next);
     return next;
   };
@@ -363,11 +449,13 @@ export function createLocalProgress(): ProgressSource {
         flawless: attempted > 0 && correct === attempted,
         stepsInOneSitting: 1,
         spine: true,
-        difficulty: LESSON_DIFFICULTY,
+        // The same weight the course universe gives this topic, so the node
+        // cannot be worth more in the numerator than it is in the denominator.
+        difficulty: topicDifficulty(topic),
       };
 
       const journal = [...stored.journal, ...attempts];
-      const next = receiptFor(journal, clear, at);
+      const next = receiptFor(journal, clear, at, deriveOptions(stored.course));
       commit(
         {
           ...stored,
@@ -389,7 +477,7 @@ export function createLocalProgress(): ProgressSource {
       commit(EMPTY_STORED, null);
     },
     append(event) {
-      const next = receiptFor(stored.journal, event, nowIso());
+      const next = receiptFor(stored.journal, event, nowIso(), deriveOptions(stored.course));
       commit({ ...stored, journal: [...stored.journal, event] }, next);
       return next;
     },
