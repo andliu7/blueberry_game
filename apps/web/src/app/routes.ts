@@ -45,6 +45,13 @@ export type Route =
   | { readonly kind: "tab"; readonly tab: TabId; readonly rest: readonly string[] }
   | { readonly kind: "onboarding"; readonly step: string }
   /**
+   * One pathway node played as a lesson beat: "#/lesson/u3-directing". Its own
+   * route rather than a tab because a beat is a full screen task with an exit,
+   * the same shape onboarding has, and because the tab bar would offer an
+   * escape hatch mid question.
+   */
+  | { readonly kind: "lesson"; readonly node: string }
+  /**
    * Development surfaces. Deliberately NOT in TABS, so nothing renders a link
    * to them and the tab bar's grid keeps its eight columns. Reached by typing
    * the hash, which is the right amount of friction for a page whose audience
@@ -65,6 +72,9 @@ export function parseHash(hash: string): Route {
 
   const head = parts[0];
   if (head === "start") return { kind: "onboarding", step: parts[1] ?? "welcome" };
+  // A lesson with no node is not a lesson, so it falls through to the trainer
+  // rather than rendering an empty runner.
+  if (head === "lesson" && parts[1] !== undefined) return { kind: "lesson", node: parts[1] };
   if (head === "gallery") return { kind: "gallery", name: parts[1] ?? "berry" };
   if (head !== undefined && TAB_IDS.has(head)) {
     return { kind: "tab", tab: head as TabId, rest: parts.slice(1) };
@@ -74,6 +84,10 @@ export function parseHash(hash: string): Route {
 
 export function hrefForTab(tab: TabId, ...rest: readonly string[]): string {
   return `#/${[tab, ...rest].map(encodeURIComponent).join("/")}`;
+}
+
+export function hrefForLesson(node: string): string {
+  return `#/lesson/${encodeURIComponent(node)}`;
 }
 
 export function hrefForOnboarding(step: string): string {

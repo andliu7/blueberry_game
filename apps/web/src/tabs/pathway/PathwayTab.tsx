@@ -330,6 +330,9 @@ function CoursePicker() {
 
 /** The trainer deep link for one map node's playable entry. */
 function hrefForPlayable(link: MapPlayableLink): string {
+  // A beat is not a mechanism and does not belong in the trainer: it gets its
+  // own route, and BeatRunner picks the surface once the node id arrives.
+  if (link.kind === "beat") return `#/lesson/${encodeURIComponent(link.id)}`;
   const param = link.kind === "reaction" ? "reaction" : link.kind === "sequence" ? "sequence" : "hunt";
   return `?${param}=${encodeURIComponent(link.id)}#/trainer`;
 }

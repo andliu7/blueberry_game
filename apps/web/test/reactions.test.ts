@@ -19,6 +19,7 @@ import { orbitPoint, resettleOpenAngles, terminalNeighbor } from "../src/tabs/tr
 import { TRAINER_REACTIONS } from "../src/demo/reactions";
 import { TRAINER_SEQUENCES } from "../src/demo/sequences";
 import { RESONANCE_HUNT } from "../src/demo/resonance";
+import { resolveBeat } from "../src/beats/BeatRunner";
 import { PATHWAY_UNITS, coverage } from "../src/demo/pathwayMap";
 
 describe("the reaction registry", () => {
@@ -128,12 +129,17 @@ describe("the pathway map is a truthful ledger", () => {
       for (const node of unit.nodes) {
         if (node.playable === undefined) continue;
         const { kind, id } = node.playable;
+        // A beat link promises a lesson surface rather than a trainer entry,
+        // so it is resolved against the beat content. Falling through to the
+        // resonance list would have quietly passed every beat link.
         const found =
           kind === "reaction"
             ? TRAINER_REACTIONS.some((entry) => entry.id === id)
             : kind === "sequence"
               ? TRAINER_SEQUENCES.some((entry) => entry.id === id)
-              : RESONANCE_HUNT.some((entry) => entry.id === id);
+              : kind === "beat"
+                ? resolveBeat(id, 1) !== null
+                : RESONANCE_HUNT.some((entry) => entry.id === id);
         expect(found, `${node.id} links ${kind}:${id}`).toBe(true);
       }
     }

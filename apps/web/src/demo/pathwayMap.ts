@@ -20,7 +20,14 @@ export type NodeKind = "spine" | "branch" | "gate" | "boss";
 export type PlayableLink =
   | { readonly kind: "reaction"; readonly id: string }
   | { readonly kind: "sequence"; readonly id: string }
-  | { readonly kind: "resonance"; readonly id: string };
+  | { readonly kind: "resonance"; readonly id: string }
+  /**
+   * A lesson beat rather than a mechanism: an MCQ, a matching board, a ladder
+   * to sort, or a synthesis gap. The id is the node's own id, because a beat is
+   * authored for one slot on the map and BeatRunner resolves the node to
+   * whichever surface has content for it.
+   */
+  | { readonly kind: "beat"; readonly id: string };
 
 export interface PathwayNode {
   readonly id: string;
@@ -45,7 +52,7 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     nodes: [
       { id: "u1-allylic", kind: "spine", title: "Allylic/resonance delocalization", blurb: "Draw and rank allyl cation, radical, anion resonance forms.", playable: { kind: "resonance", id: "res-allyl-1" } },
       { id: "u1-12v14", kind: "spine", title: "1,2- vs 1,4-addition of HX", blurb: "Kinetic 1,2 cold, thermodynamic 1,4 warm.", playable: { kind: "sequence", id: "seq-diene" } },
-      { id: "u1-kvt", kind: "spine", title: "Kinetic vs thermodynamic control", blurb: "Hammond postulate, reaction coordinate diagrams." },
+      { id: "u1-kvt", kind: "spine", title: "Kinetic vs thermodynamic control", blurb: "Hammond postulate, reaction coordinate diagrams.", playable: { kind: "beat", id: "u1-kvt" } },
       { id: "u1-x2", kind: "spine", title: "X₂ addition to dienes", blurb: "Br₂, Cl₂ → 1,2- and 1,4-dihalides, same allylic-cation logic.", playable: { kind: "sequence", id: "seq-diene-br2" } },
       { id: "u1-nbs", kind: "branch", title: "Allylic halogenation", blurb: "NBS, hν; low [Br₂] is the whole trick." },
       { id: "u1-da", kind: "branch", title: "Diels–Alder", blurb: "s-cis diene + EWG dienophile; endo rule, stereospecific." },
@@ -76,11 +83,11 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
       { id: "u3-nitration", kind: "spine", title: "Nitration", blurb: "HNO₃/H₂SO₄, electrophile NO₂⁺.", playable: { kind: "sequence", id: "seq-eas" } },
       { id: "u3-sulfo", kind: "spine", title: "Sulfonation and desulfonation", blurb: "Reversible, which is what makes it a blocking group.", playable: { kind: "sequence", id: "seq-sulfonation" } },
       { id: "u3-fc-acyl", kind: "spine", title: "Friedel–Crafts acylation", blurb: "RCOCl/AlCl₃; no rearrangement, self-limiting.", playable: { kind: "sequence", id: "seq-fc-acyl" } },
-      { id: "u3-directing", kind: "spine", title: "Directing effects", blurb: "o/p vs m; activators vs deactivators; the halogen anomaly." },
+      { id: "u3-directing", kind: "spine", title: "Directing effects", blurb: "o/p vs m; activators vs deactivators; the halogen anomaly.", playable: { kind: "beat", id: "u3-directing" } },
       { id: "u3-blocking", kind: "spine", title: "Blocking-group strategy", blurb: "Sulfonate para, react, desulfonate." },
-      { id: "u3-nitro-red", kind: "spine", title: "Nitro reduction", blurb: "H₂/Pd or metal/HCl → aniline. The bridge into Unit 10." },
+      { id: "u3-nitro-red", kind: "spine", title: "Nitro reduction", blurb: "H₂/Pd or metal/HCl → aniline. The bridge into Unit 10.", playable: { kind: "beat", id: "u3-nitro-red" } },
       { id: "u3-c-to-ch2", kind: "spine", title: "Carbonyl → CH₂ after acylation", blurb: "Clemmensen or Wolff–Kishner: the unrearranged alkyl chain.", playable: { kind: "reaction", id: "wolff-extrusion" } },
-      { id: "u3-sequencing", kind: "spine", title: "Multistep sequencing logic", blurb: "When to nitrate, reduce, block: order of operations." },
+      { id: "u3-sequencing", kind: "spine", title: "Multistep sequencing logic", blurb: "When to nitrate, reduce, block: order of operations.", playable: { kind: "beat", id: "u3-sequencing" } },
       { id: "u3-fc-alkyl", kind: "branch", title: "Friedel–Crafts alkylation", blurb: "Taught as a failure mode: rearrangement, polyalkylation." },
       { id: "u3-benzylic-br", kind: "branch", title: "Benzylic bromination", blurb: "NBS, hν; needs a benzylic H." },
       { id: "u3-benzylic-ox", kind: "branch", title: "Benzylic oxidation", blurb: "KMnO₄ → ArCOOH; t-Bu survives." },
@@ -113,13 +120,13 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
       { id: "u5-roh-rx", kind: "spine", title: "Alcohol → alkyl halide", blurb: "SOCl₂, PBr₃, HX; inversion where it matters.", playable: { kind: "sequence", id: "seq-roh-hbr" } },
       { id: "u5-tosylate", kind: "spine", title: "Tosylate / mesylate", blurb: "Bad LG to good LG with retention.", playable: { kind: "sequence", id: "seq-mesylate" } },
       { id: "u5-dehydration", kind: "spine", title: "Dehydration", blurb: "H₂SO₄ Δ (E1, Zaitsev) or POCl₃/pyridine (E2).", playable: { kind: "reaction", id: "e2" } },
-      { id: "u5-oxidation", kind: "spine", title: "Oxidation ladder", blurb: "PCC to aldehyde, Jones to acid, 3° no reaction." },
+      { id: "u5-oxidation", kind: "spine", title: "Oxidation ladder", blurb: "PCC to aldehyde, Jones to acid, 3° no reaction.", playable: { kind: "beat", id: "u5-oxidation" } },
       { id: "u5-williamson", kind: "spine", title: "Williamson ether synthesis", blurb: "Alkoxide + 1° halide, SN2.", playable: { kind: "reaction", id: "williamson" } },
-      { id: "u5-protecting", kind: "spine", title: "Protecting-group logic", blurb: "Silyl ethers, benzyl, THP: orthogonality." },
+      { id: "u5-protecting", kind: "spine", title: "Protecting-group logic", blurb: "Silyl ethers, benzyl, THP: orthogonality.", playable: { kind: "beat", id: "u5-protecting" } },
       { id: "u5-epoxidation", kind: "spine", title: "Epoxidation", blurb: "mCPBA, syn and stereospecific; or halohydrin + base.", playable: { kind: "reaction", id: "epoxidation" } },
       { id: "u5-ep-acid", kind: "spine", title: "Epoxide opening, acidic", blurb: "More substituted carbon, anti.", playable: { kind: "reaction", id: "epoxide-acidic" } },
       { id: "u5-ep-base", kind: "spine", title: "Epoxide opening, basic", blurb: "Less hindered carbon, anti, clean SN2.", playable: { kind: "reaction", id: "epoxide-basic" } },
-      { id: "u5-syn-diol", kind: "spine", title: "Syn-dihydroxylation", blurb: "OsO₄/NMO or cold KMnO₄ → cis-diol." },
+      { id: "u5-syn-diol", kind: "spine", title: "Syn-dihydroxylation", blurb: "OsO₄/NMO or cold KMnO₄ → cis-diol.", playable: { kind: "beat", id: "u5-syn-diol" } },
       { id: "u5-anti-diol", kind: "spine", title: "Anti-dihydroxylation", blurb: "mCPBA then H₃O⁺ → trans-diol. Teach as a pair with syn.", playable: { kind: "reaction", id: "epoxide-acidic" } },
       { id: "u5-appel", kind: "branch", title: "Appel reaction", blurb: "CBr₄/PPh₃, driven by P=O." },
       { id: "u5-swern", kind: "branch", title: "Swern / DMP / TEMPO detail", blurb: "Reagent-selection nuance." },
@@ -177,7 +184,7 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     title: "Unit 8 · Carboxylic Acids & Derivatives",
     note: "The reactivity ladder is the organizing principle.",
     nodes: [
-      { id: "u8-ladder", kind: "spine", title: "The reactivity ladder", blurb: "Down the ladder free, up only with activation." },
+      { id: "u8-ladder", kind: "spine", title: "The reactivity ladder", blurb: "Down the ladder free, up only with activation.", playable: { kind: "beat", id: "u8-ladder" } },
       { id: "u8-tetrahedral", kind: "spine", title: "Tetrahedral intermediate mechanism", blurb: "Addition then elimination, under every node here.", playable: { kind: "sequence", id: "seq-acyl" } },
       { id: "u8-to-acylcl", kind: "spine", title: "Acid → acyl chloride", blurb: "SOCl₂, oxalyl chloride: climbing the ladder.", playable: { kind: "sequence", id: "seq-socl2" } },
       { id: "u8-to-anhydride", kind: "spine", title: "Acid → anhydride", blurb: "Heat a diacid, or acid + acyl chloride.", playable: { kind: "sequence", id: "seq-anhydride-make" } },
@@ -209,9 +216,9 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     note: "The spine of the spine, split 9a/9b/9c.",
     nodes: [
       { id: "u9-tautomer", kind: "spine", title: "9a · Keto–enol tautomerism", blurb: "Acid- and base-catalyzed, both directions.", playable: { kind: "sequence", id: "seq-tautomer" } },
-      { id: "u9-pka", kind: "spine", title: "9a · α-proton pKa hierarchy", blurb: "The table that decides which base you need." },
+      { id: "u9-pka", kind: "spine", title: "9a · α-proton pKa hierarchy", blurb: "The table that decides which base you need.", playable: { kind: "beat", id: "u9-pka" } },
       { id: "u9-enolate-res", kind: "spine", title: "9a · Enolate resonance and geometry", blurb: "Ambident: C- vs O-alkylation.", playable: { kind: "sequence", id: "seq-aldol" } },
-      { id: "u9-kvt-enolate", kind: "spine", title: "9a · Kinetic vs thermodynamic enolate", blurb: "LDA cold vs NaOEt warm. Callback to Unit 1." },
+      { id: "u9-kvt-enolate", kind: "spine", title: "9a · Kinetic vs thermodynamic enolate", blurb: "LDA cold vs NaOEt warm. Callback to Unit 1.", playable: { kind: "beat", id: "u9-kvt-enolate" } },
       { id: "u9-halo-acid", kind: "spine", title: "9a · α-Halogenation, acid", blurb: "Stops at mono; halogen deactivates the enol.", playable: { kind: "sequence", id: "seq-halo-acid" } },
       { id: "u9-halo-base", kind: "spine", title: "9a · α-Halogenation, base", blurb: "Runs away: each halogen acidifies the rest.", playable: { kind: "reaction", id: "alpha-bromination" } },
       { id: "u9-aldol", kind: "spine", title: "9b · Aldol addition", blurb: "β-hydroxy carbonyl; retro-aldol is a real answer.", playable: { kind: "sequence", id: "seq-aldol" } },
@@ -227,7 +234,7 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
       { id: "u9-michael", kind: "spine", title: "9c · Michael addition", blurb: "Soft nucleophile, 1,4.", playable: { kind: "reaction", id: "michael-addition" } },
       { id: "u9-cuprate", kind: "spine", title: "9c · Conjugate organocuprate", blurb: "Unstabilized alkyl delivered 1,4.", playable: { kind: "reaction", id: "cuprate-conjugate" } },
       { id: "u9-robinson", kind: "spine", title: "9c · Robinson annulation", blurb: "Michael then intramolecular aldol condensation.", playable: { kind: "sequence", id: "seq-robinson" } },
-      { id: "u9-retro", kind: "spine", title: "9c · Retrosynthetic C–C disconnection", blurb: "The skill the whole unit builds." },
+      { id: "u9-retro", kind: "spine", title: "9c · Retrosynthetic C–C disconnection", blurb: "The skill the whole unit builds.", playable: { kind: "beat", id: "u9-retro" } },
       { id: "u9-haloform", kind: "branch", title: "Haloform reaction", blurb: "Iodoform and its yellow precipitate." },
       { id: "u9-stork", kind: "branch", title: "Stork enamine alkylation", blurb: "Softer alternative to enolate alkylation." },
       { id: "u9-mannich", kind: "branch", title: "Mannich reaction", blurb: "β-amino carbonyl; biosynthesis relevance." },
@@ -241,11 +248,11 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     title: "Unit 10 · Amines",
     note: "Diazonium chemistry is retroactively load-bearing for Unit 3.",
     nodes: [
-      { id: "u10-basicity", kind: "spine", title: "Basicity vs nucleophilicity", blurb: "Aliphatic > aryl > amide; pKaH reasoning." },
+      { id: "u10-basicity", kind: "spine", title: "Basicity vs nucleophilicity", blurb: "Aliphatic > aryl > amide; pKaH reasoning.", playable: { kind: "beat", id: "u10-basicity" } },
       { id: "u10-red-amination", kind: "spine", title: "Reductive amination", blurb: "NaBH₃CN reduces the iminium, not the carbonyl.", playable: { kind: "reaction", id: "iminium-reduction" } },
       { id: "u10-amide-red", kind: "spine", title: "Amide reduction", blurb: "LiAlH₄, keeping the substitution pattern.", playable: { kind: "reaction", id: "iminium-reduction" } },
       { id: "u10-nitrile-red", kind: "spine", title: "Nitrile reduction", blurb: "Adds one carbon on the way to the amine.", playable: { kind: "reaction", id: "nitrile-hydride" } },
-      { id: "u10-nitro-red", kind: "spine", title: "Nitro reduction", blurb: "The Unit 3 to Unit 10 bridge." },
+      { id: "u10-nitro-red", kind: "spine", title: "Nitro reduction", blurb: "The Unit 3 to Unit 10 bridge.", playable: { kind: "beat", id: "u10-nitro-red" } },
       { id: "u10-diazonium", kind: "spine", title: "Diazonium formation", blurb: "NaNO₂/HCl at 0–5 °C, no negotiation on temperature.", playable: { kind: "reaction", id: "diazonium-first" } },
       { id: "u10-diazo-sub", kind: "spine", title: "Diazonium substitution", blurb: "Sandmeyer and friends; NH₂ as a temporary director.", playable: { kind: "sequence", id: "seq-diazo-sub" } },
       { id: "u10-acyl-protect", kind: "spine", title: "Amine acylation as protection", blurb: "Ac₂O moderates aniline for controlled EAS.", playable: { kind: "sequence", id: "seq-anhydride" } },
@@ -264,7 +271,7 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     title: "Unit 11 · Phenols",
     note: "Arguably folds into Units 3 and 5.",
     nodes: [
-      { id: "u11-acidity", kind: "spine", title: "Phenol acidity", blurb: "pKa about 10; conjugate-base resonance." },
+      { id: "u11-acidity", kind: "spine", title: "Phenol acidity", blurb: "pKa about 10; conjugate-base resonance.", playable: { kind: "beat", id: "u11-acidity" } },
       { id: "u11-phenoxide", kind: "spine", title: "Phenoxide as nucleophile", blurb: "Williamson to aryl ethers; esters.", playable: { kind: "reaction", id: "phenoxide-alkylation" } },
       { id: "u11-eas", kind: "branch", title: "EAS on phenol", blurb: "Tribromination without a Lewis acid." },
       { id: "u11-kolbe", kind: "branch", title: "Kolbe–Schmitt", blurb: "Salicylic acid." },
@@ -311,7 +318,7 @@ export const PATHWAY_UNITS: readonly PathwayUnit[] = [
     title: "Unit 14 · Amino Acids, Peptides & Proteins",
     note: "Branches off Units 7 and 8.",
     nodes: [
-      { id: "u14-orthogonal", kind: "spine", title: "Protecting-group orthogonality", blurb: "Boc/TFA, Cbz/H2-Pd, Fmoc/piperidine: three that never touch." },
+      { id: "u14-orthogonal", kind: "spine", title: "Protecting-group orthogonality", blurb: "Boc/TFA, Cbz/H2-Pd, Fmoc/piperidine: three that never touch.", playable: { kind: "beat", id: "u14-orthogonal" } },
       { id: "u14-zwitterion", kind: "branch", title: "Zwitterions and pI", blurb: "Titration curves, isoelectric point." },
       { id: "u14-strecker", kind: "branch", title: "Strecker synthesis", blurb: "Aldehyde + NH3 + HCN, racemic." },
       { id: "u14-sorensen", kind: "branch", title: "Gabriel–malonic (Sorensen)", blurb: "Units 9 and 10 combined." },

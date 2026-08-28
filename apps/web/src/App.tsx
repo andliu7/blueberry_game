@@ -16,11 +16,12 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Shell } from "./app/Shell";
 import { useHashRoute, navigate } from "./app/useHashRoute";
-import { hrefForOnboarding } from "./app/routes";
+import { hrefForTab, hrefForOnboarding } from "./app/routes";
 import { useProgress, useReducedMotion } from "./app/hooks";
 import { TabSkeleton } from "./app/ui/Skeleton";
 
 const Onboarding = lazy(() => import("./onboarding/Onboarding"));
+const BeatRunner = lazy(() => import("./beats/BeatRunner").then((m) => ({ default: m.BeatRunner })));
 
 /**
  * The mascot gallery, a development surface at #/gallery/berry.
@@ -62,6 +63,18 @@ export default function App() {
     return (
       <Suspense fallback={<TabSkeleton label="the placement quiz" />}>
         <Onboarding step={route.step} reducedMotion={reducedMotion} />
+      </Suspense>
+    );
+  }
+
+  if (route.kind === "lesson") {
+    return (
+      <Suspense fallback={<TabSkeleton label="the lesson" />}>
+        <BeatRunner
+          node={route.node}
+          reducedMotion={reducedMotion}
+          onExit={() => navigate(hrefForTab("pathway"))}
+        />
       </Suspense>
     );
   }
