@@ -23,6 +23,14 @@
  * state clicks cannot reach, it seeds localStorage key blueberry.progress.v2
  * with an EconomyEvent journal (see src/app/progress.ts) and says so here.
  *
+ * P3, THE HEADER HUD, SEEDS THE JOURNAL TOO, and it has no choice: every
+ * number in that header is a function of history, and a five day streak is
+ * five days. Its seed and the arithmetic behind each of the four numbers are
+ * in economy-moments.mjs beside the drives. It is also the first seed to set
+ * the stored COURSE, because mastery rank awards pay diamonds and a snapshot
+ * with no course denominator reports a different balance: 262 against 137, on
+ * this exact journal.
+ *
  * P2, THE REWARD MOMENT, SEEDS THE JOURNAL, and here is why. The moment is
  * reached by real clicks (three right answers, Finish lesson, Continue past
  * the combo interstitial), but two of its beats depend on history no click in
@@ -53,9 +61,17 @@
  *   npm run build
  *   node measurements/capture-economy.mjs --piece P1 --out measurements/gauntlet-economy/P1-r1/self-check
  *   node measurements/capture-economy.mjs --piece P2 --out measurements/gauntlet-economy/P2-r1/self-check
+ *   node measurements/capture-economy.mjs --piece P3 --out measurements/gauntlet-economy/P3-r1/self-check
  *
  * Exits nonzero if any moment did not appear: a shot of the wrong state is
  * never handed to a critic.
+ *
+ * THE SEEDS AND THE DRIVES NOW LIVE IN economy-moments.mjs. Everything above
+ * still describes them, because this script is where they were worked out and
+ * where the reasoning belongs; what moved is the code, so the contrast audit
+ * can stand in front of the same three surfaces instead of keeping a second
+ * copy of the route to them that would drift. This file keeps what is its own:
+ * the static server, the viewports, the burst cadence, and the PNGs.
  */
 
 import { existsSync } from "node:fs";
@@ -64,6 +80,20 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
+import {
+  HUD_HASH,
+  LESSON_HASH,
+  P2_SEEDS,
+  P3_SEED,
+  P3_STORED,
+  driveCombo,
+  driveFeedback,
+  driveHudCharge,
+  driveHudRest,
+  driveReward,
+  openSeeded,
+  sleep,
+} from "./economy-moments.mjs";
 
 /**
  * The burst cadence, the bar's own: 0, 400, 900 and 2500 ms after the press.
@@ -141,73 +171,9 @@ const server = http.createServer(async (request, response) => {
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * A fresh page on a hash route, in a theme, with nothing stored except an
- * optional seeded journal under the progress store's key.
- */
-async function open(browser, viewport, theme, hash, journal = null) {
-  const page = await browser.newPage();
-  await page.setViewport(viewport);
-  await page.evaluateOnNewDocument(
-    (wanted, seed) => {
-      localStorage.clear();
-      localStorage.setItem("theme", wanted);
-      // The seed is written BEFORE the class toggle. This runs before the
-      // document element exists, so the toggle throws, and anything after it
-      // silently never runs; P1's null seed hid that for a whole round.
-      if (seed !== null) {
-        localStorage.setItem(
-          "blueberry.progress.v2",
-          JSON.stringify({ course: null, startTopics: [], lessons: {}, attemptedProblems: [], onboardingDone: false, displayName: null, journal: seed }),
-        );
-      }
-      if (document.documentElement !== null) document.documentElement.classList.toggle("dark", wanted === "dark");
-    },
-    theme,
-    journal,
-  );
-  await page.goto(`${origin}/${hash}`, { waitUntil: "networkidle0" });
-  return page;
-}
-
-/** The centre of the first element matching `selector`, or null. */
-async function centre(page, selector) {
-  const handle = await page.$(selector);
-  if (handle === null) return null;
-  const box = await handle.boundingBox();
-  if (box === null) return null;
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-}
-
-/** The centre of the first visible button whose text is exactly `text`. */
-async function buttonByText(page, text) {
-  const point = await page.evaluate((wanted) => {
-    const buttons = [...document.querySelectorAll("button")];
-    const match = buttons.find((button) => button.textContent?.trim() === wanted && button.getClientRects().length > 0);
-    if (match === undefined) return null;
-    // On the phone the Continue sits under the explanation, below the fold.
-    match.scrollIntoView({ block: "center", behavior: "instant" });
-    const rect = match.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  }, text);
-  return point;
-}
-
-/** A real press: down, a frame, up. Returns the press time for the burst clock. */
-async function press(page, point, label) {
-  if (point === null) {
-    const seen = await page.evaluate(() => [...document.querySelectorAll("button")].map((b) => `${b.textContent?.trim()}${b.getClientRects().length > 0 ? "" : " (hidden)"}`));
-    throw new Error(`nothing to press for "${label}". buttons on screen: ${seen.join(" | ")}`);
-  }
-  await page.mouse.move(point.x, point.y);
-  await page.mouse.down();
-  const at = Date.now();
-  await sleep(40);
-  await page.mouse.up();
-  return at;
-}
+/** A fresh page on a hash route, in a theme, seeded, on this script's server. */
+const open = (browser, viewport, theme, hash, journal = null, stored = {}) =>
+  openSeeded(browser, { origin, viewport, theme, hash, journal, stored });
 
 /** Four PNGs at the burst cadence, measured from `startedAt`. Returns actual offsets. */
 async function burst(page, dir, name, startedAt) {
@@ -222,195 +188,38 @@ async function burst(page, dir, name, startedAt) {
   return actual;
 }
 
-/** Type a numeric answer and its unit into the lesson's numeric form. */
-async function typeAnswer(page, value, unit) {
-  await page.waitForSelector('input[aria-label="Numeric answer"]', { timeout: 10_000 });
-  await page.click('input[aria-label="Numeric answer"]');
-  await page.type('input[aria-label="Numeric answer"]', value);
-  await page.click('input[aria-label="Unit"]');
-  await page.type('input[aria-label="Unit"]', unit);
-}
-
-/**
- * The intro lesson's three gas law questions with their authored answers
- * (packages/curriculum/src/corpus/gasLaws.ts). The wrong answer is one of the
- * authored distractors, so the wrong moment shows a Tier 2 card rather than
- * the Tier 3 tail.
- */
-const INTRO = [
-  { value: "2.00", unit: "atm", wrong: "0.500" },
-  { value: "5.60", unit: "L", wrong: "22.4" },
-  { value: "0.400", unit: "atm", wrong: "0.800" },
-];
-
 async function captureP1(browser, viewportName, theme, dir) {
   const viewport = VIEWPORTS[viewportName];
   const tag = `${viewportName}-${theme}`;
   const results = [];
 
-  // 1. Correct: answer the first question right.
-  {
-    const page = await open(browser, viewport, theme, "?serveAll=1#/start/lesson");
-    await typeAnswer(page, INTRO[0].value, INTRO[0].unit);
-    const at = await press(page, await buttonByText(page, "Check"), "Check");
-    const frames = await burst(page, dir, `${tag}-correct`, at);
-    const reached = await page.$('[data-reaction="correct"]');
-    results.push({ moment: "correct", reached: reached !== null, frames });
+  // 1 and 2. The graded answer strip, right and then the authored distractor.
+  for (const outcome of ["correct", "wrong"]) {
+    const page = await open(browser, viewport, theme, LESSON_HASH);
+    const { reached, trigger } = await driveFeedback(page, outcome, { onTrigger: (at) => burst(page, dir, `${tag}-${outcome}`, at) });
+    results.push({ moment: outcome, reached, frames: trigger });
     await page.close();
   }
 
-  // 2. Wrong: the authored distractor for the first question.
+  // 3. Combo: three right in a row, then Finish lesson brings the interstitial.
   {
-    const page = await open(browser, viewport, theme, "?serveAll=1#/start/lesson");
-    await typeAnswer(page, INTRO[0].wrong, INTRO[0].unit);
-    const at = await press(page, await buttonByText(page, "Check"), "Check");
-    const frames = await burst(page, dir, `${tag}-wrong`, at);
-    const reached = await page.$('[data-reaction="wrong"]');
-    results.push({ moment: "wrong", reached: reached !== null, frames });
-    await page.close();
-  }
-
-  // 3. Combo: three right in a row, then Next brings the interstitial.
-  {
-    const page = await open(browser, viewport, theme, "?serveAll=1#/start/lesson");
-    for (let i = 0; i < INTRO.length; i += 1) {
-      await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
-      await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
-      await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-      if (i < INTRO.length - 1) {
-        await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
-        await sleep(250);
-      }
-    }
-    const at = await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
-    const frames = await burst(page, dir, `${tag}-combo`, at);
-    const reached = await page.$('[data-combo="3"]');
-    results.push({ moment: "combo", reached: reached !== null, frames });
+    const page = await open(browser, viewport, theme, LESSON_HASH);
+    const { reached, trigger } = await driveCombo(page, { onTrigger: (at) => burst(page, dir, `${tag}-combo`, at) });
+    results.push({ moment: "combo", reached, frames: trigger });
     await page.close();
   }
 
   return results;
 }
 
-/** The machine's zone, which is also the headless browser's, so seeded days are the browser's days. */
-const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-
-/** An instant at local noon `daysAgo` days before today. Noon keeps it inside the day in any offset. */
-function noonDaysAgo(daysAgo) {
-  const at = new Date();
-  at.setHours(12, 0, 0, 0);
-  at.setDate(at.getDate() - daysAgo);
-  return at.toISOString();
-}
-
-/**
- * Six counted days behind today. A casual goal is 10 XP, and a concept node's
- * first clear pays exactly that, so one clear a day meets it (rules.ts).
- */
-function streakSeed() {
-  const journal = [{ kind: "settings", at: noonDaysAgo(7), tz: LOCAL_TZ, dailyGoal: "casual" }];
-  for (let daysAgo = 6; daysAgo >= 1; daysAgo -= 1) {
-    journal.push({
-      kind: "node_cleared",
-      at: noonDaysAgo(daysAgo),
-      tz: LOCAL_TZ,
-      nodeId: `seed:day-${daysAgo}`,
-      nodeKind: "concept",
-      flawless: false,
-      stepsInOneSitting: 1,
-      spine: false,
-      difficulty: 2,
-    });
-  }
-  return journal;
-}
-
-/**
- * The intro course's other topics, journalled as started (unlocked) intro
- * nodes eight days ago. See the header: without these a first clear is 100
- * percent mastery. Intro nodes cost 0 charge and earn nothing on start.
- */
-const INTRO_COURSE_TOPICS = [
-  "stoichiometry",
-  "solutions_and_concentration",
-  "acid_base_equilibria",
-  "titration_curves",
-  "structure_and_bonding",
-  "resonance_and_delocalisation",
-  "nucleophiles_and_leaving_groups",
-  "substitution_and_elimination",
-];
-function unlockSeed() {
-  return INTRO_COURSE_TOPICS.map((topic) => ({
-    kind: "node_started",
-    at: noonDaysAgo(8),
-    tz: LOCAL_TZ,
-    nodeId: `lesson:${topic}`,
-    nodeKind: "intro",
-  }));
-}
-
-const P2_SEEDS = {
-  first: unlockSeed(),
-  streak: [...unlockSeed(), ...streakSeed()],
-};
-
 /** Play the intro lesson through to the reward moment and burst from the press that opens it. */
 async function captureReward(browser, viewport, theme, dir, tag, seedName) {
-  const page = await open(browser, viewport, theme, "?serveAll=1#/start/lesson", P2_SEEDS[seedName]);
-  for (let i = 0; i < INTRO.length; i += 1) {
-    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
-    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
-    await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-    if (i < INTRO.length - 1) {
-      await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
-      await sleep(250);
-    }
-  }
-  // Three right in a row: Finish lesson shows the combo interstitial first,
-  // and its Continue is the press that opens the reward moment.
-  await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
-  await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 });
-  await sleep(300);
-  const at = await press(page, await buttonByText(page, "Continue"), "Continue (combo)");
-  const frames = await burst(page, dir, `${tag}-reward-${seedName}`, at);
-  const state = await page.evaluate(() => {
-    const stage = document.querySelector("[data-reward]");
-    if (stage === null) return null;
-    return {
-      first: stage.getAttribute("data-reward-first"),
-      streak: document.querySelector('[aria-label="Streak"]') !== null,
-      // The milestone used to be read off an element whose aria-label ended
-      // in "milestone", which meant the check passed on any element anyone
-      // happened to label that way and could not tell 7 from 30. The stage
-      // publishes the number the component actually resolved, so the assert
-      // below can name the day it expects.
-      milestone: Number(stage.getAttribute("data-reward-milestone") ?? 0),
-      xp: document.querySelector('[aria-label="XP earned"]')?.textContent ?? "",
-      diamonds: Number(stage.getAttribute("data-reward-diamonds")),
-      rankUp: stage.getAttribute("data-reward-rank-up") ?? "",
-      done: stage.getAttribute("data-reward"),
-      continueOnScreen: (() => {
-        const button = [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Continue");
-        if (button === undefined) return false;
-        const rect = button.getBoundingClientRect();
-        return rect.top >= 0 && rect.bottom <= window.innerHeight;
-      })(),
-    };
+  const page = await open(browser, viewport, theme, LESSON_HASH, P2_SEEDS[seedName]);
+  const { moment, reached, trigger, state } = await driveReward(page, seedName, {
+    onTrigger: (at) => burst(page, dir, `${tag}-reward-${seedName}`, at),
   });
-  // A first lesson that pays a rank badge is the one-node-universe problem in
-  // the header, and a Continue the student has to scroll to is not a moment.
-  // The streak seed is six counted days behind today, so today's clear is the
-  // seventh: anything but a 7 day milestone means the seed did not land and
-  // the shots are of some other account's evening.
-  const wanted =
-    state !== null &&
-    state.continueOnScreen &&
-    (seedName === "first"
-      ? state.first === "true" && state.rankUp === "" && state.milestone === 0
-      : state.streak === true && state.milestone === 7 && state.diamonds > 0);
   await page.close();
-  return { moment: `reward-${seedName}`, reached: state !== null && wanted, frames, state };
+  return { moment, reached, frames: trigger, state };
 }
 
 async function captureP2(browser, viewportName, theme, dir) {
@@ -423,7 +232,46 @@ async function captureP2(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2 };
+/**
+ * P3, the header HUD. Two moments on the pathway tab: the header at rest, and
+ * the same header with the charge coach mark open.
+ *
+ * Unlike P1 and P2 this piece has no press to walk to, so the rest burst runs
+ * from the moment the header settles rather than from a click. That is the
+ * honest cadence for a readout: what a critic judges is what is on screen when
+ * the tab opens, and the four frames still differ because the unlit flame
+ * gutters.
+ *
+ * The seed is a journal and the stored blob names the course; economy-moments
+ * explains at length why both halves are needed to land on 137 diamonds.
+ */
+async function captureP3(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const results = [];
+
+  {
+    const page = await open(browser, viewport, theme, HUD_HASH, P3_SEED, P3_STORED);
+    const { moment, reached, trigger, state } = await driveHudRest(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-hud-rest`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  {
+    const page = await open(browser, viewport, theme, HUD_HASH, P3_SEED, P3_STORED);
+    const { moment, reached, trigger, state } = await driveHudCharge(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-hud-charge`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 

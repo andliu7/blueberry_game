@@ -1,9 +1,108 @@
 {
-  "measured": 1195,
-  "distinct": 52,
-  "failing": 0,
-  "unresolved": 175,
+  "measured": 1992,
+  "distinct": 97,
+  "failing": 7,
+  "unresolved": 634,
   "rows": [
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(226,232,240)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 1.07,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 8,
+      "where": [
+        "trainer:circle",
+        "pathway:circle",
+        "courses:circle",
+        "search:circle"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(68,64,60)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 1.81,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 8,
+      "where": [
+        "trainer:circle",
+        "pathway:circle",
+        "courses:circle",
+        "search:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,119,6)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 2.76,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 6,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,119,6)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 2.81,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "combo@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,119,6)",
+      "bg": "rgb(246,244,239)",
+      "ratio": 2.9,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "combo@250ms:path",
+        "combo:path"
+      ]
+    },
     {
       "theme": "light",
       "route": "trainer",
@@ -16,7 +115,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg10",
+      "key": "svg12",
       "count": 1,
       "where": [
         "trainer:line"
@@ -34,11 +133,29 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg11",
+      "key": "svg13",
       "carriedBy": "stroke",
       "count": 2,
       "where": [
         "trainer:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-streak",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,119,6)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 3.19,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg6",
+      "count": 1,
+      "where": [
+        "reward-streak:path"
       ]
     },
     {
@@ -53,7 +170,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg10",
+      "key": "svg12",
       "count": 1,
       "where": [
         "leaderboards:path"
@@ -71,10 +188,52 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg10",
+      "key": "svg12",
       "count": 1,
       "where": [
         "leaderboards:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(2,132,199)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 3.55,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg10",
+      "count": 10,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "span.inline-flex.items-center.rounded-full",
+      "text": "Calculate",
+      "fg": "rgb(130,80,240)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 3.63,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "feedback-correct@250ms:span.inline-flex.items-center.rounded-full",
+        "feedback-correct:span.inline-flex.items-center.rounded-full",
+        "feedback-wrong@250ms:span.inline-flex.items-center.rounded-full",
+        "feedback-wrong:span.inline-flex.items-center.rounded-full"
       ]
     },
     {
@@ -89,7 +248,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg13",
+      "key": "svg15",
       "count": 3,
       "where": [
         "trainer:path"
@@ -97,7 +256,7 @@
     },
     {
       "theme": "light",
-      "route": "trainer",
+      "route": "reward-first",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -107,13 +266,49 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
-      "count": 8,
+      "key": "svg5",
+      "count": 2,
       "where": [
-        "trainer:path",
-        "pathway:path",
-        "courses:path",
-        "search:path"
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "text",
+      "element": "p.text-scale-sm.font-bold.uppercase",
+      "text": "In a row",
+      "fg": "rgb(130,80,240)",
+      "bg": "rgb(12,10,9)",
+      "ratio": 4.1,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.text-scale-sm.font-bold.uppercase",
+        "combo:p.text-scale-sm.font-bold.uppercase"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "large-text",
+      "element": "p.combo-count.title-face.font-semibold",
+      "text": "3",
+      "fg": "rgb(130,80,240)",
+      "bg": "rgb(12,10,9)",
+      "ratio": 4.1,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.combo-count.title-face.font-semibold",
+        "combo:p.combo-count.title-face.font-semibold"
       ]
     },
     {
@@ -129,7 +324,7 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 20,
       "where": [
         "pathway:button.press.inline-flex.min-h-11",
         "leaderboards:button.press.min-h-11.rounded-full",
@@ -150,12 +345,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 16,
       "where": [
         "trainer:span.hidden.md:inline",
+        "trainer:span.absolute.font-bold.leading-none",
         "pathway:span.hidden.md:inline",
-        "courses:span.hidden.md:inline",
-        "search:span.hidden.md:inline"
+        "pathway:span.absolute.font-bold.leading-none"
       ]
     },
     {
@@ -180,6 +375,84 @@
       ]
     },
     {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dd.text-muted-foreground",
+      "text": "Halving the volume at constant temperature doubles the press",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(32,55,44)",
+      "ratio": 5.08,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dd.text-muted-foreground",
+        "feedback-correct:dd.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-bold.leading-none",
+      "text": "0",
+      "fg": "rgb(3,105,161)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 5.15,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "courses:span.text-scale-sm.font-bold.leading-none",
+        "search:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "combo@250ms",
+      "kind": "text",
+      "element": "p.text-scale-sm.font-bold.uppercase",
+      "text": "In a row",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(246,244,239)",
+      "ratio": 5.18,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.text-scale-sm.font-bold.uppercase",
+        "combo:p.text-scale-sm.font-bold.uppercase"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "combo@250ms",
+      "kind": "large-text",
+      "element": "p.combo-count.title-face.font-semibold",
+      "text": "3",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(246,244,239)",
+      "ratio": 5.18,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.combo-count.title-face.font-semibold",
+        "combo:p.combo-count.title-face.font-semibold"
+      ]
+    },
+    {
       "theme": "light",
       "route": "trainer",
       "kind": "svg-stroke",
@@ -191,7 +464,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg13",
+      "key": "svg15",
       "count": 3,
       "where": [
         "trainer:path"
@@ -210,12 +483,90 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 20,
       "where": [
         "pathway:button.press.inline-flex.min-h-11",
         "leaderboards:button.press.min-h-11.rounded-full",
         "leaderboards:button.press.min-h-11.rounded-[9px]",
         "periodic:button.press.min-h-11.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "span.inline-flex.items-center.rounded-full",
+      "text": "Calculate",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.7,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "feedback-correct@250ms:span.inline-flex.items-center.rounded-full",
+        "feedback-correct:span.inline-flex.items-center.rounded-full",
+        "feedback-wrong@250ms:span.inline-flex.items-center.rounded-full",
+        "feedback-wrong:span.inline-flex.items-center.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "div.reward-card__band",
+      "text": "Diamonds",
+      "fg": "rgb(3,105,161)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.93,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:div.reward-card__band",
+        "reward-streak:div.reward-card__band"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "large-text",
+      "element": "span.reward-fade-in.text-scale-xl.font-bold",
+      "text": "+ 20",
+      "fg": "rgb(3,105,161)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.93,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:span.reward-fade-in.text-scale-xl.font-bold",
+        "reward-streak:span.reward-fade-in.text-scale-xl.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(245,158,11)",
+      "bg": "rgb(32,55,44)",
+      "ratio": 5.97,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
       ]
     },
     {
@@ -231,12 +582,70 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 14,
       "where": [
         "leaderboards:button.press.min-h-11.rounded-full",
         "leaderboards:span.inline-flex.items-center.rounded-full",
         "periodic:span.inline-flex.items-center.rounded-full",
         "chat:span.inline-flex.items-center.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "large-text",
+      "element": "span.reward-xp.title-face.font-semibold",
+      "text": "15",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.15,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "reward-first:span.reward-xp.title-face.font-semibold",
+        "reward-first:span.reward-xp-unit.font-bold.uppercase",
+        "reward-streak:span.reward-xp.title-face.font-semibold",
+        "reward-streak:span.reward-xp-unit.font-bold.uppercase"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "span.font-bold.text-warn-ink.tabular-nums",
+      "text": "+ 10",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.15,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "reward-first:span.font-bold.text-warn-ink.tabular-nums",
+        "reward-streak:span.font-bold.text-warn-ink.tabular-nums"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-streak",
+      "kind": "text",
+      "element": "div.reward-card__band",
+      "text": "Milestone",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(254,243,199)",
+      "ratio": 6.37,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "reward-streak:div.reward-card__band"
       ]
     },
     {
@@ -252,12 +661,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 63,
+      "count": 79,
       "where": [
         "trainer:span.hidden.md:inline",
+        "trainer:span.text-scale-sm.font-bold.leading-none",
         "trainer:p.text-scale-sm.text-muted-foreground",
-        "trainer:span.text-scale-sm.text-muted-foreground",
-        "pathway:span.hidden.md:inline"
+        "trainer:span.text-scale-sm.text-muted-foreground"
       ]
     },
     {
@@ -282,6 +691,88 @@
       ]
     },
     {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.58,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg11",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-bold.leading-none",
+      "text": "30",
+      "fg": "rgb(6,95,70)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.67,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "courses:span.text-scale-sm.font-bold.leading-none",
+        "search:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dd.text-muted-foreground",
+      "text": "Halving the volume at constant temperature doubles the press",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 6.68,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dd.text-muted-foreground",
+        "feedback-correct:dd.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "h3.text-scale-lg.font-semibold.leading-tight",
+      "text": "That is it.",
+      "fg": "rgb(6,95,70)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 6.78,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "feedback-correct@250ms:h3.text-scale-lg.font-semibold.leading-tight",
+        "feedback-correct:h3.text-scale-lg.font-semibold.leading-tight",
+        "reward-first:span.reward-pop.reward-badge.mt-2.5",
+        "reward-streak:span.reward-pop.reward-badge.mt-2.5"
+      ]
+    },
+    {
       "theme": "dark",
       "route": "trainer",
       "kind": "svg-stroke",
@@ -293,7 +784,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg10",
+      "key": "svg12",
       "count": 1,
       "where": [
         "trainer:line"
@@ -312,12 +803,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 16,
       "where": [
         "trainer:span.hidden.md:inline",
+        "trainer:span.absolute.font-bold.leading-none",
         "pathway:span.hidden.md:inline",
-        "courses:span.hidden.md:inline",
-        "search:span.hidden.md:inline"
+        "pathway:span.absolute.font-bold.leading-none"
       ]
     },
     {
@@ -343,6 +834,25 @@
     },
     {
       "theme": "light",
+      "route": "combo@250ms",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-semibold.text-muted-foreground",
+      "text": "3 / 3",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(246,244,239)",
+      "ratio": 6.89,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:span.text-scale-sm.font-semibold.text-muted-foreground",
+        "combo:span.text-scale-sm.font-semibold.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
       "route": "leaderboards",
       "kind": "text",
       "element": "button.press.min-h-11.rounded-full",
@@ -354,7 +864,7 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 14,
       "where": [
         "leaderboards:button.press.min-h-11.rounded-full",
         "leaderboards:span.inline-flex.items-center.rounded-full",
@@ -375,12 +885,30 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 38,
+      "count": 49,
       "where": [
         "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
         "pathway:p.text-scale-sm.text-muted-foreground",
         "courses:p.text-scale-sm.text-muted-foreground",
         "courses:p.mt-auto.text-scale-xs.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-streak",
+      "kind": "large-text",
+      "element": "span.text-scale-xl.font-bold.text-warn-ink",
+      "text": "7",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 7.09,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "reward-streak:span.text-scale-xl.font-bold.text-warn-ink"
       ]
     },
     {
@@ -396,12 +924,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 63,
+      "count": 79,
       "where": [
         "trainer:span.hidden.md:inline",
+        "trainer:span.text-scale-sm.font-bold.leading-none",
         "trainer:p.text-scale-sm.text-muted-foreground",
-        "trainer:span.text-scale-sm.text-muted-foreground",
-        "pathway:span.hidden.md:inline"
+        "trainer:span.text-scale-sm.text-muted-foreground"
       ]
     },
     {
@@ -426,6 +954,27 @@
       ]
     },
     {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 7.37,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg11",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "courses:path",
+        "search:path"
+      ]
+    },
+    {
       "theme": "light",
       "route": "trainer",
       "kind": "text",
@@ -438,7 +987,7 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 38,
+      "count": 49,
       "where": [
         "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
         "pathway:p.text-scale-sm.text-muted-foreground",
@@ -448,7 +997,62 @@
     },
     {
       "theme": "dark",
-      "route": "trainer",
+      "route": "reward-streak",
+      "kind": "text",
+      "element": "div.reward-card__band",
+      "text": "Milestone",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(69,58,18)",
+      "ratio": 7.8,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "reward-streak:div.reward-card__band"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-semibold.text-muted-foreground",
+      "text": "3 / 3",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(12,10,9)",
+      "ratio": 7.83,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:span.text-scale-sm.font-semibold.text-muted-foreground",
+        "combo:span.text-scale-sm.font-semibold.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-streak",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(245,158,11)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 8.14,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg6",
+      "count": 1,
+      "where": [
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -458,13 +1062,108 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
-      "count": 8,
+      "key": "svg5",
+      "count": 2,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "h3.text-scale-lg.font-semibold.leading-tight",
+      "text": "That is it.",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(32,55,44)",
+      "ratio": 8.41,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "feedback-correct@250ms:h3.text-scale-lg.font-semibold.leading-tight",
+        "feedback-correct:h3.text-scale-lg.font-semibold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(245,158,11)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 8.66,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 6,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(56,189,248)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 8.68,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg10",
+      "count": 10,
       "where": [
         "trainer:path",
         "pathway:path",
         "courses:path",
         "search:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(245,158,11)",
+      "bg": "rgb(12,10,9)",
+      "ratio": 9.2,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "combo@250ms:path",
+        "combo:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "span.reward-pop.reward-badge.mt-2.5",
+      "text": "Flawless",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(18,42,32)",
+      "ratio": 9.98,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:span.reward-pop.reward-badge.mt-2.5",
+        "reward-streak:span.reward-pop.reward-badge.mt-2.5"
       ]
     },
     {
@@ -503,6 +1202,25 @@
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
         "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dt.font-semibold.text-foreground",
+      "text": "What happened",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(32,55,44)",
+      "ratio": 10.21,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dt.font-semibold.text-foreground",
+        "feedback-correct:dt.font-semibold.text-foreground"
       ]
     },
     {
@@ -593,7 +1311,7 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg11",
+      "key": "svg13",
       "carriedBy": "fill",
       "count": 2,
       "where": [
@@ -601,6 +1319,44 @@
       ]
     },
     {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "div.reward-card__band",
+      "text": "Diamonds",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 10.49,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:div.reward-card__band",
+        "reward-streak:div.reward-card__band"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "large-text",
+      "element": "span.reward-fade-in.text-scale-xl.font-bold",
+      "text": "+ 20",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 10.49,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:span.reward-fade-in.text-scale-xl.font-bold",
+        "reward-streak:span.reward-fade-in.text-scale-xl.font-bold"
+      ]
+    },
+    {
       "theme": "light",
       "route": "periodic",
       "kind": "text",
@@ -753,6 +1509,27 @@
       ]
     },
     {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-bold.leading-none",
+      "text": "0",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 11.15,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "courses:span.text-scale-sm.font-bold.leading-none",
+        "search:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
       "theme": "light",
       "route": "periodic",
       "kind": "text",
@@ -864,6 +1641,45 @@
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
         "periodic:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-streak",
+      "kind": "large-text",
+      "element": "span.text-scale-xl.font-bold.text-warn-ink",
+      "text": "7",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 12.13,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "reward-streak:span.text-scale-xl.font-bold.text-warn-ink"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.text-scale-sm.font-bold.leading-none",
+      "text": "30",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 12.2,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "courses:span.text-scale-sm.font-bold.leading-none",
+        "search:span.text-scale-sm.font-bold.leading-none"
       ]
     },
     {
@@ -879,7 +1695,7 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 17,
+      "count": 22,
       "where": [
         "trainer:span.title-face.text-scale-lg.font-semibold",
         "trainer:h1.hidden.text-scale-lg.font-semibold",
@@ -900,17 +1716,78 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 3,
       "where": [
-        "onboarding:h1.title-face.text-scale-display.font-semibold"
+        "onboarding:h1.title-face.text-scale-display.font-semibold",
+        "reward-first:h2.reward-headline.title-face.mt-6",
+        "reward-streak:h2.reward-headline.title-face.mt-6"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "large-text",
+      "element": "span.reward-xp.title-face.font-semibold",
+      "text": "15",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 12.89,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "reward-first:span.reward-xp.title-face.font-semibold",
+        "reward-first:span.reward-xp-unit.font-bold.uppercase",
+        "reward-streak:span.reward-xp.title-face.font-semibold",
+        "reward-streak:span.reward-xp-unit.font-bold.uppercase"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "span.font-bold.text-warn-ink.tabular-nums",
+      "text": "+ 10",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 12.89,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "reward-first:span.font-bold.text-warn-ink.tabular-nums",
+        "reward-streak:span.font-bold.text-warn-ink.tabular-nums"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dt.font-semibold.text-foreground",
+      "text": "What happened",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 12.9,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dt.font-semibold.text-foreground",
+        "feedback-correct:dt.font-semibold.text-foreground"
       ]
     },
     {
       "theme": "dark",
       "route": "trainer",
       "kind": "text",
-      "element": "span.inline-flex.min-h-11.items-center",
-      "text": "0",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "en",
       "fg": "rgb(231,229,228)",
       "bg": "rgb(28,25,23)",
       "ratio": 13.93,
@@ -918,20 +1795,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 36,
+      "count": 45,
       "where": [
-        "trainer:span.inline-flex.min-h-11.items-center",
         "trainer:button.press.inline-flex.min-h-11",
         "trainer:button.press.mt-2.inline-flex",
-        "trainer:span"
+        "trainer:span",
+        "trainer:span.inline-block.font-semibold.text-foreground"
       ]
     },
     {
       "theme": "light",
       "route": "trainer",
       "kind": "text",
-      "element": "span.inline-flex.min-h-11.items-center",
-      "text": "0",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "en",
       "fg": "rgb(30,41,59)",
       "bg": "rgb(255,255,255)",
       "ratio": 14.63,
@@ -939,12 +1816,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 36,
+      "count": 45,
       "where": [
-        "trainer:span.inline-flex.min-h-11.items-center",
         "trainer:button.press.inline-flex.min-h-11",
         "trainer:button.press.mt-2.inline-flex",
-        "trainer:span"
+        "trainer:span",
+        "trainer:span.inline-block.font-semibold.text-foreground"
       ]
     },
     {
@@ -960,7 +1837,7 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 17,
+      "count": 22,
       "where": [
         "trainer:span.title-face.text-scale-lg.font-semibold",
         "trainer:h1.hidden.text-scale-lg.font-semibold",
@@ -981,9 +1858,11 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 3,
       "where": [
-        "onboarding:h1.title-face.text-scale-display.font-semibold"
+        "onboarding:h1.title-face.text-scale-display.font-semibold",
+        "reward-first:h2.reward-headline.title-face.mt-6",
+        "reward-streak:h2.reward-headline.title-face.mt-6"
       ]
     },
     {

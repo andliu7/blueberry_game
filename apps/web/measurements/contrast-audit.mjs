@@ -9,6 +9,17 @@
  * stylesheet declared. It is the same reason the capture script drives real
  * PointerEvents instead of trusting the state machine's own account.
  *
+ * WHICH SURFACES. Eight tabs and the onboarding welcome are reachable by a
+ * hash alone. The economy moments are not: the reward screen, the combo
+ * interstitial and the graded answer strip only exist after a lesson has been
+ * played, and one of them needs six days of history behind it. So a route here
+ * is either a hash or a SEED plus a DRIVE, and the drives are the same ones
+ * capture-economy.mjs uses, imported from economy-moments.mjs so the two cannot
+ * drift. This matters more than it sounds: those three surfaces were built and
+ * shipped without this audit ever having stood in front of them, and an
+ * unvisited surface is an unmeasured one. A drive that does not reach its
+ * moment aborts the run rather than reporting a screen nobody asked about.
+ *
  * WHAT IT MEASURES. Every element with visible text, and every SVG mark with a
  * fill or a stroke, on every tab, in both themes. For each one it resolves the
  * effective backdrop by climbing ancestors until something opaque, compositing
@@ -37,9 +48,41 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
+import { LESSON_HASH, MOMENTS, installSeed, sleep } from "./economy-moments.mjs";
 
 const TABS = ["trainer", "pathway", "courses", "search", "leaderboards", "periodic", "chat", "messages"];
-const ROUTES = [...TABS.map((tab) => ({ name: tab, hash: `#/${tab}` })), { name: "onboarding", hash: "#/start/welcome" }];
+
+/**
+ * The economy moments, as routes.
+ *
+ * `root` scopes the measurement to the moment's own subtree, and it is only set
+ * for the two FULL SCREEN stages. Both paint an opaque ground over the lesson,
+ * so the lesson under them is not on screen, and measuring it here would report
+ * pairs no student is looking at. The answer strip is not a stage: it is a band
+ * inside the live lesson, so that route measures the whole page and the lesson
+ * player gets audited with it.
+ *
+ * `midMs` asks for a second measurement that many milliseconds after the press
+ * that opens the moment, while it is still animating. A colour that exists only
+ * during a transition is still a colour a student reads, and both of these
+ * surfaces move: the strip slides its explanation in under a berry that is
+ * mid-squash, and the interstitial pops its count and rises its character. The
+ * reward moment gets no mid frame on purpose; its settled state is the judged
+ * one, and its beats are already frame-captured by capture-economy.mjs.
+ */
+const ECONOMY_ROUTES = [
+  { name: "feedback-correct", moment: "feedback-correct", root: null, midMs: 250 },
+  { name: "feedback-wrong", moment: "feedback-wrong", root: null, midMs: 250 },
+  { name: "combo", moment: "combo", root: "[data-combo]", midMs: 250 },
+  { name: "reward-first", moment: "reward-first", root: "[data-reward]", midMs: null },
+  { name: "reward-streak", moment: "reward-streak", root: "[data-reward]", midMs: null },
+];
+
+const ROUTES = [
+  ...TABS.map((tab) => ({ name: tab, hash: `#/${tab}` })),
+  { name: "onboarding", hash: "#/start/welcome" },
+  ...ECONOMY_ROUTES.map((route) => ({ ...route, seed: MOMENTS[route.moment].seed, drive: MOMENTS[route.moment].drive })),
+];
 const VIEWPORT = { width: 1280, height: 900, deviceScaleFactor: 1 };
 
 function findChrome() {
@@ -83,8 +126,17 @@ const origin = `http://127.0.0.1:${server.address().port}`;
  * It lives here as a string-free function passed to page.evaluate rather than
  * in a module the page imports, because the built app is the artifact under
  * test and adding an import to it would change what is being measured.
+ *
+ * `rootSelector` is null for a whole page, or a selector for the one subtree
+ * that is actually on screen (a full screen stage over a lesson). It returns
+ * null, never an empty list, when that selector matches nothing: a route whose
+ * surface is absent has to be reported, and zero findings would read as a pass.
+ * The backdrop climb still walks past the root to the document, because what is
+ * behind the stage is what composes it.
  */
-function auditInPage() {
+function auditInPage(rootSelector) {
+  const root = rootSelector === null ? document.body : document.querySelector(rootSelector);
+  if (root === null) return null;
   const parse = (value) => {
     const match = /rgba?\(([^)]+)\)/.exec(value ?? "");
     if (match === null) return null;
@@ -272,7 +324,7 @@ function auditInPage() {
 
   // Text: every element that owns a non-empty text node of its own, so a
   // paragraph is measured once rather than once per ancestor.
-  for (const el of document.querySelectorAll("body *")) {
+  for (const el of root.querySelectorAll("*")) {
     if (el instanceof SVGElement) continue;
     const own = [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim() !== "");
     if (own.length === 0 || !visible(el)) continue;
@@ -287,7 +339,7 @@ function auditInPage() {
 
   // SVG marks. Text glyphs carry the text floor; everything else is a graphic
   // under 1.4.11 and carries 3.0. Strokes count: a bond is an interface object.
-  for (const el of document.querySelectorAll("svg *")) {
+  for (const el of root.querySelectorAll("svg *")) {
     if (!visible(el)) continue;
     const style = getComputedStyle(el);
     const tag = el.tagName.toLowerCase();
@@ -350,20 +402,60 @@ function auditInPage() {
 
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: "new" });
 const all = [];
+
+/** Measure one surface and file its pairs under `label`. */
+async function collect(page, label, theme, rootSelector) {
+  const findings = await page.evaluate(auditInPage, rootSelector);
+  if (findings === null) {
+    throw new Error(`${label} (${theme}): nothing matched "${rootSelector}", so the surface is not on screen and there is nothing honest to measure.`);
+  }
+  for (const finding of findings) all.push({ theme, route: label, ...finding });
+}
+
 try {
   for (const theme of ["light", "dark"]) {
     for (const route of ROUTES) {
-      const page = await browser.newPage();
-      await page.setViewport(VIEWPORT);
-      await page.evaluateOnNewDocument((wanted) => {
-        localStorage.setItem("theme", wanted);
-        document.documentElement.classList.toggle("dark", wanted === "dark");
-      }, theme);
-      await page.goto(`${origin}/?targets=1${route.hash}`, { waitUntil: "networkidle0" });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const findings = await page.evaluate(auditInPage);
-      for (const finding of findings) all.push({ theme, route: route.name, ...finding });
-      await page.close();
+      if (route.hash !== undefined) {
+        const page = await browser.newPage();
+        await page.setViewport(VIEWPORT);
+        await page.evaluateOnNewDocument((wanted) => {
+          localStorage.setItem("theme", wanted);
+          document.documentElement.classList.toggle("dark", wanted === "dark");
+        }, theme);
+        await page.goto(`${origin}/?targets=1${route.hash}`, { waitUntil: "networkidle0" });
+        await sleep(500);
+        await collect(page, route.name, theme, null);
+        await page.close();
+        continue;
+      }
+      // A seeded route in its own browser context. The seed clears localStorage
+      // and writes a journal, and the hash routes above share one context and
+      // one origin with it, so without the isolation a played lesson would
+      // follow them into the next theme's tabs and this would stop being a
+      // measurement of the same nine surfaces it has always measured.
+      const context = await browser.createBrowserContext();
+      try {
+        const page = await context.newPage();
+        await page.setViewport(VIEWPORT);
+        await installSeed(page, theme, route.seed);
+        await page.goto(`${origin}/${LESSON_HASH}`, { waitUntil: "networkidle0" });
+        const onTrigger =
+          route.midMs === null
+            ? null
+            : async (at) => {
+                const wait = at + route.midMs - Date.now();
+                if (wait > 0) await sleep(wait);
+                await collect(page, `${route.name}@${route.midMs}ms`, theme, route.root);
+              };
+        const result = await route.drive(page, { onTrigger });
+        if (!result.reached) {
+          throw new Error(`${route.name} (${theme}): the drive did not reach the moment, so whatever is on screen is not the surface under audit.`);
+        }
+        await sleep(500);
+        await collect(page, route.name, theme, route.root);
+      } finally {
+        await context.close();
+      }
     }
   }
 } finally {
