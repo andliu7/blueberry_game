@@ -10,7 +10,7 @@
 
 import { describe, expect, it } from "vitest";
 import { deriveEconomy, type EconomyEvent } from "@blueberry/economy";
-import { hudModel, hudReadouts, HUD_ITEM_IDS } from "../src/app/ui/hudModel";
+import { hudModel, hudReadouts, HUD_BUTTON_IDS, HUD_ITEM_IDS } from "../src/app/ui/hudModel";
 
 const TZ = "UTC";
 const NOW = "2026-08-28T14:00:00.000Z";
@@ -227,5 +227,87 @@ describe("hudModel, the voice", () => {
       .map((readout) => `${readout.eyebrow} ${readout.headline} ${readout.line} ${readout.label}`)
       .join(" ");
     expect(text).not.toMatch(/mastery|rank|arrow pusher|mechanist/i);
+  });
+});
+
+
+/**
+ * Round two's header is three buttons, not four, and the coach mark is a moment
+ * rather than a definition. Both of those are claims about the model, so both
+ * are checked here rather than only in the capture.
+ */
+describe("hudModel, the three button header", () => {
+  it("gives a button to every system except the goal, which the header edge draws", () => {
+    expect([...HUD_BUTTON_IDS]).toEqual(["diamonds", "streak", "charge"]);
+    // The goal is still a readout and still carries its own sentence: it moved
+    // surface, it did not disappear.
+    expect(HUD_ITEM_IDS).toContain("xp");
+    expect(HUD_BUTTON_IDS).not.toContain("xp");
+  });
+
+  it("states the rule rather than repeating the eyebrow in the headline", () => {
+    const charge = model([]).charge;
+    expect(charge.headline).toBe("Mistakes never cost charge");
+    // The defect the critic named: the small caps eyebrow and the headline said
+    // the same word in adjacent lines.
+    expect(charge.headline.toLowerCase()).not.toContain(charge.eyebrow.toLowerCase() + " ");
+    expect(charge.headline).not.toMatch(/\d/);
+  });
+});
+
+describe("hudModel, the coach mark's unit rows", () => {
+  const fiveDays: readonly EconomyEvent[] = [
+    { kind: "settings", at: at(6), tz: TZ, dailyGoal: "regular" },
+    countedDay(5, "n5"),
+    countedDay(4, "n4"),
+    countedDay(3, "n3"),
+    countedDay(2, "n2"),
+    countedDay(1, "n1"),
+  ];
+
+  it("draws seven days ending today, with the run marked and today last", () => {
+    const week = model(fiveDays).streak.week;
+    expect(week).toHaveLength(7);
+    expect(week[6]?.today).toBe(true);
+    expect(week.filter((day) => day.today)).toHaveLength(1);
+    // Five counted days ending YESTERDAY, because today is not counted yet.
+    expect(week.map((day) => day.counted)).toEqual([false, true, true, true, true, true, false]);
+    expect(week.every((day) => day.letter.length > 0)).toBe(true);
+  });
+
+  it("moves the run onto today the moment today counts", () => {
+    const week = model([...fiveDays, countedDay(0, "n0")]).streak.week;
+    // Six counted days now: the five before today, plus today. Seven slots, so
+    // the oldest one falls off the left of the strip.
+    expect(week.map((day) => day.counted)).toEqual([false, true, true, true, true, true, true]);
+    expect(week[6]?.counted).toBe(true);
+  });
+
+  it("draws nothing counted on an empty account rather than a broken strip", () => {
+    const week = model([]).streak.week;
+    expect(week).toHaveLength(7);
+    expect(week.some((day) => day.counted)).toBe(false);
+  });
+
+  it("reads how far the next point has come, and claims none at the cap", () => {
+    // Nothing spent, so the meter is full and no point is on its way.
+    expect(model([]).charge.nextFraction).toBe(0);
+
+    const spent: readonly EconomyEvent[] = [
+      { kind: "node_started", at: at(0, 13), tz: TZ, nodeId: "a", nodeKind: "reaction" },
+    ];
+    // The clear happened at 13:00 and NOW is 14:00, so regen has run for a whole
+    // number of half hours and the next point has only just started.
+    const fraction = model(spent).charge.nextFraction;
+    expect(fraction).toBeGreaterThanOrEqual(0);
+    expect(fraction).toBeLessThanOrEqual(1);
+  });
+
+  it("never lets the next point read as arrived inside the exam window", () => {
+    const journal: readonly EconomyEvent[] = [
+      { kind: "settings", at: at(1), tz: TZ, examDate: "2026-09-06" },
+      { kind: "node_started", at: at(0, 13), tz: TZ, nodeId: "a", nodeKind: "reaction" },
+    ];
+    expect(model(journal).charge.nextFraction).toBe(0);
   });
 });

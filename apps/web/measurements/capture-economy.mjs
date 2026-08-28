@@ -92,6 +92,7 @@ import {
   driveHudCharge,
   driveHudLit,
   driveHudRest,
+  driveHudStreak,
   driveReward,
   openSeeded,
   sleep,
@@ -235,8 +236,9 @@ async function captureP2(browser, viewportName, theme, dir) {
 }
 
 /**
- * P3, the header HUD. Two moments on the pathway tab: the header at rest, and
- * the same header with the charge coach mark open.
+ * P3, the header HUD. Three moments on the pathway tab: the header at rest,
+ * the same header with the charge coach mark open, and the streak coach mark,
+ * which is where the week strip and the goal ring are drawn at size.
  *
  * Unlike P1 and P2 this piece has no press to walk to, so the rest burst runs
  * from the moment the header settles rather than from a click. That is the
@@ -265,6 +267,15 @@ async function captureP3(browser, viewportName, theme, dir) {
     const page = await open(browser, viewport, theme, HUD_HASH, P3_SEED, P3_STORED);
     const { moment, reached, trigger, state } = await driveHudCharge(page, {
       onTrigger: (at) => burst(page, dir, `${tag}-hud-charge`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  {
+    const page = await open(browser, viewport, theme, HUD_HASH, P3_SEED, P3_STORED);
+    const { moment, reached, trigger, state } = await driveHudStreak(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-hud-streak`, at),
     });
     results.push({ moment, reached, frames: trigger, state });
     await page.close();

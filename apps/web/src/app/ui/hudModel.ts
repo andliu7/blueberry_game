@@ -7,6 +7,12 @@
  * says "Never show Mastery inside a node" and the header is on screen inside
  * every node.
  *
+ * Four systems, THREE buttons. Round two moved the daily goal out of the status
+ * row and onto the header's bottom edge, so the model still carries four
+ * readouts and the header renders three of them as controls. HUD_ITEM_IDS is
+ * the readouts; HUD_BUTTON_IDS is the buttons; they are deliberately different
+ * lists and the second one says why.
+ *
  * WHY THIS IS A SEPARATE FILE. Everything the HUD decides is a function of the
  * snapshot: which flame is lit, what the ring is a fraction of, and every word
  * of the coach copy. Keeping that here means it is testable without a DOM, and
@@ -26,11 +32,34 @@
  * promise broken in another language.
  */
 
-import type { DailyGoalTier, EconomySnapshot } from "@blueberry/economy";
+import { CHARGE_REGEN_MINUTES, type DailyGoalTier, type EconomySnapshot } from "@blueberry/economy";
 
 export type HudItemId = "xp" | "diamonds" | "streak" | "charge";
 
 export const HUD_ITEM_IDS: readonly HudItemId[] = Object.freeze(["xp", "diamonds", "streak", "charge"]);
+
+/**
+ * The ids that get a BUTTON in the header, which is deliberately not the same
+ * list as the readouts above.
+ *
+ * Round one put four equal readouts, a language code and a theme toggle in one
+ * row, and the blind critic's single biggest finding was that nothing in it had
+ * primacy: seven chips at one size, one weight and one saturation. So the row
+ * is three items now, one of them dominant, and the daily goal moved out of the
+ * row entirely and became the header's own bottom edge: a full width meter
+ * where the divider used to be. That is the bar's in-lesson header pattern
+ * (close, a progress bar across the whole width, one resource chip) rather than
+ * its path header's four equal chips, and it costs the row no horizontal space
+ * at all, which is what buys the dominant chip its size at 390px.
+ *
+ * XP is therefore still on screen, still a DRAWN fraction, and still opens a
+ * coach mark: the streak button owns it, because "hit today's goal" and "keep
+ * the streak" are one sentence in docs/ECONOMY.md and two chips for one
+ * sentence is what the round one header was doing wrong.
+ */
+export type HudButtonId = "diamonds" | "streak" | "charge";
+
+export const HUD_BUTTON_IDS: readonly HudButtonId[] = Object.freeze(["diamonds", "streak", "charge"]);
 
 /** What every item carries: the header glyph's number, its label, and its coach mark. */
 export interface HudReadout {
@@ -60,6 +89,24 @@ export interface DiamondReadout extends HudReadout {
   readonly balance: number;
 }
 
+/**
+ * One square in the coach mark's week strip.
+ *
+ * The strip is why the streak coach mark is a MOMENT and not a definition: the
+ * bar's own limiter primer draws its resource as a row of units with one
+ * visibly spent, and a row of seven days with five of them lit says "five days"
+ * far faster than the sentence "5 day streak" does. It is derived, not stored:
+ * a run of `current` days ends today when today counted and yesterday when it
+ * has not, which is everything the snapshot knows and everything the strip
+ * claims.
+ */
+export interface StreakDay {
+  /** The narrow weekday initial, in the snapshot's own zone. */
+  readonly letter: string;
+  readonly counted: boolean;
+  readonly today: boolean;
+}
+
 export interface StreakReadout extends HudReadout {
   readonly id: "streak";
   readonly days: number;
@@ -67,6 +114,8 @@ export interface StreakReadout extends HudReadout {
   readonly lit: boolean;
   /** Unmet and past the evening hour. Copy changes; the flame does not. */
   readonly atRisk: boolean;
+  /** Seven days ending today, oldest first. The coach mark's unit row. */
+  readonly week: readonly StreakDay[];
 }
 
 export interface ChargeReadout extends HudReadout {
@@ -80,6 +129,17 @@ export interface ChargeReadout extends HudReadout {
   readonly daysLeft: number | null;
   /** The caption under the meter in the exam window, "9d". Empty otherwise. */
   readonly daysLabel: string;
+  /**
+   * How far along the NEXT point is, 0 to 1. Zero at the cap and in the exam
+   * window, where no point is on its way.
+   *
+   * This is the beat the bar cannot show. Its primer draws a spent heart and
+   * stops; ours draws the pip that is refilling, because the honest thing about
+   * this limiter is that it comes back on its own and the student is looking at
+   * the proof. `nextRegenAt` is already derived, so this is a read of the wall
+   * clock against it and never a second opinion about the economy.
+   */
+  readonly nextFraction: number;
 }
 
 export interface HudModel {
@@ -147,8 +207,41 @@ function diamondReadout(snapshot: EconomySnapshot): DiamondReadout {
   };
 }
 
+const DAY_MS = 86_400_000;
+
+/**
+ * Seven days ending today, with the current run marked.
+ *
+ * The zone comes off the snapshot, so a student who studies at 1am sees their
+ * own Monday and not UTC's Tuesday. An unknown zone falls back to the runtime's
+ * rather than throwing, because a letter under a square is a label and a header
+ * that crashes over one is a worse bug than a wrong initial.
+ */
+function weekStrip(snapshot: EconomySnapshot): readonly StreakDay[] {
+  const { current, todayCounted } = snapshot.streak;
+  const nowMs = Date.parse(snapshot.now);
+  let format: Intl.DateTimeFormat;
+  try {
+    format = new Intl.DateTimeFormat("en-US", { weekday: "narrow", timeZone: snapshot.tz });
+  } catch {
+    format = new Intl.DateTimeFormat("en-US", { weekday: "narrow" });
+  }
+  // The run ends today when today counted, else it ended yesterday.
+  const endsAt = todayCounted ? 0 : 1;
+  const days: StreakDay[] = [];
+  for (let back = 6; back >= 0; back -= 1) {
+    days.push({
+      letter: Number.isFinite(nowMs) ? format.format(new Date(nowMs - back * DAY_MS)) : "",
+      counted: current > 0 && back >= endsAt && back <= endsAt + current - 1,
+      today: back === 0,
+    });
+  }
+  return days;
+}
+
 function streakReadout(snapshot: EconomySnapshot): StreakReadout {
   const { current, todayCounted, atRisk } = snapshot.streak;
+  const week = weekStrip(snapshot);
   if (current === 0 && !todayCounted) {
     return {
       id: "streak",
@@ -160,6 +253,7 @@ function streakReadout(snapshot: EconomySnapshot): StreakReadout {
       days: 0,
       lit: false,
       atRisk,
+      week,
     };
   }
   const headline = `${current} day streak`;
@@ -181,7 +275,17 @@ function streakReadout(snapshot: EconomySnapshot): StreakReadout {
     days: current,
     lit: todayCounted,
     atRisk,
+    week,
   };
+}
+
+/** How far the next point has come, read off `nextRegenAt` against the clock. */
+function nextChargeFraction(snapshot: EconomySnapshot): number {
+  const { nextRegenAt } = snapshot.charge;
+  if (nextRegenAt === null) return 0;
+  const remainingMs = Date.parse(nextRegenAt) - Date.parse(snapshot.now);
+  if (!Number.isFinite(remainingMs)) return 0;
+  return clamp01(1 - remainingMs / (CHARGE_REGEN_MINUTES * 60_000));
 }
 
 function chargeReadout(snapshot: EconomySnapshot): ChargeReadout {
@@ -205,6 +309,7 @@ function chargeReadout(snapshot: EconomySnapshot): ChargeReadout {
       examWindow: true,
       daysLeft,
       daysLabel: daysLeft <= 0 ? "today" : `${daysLeft}d`,
+      nextFraction: 0,
     };
   }
   return {
@@ -212,7 +317,16 @@ function chargeReadout(snapshot: EconomySnapshot): ChargeReadout {
     value: String(current),
     label: `Charge, ${current} of ${cap}`,
     eyebrow: "Charge",
-    headline: `${current} of ${cap} charge`,
+    // NOT "17 of 30 charge". The blind critic's finding was that the coach mark
+    // read as a settings tooltip: a small caps CHARGE directly above a headline
+    // that said the word charge again, then a labelled fraction and a flat
+    // button. The bar's equivalent says "Each mistake costs 1 heart!", which is
+    // a RULE and an event, and it wins on that alone. This is the same sentence
+    // shape carrying the opposite rule, which is the one docs/ECONOMY.md calls
+    // "the whole ethical argument for the mechanic". The count is not written
+    // here because the pip row above it draws it, thirty units with seventeen
+    // lit and the next one filling.
+    headline: "Mistakes never cost charge",
     // The second sentence is mandated by ECONOMY.md's Charge rules and is the
     // difference between this meter and the one it is a correction of.
     line: "Charge refills a point every 30 minutes. Starting a node costs some. Getting things wrong never does.",
@@ -222,6 +336,7 @@ function chargeReadout(snapshot: EconomySnapshot): ChargeReadout {
     examWindow: false,
     daysLeft: examDaysLeft,
     daysLabel: "",
+    nextFraction: nextChargeFraction(snapshot),
   };
 }
 

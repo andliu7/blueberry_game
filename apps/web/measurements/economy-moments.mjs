@@ -459,21 +459,46 @@ export const P3_LIT_SEED = hudLitSeed();
 /** The tab the header is judged on. */
 export const HUD_HASH = "#/pathway";
 
-/** What the seed must produce, read off the rendered header and never recomputed. */
+/**
+ * What the seed must produce, read off the rendered header and never recomputed.
+ *
+ * THREE ITEMS, not four. Round two moved the daily goal out of the status row
+ * and into the header's own bottom edge, because the blind critic's finding was
+ * that seven equal chips left the pacing resource with no primacy. The goal is
+ * still asserted, and by the same sentence it always carried; it is read off
+ * the progressbar now instead of off a button.
+ */
 const HUD_EXPECTED = {
-  xp: "Daily goal, 14 of 20 XP today",
   diamonds: "137 diamonds",
   streak: "Streak, 5 days, today not counted yet",
   charge: "Charge, 17 of 30",
 };
 
+/** The goal, now the header's bottom edge rather than one of the chips. */
+const HUD_EXPECTED_GOAL = "Daily goal, 14 of 20 XP today";
+
+/**
+ * How much bigger the dominant readout has to be than its neighbours.
+ *
+ * The verdict asked for "roughly 1.6 to 2x the type size of its neighbours",
+ * and the build answers with --text-scale-2xl against --text-scale-sm, which is
+ * exactly 2. This floor is what stops a later type scale edit from quietly
+ * flattening the row back to what lost round one, so it is a check on the
+ * finding and not on the implementation.
+ */
+const HUD_DOMINANT_MIN_RATIO = 1.6;
+
 /**
  * Everything about the header a shot cannot show a critic: what each readout
- * claims, whether the row overflowed, and whether every target is 44px.
+ * claims, whether the row overflowed, whether every target is 44px, whether the
+ * dominant chip is actually dominant, and how close the charge meter gets to
+ * the header's bottom edge.
  */
 async function readHud(page) {
   return page.evaluate(() => {
     const header = document.querySelector("header");
+    const headerRect = header === null ? null : header.getBoundingClientRect();
+    const fontPx = (node) => (node === null ? 0 : Number.parseFloat(getComputedStyle(node).fontSize));
     const items = [...document.querySelectorAll("[data-hud]")].map((node) => {
       const rect = node.getBoundingClientRect();
       return {
@@ -481,42 +506,70 @@ async function readHud(page) {
         label: node.getAttribute("aria-label"),
         width: Math.round(rect.width * 10) / 10,
         height: Math.round(rect.height * 10) / 10,
+        // The number's own type size, which is what the verdict measured.
+        numberPx: fontPx(node.querySelector(".hud-charge-value") ?? node.querySelector("span:last-child")),
       };
     });
+    const goal = document.querySelector(".hud-goal");
+    const meter = document.querySelector("[data-hud='charge'] .hud-meter");
     const sheet = document.querySelector("dialog[data-hud-sheet][open]");
     return {
       items,
+      goalLabel: goal === null ? null : goal.getAttribute("aria-label"),
+      // How far the charge meter's bottom sits above the header's bottom edge.
+      // The critic measured the round one sliver colliding with the divider, so
+      // the clearance is measured rather than asserted in a comment.
+      meterClearancePx:
+        meter === null || headerRect === null
+          ? -1
+          : Math.round((headerRect.bottom - meter.getBoundingClientRect().bottom) * 10) / 10,
       // "Must work at 390px wide without wrapping the header": a header whose
       // content is wider than its box has either overflowed or wrapped, and
       // both are the same failure to a reader.
       headerScrollWidth: header === null ? -1 : header.scrollWidth,
       headerClientWidth: header === null ? -1 : header.clientWidth,
-      headerHeight: header === null ? -1 : Math.round(header.getBoundingClientRect().height),
+      headerHeight: headerRect === null ? -1 : Math.round(headerRect.height),
       sheet: sheet === null ? null : sheet.getAttribute("data-hud-sheet"),
       sheetHeadline: sheet === null ? "" : (sheet.querySelector("h2")?.textContent ?? "").trim(),
       sheetLines: sheet === null ? [] : [...sheet.querySelectorAll("p")].map((p) => (p.textContent ?? "").trim()),
+      // The unit row. Its presence is what makes the coach mark a moment rather
+      // than a definition, so it is a reached / not reached fact.
+      sheetUnits: sheet === null ? 0 : sheet.querySelectorAll(".hud-pip, .hud-day").length,
+      sheetSpotlight: sheet === null ? 0 : sheet.querySelectorAll(".hud-spot").length,
+      sheetCtas: sheet === null ? 0 : sheet.querySelectorAll(".hud-panel-cta").length,
+      sheetEyebrows: sheet === null ? 0 : sheet.querySelectorAll("[data-hud-eyebrow]").length,
     };
   });
 }
 
 /**
- * Four readouts, every target at least 44 by 44, and a header that did not
- * overflow its own box. True of every HUD moment whatever the numbers say.
+ * Three readouts, every target at least 44 by 44, a dominant chip that really
+ * is dominant, a charge meter clear of the header's bottom edge, and a header
+ * that did not overflow its own box. True of every HUD moment whatever the
+ * numbers say.
  *
  * CLAUDE.md's budget table sets the 44 point floor. Half a pixel of slack,
  * because a fractional layout can land on 43.98.
  */
 function hudGeometryHolds(state) {
-  if (state.items.length !== 4) return false;
+  if (state.items.length !== 3) return false;
   for (const item of state.items) {
     if (item.width < 43.5 || item.height < 43.5) return false;
   }
+  const charge = state.items.find((item) => item.id === "charge");
+  const others = state.items.filter((item) => item.id !== "charge");
+  if (charge === undefined || others.length === 0) return false;
+  const biggestNeighbour = Math.max(...others.map((item) => item.numberPx));
+  if (biggestNeighbour <= 0) return false;
+  if (charge.numberPx / biggestNeighbour < HUD_DOMINANT_MIN_RATIO) return false;
+  if (state.meterClearancePx < 4) return false;
   return state.headerScrollWidth <= state.headerClientWidth + 1;
 }
 
-/** True when every readout says what the seed was built to make it say. */
+/** True when every readout, and the goal edge, says what the seed built it to say. */
 function hudMatches(state) {
   if (!hudGeometryHolds(state)) return false;
+  if (state.goalLabel !== HUD_EXPECTED_GOAL) return false;
   return state.items.every((item) => HUD_EXPECTED[item.id] === item.label);
 }
 
@@ -535,7 +588,7 @@ export async function driveHudLit(page, { onTrigger = null } = {}) {
   const state = await readHud(page);
   const reached =
     hudGeometryHolds(state) &&
-    labelOf(state, "xp").startsWith("Daily goal met") &&
+    (state.goalLabel ?? "").startsWith("Daily goal met") &&
     labelOf(state, "streak").endsWith("today counted");
   return { moment: "hud-lit", reached, at, trigger, state };
 }
@@ -576,11 +629,61 @@ export async function driveHudCharge(page, { onTrigger = null } = {}) {
   const reached =
     hudMatches(state) &&
     state.sheet === "charge" &&
-    state.sheetHeadline === "17 of 30 charge" &&
+    // NOT "17 of 30 charge". The verdict called that a labelled fraction that
+    // reads as a settings tooltip, and asked for a moment: a rule, a drawn row
+    // of units, a spotlight cut around the counter, one large CTA. Each of those
+    // is a condition here, so a build that drifts back to a definition fails
+    // rather than merely looking worse.
+    state.sheetHeadline === "Mistakes never cost charge" &&
+    state.sheetUnits === 30 &&
+    state.sheetSpotlight === 1 &&
+    state.sheetCtas === 1 &&
+    // The word CHARGE sat directly above a headline that said charge again. The
+    // eyebrow is gone from the panel entirely; this is what keeps it gone.
+    state.sheetEyebrows === 0 &&
     // The one sentence the piece is required to carry. Asserted verbatim,
     // because it is the promise ECONOMY.md makes about wrong answers.
     state.sheetLines.some((line) => line.includes("Starting a node costs some. Getting things wrong never does."));
   return { moment: "hud-charge", reached, at, trigger, state };
+}
+
+/**
+ * The streak coach mark, opened by a real press on the flame.
+ *
+ * It is here because the week strip is the other half of the claim this piece
+ * makes about coach marks: that they are moments rather than definitions. Seven
+ * squares with five of them lit and today drawn as the goal ring is the same
+ * gesture the bar uses for its hearts, applied to the resource the bar keeps in
+ * a different screen entirely. A claim with no frame behind it is the sort of
+ * thing a still capture quietly hides.
+ */
+export async function driveHudStreak(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("[data-hud='streak']", { timeout: 10_000 });
+  await page.waitForSelector("[role='region']", { timeout: 10_000 }).catch(() => {});
+  await sleep(500);
+  const point = await page.evaluate(() => {
+    const node = document.querySelector("[data-hud='streak']");
+    if (node === null) return null;
+    const rect = node.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  });
+  const at = await press(page, point, "streak readout");
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  await page.waitForSelector("dialog[data-hud-sheet='streak'][open]", { timeout: 5_000 }).catch(() => {});
+  const state = await readHud(page);
+  const reached =
+    hudMatches(state) &&
+    state.sheet === "streak" &&
+    state.sheetHeadline === "5 day streak" &&
+    // Seven days drawn, a spotlight cut round the flame, one CTA, no eyebrow.
+    state.sheetUnits === 7 &&
+    state.sheetSpotlight === 1 &&
+    state.sheetCtas === 1 &&
+    state.sheetEyebrows === 0 &&
+    // ECONOMY.md's release valve, named before a student needs it rather than
+    // after they have lost something.
+    state.sheetLines.some((line) => line.includes("daily goal"));
+  return { moment: "hud-streak", reached, at, trigger, state };
 }
 
 /**
@@ -596,5 +699,6 @@ export const MOMENTS = {
   "reward-streak": { seed: P2_SEEDS.streak, drive: (page, options) => driveReward(page, "streak", options) },
   "hud-rest": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudRest(page, options) },
   "hud-charge": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudCharge(page, options) },
+  "hud-streak": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudStreak(page, options) },
   "hud-lit": { seed: P3_LIT_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudLit(page, options) },
 };

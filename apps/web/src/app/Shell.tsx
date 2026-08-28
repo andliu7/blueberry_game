@@ -32,13 +32,17 @@ const ChatTab = lazy(() => import("../tabs/chat/ChatTab"));
 const MessagesTab = lazy(() => import("../tabs/messages/MessagesTab"));
 
 /**
- * Theme and language are CHROME, and the header now has readouts in it.
+ * Theme and language are CHROME, and the header has readouts in it.
  *
  * They shipped as bordered white pills, which on a phone put two 44px discs
  * beside four flat numbers and made the loudest things in the header the two
  * that say the least. They are ghost buttons now: same 44px target, same press,
- * no box. The border was carrying "this is pressable", and next to four things
- * that are visibly NOT pressable it no longer has to.
+ * no box. The border was carrying "this is pressable", and next to things that
+ * are visibly NOT pressable it no longer has to.
+ *
+ * Round two moved them out of the status row entirely, to the left of the
+ * header beside the wordmark. Same buttons, same targets; what changed is which
+ * half of the header a student's eye lands in when it is looking for a number.
  */
 function ThemeToggle() {
   const theme = useTheme();
@@ -124,21 +128,31 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
       </nav>
 
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 border-b border-border bg-background/85 px-2 py-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
-          {/* The wordmark is the first thing to go on a phone: four readouts,
-              a language code and a theme toggle do not fit beside it at 390px,
-              and the tab bar already says which app this is. The mark stays as
-              the home link and keeps the accessible name. */}
-          <a href={hrefForTab("trainer")} className="flex items-center gap-2 md:hidden" aria-label="Blueberry home">
-            <BlueberryMark className="h-7 w-7 shrink-0" />
-            <span className="title-face hidden text-scale-base font-semibold sm:inline">Blueberry</span>
-          </a>
-          <h1 className="hidden text-scale-lg font-semibold text-foreground md:block">{label}</h1>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Hud />
+        {/* No `border-b`. The header's bottom edge is the daily goal meter the
+            HUD draws, and a border a pixel above a track is a seam rather than
+            a design. See hud.css, "the daily goal edge". */}
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-background/85 px-2 pb-2.5 pt-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
+          {/* CHROME ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
+              on round one was that the language code and the theme toggle sat in
+              the status row at the same size and weight as the readouts, so the
+              row had seven equal chips and no primacy. They are chrome: they
+              belong beside the wordmark, muted, on the other side of the header
+              from anything a student reads as a score.
+
+              The wordmark TEXT is still the first thing to go on a phone, and
+              the tab bar already says which app this is. The mark stays as the
+              home link and keeps the accessible name. */}
+          <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
+            <a href={hrefForTab("trainer")} className="flex items-center gap-2 md:hidden" aria-label="Blueberry home">
+              <BlueberryMark className="h-6 w-6 shrink-0" />
+              <span className="title-face hidden text-scale-base font-semibold sm:inline">Blueberry</span>
+            </a>
+            <h1 className="hidden truncate text-scale-lg font-semibold text-foreground md:block">{label}</h1>
+            <span className="mx-0.5 hidden h-5 w-px bg-border md:inline-block" aria-hidden />
             <LanguageButton onOpen={() => setLanguageOpen(true)} />
             <ThemeToggle />
           </div>
+          <Hud />
         </header>
 
         <main className="min-h-0 flex-1">

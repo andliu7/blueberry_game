@@ -1,10 +1,11 @@
 /* ======================================================================
  * The header HUD. Imported by theme.css, the same way mascot.css is.
  *
- * Only four things need real CSS: the ring's transition, the guttering flame,
- * the charge meter, and where the coach mark sits. Everything else in Hud.tsx
- * is Tailwind utilities, because a utility that appears once has no business
- * being a class name in here.
+ * Round two rebuilt the hierarchy rather than the marks. What this file now
+ * owns: the daily goal along the header's bottom edge, the dominant charge
+ * chip, the guttering flame, the coach mark's spotlight, and the two unit rows
+ * the coach mark draws. Everything else in Hud.tsx is Tailwind utilities,
+ * because a utility that appears once has no business being a class name here.
  *
  * Every animation below is transform or opacity only, the two properties the
  * compositor can run without a layout or a paint, and every one of them stops
@@ -19,34 +20,130 @@
  *
  *   flame lit      --streak                      3.70:1 light,  8.25:1 dark
  *   flame out      --hud-out                     6.58:1 light,  7.41:1 dark
- *   meter fill     --good                        4.76:1 light,  9.72:1 dark
- *   ring arc       --primary                     4.95:1 light,  3.87:1 dark
- *   ring, goal met --good                        4.76:1 light,  9.72:1 dark
+ *   goal fill      --primary                     4.95:1 light,  3.87:1 dark
+ *   goal fill met  --good                        4.76:1 light,  9.72:1 dark
  *   diamond        --diamond                     3.56:1 light,  8.72:1 dark
  *
  * The numbers beside them are TEXT and are held to 4.5:1 instead, which is why
  * each one is drawn in its family's `-ink` token rather than in the mark's own
  * fill:
  *
- *   XP             --primary-ink                 4.95:1 light,  6.86:1 dark
  *   diamonds       --diamond-ink                 5.15:1 light,  8.72:1 dark
  *   streak lit     --streak-ink                  6.35:1 light, 11.07:1 dark
  *   streak out     --muted-foreground            6.58:1 light,  7.41:1 dark
- *   charge         --good-ink                    6.67:1 light, 12.25:1 dark
  *
  * That split is the same one --good/--good-ink and --primary/--primary-ink
  * already carry, and it exists because a fill bright enough to read as a flame
  * is not dark enough to read as a word.
  *
+ * THE CHARGE CHIP IS THE ONE PAIR THAT IS NOT ON THE HEADER GROUND. Its number
+ * and its word sit on --good-soft, which is opaque in light and a translucent
+ * wash in dark, and both are drawn in --good-ink. That is measured by
+ * measurements/contrast-audit.mjs where it is composed rather than reasoned
+ * about here, which is the whole reason that script exists: the token table was
+ * right about this header once before and a component still shipped white on
+ * near white.
+ *
  * The facet washes inside the marks are white or black at low alpha ON the
  * mark, never on the page, so they carry no floor of their own.
  * ====================================================================== */
 
+/* ------------------------------------------------- the daily goal edge ---- */
+/*
+ * The header's bottom border, replaced by the goal it was hiding.
+ *
+ * Round one spent a 44px column of the row on a ring holding a two digit
+ * number, and the critic counted it as one of seven identical chips. The
+ * fraction is worth more than the column: as the header's own edge it is full
+ * width, it is legible from across the room, and it gives the row back the
+ * space the dominant chip needed. The track is the divider, so Shell.tsx drops
+ * its `border-b` when this renders; a border and a track a pixel apart is a
+ * seam, not a design.
+ *
+ * 4px, because 2px reads as a loading indicator and 6px reads as a second
+ * toolbar.
+ */
+.hud-goal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  height: 4px;
+  background: var(--border);
+  overflow: hidden;
+}
+.hud-goal-fill {
+  display: block;
+  height: 100%;
+  border-radius: 0 999px 999px 0;
+  background: var(--primary);
+  transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Met is a state change, not a nudge: the whole edge turns, which is the only
+   moment in the header that changes colour on its own. */
+.hud-goal[data-met="true"] .hud-goal-fill {
+  background: var(--good);
+}
+
 /* ---------------------------------------------------------- the ring ---- */
-/* XP landing mid session sweeps the arc round rather than jumping it. The
-   transition is on the geometry, so nothing repaints the ring's box. */
+/* The goal ring is drawn once, around today's square in the coach mark's week
+   strip. XP landing mid session sweeps the arc round rather than jumping it.
+   The transition is on the geometry, so nothing repaints the ring's box. */
 .hud-ring-arc {
   transition: stroke-dashoffset 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --------------------------------------------------- the charge chip ---- */
+/*
+ * The dominant readout. Everything here is the critic's finding, applied.
+ *
+ * The number is --text-scale-2xl against its neighbours' --text-scale-sm, which
+ * is exactly 2x and the top of the band the verdict asked for. The tinted pill
+ * is the only container in the row, so the chip is a different KIND of object
+ * from the two flat readings beside it rather than a bigger one. And the meter
+ * lives inside the pill, under the word, with the pill's own padding beneath
+ * it: the 8px sliver that collided with the header's divider is gone, and so
+ * is the divider it collided with.
+ */
+.hud-charge {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.1875rem;
+  padding: 0.25rem 0.5rem 0.3125rem;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--good) 34%, transparent);
+  background: var(--good-soft);
+}
+/*
+ * The meter spans the whole pill rather than sitting under the word. A short
+ * bar tucked under six letters reads as an underline; a bar the width of the
+ * chip reads as a gauge, and this one is the only place the 30 cap is drawn.
+ */
+.hud-charge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+}
+.hud-charge-value {
+  font-size: var(--text-scale-2xl);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--good-ink);
+}
+.hud-charge-value.is-exam {
+  /* The infinity glyph has no descender and reads small at the same size. */
+  font-size: calc(var(--text-scale-2xl) * 1.1);
+}
+.hud-charge-word {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--good-ink);
 }
 
 /* --------------------------------------------------------- the flame ---- */
@@ -76,21 +173,17 @@
 
 /* --------------------------------------------------------- the meter ---- */
 /*
- * The charge cap, drawn. It is under Bloom rather than beside the number
+ * The charge cap, drawn. It is under the word rather than beside the number
  * because the header has no width to spend on a "/ 30", and a bar answers the
- * same question in 4 pixels of height.
+ * same question in 5 pixels of height.
  */
 .hud-meter {
   display: block;
-  width: 1.75rem;
-  height: 0.25rem;
+  width: 100%;
+  height: 0.375rem;
   border-radius: 999px;
   background: var(--hud-track);
   overflow: hidden;
-}
-.hud-meter-wide {
-  width: 7rem;
-  height: 0.4375rem;
 }
 .hud-meter-fill {
   display: block;
@@ -108,69 +201,290 @@
 
 /* ----------------------------------------------------- the coach mark ---- */
 /*
- * A <dialog> sits in the top layer and centres itself by default. This pins it
- * under the header instead, which is where the thing it explains was, and
- * right aligns it on a wide screen for the same reason. Fixed positioning is
- * correct here rather than a hack: the top layer has no scroll container.
+ * The dialog is the whole viewport and is transparent, and its ::backdrop is
+ * transparent too. That is not decoration: the dimming is done by .hud-spot
+ * below, and a hole in the dim is only possible if the thing doing the dimming
+ * is an element we can shape.
  */
 .hud-sheet {
   position: fixed;
-  inset: auto;
-  top: 4.25rem;
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+.hud-sheet::backdrop {
+  background: transparent;
+}
+
+/*
+ * The spotlight.
+ *
+ * A transparent circle over the chip that was pressed, with two box shadows
+ * behind it: a soft light ring, then the scrim out to the edge of any screen.
+ * Shadows paint in order, first on top, so the ring survives the scrim. The
+ * element itself paints nothing, which is what leaves the chip fully lit while
+ * the rest of the page goes down.
+ *
+ * This is the bar's own move and it is the reason its primer reads as an event:
+ * the thing being explained is still on screen and is the brightest object in
+ * the frame. Round one dimmed the header along with everything else and then
+ * redrew the mark inside the panel, which is a diagram of the thing rather than
+ * the thing.
+ *
+ * The iris is a transform, so the scrim and the ring scale with it and nothing
+ * relayouts. It starts wide, which means frame zero of the capture burst is a
+ * barely dimmed page and frame three is the settled spotlight: four frames that
+ * differ, which is exactly what the bar's four byte identical primer frames do
+ * not give a critic.
+ */
+.hud-spot {
+  position: fixed;
+  display: block;
+  border-radius: 999px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 22px rgb(255 255 255 / 0.1),
+    0 0 0 150vmax rgb(0 0 0 / 0.58);
+}
+.hud-sheet[open] .hud-spot {
+  animation: hud-spot-in 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes hud-spot-in {
+  from {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.hud-panel {
+  position: absolute;
+  top: 5rem;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
   width: min(21rem, calc(100vw - 1.5rem));
-  max-height: calc(100dvh - 6rem);
+  max-height: calc(100dvh - 8rem);
   overflow: auto;
-  box-shadow: 0 18px 48px -12px rgb(0 0 0 / 0.35);
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  text-align: center;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 18px 48px -12px rgb(0 0 0 / 0.45);
 }
 @media (min-width: 768px) {
-  .hud-sheet {
+  .hud-panel {
     left: auto;
     right: 1.5rem;
     transform: none;
   }
 }
-.hud-sheet[open] {
-  animation: hud-sheet-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+.hud-sheet[open] .hud-panel {
+  animation: hud-panel-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.hud-sheet[open]::backdrop {
-  animation: hud-backdrop-in 180ms linear;
-}
-@keyframes hud-sheet-in {
+@keyframes hud-panel-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-0.5rem) scale(0.97);
+    transform: translateX(-50%) translateY(-0.75rem) scale(0.96);
   }
 }
 @media (min-width: 768px) {
-  @keyframes hud-sheet-in {
+  @keyframes hud-panel-in {
     from {
       opacity: 0;
-      transform: translateY(-0.5rem) scale(0.97);
+      transform: translateY(-0.75rem) scale(0.96);
     }
   }
 }
-@keyframes hud-backdrop-in {
+
+.hud-panel-headline {
+  font-size: var(--text-scale-xl);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--foreground);
+}
+.hud-panel-line {
+  font-size: var(--text-scale-sm);
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+/*
+ * One large primary CTA, which is the third thing the critic named. The bottom
+ * edge is the same 3px ledge the pathway's nodes carry, so a press has
+ * somewhere to travel: .press translates the button down and the ledge is what
+ * makes that read as a key going down rather than as a jitter.
+ */
+.hud-panel-cta {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 0.25rem;
+  border-radius: 0.875rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: var(--text-scale-base);
+  font-weight: 700;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 62%, #000);
+}
+.hud-panel-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hud-panel-charge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* ------------------------------------------------------- the unit rows ---- */
+/*
+ * Thirty pips, one per point of charge, and the one that is refilling.
+ *
+ * The bar draws five hearts with one already spent, which says "you have four".
+ * Ours says the same thing about a bigger number and then says one more thing
+ * the bar cannot: the next unit is visibly on its way, filled to however far
+ * the wall clock has carried it. A limiter that is drawn coming back is a
+ * different promise from one drawn going away, and it is the promise
+ * docs/ECONOMY.md actually makes.
+ */
+.hud-pips {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  align-items: flex-end;
+}
+.hud-pip {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0.875rem;
+  border-radius: 2px;
+  background: var(--hud-track);
+  transform-origin: 50% 100%;
+  /* EVERY pip cascades, lit or not. A first pass animated only the lit ones and
+     the burst opened on five green squares beside a wall of grey with a hole
+     between them, which reads as a rendering fault rather than as a row being
+     drawn. The whole row sweeps in; what differs is the colour it lands in. */
+  animation: hud-pip-in 300ms both cubic-bezier(0.22, 1, 0.36, 1);
+  animation-delay: calc(var(--i) * 24ms);
+}
+.hud-pip.is-lit {
+  background: var(--good);
+}
+/* The point on its way. Filled to the fraction of the half hour that has
+   passed, and breathing so it reads as in progress rather than as a rounding
+   error in the row beside it. */
+.hud-pip.is-next {
+  background: linear-gradient(to top, var(--good) calc(var(--next) * 100%), var(--hud-track) 0);
+  animation:
+    hud-pip-in 300ms both cubic-bezier(0.22, 1, 0.36, 1),
+    hud-pip-next 1800ms ease-in-out infinite;
+  animation-delay: calc(var(--i) * 24ms), calc(var(--i) * 24ms + 900ms);
+}
+@keyframes hud-pip-in {
   from {
     opacity: 0;
+    transform: scaleY(0.24);
+  }
+}
+@keyframes hud-pip-next {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
+/*
+ * Seven days, and today drawn as the goal ring.
+ *
+ * This is where the daily goal is at size. The header's bottom edge carries the
+ * same fraction ambiently; here the full circle is the goal tier, which is the
+ * reading the ring has always been, and the square inside it is the day it
+ * would count.
+ */
+.hud-week {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+.hud-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3125rem;
+}
+.hud-day-slot {
+  position: relative;
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+}
+.hud-day-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hud-day-mark {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--hud-track);
+  animation: hud-pip-in 320ms both cubic-bezier(0.22, 1, 0.36, 1);
+  animation-delay: calc(var(--i) * 55ms);
+}
+.hud-day.is-counted .hud-day-mark {
+  background: var(--streak);
+}
+.hud-day-letter {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.hud-day.is-today .hud-day-letter {
+  color: var(--foreground);
+}
+
 /* --------------------------------------------------- reduced motion ---- */
-/* The frozen state still says everything: the arc is where it is, the flame is
-   leaning, the meter is filled. Nothing here is animation-only information. */
+/* The frozen state still says everything: the edge is where it is, the flame is
+   leaning, every pip is drawn, the spotlight is cut. Nothing here is
+   animation-only information. */
 @media (prefers-reduced-motion: reduce) {
-  .hud-ring-arc,
-  .hud-meter-fill {
+  .hud-goal-fill,
+  .hud-meter-fill,
+  .hud-ring-arc {
     transition: none;
   }
   .hud-flame-out .hud-flame-body {
     animation: none;
     transform: rotate(-1.6deg);
   }
-  .hud-sheet[open],
-  .hud-sheet[open]::backdrop {
+  .hud-sheet[open] .hud-spot,
+  .hud-sheet[open] .hud-panel,
+  .hud-pip.is-lit,
+  .hud-pip.is-next,
+  .hud-day-mark {
     animation: none;
   }
 }

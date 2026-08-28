@@ -1,0 +1,1 @@
+This is the readout a student sees at the top of the screen while they work, telling them at a glance how far along they are and how much of the limited resource that paces their session is left. Frame 1 shows the screen at rest with that readout in place, and frames 2 to 5 are a burst at 0, 400, 900 and 2500 ms after that limited resource is explained on top of the same screen.

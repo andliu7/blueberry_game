@@ -215,3 +215,30 @@ and the comment was changed, not the check.
 
 Measured after: audit 0 failing over 1992 composed pairs, 836 web tests, 170 economy
 tests, typecheck clean, suite 30 of 30, payload 181.7 KB against 400 KB.
+
+### Round 2: OURS WON BLIND, confidence 0.78. Exit met. Highest confidence of the run.
+
+Audit clean. The row is three items now (diamonds, streak, charge). The daily goal left
+the row entirely and became the header's bottom EDGE, a full width 4px meter in place of
+the border, which is the bar's in-lesson pattern rather than its path header's four equal
+chips, and it costs the row zero horizontal space, which is what paid for a dominant chip
+at 390px. Charge is 2.0x its neighbours, measured at 28px against 14px and floored at 1.6
+by a new check, with 16px clearance from the header edge floored at 4 by another.
+
+The judge's reasons are worth recording because two of them are ECONOMY.md's design being
+validated blind, not our drawing:
+
+- "Mistakes never cost charge" reassures a panicking student instead of threatening them.
+  The bar's own framing, "Each mistake costs 1 heart! Stay sharp and focused", it called
+  pure loss aversion aimed at a reader who is already stressed. That is the supersession
+  argument in CLAUDE.md, decided independently by someone who could not see the file.
+- Ours was "the only one that moves at all": the meter fills 7 segments to full across the
+  burst and Bloom holds a warm expression, where all four of the bar's frames are
+  byte identical, so its explainer renders fully formed and never changes.
+
+Carried as the next polish gap, not looped on: six affordances still share the top row,
+the charge tile is clipped against the top edge, and the same blueberry face appears four
+times on one screen, so the number that matters fights five other glyphs.
+
+Floors after: typecheck clean, 855 web tests, 170 economy tests, suite 30 of 30, contrast
+0 failing over 1975 pairs, payload 183.6 KB.
