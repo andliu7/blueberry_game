@@ -28,8 +28,19 @@
  *   fly    380ms   --dur-slow      exists, and is exactly the owner's 180 to 560.
  *   bounce 160ms   --dur-bounce    DOES NOT EXIST. Reported as an integration edit.
  *   ease   cubic-bezier(.3,.7,.3,1)  --ease-fly  DOES NOT EXIST. The owner named
- *          this curve for the flight; --ease-out is (.2,.8,.3,1), which is close
- *          and is not the same, so it is not quietly substituted.
+ *          this curve for the flight; tokens.css's --ease-out is (.2,.8,.3,1),
+ *          which is close and is not the same, so it is not quietly substituted.
+ *
+ * ONE TOKEN NAME IS OCCUPIED, and this was measured in the built CSS rather
+ * than assumed. `@import "tailwindcss"` in theme.css ships Tailwind v4's own
+ * default theme, which already defines --ease-out, as cubic-bezier(0,0,.2,1).
+ * That is a DIFFERENT curve from the (.2,.8,.3,1) tokens.css intends, and it
+ * means a var(--ease-out, <our literal>) never reaches its fallback: the name
+ * resolves, to somebody else's value. So this file reads --sa-ease, a local
+ * alias defined once below, and every rule here gets the curve DESIGN-TOKENS.md
+ * asks for whether or not tokens.css is ever imported. --ease-fly, --ease-spring
+ * and the --dur-* names are free (nothing in the built CSS defines them), so
+ * those stay as var(name, literal) and the token wins the day it lands.
  *
  * The --sa-* properties are written onto the element by Recommendation.tsx from
  * its SAVE_PHASES table, so the JS timers and these keyframes cannot drift.
@@ -52,6 +63,15 @@
  * full width strip, and every pixel of that strip except the card itself passes
  * taps through to the canvas underneath.
  */
+/*
+ * The local easing alias. See the header: --ease-out is already taken by
+ * Tailwind's default theme at a different value, so reading it would silently
+ * change the curve of every press and lift in this file.
+ */
+.mistake-toast, .deck-icon {
+  --sa-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
 .mistake-toast {
   position: fixed;
   left: 0;
@@ -179,8 +199,8 @@
   cursor: pointer;
   touch-action: manipulation;
   box-shadow: 0 4px 0 color-mix(in srgb, var(--primary) 72%, black);
-  transition: transform var(--sa-press, var(--dur-instant, 80ms)) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1)),
-    box-shadow var(--sa-press, var(--dur-instant, 80ms)) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1)),
+  transition: transform var(--sa-press, var(--dur-instant, 80ms)) var(--sa-ease),
+    box-shadow var(--sa-press, var(--dur-instant, 80ms)) var(--sa-ease),
     filter var(--sa-press, var(--dur-instant, 80ms)) linear;
 }
 
@@ -239,7 +259,7 @@
 .mistake-toast__card:has(.mistake-toast__save:active) {
   animation: none;
   transform: scale(0.92);
-  transition: transform var(--sa-press, var(--dur-instant, 80ms)) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1));
+  transition: transform var(--sa-press, var(--dur-instant, 80ms)) var(--sa-ease);
 }
 
 /* ------------------------------------------------------------------ */
@@ -247,7 +267,7 @@
 /* ------------------------------------------------------------------ */
 
 .mistake-toast[data-phase="offered"] .mistake-toast__card {
-  animation: sa-enter var(--dur-base, 220ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1)) both;
+  animation: sa-enter var(--dur-base, 220ms) var(--sa-ease) both;
 }
 
 @keyframes sa-enter {
@@ -273,11 +293,11 @@
 }
 
 .mistake-toast[data-phase="lifting"] .mistake-toast__card {
-  animation: sa-lift var(--sa-lift, 180ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1)) both;
+  animation: sa-lift var(--sa-lift, 180ms) var(--sa-ease) both;
 }
 
 .mistake-toast[data-phase="lifting"] .mistake-toast__card::after {
-  animation: sa-shadow-grow var(--sa-lift, 180ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1)) both;
+  animation: sa-shadow-grow var(--sa-lift, 180ms) var(--sa-ease) both;
 }
 
 /* The toast dismissing: the controls go, the card stays a card. */
@@ -397,7 +417,7 @@
   color: var(--foreground);
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform var(--dur-instant, 80ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.3, 1));
+  transition: transform var(--dur-instant, 80ms) var(--sa-ease);
 }
 
 .deck-icon--floating {

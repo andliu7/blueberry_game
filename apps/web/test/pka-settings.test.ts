@@ -377,6 +377,38 @@ describe("one layer, and the sort beat is on it", () => {
   // through, so testing it is testing what a student sees.
   const acidity = SORT_LADDERS.find((content) => content.beat.id === "sort-pka-hierarchy");
 
+  it("every shipped ladder built on pKa rungs is one the settings page reports on", () => {
+    // The gap this closes, and it is the quiet kind. `pkaOrderingConflicts`
+    // walks PKA_LADDER_LINKS, and a link can only point at a problem in the
+    // curriculum corpus. A pKa ladder authored straight into ladders.ts, with
+    // its problem built locally, would render pKa numbers on its cards and
+    // never appear in the conflict panel, so a student could set a value that
+    // contradicts it and be told nothing. Nobody would notice, because the
+    // panel would look clean. This turns that into a failing build: a new pKa
+    // ladder either goes into the corpus with a link beside it, or this test
+    // says out loud that it is unreported.
+    const linkedProblems = new Set(PKA_LADDER_LINKS.map((link) => link.problemId));
+    for (const content of SORT_LADDERS) {
+      const rungs = content.beat.items.filter((item) => item.pkaSiteId !== undefined);
+      if (rungs.length === 0) continue;
+      expect({ beat: content.beat.id, linked: linkedProblems.has(content.problem.id) }).toEqual({
+        beat: content.beat.id,
+        linked: true,
+      });
+
+      // And the link stands on the same rungs the cards print, so the panel
+      // reports the pair the student is actually looking at.
+      const link = PKA_LADDER_LINKS.find((candidate) => candidate.problemId === content.problem.id);
+      if (link === undefined) throw new Error(`no link for ${content.problem.id}`);
+      for (const item of rungs) {
+        expect({ item: item.id, site: link.sites[item.id] }).toEqual({
+          item: item.id,
+          site: item.pkaSiteId,
+        });
+      }
+    }
+  });
+
   it("the shipped acidity ladder is still built on pKa rungs", () => {
     if (acidity === undefined) throw new Error("sort-pka-hierarchy is missing from SORT_LADDERS");
     expect(acidity.beat.items.every((item) => item.pkaSiteId !== undefined)).toBe(true);

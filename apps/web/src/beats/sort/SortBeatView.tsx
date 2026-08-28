@@ -21,8 +21,22 @@
  *
  * THE PRESS IS CSS, NOT STATE. CLAUDE.md requires the pressed frame on pointer
  * down, before any work. `:active` in sort.css is painted by the browser the
- * same frame the pointer lands. Selection is also set on pointer DOWN rather
- * than on click, so the two acknowledgements arrive together.
+ * same frame the pointer lands, with no JavaScript in the path, so it cannot be
+ * late. Which card is SELECTED resolves on release instead, because until the
+ * finger lifts nobody knows whether the press was a tap or the start of a drag.
+ *
+ * THE DRAGGED CARD KEEPS ITS ELEMENT, and this is the bug that shipped once and
+ * must not ship again. The card that is being dragged captured the pointer, so
+ * it is the element every later pointermove and the pointerup are routed to.
+ * The first version swapped it for a `<span>` placeholder the moment the drag
+ * passed the threshold; a different element TYPE makes React unmount the old
+ * node, and the Pointer Events spec releases capture implicitly when the
+ * capturing element leaves the document. Everything after that first frame went
+ * to whatever happened to be under the finger: the clone froze in mid air, a
+ * release over an empty rung did nothing, and a release over another card ran
+ * that card's handler with the wrong id. So the hole the card leaves behind is
+ * the SAME `<button>`, carrying `is-ghosted`, which zeroes its paint and keeps
+ * its box. test/sortDrag.test.tsx pins the whole gesture against exactly this.
  *
  * REACT PATTERNS USED HERE, named because they are the kind of thing that is
  * hard to look up if you have not seen it before:
