@@ -615,3 +615,94 @@ reagent-choice beat surfaces — the first non-trainer build, awaiting owner go-
 Theme ruling recorded in OPEN-QUESTIONS.md: lanterns (B) leads, more options to generate, team
 review before any backdrop ships. Next phase per owner: Stripe + Supabase configuration (Phase 6)
 run as a gauntlet loop.
+
+## The economy and Bloom gauntlet, 2026-08-27 into 08-28. Checkpoint, written for continuation
+
+Owner direction: implement the five-system economy (`docs/ECONOMY.md`) and the Bloom mascot states
+(`docs/MASCOT.md`), both rewritten 2026-08-27, as small pieces each looped against Duolingo's LIVE
+product until a fresh-context critic picks ours blind. Everything below is committed; nothing
+depends on conversation memory. The running log with every verdict is
+`apps/web/measurements/gauntlet-economy/LOG.md`.
+
+### The method, and the two ways it was wrong before it was right
+
+A round is builder, capturer, blindness audit, judge. The capturer builds a labels-stripped A/B pair
+and seals the assignment in `blind/assignment.json`, which the judge is forbidden to read; the
+script unblinds afterwards. Captures are PNG through a committed script, per the JPEG method error
+this file already records.
+
+**Round P1-1 was VOIDED, not counted.** The blindness audit flagged the bar's own mascot as a
+trademark, and the re-strip painted it out, so the judge faulted the reference for having no
+character and picked ours. A win over a defaced reference is a lie. The audit now reports text and
+logos only, never characters, and a nonce forces re-capture and re-judgement.
+
+**The contrast gate was measuring the wrong thing the whole time.** It walked eight tabs plus
+onboarding welcome and never finished a lesson, so it reported 0 failing over 1208 pairs while every
+surface built this session was unmeasured. It now seeds and drives five economy moments as well:
+1992 pairs, and it immediately found seven pre-existing failures, all since fixed in `src`, none by
+loosening the audit. A blind design critic had already caught one of them (a purple headline on a
+purple ground) that the accessibility gate structurally could not see, which is an argument for
+running both and not either.
+
+### What exists
+
+- **`packages/economy`**, pure TS, no React, no DOM, no clock of its own. Every balance is
+  `f(append-only journal, now)`: XP, mastery, diamonds, charge, streak, plus `receiptFor`, which is
+  what the client ANIMATES. 170 tests covering every mitigation ECONOMY.md calls load bearing (rest
+  day, auto freeze, exam-window pause on charge AND streak, wrong answers free, capped visible dip,
+  rank floor, first-clear-only) and a chunk-replay determinism property. Found and fixed a real DST
+  bug in day-boundary arithmetic on the way.
+- **`apps/web/src/app/progress.ts`** stores the JOURNAL at `blueberry.progress.v2` (lossy v1
+  migration, documented in the file) and derives everything. The Return bonus is gone per ECONOMY.md.
+- **The mascot's third and fourth axes**: `berryState.ts` (8 transforms of what the berry is made of)
+  and `berryCostume.ts`, composing with the imported `berryMood.ts` and `berryBehaviour.ts`, which
+  are untouched per D4. Gallery at `#/gallery/berry`, lazy.
+- **The Duolingo bar, captured lossless**: `docs/reference/competitors/duolingo-live/`, two dated
+  folders with MANIFESTs, 76 desktop and 93 phone PNGs of the guest funnel through the
+  lesson-complete and streak screens, each frame burst at 0/400/900/2500 ms. Regenerate with
+  `apps/web/measurements/capture-duolingo.mjs`, which is headful and muted and stops at the signup
+  wall. No account was created.
+- **`apps/web/measurements/capture-economy.mjs`** and `economy-moments.mjs` drive our own moments
+  deterministically and are shared with the contrast audit.
+
+### Pieces
+
+| Piece | State |
+|---|---|
+| P1 Bloom reactions and chemical states | WON blind, round 2, 0.72 |
+| P2 The reward moment | WON blind, round 2, 0.72 |
+| P3 HUD header | round 2 running, lost round 1 at 0.72 |
+| P4 streak screen, P5 charge meter, P6 mastery rank, P7 onboarding economy | queued |
+
+### Two bugs found by the loop that were not design defects
+
+**Mastery had no denominator.** The shell never journals `node_started`, so a student's first
+finished lesson was one node cleared of one unlocked: 100 percent, rank Exam Ready, every rank award
+paid at once. `deriveEconomy` now takes an explicit course universe, and the floor
+`MASTERY_MIN_UNIVERSE_DIFFICULTY` applies to EVERY denominator and not only the fallback, because
+three of four content courses are narrower than it (Gen Chem I sums to 9, so one lesson read as 33
+and rank Mechanist). A course narrower than the floor caps below 100 deliberately.
+
+**The pathway leaked engineering metadata at students.** The unit banner rendered `unit.note`, the
+authoring dependency ledger, in caps ABOVE the unit title. It now splits the authored title.
+
+### Open, needing the owner
+
+1. `docs/ECONOMY.md` says "a single node should move Mastery a point at most" and **no authored
+   course is wide enough**: orgo_2 is the widest at 32 topics and gives 3.1 points per lesson. That
+   needs roughly 100 nodes, so closing it is a content decision (finer lesson nodes than topics), not
+   a code one. `apps/web/test/courseUniverseGenerated.test.ts` keeps the ledger of which courses are
+   still narrower than the mastery floor and goes red when one is authored out.
+2. `docs/ECONOMY.md` is not yet amended with the floor or the universe option; the rule and its
+   arithmetic live in `packages/economy/src/rules.ts`.
+3. A P3 judge flagged **eight tabs across a 390pt phone**, about 48pt each, with "Boards" and "Table"
+   unguessable without tapping. NOT changed: the tabs and their order are CLAUDE.md's.
+4. Gen Chem I/II and Organic I are stub courses; mastery on them caps at 22.5, 15 and 67.5.
+
+### The budget lesson worth not repeating
+
+Naming the course in `progress.ts` made it import the curriculum corpus, and `progress.ts` ships in
+the game route's entry chunk, so the initial payload went 176.4 to 260.9 KB gzipped in one commit.
+Nothing failed, because the ceiling is 400 KB. It was still wrong. The universe is generated into
+`src/app/courseUniverse.generated.ts` now, with a drift test that reads the real corpus. **Re-measure
+the payload after any change to a module the shell can reach**, not only when a gate goes red.
