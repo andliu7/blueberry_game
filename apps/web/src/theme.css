@@ -647,9 +647,48 @@ body {
 .reward-headline {
   animation: badge-pop 520ms var(--ease-spring) 60ms both;
 }
+/* THE one large number. It is allowed to be this big because it is the only
+   number on the screen at this weight: the round 2 ruling cut the XP tile and
+   the accuracy tile that were repeating it, so nothing competes and the size
+   is free. Three and four digit totals still fit a 390 px phone. */
 .reward-xp {
-  font-size: clamp(4rem, 19vw, 6rem);
-  letter-spacing: -0.02em;
+  font-size: clamp(4.5rem, 22vw, 7rem);
+  letter-spacing: -0.03em;
+}
+/* The unit rides the number's baseline rather than a fixed offset, or it
+   drifts as the clamp resizes the digits. */
+.reward-xp-unit {
+  font-size: clamp(1.25rem, 5vw, 1.75rem);
+  line-height: 1;
+  padding-bottom: 0.55em;
+  letter-spacing: 0.06em;
+}
+/* The landing. One pop, on the same beat as Bloom's pose change, so the
+   number and the character react to the same instant. */
+.reward-xp-row[data-landed="true"] {
+  animation: reward-land 460ms var(--ease-spring) both;
+}
+.reward-bloom[data-landed="true"] {
+  animation: reward-land 460ms var(--ease-spring) both;
+}
+@keyframes reward-land {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* The receipt lines. A tinted wash and no border: they are a caption to the
+   number above, and a bordered pill row reads as a second scoreboard, which
+   is the hierarchy fault round 2 was called on. The wash is 12 percent of the
+   warn hue over the card, so --foreground keeps its card contrast. */
+.reward-line {
+  background: color-mix(in srgb, var(--warn) 12%, var(--card));
+  color: var(--foreground);
 }
 /* The diamond count-up's shine pass, ECONOMY.md "The moment": a translucent
    light sweeps the number while it counts. The colour under it is the ink
@@ -668,16 +707,30 @@ body {
     background-position: -120% 0;
   }
 }
-.reward-card__body--stat {
-  padding: 0.55rem 0.35rem;
-  min-height: 2.75rem;
-}
 .reward-hidden {
   opacity: 0;
   transform: translateY(10px);
 }
 .reward-reveal {
   animation: reward-reveal 320ms var(--ease-out) both;
+}
+/* Reveal without the rise, for the two elements whose POSITION is load
+   bearing while they appear: the cards, one of which is the diamond's flight
+   target and is measured mid-reveal, and the hero number, which is measured
+   by nothing but would visibly shift under a rise it shares with a pop. */
+.reward-fade-out {
+  opacity: 0;
+}
+.reward-fade-in {
+  animation: reward-fade 320ms var(--ease-out) both;
+}
+@keyframes reward-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 /* badge-pop without its 200 ms delay: the component's clock already decided when. */
 .reward-pop {
@@ -724,54 +777,83 @@ body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+/* flex: 1 so a card stretched by a taller neighbour centres its number in the
+   space rather than parking it under the band with a white gap below. The two
+   cards are grid siblings and only one of them carries a milestone line. */
 .reward-card__body {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 0.5rem;
   min-height: 3.25rem;
 }
-.reward-card--xp,
 .reward-card--streak {
   --card-accent: var(--warn);
   --card-band: var(--warn-soft-solid);
   --card-band-ink: var(--warn-ink);
-}
-.reward-card--good {
-  --card-accent: var(--good);
-  --card-band: var(--good-soft);
-  --card-band-ink: var(--good-ink);
-}
-.reward-card--time {
-  --card-accent: var(--primary);
-  --card-band: color-mix(in srgb, var(--primary) 12%, var(--card));
-  --card-band-ink: var(--primary-ink);
 }
 .reward-card--diamond {
   --card-accent: var(--diamond);
   --card-band: color-mix(in srgb, var(--diamond) 14%, var(--card));
   --card-band-ink: var(--diamond-ink);
 }
-.reward-milestone {
-  background: var(--warn-soft-solid);
-  border: 2px solid var(--warn);
+/* A milestone does not get a card of its own, because a third card is the
+   dashboard the reward moment is not allowed to become. It takes over the
+   streak card: same slot, louder. This is the scarce badge CLAUDE.md asks the
+   moment to take from the bar, and it is scarce because it exists at 7, 14,
+   30, 60, 100, 180 and 365 and on no other day.
+
+   It is louder by its RING and its band label, never by recolouring the card
+   surface or filling the band in the accent itself. Both of those were tried
+   and both fail AA in one theme: the note above this block records that a
+   filled band loses the label, and a warn washed card body loses the muted
+   "days" beside the count. A halo carries no text, so it can be as loud as it
+   likes. */
+.reward-card--milestone {
+  --card-accent: var(--warn);
+  --card-band: var(--warn-soft-solid);
+  --card-band-ink: var(--warn-ink);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--warn) 24%, transparent),
+    0 6px 18px color-mix(in srgb, var(--warn) 22%, transparent);
+}
+/* The slot the diamond flies into. Empty and dim while the diamond is still
+   beside Bloom, so the card reads as a socket waiting rather than as a card
+   that already has its diamond and is counting to zero. */
+.reward-slot > svg {
+  opacity: 0.22;
+  transition: opacity 160ms var(--ease-out);
+}
+.reward-slot[data-landed="true"] > svg {
+  opacity: 1;
+}
+.reward-slot[data-landed="true"] {
+  animation: reward-land 420ms var(--ease-spring) both;
 }
 
 /* The diamond catch. Five positions on the component's clock: waiting (above
-   the frame), falling (into Bloom's arms), held (a beat, longer for the first
-   diamond ever), flying (to the counter), landed (gone; the counter has it). */
+   the frame), falling (to a spot BESIDE Bloom), held (a beat, longer for the
+   first diamond ever), flying (to the slot in the Diamonds card), landed
+   (gone; the slot has it).
+
+   WHERE "BESIDE" IS. The catch point is derived from --bloom-size, which the
+   component sets on the wrapper from the same number it hands the mascot, so
+   the diamond clears the sphere at any size. Round 2's judge caught the round
+   1 version landing the diamond ON Bloom's face at 900 ms, which is exactly
+   what a catch centred on a circle does: 0.62 of the size is just outside the
+   0.5 radius, and the y puts it at about chest height rather than at the
+   eyes. Nothing here is a magic number that has to be retuned when the mascot
+   grows. */
 .reward-diamond {
-  margin-left: -1.25rem;
-  transform: translateY(-120px);
+  --catch-x: calc(var(--bloom-size, 200px) * 0.62);
+  --catch-y: calc(1rem + var(--bloom-size, 200px) * 0.44);
+  margin-left: -1.5rem;
+  transform: translateY(-140px);
   opacity: 0;
   will-change: transform;
   filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--diamond) 45%, transparent));
-}
-@media (min-width: 768px) {
-  .reward-diamond {
-    margin-left: -1.5rem;
-  }
 }
 .reward-diamond[data-stage="falling"] {
   animation: reward-diamond-fall 300ms cubic-bezier(0.4, 0, 0.6, 1) both;
@@ -781,51 +863,40 @@ body {
 }
 .reward-diamond[data-stage="held"] {
   opacity: 1;
-  transform: translateY(42px) scale(1.08);
+  transform: translate(var(--catch-x), var(--catch-y)) scale(1.08);
   animation: reward-diamond-held 500ms var(--ease-spring) both;
 }
+/* The fly delta is measured from the diamond's rect while it is HELD, which
+   is already offset by the catch, so it is added to the catch rather than
+   replacing it. See the matching note in RewardMoment.tsx. */
 .reward-diamond[data-stage="flying"] {
   opacity: 1;
-  transform: translate(var(--fly-dx, 0px), var(--fly-dy, -240px)) scale(0.45);
+  transform: translate(calc(var(--catch-x) + var(--fly-dx, 0px)), calc(var(--catch-y) + var(--fly-dy, 240px))) scale(0.5);
   transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .reward-diamond[data-stage="landed"] {
   opacity: 0;
-  transform: translate(var(--fly-dx, 0px), var(--fly-dy, -240px)) scale(0.3);
+  transform: translate(calc(var(--catch-x) + var(--fly-dx, 0px)), calc(var(--catch-y) + var(--fly-dy, 240px))) scale(0.35);
 }
 @keyframes reward-diamond-fall {
   from {
     opacity: 0;
-    transform: translateY(-120px) rotate(-18deg);
+    transform: translate(var(--catch-x), -140px) rotate(-18deg);
   }
   20% {
     opacity: 1;
   }
   to {
     opacity: 1;
-    transform: translateY(42px) rotate(0deg);
+    transform: translate(var(--catch-x), var(--catch-y)) rotate(0deg);
   }
 }
 @keyframes reward-diamond-held {
   from {
-    transform: translateY(42px) scale(0.9);
+    transform: translate(var(--catch-x), var(--catch-y)) scale(0.9);
   }
   to {
-    transform: translateY(42px) scale(1.08);
-  }
-}
-.reward-counter[data-landed="true"] {
-  animation: reward-counter-pop 360ms var(--ease-spring) both;
-}
-@keyframes reward-counter-pop {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.18);
-  }
-  100% {
-    transform: scale(1);
+    transform: translate(var(--catch-x), var(--catch-y)) scale(1.08);
   }
 }
 
@@ -895,10 +966,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .reward-headline,
   .reward-reveal,
+  .reward-fade-in,
   .reward-pop,
   .reward-diamond[data-stage="falling"],
   .reward-diamond[data-stage="held"],
-  .reward-counter[data-landed="true"],
+  .reward-xp-row[data-landed="true"],
+  .reward-bloom[data-landed="true"],
+  .reward-slot[data-landed="true"],
   .reward-spark {
     animation-duration: 1ms;
     animation-delay: 0ms;

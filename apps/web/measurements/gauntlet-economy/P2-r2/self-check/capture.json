@@ -1,0 +1,303 @@
+{
+  "piece": "P2",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "reward-first",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 464
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "first": "true",
+            "streak": false,
+            "milestone": 0,
+            "xp": "15XPFirst clear+10Flawless+5",
+            "diamonds": 20,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 56
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "reward-first",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "first": "true",
+            "streak": false,
+            "milestone": 0,
+            "xp": "15XPFirst clear+10Flawless+5",
+            "diamonds": 20,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 417
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "reward-first",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 579
+            },
+            {
+              "wanted": 900,
+              "at": 1152
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "first": "true",
+            "streak": false,
+            "milestone": 0,
+            "xp": "15XPFirst clear+10Flawless+5",
+            "diamonds": 20,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 52
+            },
+            {
+              "wanted": 400,
+              "at": 712
+            },
+            {
+              "wanted": 900,
+              "at": 1375
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "reward-first",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 54
+            },
+            {
+              "wanted": 400,
+              "at": 411
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "first": "true",
+            "streak": false,
+            "milestone": 0,
+            "xp": "15XPFirst clear+10Flawless+5",
+            "diamonds": 20,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 56
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2511
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    }
+  ]
+}

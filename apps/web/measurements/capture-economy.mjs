@@ -65,7 +65,13 @@ import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
 
-const FRAMES_MS = [0, 400, 900, 2500];
+/**
+ * The burst cadence, the bar's own: 0, 400, 900 and 2500 ms after the press.
+ * `--frames 1500,1700` overrides it, for a builder who needs to see a beat
+ * that falls between two of the judged frames (the diamond mid flight, say).
+ * A judged run always uses the default, or it is not comparing like with like.
+ */
+const DEFAULT_FRAMES_MS = [0, 400, 900, 2500];
 const VIEWPORTS = {
   desktop: { width: 1280, height: 900, deviceScaleFactor: 2 },
   phone: { width: 390, height: 844, deviceScaleFactor: 3 },
@@ -77,6 +83,15 @@ function argValue(flag, fallback) {
   return index === -1 ? fallback : (process.argv[index + 1] ?? fallback);
 }
 const PIECE = argValue("--piece", "P1");
+const framesArg = argValue("--frames", null);
+const FRAMES_MS =
+  framesArg === null
+    ? DEFAULT_FRAMES_MS
+    : framesArg.split(",").map((value) => {
+        const ms = Number(value.trim());
+        if (!Number.isFinite(ms) || ms < 0) throw new Error(`--frames wants non-negative milliseconds, got "${value}"`);
+        return ms;
+      });
 const OUT = path.resolve(process.cwd(), argValue("--out", `measurements/gauntlet-economy/${PIECE}/latest`));
 
 function findChrome() {
@@ -365,7 +380,12 @@ async function captureReward(browser, viewport, theme, dir, tag, seedName) {
     return {
       first: stage.getAttribute("data-reward-first"),
       streak: document.querySelector('[aria-label="Streak"]') !== null,
-      milestone: document.querySelector('[aria-label$="milestone"]') !== null,
+      // The milestone used to be read off an element whose aria-label ended
+      // in "milestone", which meant the check passed on any element anyone
+      // happened to label that way and could not tell 7 from 30. The stage
+      // publishes the number the component actually resolved, so the assert
+      // below can name the day it expects.
+      milestone: Number(stage.getAttribute("data-reward-milestone") ?? 0),
       xp: document.querySelector('[aria-label="XP earned"]')?.textContent ?? "",
       diamonds: Number(stage.getAttribute("data-reward-diamonds")),
       rankUp: stage.getAttribute("data-reward-rank-up") ?? "",
@@ -380,10 +400,15 @@ async function captureReward(browser, viewport, theme, dir, tag, seedName) {
   });
   // A first lesson that pays a rank badge is the one-node-universe problem in
   // the header, and a Continue the student has to scroll to is not a moment.
+  // The streak seed is six counted days behind today, so today's clear is the
+  // seventh: anything but a 7 day milestone means the seed did not land and
+  // the shots are of some other account's evening.
   const wanted =
     state !== null &&
     state.continueOnScreen &&
-    (seedName === "first" ? state.first === "true" && state.rankUp === "" : state.streak === true && state.milestone === true);
+    (seedName === "first"
+      ? state.first === "true" && state.rankUp === "" && state.milestone === 0
+      : state.streak === true && state.milestone === 7 && state.diamonds > 0);
   await page.close();
   return { moment: `reward-${seedName}`, reached: state !== null && wanted, frames, state };
 }

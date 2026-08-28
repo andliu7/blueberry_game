@@ -249,7 +249,6 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
         firstDiamond={finished.firstDiamond}
         correct={correct}
         attempted={attempted}
-        elapsedMs={finished.elapsedMs}
         reducedMotion={reducedMotion}
         onContinue={() => (onFinished === undefined ? onExit() : onFinished(correct, attempted))}
       />
