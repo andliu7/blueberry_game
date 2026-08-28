@@ -286,3 +286,46 @@ assuming its win survives a change of that size.
 
 Floors after: typecheck clean, 875 web tests, suite 30 of 30, contrast 0 failing over
 2238 composed pairs, payload 185.4 KB.
+
+## The sticker-ui validator, and its first baseline
+
+`apps/web/measurements/sticker-audit.mjs` implements the ten mechanical checks in the
+`sticker-ui` skill, over the built app, on 21 routes in both themes including the seeded
+economy moments. 29,304 elements inspected. Exits 1.
+
+**VIOLATIONS: 1027.** Not a failure of the run, the point of it. Baseline, by rule:
+
+| count | rule |
+|---|---|
+| 188 | 5 radius floor |
+| 160 | 3 no shadows on chrome |
+| 150 | 4 outlines structural |
+| 147 | 7 body recedes |
+| 116 | 9 palette containment |
+| 112 | 3 fake extrusion |
+| 76 | 10 reachability |
+| 56 | 2 no gradients |
+| 22 | 6 colour as surface |
+| 0 | 8 display floor |
+| 0 | 1 paper canvas |
+
+306 unresolved, scored neither way.
+
+Every finding in the ruthless read is now a number. The fake-extrusion detector works:
+112 hits, the pathway node lip among them, which a plain box-shadow check would have
+waved through. Rule 6 is the most damning: saturated fill covers between **0.09 and 0.64
+percent** of the painted page on every route measured. Colour is essentially absent as a
+surface, which is exactly what the eye said and now has a figure.
+
+**Two judgements the validator makes and declares rather than hiding.** It reports the
+dark ground under rule 1 but does not score it, because light-first with dark as a choice
+is a recorded owner decision rather than a violation. And it does not score the body's
+hairline grid gradients under rule 2, because a 1px texture is not a colour ramp; it
+flags them for a person instead. Both are the right call and both are stated in the
+output, which is the difference between a judgement and a fudge.
+
+**A false green it caught in itself, worth recording.** Rule 2 first reported clean, and
+that was wrong: a gradient-painted element has no `background-color`, so the card test
+could never see one. The check now reads `backgroundImage` directly and finds 56. A
+validator that reports zero because it cannot see is worse than no validator, and this
+is the second time this session that a gate has been measuring less than it claimed.
