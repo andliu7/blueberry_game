@@ -62,6 +62,15 @@
  *   node measurements/capture-economy.mjs --piece P1 --out measurements/gauntlet-economy/P1-r1/self-check
  *   node measurements/capture-economy.mjs --piece P2 --out measurements/gauntlet-economy/P2-r1/self-check
  *   node measurements/capture-economy.mjs --piece P3 --out measurements/gauntlet-economy/P3-r1/self-check
+ *   node measurements/capture-economy.mjs --piece P4 --out measurements/gauntlet-economy/P4-r1/self-check
+ *
+ * P4, THE STREAK SCREEN, SEEDS THE JOURNAL for the same reason P3 does: a 47
+ * day streak is 47 days. It is otherwise reached by real clicks, one press
+ * further than P2 (the reward moment's own Continue), and the seed carries no
+ * rest day: the gap is a day with no events and derive.ts applies the free
+ * weekly rest day to it on its own, which is what makes the glyph on screen an
+ * observation rather than a fixture. The arithmetic behind every number is in
+ * economy-moments.mjs beside the drives.
  *
  * Exits nonzero if any moment did not appear: a shot of the wrong state is
  * never handed to a critic.
@@ -87,6 +96,7 @@ import {
   P3_LIT_SEED,
   P3_SEED,
   P3_STORED,
+  P4_SEEDS,
   driveCombo,
   driveFeedback,
   driveHudCharge,
@@ -94,6 +104,7 @@ import {
   driveHudRest,
   driveHudStreak,
   driveReward,
+  driveStreak,
   openSeeded,
   sleep,
 } from "./economy-moments.mjs";
@@ -297,7 +308,34 @@ async function captureP3(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3 };
+/**
+ * P4, the streak screen. Three moments, all of them one press past the reward
+ * moment, and the burst runs from that press because it is the transition a
+ * critic is judging.
+ *
+ * `rest` is the judged one: a 47 day run whose YESTERDAY was an auto rest day,
+ * so the rest glyph and the streak beat are on screen together, and it is the
+ * only one of the three a blind pair should use. `milestone` and `exam` are
+ * named so a judge can leave them out: each is a claim this screen makes on
+ * days the judged seed does not reach, and a claim with no frame behind it is
+ * the sort of thing a still capture quietly hides.
+ */
+async function captureP4(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const results = [];
+  for (const seedName of Object.keys(P4_SEEDS)) {
+    const page = await open(browser, viewport, theme, LESSON_HASH, P4_SEEDS[seedName]);
+    const { moment, reached, trigger, state } = await driveStreak(page, seedName, {
+      onTrigger: (at) => burst(page, dir, `${tag}-streak-${seedName}`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 
@@ -328,7 +366,7 @@ for (const entry of report) {
     if (!result.reached) missed += 1;
     const offsets = result.frames.map((frame) => `${frame.at}`).join("/");
     const extra = result.state === undefined ? "" : `  ${JSON.stringify(result.state)}`;
-    console.log(`${entry.viewport.padEnd(7)} ${entry.theme.padEnd(5)} ${result.moment.padEnd(14)} ${status}  frames at ${offsets} ms${extra}`);
+    console.log(`${entry.viewport.padEnd(7)} ${entry.theme.padEnd(5)} ${result.moment.padEnd(17)} ${status}  frames at ${offsets} ms${extra}`);
   }
 }
 await writeFile(path.join(OUT, "capture.json"), `${JSON.stringify({ piece: PIECE, viewports: VIEWPORTS, frames: FRAMES_MS, report }, null, 2)}\n`);

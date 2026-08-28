@@ -1,0 +1,1 @@
+This screen is what a student sees straight after finishing a lesson: it is where the app tells them today's practice counted toward the run of consecutive days they have been keeping, and shows how that run stands right now. The four frames are a burst captured at 0, 400, 900 and 2500 ms after the press that opened the screen, in the numbered file order.

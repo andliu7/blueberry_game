@@ -242,3 +242,47 @@ times on one screen, so the number that matters fights five other glyphs.
 
 Floors after: typecheck clean, 855 web tests, 170 economy tests, suite 30 of 30, contrast
 0 failing over 1975 pairs, payload 183.6 KB.
+
+## P4 Streak screen
+
+### Round 1: OURS WON BLIND, confidence 0.72. Exit met on the first round.
+
+Audit clean. Judge: ours makes the count the hero, it ticks 46 to 47 across the burst
+so the moment has a payoff, the full week row fills in with Thursday marked as a rest
+day, and a character says "Thursday was a rest day. Streak safe at 47." It called that
+line "the only place in either screen where something on screen reacts to what the
+student did."
+
+THE ETHICS ARGUMENT VALIDATED A THIRD TIME, INDEPENDENTLY. The judge's sharpest
+criticism of the BAR: its only sentence is "Practicing daily grows your streak, but
+skipping a day resets it!", which it called, unprompted, "a threat, not a payoff"
+delivered at the reward moment to a stressed student. That is CLAUDE.md's supersession
+argument reached for the third time by a fresh critic with no access to the repo.
+
+Two builder findings worth keeping:
+- The seven day strip cannot be walked back from `current`, because a rest day bridges
+  a gap WITHOUT incrementing the count, so the naive strip lights a day the student did
+  not earn and hides the one the app gave them. streakModel.ts truncates the journal to
+  the end of each previous day and re-derives, which is the honest way.
+- The hero number was rendering in the display face, whose Georgia fallback has
+  OLD-STYLE FIGURES, so a 30 day streak drew a small "3o" beside a full height 47. Now
+  the sans stack with lining-nums.
+
+### A STRUCTURAL FINDING THE BUILDER CORRECTLY REFUSED TO FIX ALONE
+
+The streak now appears TWICE in one session: the reward moment renders its own streak
+card and milestone card, then the streak screen shows the same thing one press later.
+Duolingo's lesson-complete screen carries no streak at all; the streak gets a whole
+screen to itself.
+
+The builder could not act on it because **P2's capture asserts on the streak card**
+(`[aria-label="Streak"]` and `data-reward-milestone === 7`), so removing it would fail a
+won piece's capture. That is a ratchet: a passing assertion from an earlier round is
+now preventing a correct structural change, which is exactly how a codebase quietly
+ossifies. Recorded as its own queued piece rather than either forced through or dropped.
+The resolution is deliberate: cut the streak and milestone cards from the reward moment,
+amend P2's capture assertions in the same commit, and RE-JUDGE P2 blind rather than
+assuming its win survives a change of that size.
+
+Floors after: typecheck clean, 875 web tests, suite 30 of 30, contrast 0 failing over
+2238 composed pairs, payload 185.4 KB.

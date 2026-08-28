@@ -16,6 +16,15 @@
  * causes, authored distractors, diagnostic causes, the logged tail) is the
  * package's decision and this file cannot reorder it by accident.
  *
+ * TWO STAGES AT THE END, piece P4, 2026-08-28. The reward moment answers what
+ * this lesson paid; the streak screen answers whether the student is still the
+ * kind of person who does this. They are two questions, so they get two
+ * screens, which is what the bar does. The second one plays only when today
+ * counted for the FIRST time on this clear, and that fact is asked of the
+ * engine on both sides of the commit rather than worked out here: a streak
+ * screen a student sees three times in an evening is a screen they learn to tap
+ * through.
+ *
  * BLOOM'S REACTIONS, piece P1, 2026-08-27. The character has an opinion in
  * the same render as the grade: `submit` decides the outcome and the run, and
  * `reactionFor` (src/mascot/berryReaction.ts) turns those into the face, the
@@ -56,6 +65,7 @@ import { FeedbackBody, feedbackHeadline } from "./Feedback";
 import { ReactionStrip } from "./ReactionStrip";
 import { ComboInterstitial } from "./ComboInterstitial";
 import { RewardMoment } from "./RewardMoment";
+import { StreakScreen } from "./StreakScreen";
 import { LessonVideo } from "./LessonVideo";
 
 export interface LessonPlayerProps {
@@ -127,7 +137,18 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
     diamondBalance: number;
     firstDiamond: boolean;
     elapsedMs: number;
+    /**
+     * Today counted for the FIRST time on this clear, so the streak screen
+     * plays after the reward moment. `receipt.streak.counted` alone is not
+     * that fact: it is true for the second and third lesson of the same
+     * evening too, and a streak screen a student sees three times a day is a
+     * screen they learn to tap through. The engine is asked both halves, one
+     * before the clear and one after; nothing here works it out.
+     */
+    streakJustCounted: boolean;
   } | null>(null);
+  /** Which of the two end-of-lesson stages is on screen. */
+  const [stage, setStage] = useState<"reward" | "streak">("reward");
   const startedAtRef = useRef<number>(performance.now());
 
   // The reaction in play and a key that bumps each time one fires, so the
@@ -205,17 +226,20 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
       return;
     }
     const firstDiamond = snapshot.economy.diamonds.earned === 0;
+    const countedBefore = snapshot.economy.streak.todayCounted;
     progress.completeLesson(topic, correct, attempted, problems.map((p) => p.id));
     // The store commits synchronously, so the receipt for this clear is the
     // snapshot's lastReceipt by the time completeLesson returns.
     const after = progress.getSnapshot();
     const receipt = after.lastReceipt;
     if (receipt === null) return;
+    setStage("reward");
     setFinished({
       receipt,
       diamondBalance: after.economy.diamonds.balance,
       firstDiamond: firstDiamond && receipt.diamonds.length > 0,
       elapsedMs: performance.now() - startedAtRef.current,
+      streakJustCounted: !countedBefore && receipt.streak.counted,
     });
   };
 
@@ -242,6 +266,14 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
   };
 
   if (finished !== null) {
+    // Two stages, in the bar's own order: what the lesson paid, and then the
+    // streak, on the one day the streak has something new to say. The second
+    // one is skipped entirely when today was already counted, so it stays a
+    // once-a-day moment rather than a screen between the student and the exit.
+    const leave = () => (onFinished === undefined ? onExit() : onFinished(correct, attempted));
+    if (stage === "streak") {
+      return <StreakScreen receipt={finished.receipt} reducedMotion={reducedMotion} onContinue={leave} />;
+    }
     return (
       <RewardMoment
         receipt={finished.receipt}
@@ -250,7 +282,7 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
         correct={correct}
         attempted={attempted}
         reducedMotion={reducedMotion}
-        onContinue={() => (onFinished === undefined ? onExit() : onFinished(correct, attempted))}
+        onContinue={() => (finished.streakJustCounted ? setStage("streak") : leave())}
       />
     );
   }

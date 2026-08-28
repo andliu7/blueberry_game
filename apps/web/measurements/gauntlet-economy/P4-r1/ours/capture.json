@@ -1,0 +1,671 @@
+{
+  "piece": "P4",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "streak-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 113
+            },
+            {
+              "wanted": 400,
+              "at": 785
+            },
+            {
+              "wanted": 900,
+              "at": 2028
+            },
+            {
+              "wanted": 2500,
+              "at": 2573
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 47,
+            "saved": "rest_day",
+            "milestone": "",
+            "exam": "false",
+            "freezesHeld": 1,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "rest",
+              "counted"
+            ],
+            "note": "Thursday was a rest day. Streak safe at 47.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-milestone",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 42
+            },
+            {
+              "wanted": 400,
+              "at": 414
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 30,
+            "saved": "",
+            "milestone": "30",
+            "exam": "false",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "Every day you meet your goal adds one. A free rest day each week is already yours.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 50
+            },
+            {
+              "wanted": 400,
+              "at": 407
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 13,
+            "saved": "",
+            "milestone": "",
+            "exam": "true",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "While your exam is close, opening the app is enough to keep the day.",
+            "examLine": "Exam in 9 days. Opening the app keeps your streak.",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "streak-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 52
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 47,
+            "saved": "rest_day",
+            "milestone": "",
+            "exam": "false",
+            "freezesHeld": 1,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "rest",
+              "counted"
+            ],
+            "note": "Thursday was a rest day. Streak safe at 47.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-milestone",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 46
+            },
+            {
+              "wanted": 400,
+              "at": 429
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 30,
+            "saved": "",
+            "milestone": "30",
+            "exam": "false",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "Every day you meet your goal adds one. A free rest day each week is already yours.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 43
+            },
+            {
+              "wanted": 400,
+              "at": 467
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 13,
+            "saved": "",
+            "milestone": "",
+            "exam": "true",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "While your exam is close, opening the app is enough to keep the day.",
+            "examLine": "Exam in 9 days. Opening the app keeps your streak.",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 464,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "streak-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 46
+            },
+            {
+              "wanted": 400,
+              "at": 670
+            },
+            {
+              "wanted": 900,
+              "at": 1288
+            },
+            {
+              "wanted": 2500,
+              "at": 2504
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 47,
+            "saved": "rest_day",
+            "milestone": "",
+            "exam": "false",
+            "freezesHeld": 1,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "rest",
+              "counted"
+            ],
+            "note": "Thursday was a rest day. Streak safe at 47.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-milestone",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 119
+            },
+            {
+              "wanted": 400,
+              "at": 1981
+            },
+            {
+              "wanted": 900,
+              "at": 2656
+            },
+            {
+              "wanted": 2500,
+              "at": 3050
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 30,
+            "saved": "",
+            "milestone": "30",
+            "exam": "false",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "Every day you meet your goal adds one. A free rest day each week is already yours.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 52
+            },
+            {
+              "wanted": 400,
+              "at": 776
+            },
+            {
+              "wanted": 900,
+              "at": 1410
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 13,
+            "saved": "",
+            "milestone": "",
+            "exam": "true",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "While your exam is close, opening the app is enough to keep the day.",
+            "examLine": "Exam in 9 days. Opening the app keeps your streak.",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "streak-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 42
+            },
+            {
+              "wanted": 400,
+              "at": 618
+            },
+            {
+              "wanted": 900,
+              "at": 1144
+            },
+            {
+              "wanted": 2500,
+              "at": 2512
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 47,
+            "saved": "rest_day",
+            "milestone": "",
+            "exam": "false",
+            "freezesHeld": 1,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "rest",
+              "counted"
+            ],
+            "note": "Thursday was a rest day. Streak safe at 47.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-milestone",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 53
+            },
+            {
+              "wanted": 400,
+              "at": 474
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2501
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 30,
+            "saved": "",
+            "milestone": "30",
+            "exam": "false",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "Every day you meet your goal adds one. A free rest day each week is already yours.",
+            "examLine": "",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        },
+        {
+          "moment": "streak-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2514
+            }
+          ],
+          "state": {
+            "done": "done",
+            "days": 13,
+            "saved": "",
+            "milestone": "",
+            "exam": "true",
+            "freezesHeld": 0,
+            "cells": 7,
+            "kinds": [
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted",
+              "counted"
+            ],
+            "note": "While your exam is close, opening the app is enough to keep the day.",
+            "examLine": "Exam in 9 days. Opening the app keeps your streak.",
+            "buyTarget": {
+              "w": 64.5,
+              "h": 44
+            },
+            "continueTarget": {
+              "w": 358,
+              "h": 44
+            },
+            "continueOnScreen": true,
+            "scrolls": false
+          }
+        }
+      ]
+    }
+  ]
+}

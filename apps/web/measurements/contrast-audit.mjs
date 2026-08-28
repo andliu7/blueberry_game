@@ -76,6 +76,14 @@ const ECONOMY_ROUTES = [
   { name: "combo", moment: "combo", root: "[data-combo]", midMs: 250 },
   { name: "reward-first", moment: "reward-first", root: "[data-reward]", midMs: null },
   { name: "reward-streak", moment: "reward-streak", root: "[data-reward]", midMs: null },
+  // P4's streak screen, all three of its states, because each one puts a
+  // different set of token pairs on the ground: the rest day's purple square,
+  // the milestone band's ink on the streak fill, and the exam banner. A
+  // surface no script visits is a surface no audit has an opinion about, and
+  // the reward moment's own headline is the standing proof of what that costs.
+  { name: "streak-rest", moment: "streak-rest", root: "[data-streak]", midMs: null },
+  { name: "streak-milestone", moment: "streak-milestone", root: "[data-streak]", midMs: null },
+  { name: "streak-exam", moment: "streak-exam", root: "[data-streak]", midMs: null },
 ];
 
 const ROUTES = [

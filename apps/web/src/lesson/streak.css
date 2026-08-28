@@ -1,0 +1,519 @@
+/* -------------------------------------------------------------------------
+   The streak screen, piece P4. The full bleed stage that follows the reward
+   moment on the one day it applies: the day today first counted.
+
+   WHY IT IS ITS OWN GROUND. The reward moment's stage is purple tinted, because
+   XP is the purple system. This screen answers a different question with a
+   different hue, so it is warm: --streak-ground is the page with the streak
+   orange mixed into it, and the glow behind the flame is the same hue at the
+   top of the screen. A student who sees the two in sequence sees two screens,
+   not one screen that changed its mind, and that is the whole reason the bar
+   puts the streak on a page of its own rather than in a card.
+
+   NOTHING HERE IS RED, ANYWHERE, and that is a rule rather than a preference:
+   docs/ECONOMY.md's mitigation set exists so a streak never reads as something
+   about to be taken away. A missed day is drawn as a quiet ring, a covered day
+   is drawn as its own glyph, and neither of them is ever a warning colour.
+
+   Every timing below is a beat the component's one clock decides; these are the
+   visual halves. Under reduced motion the component renders the settled frame
+   at once and the block at the bottom collapses them to 1 ms. */
+
+.streak-stage {
+  background: var(--streak-ground);
+  touch-action: manipulation;
+}
+
+/* The heat behind the flame. Wide, high, and soft, so the top third of the
+   screen is warm without any edge a reader could mistake for a container. */
+.streak-glow {
+  background: radial-gradient(
+    ellipse 78% 48% at 50% 22%,
+    color-mix(in srgb, var(--streak) 22%, transparent) 0%,
+    color-mix(in srgb, var(--streak) 8%, transparent) 48%,
+    transparent 100%
+  );
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+/* The flame is the HUD's flame, drawn large. One flame in the product: the
+   glyph in the header and the glyph on this screen are the same shape, so the
+   number in the corner tomorrow is visibly the same thing that was celebrated
+   tonight. */
+.streak-hero-flame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: streak-flame-in 620ms var(--ease-spring) both;
+}
+.streak-hero-flame svg {
+  filter: drop-shadow(0 10px 22px color-mix(in srgb, var(--streak) 42%, transparent));
+}
+/* The lick. A slow, small, asymmetric scale about the base, so the flame is
+   alive in every frame without ever moving far enough to blur a still. */
+.streak-hero-flame .hud-flame-body {
+  transform-origin: 50% 92%;
+  animation: streak-lick 2600ms ease-in-out infinite;
+}
+.streak-hero-flame .hud-flame-core {
+  transform-origin: 50% 92%;
+  animation: streak-lick-core 1900ms ease-in-out infinite;
+}
+@keyframes streak-flame-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes streak-lick {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1) rotate(0deg);
+  }
+  35% {
+    transform: scaleY(1.035) scaleX(0.985) rotate(-1.1deg);
+  }
+  70% {
+    transform: scaleY(0.985) scaleX(1.015) rotate(1.3deg);
+  }
+}
+@keyframes streak-lick-core {
+  0%,
+  100% {
+    transform: scaleY(1) translateY(0);
+  }
+  45% {
+    transform: scaleY(1.14) translateY(-1px);
+  }
+}
+
+/* THE one large number. It is allowed to be this big for the same reason the
+   reward moment's XP is: it is the only number on the screen at this weight.
+   Three digit streaks still fit a 390px phone. */
+/* THE SANS, NOT THE DISPLAY FACE, and this is a measured correction rather
+   than a preference. --font-display falls back to Georgia on every machine
+   that has no Fraunces (which is all of them: theme.css ships no webfont
+   files), and Georgia's digits are OLD STYLE: the 3 descends and the 0 sits at
+   x-height, so a 30 day streak rendered as a small "3o" beside a full height
+   47. A hero number whose size changes with which digits it happens to contain
+   is not a hero number. The sans stack has lining figures everywhere, and the
+   unit under it is already sans, so the number and its words now read as one
+   phrase. RewardMoment.tsx's XP number has the same latent bug and is left
+   alone here on purpose; it is reported rather than fixed, because this piece
+   was built with P2 frozen. */
+.streak-number {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: clamp(5rem, 25vw, 8rem);
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+}
+/* The two words under it. They are the only other thing on the screen in the
+   streak ink, and they are set large enough to read as part of the number
+   rather than as a caption to it: "47 day streak" is one phrase. */
+.streak-unit {
+  font-size: clamp(1.5rem, 7vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+/* The tick. The number arrives holding yesterday's value and lands on today's,
+   which is the beat the bar does not have: the screen SHOWS the day being
+   added rather than announcing a total that was already true. */
+.streak-number-row[data-landed="true"] {
+  animation: streak-land 520ms var(--ease-spring) both;
+}
+@keyframes streak-land {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.09);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------- the card */
+
+/* The bar's shape and the piece's own contents: the week across the top, a
+   hairline, and one sentence under it. Bordered rather than filled, so it sits
+   on the warm ground as a frame around a reading instead of as a second page. */
+.streak-card {
+  width: 100%;
+  border-radius: 1rem;
+  border: 2px solid color-mix(in srgb, var(--streak) 34%, var(--border));
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  overflow: hidden;
+}
+.streak-week {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.75rem 0.6rem 0.7rem;
+}
+.streak-day {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.streak-day-letter {
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.streak-day[data-today="true"] .streak-day-letter {
+  color: var(--streak-ink);
+}
+/* The square. One size for all five states, so the row is a row and not a
+   ranking; only the fill and the glyph change. */
+.streak-day-slot {
+  position: relative;
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--hud-track);
+  /* Hidden until the component's clock reaches this square's beat. The gate is
+     an attribute rather than an animation-delay because the card is mounted
+     from the first frame (so the layout never shifts under the burst), and a
+     delay would have run itself out while the card was still invisible. */
+  opacity: 0;
+}
+.streak-day-slot[data-in="true"] {
+  opacity: 1;
+  animation: streak-day-in 340ms var(--ease-spring) both;
+}
+.streak-day-slot svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+/* Counted: filled in the streak hue, glyph in the ink that reads on it. */
+.streak-day[data-kind="counted"] .streak-day-slot {
+  background: var(--streak);
+  box-shadow: none;
+  color: var(--streak-on);
+}
+/* Covered by the free weekly rest day. Purple, the product's own hue, because
+   this square is the APP having done something for the student rather than the
+   student having done something. Soft fill, full ring, moon inside: three
+   things that all say "deliberate" and none of them says "missing". */
+.streak-day[data-kind="rest"] .streak-day-slot {
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 2px var(--primary);
+  color: var(--primary-ink);
+}
+/* Covered by a held freeze. The diamond hue, because a freeze was bought. */
+.streak-day[data-kind="freeze"] .streak-day-slot {
+  background: color-mix(in srgb, var(--diamond) 16%, var(--card));
+  box-shadow: inset 0 0 0 2px var(--diamond);
+  color: var(--diamond-ink);
+}
+/* Today, still open. The ring is the streak hue so the square reads as the
+   live one, and there is no glyph in it yet. */
+.streak-day[data-kind="pending"] .streak-day-slot {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--streak) 55%, transparent);
+}
+/* Today's square, once it counted, gets the one halo on the row. */
+.streak-day[data-today="true"][data-kind="counted"] .streak-day-slot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--streak) 28%, transparent);
+}
+.streak-day[data-today="true"][data-kind="counted"] .streak-day-slot[data-in="true"] {
+  animation: streak-day-land 520ms var(--ease-spring) both;
+}
+@keyframes streak-day-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes streak-day-land {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* The sentence. Its own band under a hairline, exactly the bar's split, and the
+   one line on the screen that carries the mitigation ECONOMY.md is built on. */
+.streak-note {
+  border-top: 1px solid color-mix(in srgb, var(--streak) 22%, var(--border));
+  padding: 0.7rem 0.85rem 0.8rem;
+  text-align: center;
+  font-size: var(--text-scale-sm);
+  line-height: 1.45;
+  color: var(--foreground);
+}
+/* When something covered a day, the sentence is an ANNOUNCEMENT and Bloom is
+   the one making it, so the band becomes a row with the character at the head
+   of the line and the text left aligned behind it. Without a save the sentence
+   is the app stating a rule and it stays centred, unaccompanied. */
+.streak-note[data-saved="true"] {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: left;
+  padding: 0.55rem 0.85rem 0.6rem 0.6rem;
+}
+.streak-note-berry {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+.streak-note-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.streak-note-strong {
+  font-weight: 600;
+  color: var(--streak-ink);
+}
+
+/* ----------------------------------------------------------- the milestone */
+
+/* A milestone gets a band rather than a card of its own, and it never repeats
+   the number: the hero above it is already the day. What it adds is the thing
+   the hero cannot say, which is that this day was SCARCE and what it paid. */
+.streak-milestone {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 0.85rem;
+  border: 2px solid var(--streak);
+  background: color-mix(in srgb, var(--streak) 12%, var(--card));
+  padding: 0.6rem 0.75rem;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--streak) 16%, transparent);
+}
+/* Its own pair rather than --streak / --streak-on, and the contrast audit is
+   why: this label is 12px uppercase TEXT and carries the 4.5:1 floor, which
+   white on the light theme's --streak misses at 4.26:1. --streak-band is the
+   darkest step of the same hue in light and the lightest in dark, so the stamp
+   reads the same and both themes clear the floor. */
+.streak-milestone-band {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--streak-band);
+  color: var(--streak-band-ink);
+  padding: 0.2rem 0.55rem;
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.streak-milestone-line {
+  flex: 1 1 auto;
+  font-size: var(--text-scale-xs);
+  line-height: 1.4;
+  color: var(--foreground);
+  text-align: left;
+}
+.streak-milestone-pay {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-scale-base);
+  font-weight: 700;
+  color: var(--diamond-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------- the freezes */
+
+/* The quietest thing on the screen, and deliberately so: it is inventory, not
+   a celebration, and a shop that shouts on a celebration screen is the exact
+   thing that would make this a dashboard. Outlined, muted, one row. */
+.streak-freeze {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  padding: 0.55rem 0.6rem 0.55rem 0.75rem;
+}
+.streak-freeze-slots {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.3rem;
+}
+.streak-freeze-slot {
+  display: flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px var(--hud-track);
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+.streak-freeze-slot svg {
+  width: 1rem;
+  height: 1rem;
+}
+.streak-freeze-slot[data-held="true"] {
+  background: color-mix(in srgb, var(--diamond) 16%, var(--card));
+  box-shadow: inset 0 0 0 2px var(--diamond);
+  color: var(--diamond-ink);
+  opacity: 1;
+}
+.streak-freeze-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-scale-xs);
+  line-height: 1.35;
+  color: var(--muted-foreground);
+  text-align: left;
+}
+.streak-freeze-buy {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 0.8rem;
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--diamond);
+  background: color-mix(in srgb, var(--diamond) 12%, var(--card));
+  color: var(--diamond-ink);
+  font-size: var(--text-scale-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.streak-freeze-buy:disabled {
+  opacity: 0.55;
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+}
+
+/* ----------------------------------------------------------- the exam band */
+
+/* ECONOMY.md's exam window, said out loud at the top of the screen where it
+   changes what the rest of the screen means. It is INFORMATION, not an alarm,
+   so it is the calm hue and it never counts down in red. */
+.streak-exam {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--good) 45%, transparent);
+  background: var(--good-soft);
+  padding: 0.4rem 0.85rem;
+  font-size: var(--text-scale-xs);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--good-ink);
+  text-align: center;
+}
+.streak-exam svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------- reveal helpers */
+
+.streak-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.streak-reveal {
+  animation: streak-reveal 340ms var(--ease-out) both;
+}
+@keyframes streak-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* The spark ring the flame arrives in. Same device as the reward moment's
+   burst and deliberately smaller: this screen has one subject and confetti
+   across the whole of it would compete with the number. */
+.streak-spark {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--streak-core);
+  opacity: 0;
+  animation: streak-spark 900ms var(--ease-out) both;
+  animation-delay: var(--delay, 0ms);
+}
+.streak-spark--deep {
+  background: var(--streak);
+}
+@keyframes streak-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(160deg) scale(1);
+  }
+}
+
+/* ------------------------------------------------------- reduced motion --- */
+/* The settled frame says everything: the flame is drawn, the number is today's,
+   every square is in its state, the sentence is there. Nothing on this screen
+   is animation only information. */
+@media (prefers-reduced-motion: reduce) {
+  .streak-hero-flame,
+  .streak-hero-flame .hud-flame-body,
+  .streak-hero-flame .hud-flame-core,
+  .streak-number-row[data-landed="true"],
+  .streak-day-slot[data-in="true"],
+  .streak-day[data-today="true"][data-kind="counted"] .streak-day-slot[data-in="true"],
+  .streak-reveal,
+  .streak-spark {
+    animation: none;
+  }
+  .streak-spark {
+    display: none;
+  }
+}

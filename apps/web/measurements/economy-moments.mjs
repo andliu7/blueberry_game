@@ -686,6 +686,217 @@ export async function driveHudStreak(page, { onTrigger = null } = {}) {
   return { moment: "hud-streak", reached, at, trigger, state };
 }
 
+/* ==================================================== P4, the streak screen ==
+ *
+ * The stage that follows the reward moment on the one day it applies. It is
+ * reached by REAL CLICKS from the lesson (three right answers, Finish lesson,
+ * Continue past the combo interstitial, Continue past the reward moment) and
+ * the only thing seeded is history, for the same reason P3's header is seeded:
+ * a 47 day streak is 47 days and no sequence of presses inside one session can
+ * produce one.
+ *
+ * WHY THIS EXACT SEED. The piece asks for a 47 day streak where YESTERDAY was
+ * an auto rest day and today's goal has just been met, so both the rest day
+ * glyph and the streak beat are on screen at once, and the seed is worked
+ * backwards from that against packages/economy/src/rules.ts:
+ *
+ *   THE DAY COUNT. A day counts when the daily XP goal is met, and a concept
+ *   node's first clear pays exactly the Casual goal of 10. So one clear a day
+ *   on days 47 back through 2 is 46 counted days, day 1 carries no clear at
+ *   all, and today's lesson is the 47th. The 46 are unbroken, so no earlier
+ *   week ever spends its rest day and the one free rest day is still there
+ *   when yesterday needs it.
+ *
+ *   THE REST DAY IS NOT SEEDED, and that is the point. Nothing in the journal
+ *   says "rest day"; the gap is simply a day with no events, and derive.ts
+ *   applies the free weekly rest day to it on its own. The capture then reads
+ *   the glyph back off the rendered strip, so a change to the protection order
+ *   fails the capture instead of quietly shipping a shot of a broken streak.
+ *
+ *   THE FREEZE. One streak_freeze spend, ten days back. The rest day is spent
+ *   before any freeze (derive.ts's own order), so yesterday takes the free one
+ *   and this stays HELD: the freeze row shows one of two slots filled and the
+ *   purchase card is live. 46 first clears pay 10 diamonds each, so the 75 is
+ *   comfortably affordable and the card is not shot in its disabled state.
+ *
+ * TWO MORE MOMENTS, named so a judge can leave them out of the blind pair. The
+ * milestone band and the exam window banner are both claims this piece makes,
+ * and a claim with no frame behind it is the sort of thing a still capture
+ * quietly hides. `streak-milestone` lands today on day 30; `streak-exam` sets
+ * an exam date nine days out, which is the sentence ECONOMY.md specifies.
+ */
+
+/** One concept clear, which pays exactly the Casual daily goal of 10 XP. */
+function countedDay(daysAgo, nodeId) {
+  return {
+    kind: "node_cleared",
+    at: noonDaysAgo(daysAgo),
+    tz: LOCAL_TZ,
+    nodeId,
+    nodeKind: "concept",
+    flawless: false,
+    stepsInOneSitting: 1,
+    spine: false,
+    difficulty: 2,
+  };
+}
+
+/**
+ * A run of counted days ending today-exclusive, on the Casual goal, with the
+ * days named in `skip` left empty. Today is deliberately empty too: the lesson
+ * the drive plays is what counts it.
+ */
+function streakHistory(daysBack, skip = []) {
+  const journal = [{ kind: "settings", at: noonDaysAgo(daysBack + 1), tz: LOCAL_TZ, dailyGoal: "casual" }];
+  for (let daysAgo = daysBack; daysAgo >= 1; daysAgo -= 1) {
+    if (skip.includes(daysAgo)) continue;
+    journal.push(countedDay(daysAgo, `seed:day-${daysAgo}`));
+  }
+  return journal;
+}
+
+/** 46 counted days, yesterday empty, one freeze held. Today's lesson makes 47. */
+export function p4RestSeed() {
+  return [
+    ...unlockSeed(),
+    ...streakHistory(47, [1]),
+    { kind: "spend", at: noonDaysAgo(10), tz: LOCAL_TZ, sink: "streak_freeze", cost: 75, ref: "seed" },
+  ];
+}
+
+/** 29 counted days with no gaps, so today's clear is the 30 day milestone. */
+export function p4MilestoneSeed() {
+  return [...unlockSeed(), ...streakHistory(29)];
+}
+
+/**
+ * Twelve counted days and an exam nine days out.
+ *
+ * The settings event is stamped 20 days back so the exam date is in force for
+ * the whole run; the window itself is the last 14 days before the exam, which
+ * is where the seed's later days and today sit.
+ */
+export function p4ExamSeed() {
+  const examDate = new Date(Date.now() + 9 * 86_400_000).toISOString().slice(0, 10);
+  return [
+    ...unlockSeed(),
+    ...streakHistory(12),
+    { kind: "settings", at: noonDaysAgo(20), tz: LOCAL_TZ, examDate },
+  ];
+}
+
+export const P4_SEEDS = {
+  rest: p4RestSeed(),
+  milestone: p4MilestoneSeed(),
+  exam: p4ExamSeed(),
+};
+
+/** What each P4 moment must be showing, read off the rendered stage. */
+const P4_EXPECTED = {
+  rest: { days: 47, saved: "rest_day", milestone: "", exam: "false", rest: 1, freeze: 0, freezesHeld: 1 },
+  milestone: { days: 30, saved: "", milestone: "30", exam: "false", rest: 0, freeze: 0, freezesHeld: 0 },
+  exam: { days: 13, saved: "", milestone: "", exam: "true", rest: 0, freeze: 0, freezesHeld: 0 },
+};
+
+/** Everything about the streak stage a still cannot prove: the state behind the picture. */
+async function readStreak(page) {
+  return page.evaluate(() => {
+    const stage = document.querySelector("[data-streak]");
+    if (stage === null) return null;
+    const cells = [...stage.querySelectorAll(".streak-day")];
+    const buy = stage.querySelector("[data-buy-freeze]");
+    const rect = (node) => (node === null ? null : node.getBoundingClientRect());
+    const continueButton = [...stage.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Continue") ?? null;
+    const box = rect(continueButton);
+    const buyBox = rect(buy);
+    const scroller = stage.querySelector(".overflow-y-auto");
+    return {
+      done: stage.getAttribute("data-streak"),
+      days: Number(stage.getAttribute("data-streak-days")),
+      saved: stage.getAttribute("data-streak-saved") ?? "",
+      milestone: stage.getAttribute("data-streak-milestone") ?? "",
+      exam: stage.getAttribute("data-streak-exam") ?? "",
+      freezesHeld: Number(stage.getAttribute("data-streak-freezes")),
+      cells: cells.length,
+      kinds: cells.map((cell) => cell.getAttribute("data-kind")),
+      note: (stage.querySelector(".streak-note")?.textContent ?? "").trim(),
+      examLine: (stage.querySelector(".streak-exam")?.textContent ?? "").trim(),
+      // The 44 point floor from CLAUDE.md's budget table, on the two controls
+      // this screen owns. Half a pixel of slack for fractional layout.
+      buyTarget: buyBox === null ? null : { w: Math.round(buyBox.width * 10) / 10, h: Math.round(buyBox.height * 10) / 10 },
+      continueTarget: box === null ? null : { w: Math.round(box.width * 10) / 10, h: Math.round(box.height * 10) / 10 },
+      // A moment whose CTA is below the fold is not a moment.
+      continueOnScreen: box !== null && box.top >= 0 && box.bottom <= window.innerHeight,
+      // A stage whose content column scrolls has more on it than a phone can
+      // hold, which is the dashboard failure this screen is one edit away from
+      // at any time.
+      scrolls: scroller !== null && scroller.scrollHeight > scroller.clientHeight + 1,
+    };
+  });
+}
+
+/** True of every P4 moment whatever the numbers say. */
+function streakGeometryHolds(state) {
+  if (state === null) return false;
+  if (state.cells !== 7) return false;
+  if (!state.continueOnScreen || state.scrolls) return false;
+  if (state.continueTarget === null || state.continueTarget.h < 43.5) return false;
+  if (state.buyTarget !== null && (state.buyTarget.h < 43.5 || state.buyTarget.w < 43.5)) return false;
+  // Nothing on this screen may frame a day as lost. It is asserted on the
+  // RENDERED text, not on the model, because the model is not what a student
+  // reads. The bar's own streak screen fails this line.
+  const words = /\b(lose|lost|losing|reset|resets|broke|breaks|failed)\b/i;
+  if (words.test(state.note) || words.test(state.examLine)) return false;
+  return true;
+}
+
+/**
+ * Play the intro lesson, pass the reward moment, and land on the streak screen.
+ *
+ * The burst hangs on the press that opens it, which is the reward moment's own
+ * Continue: that press is the transition a critic is judging, so the frames are
+ * measured from it and not from an arbitrary settle.
+ */
+export async function driveStreak(page, seedName, { onTrigger = null } = {}) {
+  for (let i = 0; i < INTRO.length; i += 1) {
+    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
+    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
+    await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
+    if (i < INTRO.length - 1) {
+      await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
+      await sleep(250);
+    }
+  }
+  await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
+  await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 });
+  await sleep(300);
+  await press(page, await buttonByText(page, "Continue"), "Continue (combo)");
+  // The reward moment settles at 2500 ms and its Continue is the press that
+  // opens this piece's stage, so the drive waits for the settled frame rather
+  // than racing it.
+  await page.waitForSelector('[data-reward="done"]', { timeout: 8_000 });
+  await sleep(200);
+  const at = await press(page, await buttonByText(page, "Continue"), "Continue (reward)");
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  await page.waitForSelector('[data-streak="done"]', { timeout: 8_000 }).catch(() => {});
+  const state = await readStreak(page);
+  const want = P4_EXPECTED[seedName];
+  const reached =
+    streakGeometryHolds(state) &&
+    state.done === "done" &&
+    state.days === want.days &&
+    state.saved === want.saved &&
+    state.milestone === want.milestone &&
+    state.exam === want.exam &&
+    state.freezesHeld === want.freezesHeld &&
+    state.kinds.filter((kind) => kind === "rest").length === want.rest &&
+    state.kinds.filter((kind) => kind === "freeze").length === want.freeze &&
+    // Today is the last square and today counted, or the moment on screen is
+    // some other account's evening.
+    state.kinds[6] === "counted";
+  return { moment: `streak-${seedName}`, reached, at, trigger, state };
+}
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -701,4 +912,7 @@ export const MOMENTS = {
   "hud-charge": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudCharge(page, options) },
   "hud-streak": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudStreak(page, options) },
   "hud-lit": { seed: P3_LIT_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudLit(page, options) },
+  "streak-rest": { seed: P4_SEEDS.rest, drive: (page, options) => driveStreak(page, "rest", options) },
+  "streak-milestone": { seed: P4_SEEDS.milestone, drive: (page, options) => driveStreak(page, "milestone", options) },
+  "streak-exam": { seed: P4_SEEDS.exam, drive: (page, options) => driveStreak(page, "exam", options) },
 };

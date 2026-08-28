@@ -26,6 +26,7 @@
 @import "tailwindcss";
 @import "./mascot/mascot.css";
 @import "./app/ui/hud.css";
+@import "./lesson/streak.css";
 
 /* Class based dark mode, same mechanism as the sibling repo. Tailwind v4 repoints
    the dark: variant at the .dark class instead of prefers-color-scheme. */
@@ -167,6 +168,22 @@
   --streak: #d94a06;
   --streak-core: #fbbf24;
   --streak-ink: #9a3412;
+  /* The ink that sits ON the streak fill. GRAPHICS ONLY: white on #d94a06
+     measures 4.26:1, which clears the 3:1 floor WCAG 1.4.11 sets for a
+     meaningful graphic (a counted day's check) and does NOT clear the 4.5:1
+     floor for text. The milestone band is 12px uppercase TEXT, so it has its
+     own pair below rather than borrowing this one; the audit caught the first
+     draft doing exactly that, at 4.26:1 against a 4.5 floor. */
+  --streak-on: #ffffff;
+  /* The milestone band: a stamp, so it is the darkest step of the hue with
+     white on it. 7.3:1 light. The dark theme inverts, because there --streak
+     is a light orange and the near black card colour is what reads on it. */
+  --streak-band: #9a3412;
+  --streak-band-ink: #ffffff;
+  /* The streak screen's full bleed ground, the warm counterpart of
+     --reward-ground: the same page with this system's own hue mixed in, so the
+     two stages that play back to back are visibly two stages. */
+  --streak-ground: color-mix(in srgb, var(--streak) 7%, var(--background));
   /* The unlit flame and the empty half of every HUD gauge. --hud-out is the
      body colour of a guttering flame and has to READ as a shape, so it is the
      text-grade muted foreground rather than a wash. --hud-track is the empty
@@ -256,6 +273,14 @@
   --streak: #fb923c;
   --streak-core: #fcd34d;
   --streak-ink: #fdba74;
+  /* orange-400 is a light fill on the dark theme, so what sits on it is the
+     card's own near black rather than white: #1c1917 on #fb923c is 9.1:1. That
+     clears the text floor as well as the graphic one, so the band can use the
+     same pair here where the light theme needs its own. */
+  --streak-on: #1c1917;
+  --streak-band: #fb923c;
+  --streak-band-ink: #1c1917;
+  --streak-ground: color-mix(in srgb, var(--streak) 12%, var(--background));
   --hud-out: #a8a29e;
   /* See the light half: 65 percent so the gauge's extent is visible. */
   --hud-track: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
@@ -295,6 +320,9 @@
   --color-streak: var(--streak);
   --color-streak-core: var(--streak-core);
   --color-streak-ink: var(--streak-ink);
+  --color-streak-on: var(--streak-on);
+  --color-streak-band: var(--streak-band);
+  --color-streak-band-ink: var(--streak-band-ink);
   --color-hud-out: var(--hud-out);
   --color-hud-track: var(--hud-track);
 
