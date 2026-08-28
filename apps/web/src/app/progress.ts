@@ -50,7 +50,8 @@
  * useSyncExternalStore and nothing here imports React.
  */
 
-import { probeTopicIdsForCourse, topicDefinition, type CourseId, type ProblemId, type TopicId } from "@blueberry/curriculum";
+import type { CourseId, ProblemId, TopicId } from "@blueberry/curriculum";
+import { COURSE_UNIVERSE } from "./courseUniverse.generated";
 import {
   deriveEconomy,
   isEconomyEvent,
@@ -172,23 +173,20 @@ function isDifficulty(value: unknown): value is Difficulty {
 /**
  * What one topic weighs in the mastery fraction.
  *
- * TopicDefinition carries no difficulty today, so every lesson node weighs
- * MASTERY_DEFAULT_DIFFICULTY. The lookup is written anyway, and it is the ONE
- * place to change when the curriculum grows the field, so the universe and the
- * clears we journal cannot start disagreeing about what a node is worth.
+ * Read out of the generated table rather than out of `topicDefinition`, because
+ * this module is reachable from the shell and therefore lives in the game
+ * route's entry chunk: importing the authored corpus here put all of it in front
+ * of every student (see courseUniverse.generated.ts for the measurement). The
+ * table carries whatever difficulty the corpus assigns, so this stays the ONE
+ * place a weight is decided and the universe cannot disagree with the clears we
+ * journal.
+ *
+ * An unknown topic falls back rather than throwing: the v1 migration replays
+ * topic ids out of a localStorage blob that may name a topic the corpus has
+ * since renamed, and a stale cache entry must not take down the store.
  */
 function topicDifficulty(topic: TopicId): Difficulty {
-  let definition: object;
-  try {
-    definition = topicDefinition(topic);
-  } catch {
-    // topicDefinition throws on an unknown id, which is right for authored
-    // content and wrong here: the v1 migration replays topic ids out of a
-    // localStorage blob that may name a topic the corpus has since renamed. A
-    // stale cache entry must not take down the store.
-    return LESSON_DIFFICULTY;
-  }
-  const own = "difficulty" in definition ? (definition as { readonly difficulty: unknown }).difficulty : undefined;
+  const own = DIFFICULTY_BY_NODE.get(lessonNodeId(topic));
   return isDifficulty(own) ? own : LESSON_DIFFICULTY;
 }
 
@@ -217,11 +215,19 @@ function topicDifficulty(topic: TopicId): Difficulty {
  * keeps the ledger of which courses those are.
  */
 export function courseUniverse(course: CourseId): readonly UniverseNode[] {
-  return probeTopicIdsForCourse(course).map((topic) => ({
-    nodeId: lessonNodeId(topic),
-    difficulty: topicDifficulty(topic),
-  }));
+  const rows = COURSE_UNIVERSE[course] ?? [];
+  return rows.map(([nodeId, difficulty]) => ({ nodeId, difficulty }));
 }
+
+/**
+ * Every node's weight, flattened across courses so a topic's difficulty is one
+ * lookup rather than a scan. Courses overlap (DAT and MCAT probe all four
+ * content courses), and a node that appears twice carries the same weight in
+ * both, so last write wins is not a conflict.
+ */
+const DIFFICULTY_BY_NODE: ReadonlyMap<string, Difficulty> = new Map(
+  Object.values(COURSE_UNIVERSE).flatMap((rows) => rows.map(([nodeId, difficulty]) => [nodeId, difficulty] as const)),
+);
 
 /** Built once per course, because the course graph is static content. */
 const universeCache = new Map<CourseId, readonly UniverseNode[]>();
