@@ -53,6 +53,7 @@ import type { BerryBehaviour } from "../../mascot/berryBehaviour";
 import type { BerryMood } from "../../mascot/berryMood";
 import { costumeForSurface } from "../../mascot/berryCostume";
 import { SETTLED_AFTER_MISS, reactionFor, type ReactionOutcome } from "../../mascot/berryReaction";
+import { CanvasBackdrop, type BackdropMode } from "./CanvasBackdrop";
 import { DrawCanvas, type FailureAnimation } from "./DrawCanvas";
 import { applySpeciesOffsets,
   applyAtomOrbits,
@@ -225,6 +226,16 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     return { kind: "reaction", id: FIRST_REACTION.id };
   });
   const playable = resolveSelection(tutorial ? { kind: "reaction", id: FIRST_REACTION.id } : selection);
+
+  const canvasRef = useRef<HTMLElement | null>(null);
+  // Which water. A resonance hunt gets still water it can ripple; a step that
+  // is a resonance form opening a site gets the hybrid, violet resolving into
+  // the current that attacks it; everything else is a mechanism and flows.
+  const backdropMode: BackdropMode = playable.resonance
+    ? "resonance"
+    : playable.step.identity.route === "resonance"
+      ? "hybrid"
+      : "mechanism";
   const step = playable.step;
   const scene = SCENES.get(step.id);
   if (scene === undefined) throw new Error(`no scene for step ${step.id}`);
@@ -557,12 +568,16 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         // needs a surface to sit on, and the darkest atom loses its lower edge
         // against a flat one. Lighter at the top, matching the light on the
         // spheres.
+        ref={canvasRef}
         className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border border-border shadow-sm"
         style={{
           minHeight: "20rem",
           background: "linear-gradient(180deg, var(--scene-ground-top), var(--scene-ground-bottom))",
         }}
       >
+        {/* Behind everything, and pointer-events: none throughout, so it can
+            never take a pointer the arrow machine wanted. */}
+        <CanvasBackdrop mode={backdropMode} surface={canvasRef} reducedMotion={reducedMotion} />
         {mode === "draw" ? (
           <DrawCanvas key={epoch} step={step} scene={scene} live={live} offsets={offsets} onSpeciesMove={onSpeciesMove} orbits={orbits} onAtomOrbit={onAtomOrbit} draft={mechanism} guide={guide} targets={targets} dispatch={canvasDispatch} failure={failure} reducedMotion={reducedMotion} rejected={rejected} arrowless={playable.arrowless} forceArrows={playable.resonance} recenterSignal={recenterSignal} />
         ) : renderer === "2d" ? (

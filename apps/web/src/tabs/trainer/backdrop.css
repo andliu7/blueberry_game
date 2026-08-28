@@ -1,0 +1,143 @@
+/*
+ * The trainer canvas backdrop. See CanvasBackdrop.tsx for why the three modes
+ * look the way they do; this file is only how.
+ *
+ * Two rules run through all of it. Nothing here takes a pointer, because the
+ * arrow machine underneath needs every one of them. And nothing animates a
+ * layout property: the drift and the ripple are transform and opacity only, so
+ * they stay on the compositor and off the 60 fps budget row.
+ */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/* The plate                                                           */
+/* ------------------------------------------------------------------ */
+
+.backdrop__plate {
+  position: absolute;
+  /* Oversized so the drift never exposes an edge. */
+  inset: -6% -10%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  /* The molecules are the subject. This is wallpaper and should read as it.
+     Measured, not guessed: at 0.5 the plate flattened the canvas ground to a
+     dull grey and took contrast off the atoms, which is the one thing this
+     backdrop must never do. Soft light keeps the ground's own luminosity and
+     lets the plate tint it rather than cover it. */
+  opacity: 0.28;
+  mix-blend-mode: soft-light;
+}
+
+.backdrop--mechanism .backdrop__plate,
+.backdrop--hybrid .backdrop__plate {
+  background-image: url("/backdrops/mechanism-light.webp");
+}
+
+.backdrop--hybrid .backdrop__plate {
+  background-image: url("/backdrops/hybrid-light.webp");
+}
+
+/*
+ * Resonance has no plate image on purpose. Still water is a flat wash, and the
+ * only thing that ever moves is the ripple the student makes. A photograph of
+ * ripples would be claiming motion the chemistry does not have.
+ */
+.backdrop--resonance .backdrop__plate {
+  background-image: none;
+  background: radial-gradient(
+    120% 90% at 50% 45%,
+    var(--backdrop-still-centre) 0%,
+    var(--backdrop-still-edge) 100%
+  );
+  /* The still wash is the ground here rather than a tint of it, so it sits
+     normally and a little stronger: there is no photograph underneath. */
+  opacity: 0.5;
+  mix-blend-mode: normal;
+}
+
+/* Dark theme swaps the plate rather than dimming it: a dimmed light plate goes
+   grey and muddy, and the dark one was generated for this job.
+   
+   The selector is the .dark CLASS, which is what this app actually uses (see
+   the @custom-variant at the top of theme.css). It is deliberately NOT
+   prefers-color-scheme: the app lets a student choose a theme, so keying off
+   the operating system fires the dark plate behind a light canvas the moment
+   someone's laptop is in dark mode. That was a real bug here, caught in the
+   browser rather than in review. */
+.dark .backdrop--mechanism .backdrop__plate,
+.dark .backdrop--hybrid .backdrop__plate {
+  background-image: url("/backdrops/mechanism-dark.webp");
+  /* The dark plate is already dark, so it adds rather than tints. */
+  opacity: 0.45;
+  mix-blend-mode: lighten;
+}
+
+/* ------------------------------------------------------------------ */
+/* The drift: mechanism only, because only a mechanism goes somewhere  */
+/* ------------------------------------------------------------------ */
+
+.backdrop--mechanism .backdrop__plate--drift,
+.backdrop--hybrid .backdrop__plate--drift {
+  animation: backdrop-drift 38s linear infinite;
+}
+
+@keyframes backdrop-drift {
+  /* Deliberately slow and small. A background a student NOTICES moving is a
+     background competing with the arrow they are trying to draw. */
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(3.5%, 0, 0); }
+}
+
+/* ------------------------------------------------------------------ */
+/* The ripple: resonance only, and only where a finger lands           */
+/* ------------------------------------------------------------------ */
+
+.backdrop__ripple {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--backdrop-ripple);
+  transform: scale(0);
+  opacity: 0.9;
+  animation: backdrop-ripple 1400ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* A second, slower ring, so one tap reads as water rather than as a dot. */
+.backdrop__ripple::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  border: 1px solid var(--backdrop-ripple);
+  animation: backdrop-ripple-echo 1400ms cubic-bezier(0.22, 0.61, 0.36, 1) 120ms forwards;
+}
+
+@keyframes backdrop-ripple {
+  from { transform: scale(0); opacity: 0.85; }
+  to { transform: scale(26); opacity: 0; }
+}
+
+@keyframes backdrop-ripple-echo {
+  from { transform: scale(1); opacity: 0.5; }
+  to { transform: scale(1.7); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The component already stops making ripples and drops the drift class.
+     This is the belt to that pair of braces. */
+  .backdrop__plate--drift,
+  .backdrop__ripple,
+  .backdrop__ripple::after {
+    animation: none;
+  }
+}

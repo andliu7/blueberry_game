@@ -88,6 +88,13 @@
      lighter at the top like the light on the spheres. */
   --scene-ground-top: #fbfaf7;
   --scene-ground-bottom: #eceae3;
+  /* The canvas backdrop. Resonance is STILL water, so it is a wash rather than
+     a photograph: the only thing that moves is the ripple the student makes,
+     because in resonance nothing actually moves. Violet, against the aqua the
+     mechanism plate uses, so the two modes differ before a word is read. */
+  --backdrop-still-centre: #f7f5ff;
+  --backdrop-still-edge: #e6e2f7;
+  --backdrop-ripple: #8b7bd8;
   /* The electrons in flight. Per the owner ruling of 2026-08-25 the dragged
      mark is the electrons themselves, not an arrowhead, so they need their own
      pair: a warm halo and a bright core. Warm on purpose, because the arrow,
@@ -214,6 +221,11 @@
      nothing to be seen against. */
   --scene-ground-top: #2a2724;
   --scene-ground-bottom: #1a1817;
+  /* Deep still water. The ripple has to carry on a dark ground, so it brightens
+     rather than darkens. */
+  --backdrop-still-centre: #23202e;
+  --backdrop-still-edge: #16141d;
+  --backdrop-ripple: #a897ee;
   /* Brighter core on the dark ground: the halo carries on a light page but a
      #fffdf6 core against #1a1817 needs no help, while the halo does. */
   --electron-glow: #ffc756;
