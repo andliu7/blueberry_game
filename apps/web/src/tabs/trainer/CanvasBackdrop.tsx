@@ -127,6 +127,17 @@ export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropP
   }, [mode, reducedMotion, surface]);
 
   return (
+    <>
+    {/* The crest that passes OVER the molecule, in its own layer above the
+        chemistry. Only for a deliberate tap: the ambient drops stay in the
+        water, because a drop nobody caused should not touch the answer. */}
+    {mode === "resonance" && !reducedMotion && ripples.length > 0 ? (
+      <div className="backdrop-overlay" aria-hidden="true">
+        {ripples.map((r) => (
+          <span key={r.id} className="backdrop-overlay__crest" style={{ left: r.x, top: r.y }} />
+        ))}
+      </div>
+    ) : null}
     <div className={`backdrop backdrop--${mode}`} aria-hidden="true">
       <div className={`backdrop__plate${reducedMotion ? "" : " backdrop__plate--drift"}`} />
       {/* Real water for resonance: three photographs of one still pool,
@@ -156,5 +167,6 @@ export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropP
           ))
         : null}
     </div>
+    </>
   );
 }
