@@ -15,11 +15,18 @@
  * reads at arm's length in a way a coloured-icon-versus-grey-icon bar does not,
  * because the eye finds a filled shape before it finds a hue.
  *
- * What we take is that construction. What we do not take is the colour: the
- * chip here is Blueberry purple, per sticker-ui's loudest rule, that a
- * reference brand's dominant colour is its equity and copying it produces a
- * clone. And we add the label the reference cannot afford, because it draws six
- * icons across a phone and we draw four.
+ * What we take is that construction, and one more thing round one of this piece
+ * missed: the reference's icons are chunky centre-filled cut-outs, each holding
+ * its OWN colour whether or not it is the selected item, so the bar at rest is
+ * a row of coloured objects rather than a row of grey ones with one lit. Ours
+ * was four hairline glyphs in a single grey, which is the shape of a settings
+ * menu. See TabIcon.tsx and the --tab-hue-* tokens in theme.css.
+ *
+ * What we do not take is the colour itself: the chip here is Blueberry purple,
+ * per sticker-ui's loudest rule, that a reference brand's dominant colour is
+ * its equity and copying it produces a clone. And we add the label the
+ * reference cannot afford, because it draws five icons across a phone and we
+ * draw four.
  *
  * NO BACKDROP BLUR, and that is a change from the eight-tab bar. Sticker rule 2
  * and 3: flat fills, no gradients, no glass. A translucent blurred bar is glass,
@@ -38,8 +45,6 @@
  */
 
 .tabbar {
-  /* The knockout colour inside the card-stack icon. See TabIcon.tsx. */
-  --tab-paper: var(--card);
   position: fixed;
   inset-inline: 0;
   bottom: 0;
@@ -76,8 +81,12 @@
 }
 
 .tabbar-icon {
-  width: 1.75rem;
-  height: 1.75rem;
+  /* 32px. The reference's items are 48 square with the sticker filling most of
+     that and no label under it; ours carries a label, so the icon takes 32 of
+     the item's 58 and the word takes the rest. At 28, which is what round one
+     shipped, a two-tone cut-out has no room to be two tones. */
+  width: 2rem;
+  height: 2rem;
 }
 
 /* The active object. Tint, hard border, same hue. */
@@ -85,6 +94,16 @@
   border-color: var(--primary-ink);
   background: var(--tab-active);
   color: var(--primary-ink);
+  /* The sticker's body is a mix with the ground it sits on, and on this item
+     the ground is the chip rather than the bar. Re-mixing against the chip, and
+     one step stronger, is what keeps the Path sticker from dissolving into the
+     purple it is standing on. The other three never sit on this chip while they
+     are their own colour, and they are written out anyway so the rule holds if
+     the bar ever lights a different tab. */
+  --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 34%, var(--tab-active));
+  --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 34%, var(--tab-active));
+  --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 34%, var(--tab-active));
+  --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 34%, var(--tab-active));
 }
 
 /* The rail, above 768px. Same object, laid on its side, with the long label. */
@@ -109,8 +128,8 @@
   }
 
   .tabbar-icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 
@@ -136,9 +155,10 @@
 }
 
 /*
- * The wordmark above the rail. Phone-side it lives in the header instead,
- * because the bottom bar is thumb space and a logo is not something a thumb
- * needs.
+ * The wordmark above the rail. It does not exist on the phone at all: the
+ * bottom bar is thumb space, the header's 390px is worth more to a tool than to
+ * a logo, and the bar itself already says which app this is. It is a label and
+ * not a link; Shell.tsx records why.
  */
 .tabbar-brand {
   display: none;

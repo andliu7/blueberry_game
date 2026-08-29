@@ -511,3 +511,49 @@ other pieces' surfaces. Left, and reported.
 Carried as the next gap, for S3 rather than another S2 round: the torn-paper scroll edges
 read as an unfinished background asset, muddy and asymmetric, and they cost horizontal
 room the labels want.
+
+### S1 Round 2, the re-judge: OURS WON BLIND, confidence 0.62. Exit met.
+
+Audit clean. The judge picked ours for naming things: the course, "0 of 86 lessons done",
+a real topic title beside every node, and a LABELLED bottom bar (Path, Train, Cards, Me)
+where the bar ships five unlabelled icons and "the shield and the chest are a guess". It
+also credited the header for ranking one counter above the rest instead of four
+equal-weight icon-number pairs.
+
+Sticker **1055 to 1020**, entirely from rule 5 (180 to 144). Contrast 0 failing over 8005
+composed pairs. 990 web tests. Payload 191.5 KB. Suite 30 of 30.
+
+**What the builder found when the verdict came through empty.** It went to the reference
+and photographed the gap itself rather than guessing: the bar's icons are chunky
+centre-filled cut-outs each holding its own colour, and ours were four hairline glyphs in
+one grey, which is the shape of a settings menu. `TabIcon.tsx` had written that exact
+intent into its own header in round one ("a flat shape in the tab's own colour") and then
+drawn every layer in `currentColor`. Four hues now, measured 5.18 to 11.82 against the
+3:1 floor 1.4.11 asks of a graphical object, and deliberately not the reference's green
+per sticker-ui's rule about a brand's dominant colour.
+
+**One edit the builder flagged for judgement rather than banking.** The rail wordmark was
+an anchor to `#/pathway`, which is exactly where the Path tab directly beneath it goes:
+two adjacent controls for one destination, only one labelled. Demoting it to a label
+removed the redundancy and took 36 rows off rule 5 with it. Its words: "the finding count
+moved because the design changed, not because anything in the audit did, but it is the one
+edit where a number and a design argument pointed the same way and you should judge whether
+you agree." Recorded because that is the right way to raise it.
+
+### THE DEFECT IN OUR WINNER, assigned to S3
+
+"The full-width purple bar directly under the header is unlabeled and sits about 70 percent
+filled while the line immediately below it reads 0 of 86 lessons done. Either it duplicates
+the charge fill four pixels above it, or it contradicts the progress text; either way it is
+the first thing the eye lands on and it lies."
+
+Verified in the code: it is the DAILY XP GOAL meter (`HudGoalBar`), correctly rendering
+today's XP against today's goal. It carries `role="progressbar"` and an `aria-label`, so a
+screen reader gets the truth and a sighted student does not. Two different progress
+measures sit adjacent and only one is labelled.
+
+It is not lying about its data and it still misleads, which is worse than a rendering bug
+because nothing will ever fail. **Assigned to S3**, with a constraint: P3 won specifically
+on the readouts being DRAWN fractions rather than written ones, with the goal meter as the
+header's bottom edge costing zero horizontal space. Whatever disambiguates the two meters
+must not undo that.

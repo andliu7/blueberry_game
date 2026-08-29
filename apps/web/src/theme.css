@@ -219,6 +219,34 @@
      and the 2px border of the same #7c3aed on the bar's white is 5.70:1, over
      the 3:1 floor a WCAG 1.4.11 interface component needs. */
   --tab-active: #f1eafe;
+
+  /* ONE HUE PER BAR TAB, AND WHY A GREY BAR LOST.
+     The reference bar is a row of chunky coloured objects, and ours was four
+     hairline glyphs in one ink. The eye finds a filled shape before it finds a
+     hue, and it finds four different shapes faster than four tints of the same
+     one, so each of the four destinations gets a colour it keeps whether or not
+     it is the active tab, exactly as the reference does. The ACTIVE state is
+     still the chip and only the chip; colour here is identity, not selection.
+
+     None of these is the reference's green, per sticker-ui's loudest rule. Path
+     is the app's own purple because the pathway is purple everywhere it is
+     drawn; the other three are the families already in this file, warm for the
+     arrow the trainer pushes, teal for the deck, blue for the person.
+
+     Measured on the bar's ground, which is --card #ffffff, against the 3:1 that
+     WCAG 1.4.11 asks of a graphical object: purple 5.70, orange 5.18, teal
+     5.47, blue 6.70. The tint each sticker's body is filled with is the same
+     hue at 22 percent over that ground, and the outline sits on that body at
+     4.08, 3.73, 4.00 and 4.71, so the shape reads as a cut-out with a lighter
+     body inside it rather than as a blob. */
+  --tab-hue-path: #7c3aed;
+  --tab-hue-train: #c2410c;
+  --tab-hue-cards: #0f766e;
+  --tab-hue-me: #1d4ed8;
+  --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 22%, var(--card));
+  --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 22%, var(--card));
+  --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 22%, var(--card));
+  --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 22%, var(--card));
 }
 
 .dark {
@@ -311,6 +339,22 @@
      #2e233e is 5.44:1, and the border of the same ink on the bar's #1c1917 is
      6.44:1. */
   --tab-active: #2e233e;
+
+  /* The same four, lifted for the near black bar. Each is the light value's
+     family two or three steps brighter, measured on --card #1c1917: purple
+     6.43, orange 7.73, teal 11.82, blue 9.70, with the outline over its own
+     body at 4.44, 5.08, 6.82 and 5.92. The tint is again the hue at 22 percent
+     over the same ground, which on this theme darkens rather than lightens the
+     body; what the shape needs is contrast between body and outline, not a
+     particular direction. */
+  --tab-hue-path: #a78bfa;
+  --tab-hue-train: #fb923c;
+  --tab-hue-cards: #5eead4;
+  --tab-hue-me: #93c5fd;
+  --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 22%, var(--card));
+  --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 22%, var(--card));
+  --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 22%, var(--card));
+  --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 22%, var(--card));
 }
 
 /* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,

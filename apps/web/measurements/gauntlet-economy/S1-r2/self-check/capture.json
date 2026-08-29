@@ -1,0 +1,463 @@
+{
+  "piece": "S1",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "shell-bar",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 400
+            },
+            {
+              "wanted": 900,
+              "at": 940
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "present": true,
+            "items": 4,
+            "labels": [
+              "PathPath",
+              "TrainTrain",
+              "CardsCards",
+              "MeMe"
+            ],
+            "minWidth": 214,
+            "minHeight": 52,
+            "current": 1,
+            "atBottom": false,
+            "backgroundImage": "none",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "tools": 2
+          }
+        },
+        {
+          "moment": "shell-tool",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 56
+            },
+            {
+              "wanted": 400,
+              "at": 438
+            },
+            {
+              "wanted": 900,
+              "at": 956
+            },
+            {
+              "wanted": 2500,
+              "at": 2538
+            }
+          ],
+          "state": {
+            "open": true,
+            "behind": 1,
+            "panelControls": 124,
+            "heading": "Periodic table"
+          }
+        },
+        {
+          "moment": "shell-courses",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 408
+            },
+            {
+              "wanted": 900,
+              "at": 949
+            },
+            {
+              "wanted": 2500,
+              "at": 2508
+            }
+          ],
+          "state": {
+            "cards": 6,
+            "open": 1,
+            "greyed": 5,
+            "greyedLinks": 0,
+            "names": [
+              "Organic Chemistry II",
+              "General Chemistry I",
+              "General Chemistry II",
+              "Organic Chemistry I",
+              "DAT preparation",
+              "MCAT preparation"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "shell-bar",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 414
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "present": true,
+            "items": 4,
+            "labels": [
+              "PathPath",
+              "TrainTrain",
+              "CardsCards",
+              "MeMe"
+            ],
+            "minWidth": 214,
+            "minHeight": 52,
+            "current": 1,
+            "atBottom": false,
+            "backgroundImage": "none",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "tools": 2
+          }
+        },
+        {
+          "moment": "shell-tool",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 59
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 942
+            },
+            {
+              "wanted": 2500,
+              "at": 2529
+            }
+          ],
+          "state": {
+            "open": true,
+            "behind": 1,
+            "panelControls": 124,
+            "heading": "Periodic table"
+          }
+        },
+        {
+          "moment": "shell-courses",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "cards": 6,
+            "open": 1,
+            "greyed": 5,
+            "greyedLinks": 0,
+            "names": [
+              "Organic Chemistry II",
+              "General Chemistry I",
+              "General Chemistry II",
+              "Organic Chemistry I",
+              "DAT preparation",
+              "MCAT preparation"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "shell-bar",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 580
+            },
+            {
+              "wanted": 900,
+              "at": 932
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "present": true,
+            "items": 4,
+            "labels": [
+              "PathPath",
+              "TrainTrain",
+              "CardsCards",
+              "MeMe"
+            ],
+            "minWidth": 90.5,
+            "minHeight": 62.1875,
+            "current": 1,
+            "atBottom": true,
+            "backgroundImage": "none",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "tools": 2
+          }
+        },
+        {
+          "moment": "shell-tool",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 92
+            },
+            {
+              "wanted": 400,
+              "at": 470
+            },
+            {
+              "wanted": 900,
+              "at": 1166
+            },
+            {
+              "wanted": 2500,
+              "at": 2538
+            }
+          ],
+          "state": {
+            "open": true,
+            "behind": 1,
+            "panelControls": 124,
+            "heading": "Periodic table"
+          }
+        },
+        {
+          "moment": "shell-courses",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2539
+            }
+          ],
+          "state": {
+            "cards": 6,
+            "open": 1,
+            "greyed": 5,
+            "greyedLinks": 0,
+            "names": [
+              "Organic Chemistry II",
+              "General Chemistry I",
+              "General Chemistry II",
+              "Organic Chemistry I",
+              "DAT preparation",
+              "MCAT preparation"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "shell-bar",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 934
+            },
+            {
+              "wanted": 2500,
+              "at": 2508
+            }
+          ],
+          "state": {
+            "present": true,
+            "items": 4,
+            "labels": [
+              "PathPath",
+              "TrainTrain",
+              "CardsCards",
+              "MeMe"
+            ],
+            "minWidth": 90.5,
+            "minHeight": 62.1875,
+            "current": 1,
+            "atBottom": true,
+            "backgroundImage": "none",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "tools": 2
+          }
+        },
+        {
+          "moment": "shell-tool",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 45
+            },
+            {
+              "wanted": 400,
+              "at": 429
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "open": true,
+            "behind": 1,
+            "panelControls": 124,
+            "heading": "Periodic table"
+          }
+        },
+        {
+          "moment": "shell-courses",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 919
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "cards": 6,
+            "open": 1,
+            "greyed": 5,
+            "greyedLinks": 0,
+            "names": [
+              "Organic Chemistry II",
+              "General Chemistry I",
+              "General Chemistry II",
+              "Organic Chemistry I",
+              "DAT preparation",
+              "MCAT preparation"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

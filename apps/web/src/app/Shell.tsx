@@ -170,10 +170,21 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <nav aria-label="Tabs" className={`tabbar order-last md:order-first ${immersive ? "tabbar--away" : ""}`}>
-        <a href={hrefForTab("pathway")} className="tabbar-brand" aria-label="Blueberry home">
+        {/* THE WORDMARK IS IDENTITY, NOT NAVIGATION, and round two demoted it
+            from a link to a label. It used to be an anchor to #/pathway, which
+            is exactly where the Path tab immediately below it goes: two
+            controls, adjacent, for one destination, and only one of them
+            carries a word saying so. Rule 4 of the sticker language was reading
+            it as a boxed control with no outline for that reason, 40 findings
+            across the walk, and the answer that improves the design rather than
+            the number is to stop it being a control. A wordmark is a wordmark.
+            It is `aria-hidden` because the app's name is already the document
+            title, and a screen reader hearing "Blueberry" before every tab list
+            gains nothing. */}
+        <span className="tabbar-brand" aria-hidden>
           <BlueberryMark className="h-8 w-8" />
           <span className="title-face text-scale-lg font-semibold">Blueberry</span>
-        </a>
+        </span>
         {NAV_TABS.map((tab) => (
           <TabLink key={tab.id} tab={tab.id} active={tab.id === litTab} />
         ))}

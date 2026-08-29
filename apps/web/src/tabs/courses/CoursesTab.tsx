@@ -49,6 +49,31 @@ export const COURSE_BLURB: Record<CourseId, string> = {
   mcat: "The same review, weighted to the MCAT's chemistry and biochemistry overlap.",
 };
 
+/**
+ * The two or three characters that stand in for a course on a list row.
+ *
+ * WHY A MARK AT ALL. The reference course picker gives every option a big flat
+ * emblem, and it does that whether or not the option is one a learner can take:
+ * the grid reads as a shelf of objects and the eye lands on a shape before it
+ * lands on a word. Ours was six paragraphs of text under a heading, which is a
+ * settings page. A monogram is the honest local version of that flag: it is
+ * this product's own mark, it needs no asset, and it says the same thing at
+ * 48px that the course name says at 16.
+ *
+ * Not an icon per course, because the six differ by SUBJECT and not by object,
+ * and six invented pictograms for "General Chemistry I" against "General
+ * Chemistry II" would be six shapes a student has to learn before the list is
+ * faster than the words already were.
+ */
+const COURSE_MARK: Record<CourseId, string> = {
+  gen_chem_1: "G1",
+  gen_chem_2: "G2",
+  orgo_1: "O1",
+  orgo_2: "O2",
+  dat: "DAT",
+  mcat: "MCAT",
+};
+
 function isCourseId(value: string): value is CourseId {
   return (ALL_COURSE_IDS as readonly string[]).includes(value);
 }
@@ -131,9 +156,30 @@ function CourseList() {
                 that is the single thing you can press should say so with the
                 colour the rest of the app uses for "you are here". */}
             <div className="flex flex-col gap-3 rounded-2xl border-2 border-[color:var(--primary-ink)] bg-card p-5">
-              <div className="flex items-start justify-between gap-2">
-                <h2 className="title-face text-scale-xl font-bold text-foreground">{COURSE_LABEL[course]}</h2>
-                {snapshot.course === course ? <Pill tone="primary">Your track</Pill> : null}
+              {/* THE EMBLEM SITS BESIDE THE NAME AND NOTHING ELSE SHARES THAT
+                  ROW. At 390px the mark takes 56 of the card's width and the
+                  status pill took another 90, which left "Organic Chemistry II"
+                  about 150px and broke it over two lines with the pill floating
+                  beside the first. The pill is a status, so it belongs on the
+                  status row at the bottom with the count it qualifies. */}
+              <div className="flex items-center gap-3">
+                {/* THE DISC CARRIES THE COLOUR AND THE MARK RECEDES INTO IT.
+                    Same object and same reasoning as app/ui/NotOpenYet.tsx and
+                    the Me tab's rows: colour appears as a SURFACE, per sticker
+                    rules 5 and 6, and a purple monogram on a purple tint would
+                    be the palette twice and the surface never. The outline is
+                    the one place the hue is allowed to be line work, because
+                    that is what says the object is pressable. */}
+                <span
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-[color:var(--primary-ink)] bg-[color:var(--tab-active)] font-bold text-foreground ${
+                    COURSE_MARK[course].length > 2 ? "text-scale-sm" : "text-scale-lg"
+                  }`}
+                >
+                  {COURSE_MARK[course]}
+                </span>
+                <h2 className="title-face min-w-0 flex-1 text-scale-xl font-bold leading-tight text-foreground">
+                  {COURSE_LABEL[course]}
+                </h2>
               </div>
               <p className="text-scale-sm text-muted-foreground">{COURSE_BLURB[course]}</p>
               {/* NO BUTTON INSIDE THE CARD. The whole card is the link, and a
@@ -142,9 +188,12 @@ function CourseList() {
                   applied to affordances rather than to padding. It is also what
                   the reference course picker does, which is nothing: the tile
                   IS the button. */}
-              <span className="text-scale-xs font-semibold text-muted-foreground">
-                {done} of {topics.length} topics done
-              </span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-scale-xs font-semibold text-muted-foreground">
+                  {done} of {topics.length} topics done
+                </span>
+                {snapshot.course === course ? <Pill tone="primary">Your track</Pill> : null}
+              </div>
             </div>
           </a>
         );
@@ -156,8 +205,22 @@ function CourseList() {
           <div
             key={course}
             aria-disabled
-            className="flex flex-col gap-1 rounded-2xl border-2 border-dashed border-border px-4 py-3"
+            className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-border px-4 py-3"
           >
+            {/* The same emblem, neutral rather than coloured, and its edge stays
+                SOLID while the row's goes dashed. The dashed outline is the one
+                thing on the row that says "not yet", and repeating it on the
+                mark inside made the mark read as a ghost of an emblem rather
+                than as the course's emblem. What is greyed is the affordance,
+                which is the row; the identity is still an object. */}
+            <span
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-border bg-muted font-bold text-muted-foreground ${
+                COURSE_MARK[course].length > 2 ? "text-scale-xs" : "text-scale-sm"
+              }`}
+            >
+              {COURSE_MARK[course]}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
             {/* The name is --muted-foreground, and that is a measured choice
                 rather than a fade. It is 8.5:1 on this ground in light and
                 6.9:1 in dark, both well over the AA floor, so the row is
@@ -170,6 +233,7 @@ function CourseList() {
               <span className="shrink-0 text-scale-xs font-semibold text-muted-foreground">Soon</span>
             </div>
             <p className="text-scale-xs text-muted-foreground">{COURSE_COMING[course]}</p>
+            </div>
           </div>
         ))}
       </section>
