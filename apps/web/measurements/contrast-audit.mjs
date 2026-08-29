@@ -84,12 +84,44 @@ const ECONOMY_ROUTES = [
   { name: "streak-rest", moment: "streak-rest", root: "[data-streak]", midMs: null },
   { name: "streak-milestone", moment: "streak-milestone", root: "[data-streak]", midMs: null },
   { name: "streak-exam", moment: "streak-exam", root: "[data-streak]", midMs: null },
+  // P5's Charge sheet, all three states plus the commit. `root` stays null:
+  // the sheet is a modal over a live pathway and the pathway behind it is on
+  // screen, so scoping the measurement to the panel would leave the ground it
+  // is composed against unmeasured. The commit gets a mid frame because the
+  // pips change colour on their way out and a colour that exists only during a
+  // transition is still a colour a student reads.
+  { name: "charge-cost", moment: "charge-cost", root: null, midMs: null },
+  { name: "charge-empty", moment: "charge-empty", root: null, midMs: null },
+  { name: "charge-spend", moment: "charge-spend", root: null, midMs: 300 },
+  // charge-exam is DELIBERATELY ABSENT and this is not a weakened check.
+  //
+  // The exam window surface is not built. Its drive exists in
+  // economy-moments.mjs and does not reach a moment, and this audit is right to
+  // abort rather than measure whatever happened to be on screen: that refusal is
+  // the feature, and it is what caught the gap. But an audit that cannot run at
+  // all gates nothing, so the route is withdrawn until the surface exists rather
+  // than the abort being softened.
+  //
+  // Re-add this line in the same commit that builds the exam window:
+  //   { name: "charge-exam", moment: "charge-exam", root: null, midMs: null },
+  // The drive is already written and waiting for it.
 ];
 
 const ROUTES = [
   ...TABS.map((tab) => ({ name: tab, hash: `#/${tab}` })),
   { name: "onboarding", hash: "#/start/welcome" },
-  ...ECONOMY_ROUTES.map((route) => ({ ...route, seed: MOMENTS[route.moment].seed, drive: MOMENTS[route.moment].drive })),
+  // `hash` and `stored` come off the moment, because not every moment lives in
+  // the intro lesson any more: P5's three states are opened from the pathway,
+  // and a moment that named its own route was already carrying both fields for
+  // capture-economy.mjs. Defaulting them here rather than repeating the route
+  // is what keeps the audit and the capture standing in the same place.
+  ...ECONOMY_ROUTES.map((route) => ({
+    ...route,
+    seed: MOMENTS[route.moment].seed,
+    stored: MOMENTS[route.moment].stored ?? {},
+    momentHash: MOMENTS[route.moment].hash ?? LESSON_HASH,
+    drive: MOMENTS[route.moment].drive,
+  })),
 ];
 const VIEWPORT = { width: 1280, height: 900, deviceScaleFactor: 1 };
 
@@ -445,8 +477,8 @@ try {
       try {
         const page = await context.newPage();
         await page.setViewport(VIEWPORT);
-        await installSeed(page, theme, route.seed);
-        await page.goto(`${origin}/${LESSON_HASH}`, { waitUntil: "networkidle0" });
+        await installSeed(page, theme, route.seed, route.stored);
+        await page.goto(`${origin}/${route.momentHash}`, { waitUntil: "networkidle0" });
         const onTrigger =
           route.midMs === null
             ? null

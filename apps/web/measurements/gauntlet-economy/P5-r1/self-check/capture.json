@@ -1,0 +1,879 @@
+{
+  "piece": "P5",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "charge-cost",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 51
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "ready",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "8 charge to start",
+            "line": "You will have 6 left, and it refills on its own.",
+            "promise": "Wrong answers cost nothing. Take as many tries as you need.",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 30,
+            "lit": 14,
+            "leaving": 8,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-empty",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "empty",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Charge refills on its own",
+            "line": "Reaction nodes cost 8, and you have 0. Next point in 12 min, full by 5:48 AM.",
+            "promise": "None of it went on wrong answers. Being wrong has never cost you charge.",
+            "primary": "Review drills are always free",
+            "topUp": "Fill the meter · 60",
+            "note": "You have 20 diamonds. Clearing nodes and flawless runs earn the rest.",
+            "pips": 30,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 1,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 382,
+                "h": 44
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 57
+            },
+            {
+              "wanted": 400,
+              "at": 415
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "exam",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Exam in 9 days. No limits until then.",
+            "line": "Charge is switched off until your exam. Take on as much as you want.",
+            "promise": "",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 1,
+            "bandWord": "Unlimited",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-spend",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 76
+            },
+            {
+              "wanted": 400,
+              "at": 416
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2501
+            }
+          ],
+          "state": {
+            "open": false,
+            "modal": false,
+            "scrim": "",
+            "state": "",
+            "phase": "",
+            "title": "",
+            "headline": "",
+            "line": "",
+            "promise": "",
+            "primary": "",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [],
+            "hash": "#/lesson/u1-kvt",
+            "during": "spending"
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "charge-cost",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 45
+            },
+            {
+              "wanted": 400,
+              "at": 419
+            },
+            {
+              "wanted": 900,
+              "at": 912
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "ready",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "8 charge to start",
+            "line": "You will have 6 left, and it refills on its own.",
+            "promise": "Wrong answers cost nothing. Take as many tries as you need.",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 30,
+            "lit": 14,
+            "leaving": 8,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-empty",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 48
+            },
+            {
+              "wanted": 400,
+              "at": 402
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "empty",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Charge refills on its own",
+            "line": "Reaction nodes cost 8, and you have 0. Next point in 12 min, full by 5:49 AM.",
+            "promise": "None of it went on wrong answers. Being wrong has never cost you charge.",
+            "primary": "Review drills are always free",
+            "topUp": "Fill the meter · 60",
+            "note": "You have 20 diamonds. Clearing nodes and flawless runs earn the rest.",
+            "pips": 30,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 1,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 382,
+                "h": 44
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 51
+            },
+            {
+              "wanted": 400,
+              "at": 407
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "exam",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Exam in 9 days. No limits until then.",
+            "line": "Charge is switched off until your exam. Take on as much as you want.",
+            "promise": "",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 1,
+            "bandWord": "Unlimited",
+            "targets": [
+              {
+                "w": 382,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-spend",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 71
+            },
+            {
+              "wanted": 400,
+              "at": 415
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "open": false,
+            "modal": false,
+            "scrim": "",
+            "state": "",
+            "phase": "",
+            "title": "",
+            "headline": "",
+            "line": "",
+            "promise": "",
+            "primary": "",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [],
+            "hash": "#/lesson/u1-kvt",
+            "during": "spending"
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "charge-cost",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 46
+            },
+            {
+              "wanted": 400,
+              "at": 403
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2505
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "ready",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "8 charge to start",
+            "line": "You will have 6 left, and it refills on its own.",
+            "promise": "Wrong answers cost nothing. Take as many tries as you need.",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 30,
+            "lit": 14,
+            "leaving": 8,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-empty",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 51
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 902
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "empty",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Charge refills on its own",
+            "line": "Reaction nodes cost 8, and you have 0. Next point in 12 min, full by 5:49 AM.",
+            "promise": "None of it went on wrong answers. Being wrong has never cost you charge.",
+            "primary": "Review drills are always free",
+            "topUp": "Fill the meter · 60",
+            "note": "You have 20 diamonds. Clearing nodes and flawless runs earn the rest.",
+            "pips": 30,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 1,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 332,
+                "h": 44
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 52
+            },
+            {
+              "wanted": 400,
+              "at": 410
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2511
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "exam",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Exam in 9 days. No limits until then.",
+            "line": "Charge is switched off until your exam. Take on as much as you want.",
+            "promise": "",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 1,
+            "bandWord": "Unlimited",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-spend",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 64
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "open": false,
+            "modal": false,
+            "scrim": "",
+            "state": "",
+            "phase": "",
+            "title": "",
+            "headline": "",
+            "line": "",
+            "promise": "",
+            "primary": "",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [],
+            "hash": "#/lesson/u1-kvt",
+            "during": "spending"
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "charge-cost",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 51
+            },
+            {
+              "wanted": 400,
+              "at": 400
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "ready",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "8 charge to start",
+            "line": "You will have 6 left, and it refills on its own.",
+            "promise": "Wrong answers cost nothing. Take as many tries as you need.",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 30,
+            "lit": 14,
+            "leaving": 8,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-empty",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 47
+            },
+            {
+              "wanted": 400,
+              "at": 409
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "empty",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Charge refills on its own",
+            "line": "Reaction nodes cost 8, and you have 0. Next point in 12 min, full by 5:49 AM.",
+            "promise": "None of it went on wrong answers. Being wrong has never cost you charge.",
+            "primary": "Review drills are always free",
+            "topUp": "Fill the meter · 60",
+            "note": "You have 20 diamonds. Clearing nodes and flawless runs earn the rest.",
+            "pips": 30,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 1,
+            "band": 0,
+            "bandWord": "",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 332,
+                "h": 44
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-exam",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 50
+            },
+            {
+              "wanted": 400,
+              "at": 402
+            },
+            {
+              "wanted": 900,
+              "at": 915
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "open": true,
+            "modal": true,
+            "scrim": "rgba(0, 0, 0, 0.52)",
+            "state": "exam",
+            "phase": "idle",
+            "title": "Allylic/resonance delocalization",
+            "headline": "Exam in 9 days. No limits until then.",
+            "line": "Charge is switched off until your exam. Take on as much as you want.",
+            "promise": "",
+            "primary": "Start",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 1,
+            "bandWord": "Unlimited",
+            "targets": [
+              {
+                "w": 332,
+                "h": 48
+              },
+              {
+                "w": 91,
+                "h": 44
+              }
+            ],
+            "hash": "#/pathway"
+          }
+        },
+        {
+          "moment": "charge-spend",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 60
+            },
+            {
+              "wanted": 400,
+              "at": 401
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "open": false,
+            "modal": false,
+            "scrim": "",
+            "state": "",
+            "phase": "",
+            "title": "",
+            "headline": "",
+            "line": "",
+            "promise": "",
+            "primary": "",
+            "topUp": "",
+            "note": "",
+            "pips": 0,
+            "lit": 0,
+            "leaving": 0,
+            "refilling": 0,
+            "band": 0,
+            "bandWord": "",
+            "targets": [],
+            "hash": "#/lesson/u1-kvt",
+            "during": "spending"
+          }
+        }
+      ]
+    }
+  ]
+}

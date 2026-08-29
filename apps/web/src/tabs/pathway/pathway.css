@@ -167,10 +167,20 @@
   --node-edge: #6d28d9;
   --node-ink: #2e1065;
 }
+/* The face was #8b5cf6 and its #f5f3ff number measured 3.86:1, under the 4.5:1
+   body floor. theme.css records the same finding about the same hex one level
+   up: "#8b5cf6 gave white only 4.23:1", and it names #8250f0 as the value that
+   carries white at 4.82:1. That is the value taken here, with the number moved
+   to plain white for the same reason. It still sits clearly below
+   .dark .path-node--current at #a78bfa, so the ordering the track reads by is
+   unchanged, and #8250f0 is the theme's own dark --primary rather than a
+   BlueberryMark costume hex, so it adds no palette-containment finding either.
+   Found once the audit could reach the Orgo II map, which it could not before:
+   #/pathway on a fresh account renders the course picker, not the track. */
 .dark .path-node--open {
-  --node-face: #8b5cf6;
+  --node-face: #8250f0;
   --node-edge: #5b21b6;
-  --node-ink: #f5f3ff;
+  --node-ink: #ffffff;
   --node-shine: rgba(255, 255, 255, 0.26);
 }
 .dark .path-node--review {

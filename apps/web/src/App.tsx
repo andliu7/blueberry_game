@@ -34,6 +34,13 @@ const BeatRunner = lazy(() => import("./beats/BeatRunner").then((m) => ({ defaul
  */
 const BerryGallery = lazy(() => import("./mascot/BerryGallery"));
 
+/**
+ * The review hub, lazy for the same reason: it pulls in the card store, the
+ * scheduler and the deck import/export path, none of which the game route
+ * needs. See src/review/ReviewRoute.tsx for why it is a route and not a tab.
+ */
+const ReviewRoute = lazy(() => import("./review/ReviewRoute"));
+
 const params = new URLSearchParams(window.location.search);
 /** The measurement scripts need the canvas with no onboarding in front of it. */
 const MEASURING = params.get("auto") === "1" || params.get("stats") === "1" || params.get("targets") === "1";
@@ -63,6 +70,14 @@ export default function App() {
     return (
       <Suspense fallback={<TabSkeleton label="the placement quiz" />}>
         <Onboarding step={route.step} reducedMotion={reducedMotion} />
+      </Suspense>
+    );
+  }
+
+  if (route.kind === "review") {
+    return (
+      <Suspense fallback={<TabSkeleton label="your review deck" />}>
+        <ReviewRoute onExit={() => navigate(hrefForTab("pathway"))} />
       </Suspense>
     );
   }

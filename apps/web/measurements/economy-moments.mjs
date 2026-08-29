@@ -897,6 +897,375 @@ export async function driveStreak(page, seedName, { onTrigger = null } = {}) {
   return { moment: `streak-${seedName}`, reached, at, trigger, state };
 }
 
+/* ================================================ P5, the Charge surfaces ==
+ *
+ * Three states on the pathway, reached by pressing a real node.
+ *
+ * WHY THE JOURNAL IS SEEDED. Charge is f(journal, now) like everything else, so
+ * a meter at 14 is two node entries and an empty one is four. No sequence of
+ * presses inside one session can produce an exam date fourteen days out either.
+ * The seed is EconomyEvents and nothing else; every number on the sheet still
+ * comes out of deriveEconomy, and the assertions below read the RENDERED sheet
+ * rather than the seed that built it.
+ *
+ * WHY THE PATHWAY AND NOT A LESSON. The entry cost is shown at the door, which
+ * is the pathway node, and docs/ECONOMY.md charges on entry and never per
+ * question. The press that opens the sheet is the press a student makes when
+ * they choose what to do next, so that is the press the burst hangs on.
+ *
+ * THE NODE PRESSED is the first playable spine slab of the Orgo II map,
+ * "Allylic/resonance delocalization", which is a resonance hunt and therefore a
+ * REACTION node at 8 charge (PathwayTab's economyKindFor records the mapping).
+ * It is picked by position rather than by id so the moment survives an
+ * authoring wave reordering the map, and the drive asserts the cost it found.
+ */
+
+/** The tab the Charge sheet is opened from. Same tab P3 is judged on. */
+export const PATHWAY_HASH = "#/pathway";
+
+/** The course the sheet is opened in. Mastery's denominator, and the map's own track. */
+export const P5_STORED = { course: "orgo_2", startTopics: [], onboardingDone: true };
+
+/**
+ * Entering `count` reaction nodes today, two minutes apart, the most recent
+ * `sinceMinutes` ago.
+ *
+ * The two minute spacing is not cosmetic. Regeneration accrues over the whole
+ * span the journal covers, so entries spread over 47 minutes hand a point back
+ * mid drain and an account that should read empty reads 1. Tight entries are
+ * also what a real sitting looks like.
+ *
+ * The age of the last entry is load bearing for the empty state: regeneration
+ * is one point per 30 minutes computed from server time on read, so an entry 12
+ * minutes ago puts the refilling pip two fifths of the way up and the countdown
+ * at 18 minutes. A seed that spent everything a second ago would draw an empty
+ * pip and read as a meter that is not coming back.
+ */
+function entries(count, sinceMinutes) {
+  const events = [];
+  for (let i = 0; i < count; i += 1) {
+    events.push({
+      kind: "node_started",
+      at: minutesAgo(sinceMinutes + (count - 1 - i) * 2),
+      tz: LOCAL_TZ,
+      nodeId: `seed:entry-${i}`,
+      nodeKind: "reaction",
+    });
+  }
+  return events;
+}
+
+/**
+ * A working meter: 30 cap, two entries gone, 14 left.
+ *
+ * Deliberately not full. A full meter draws thirty identical lit pips, so the
+ * eight about to leave are the only thing on the row with an edge, which makes
+ * the picture easier than the one a student usually sees. Fourteen lit, eight
+ * of them outlined and sixteen dark is the honest composition.
+ */
+export function p5ReadySeed() {
+  return [{ kind: "settings", at: noonDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }, ...entries(2, 12)];
+}
+
+/**
+ * A drained meter: four entries, 32 charge against a cap of 30, so nothing is
+ * left but the point that has been coming back for 18 minutes.
+ *
+ * One clear yesterday puts a real balance behind the top up button, and it is
+ * deliberately UNDER 60: the interesting screen is the one where the paid way
+ * out is not free money, because that is the screen where the free way out has
+ * to carry the student on its own.
+ */
+export function p5EmptySeed() {
+  return [
+    { kind: "settings", at: noonDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" },
+    {
+      kind: "node_cleared",
+      at: noonDaysAgo(1),
+      tz: LOCAL_TZ,
+      nodeId: "lesson:aromaticity",
+      nodeKind: "reaction",
+      flawless: true,
+      stepsInOneSitting: 1,
+      spine: true,
+      difficulty: 3,
+    },
+    ...entries(4, 12),
+  ];
+}
+
+/**
+ * The exam window: an exam nine days out, and a meter that is NOT full.
+ *
+ * The empty half matters. Inside the window Charge is off, so a sheet drawing a
+ * full meter would be indistinguishable from a well rested account and the
+ * claim "the meter is replaced rather than shown full" could not be checked
+ * from a still. This account has spent everything today and the sheet still
+ * says no limits, which is only true because the meter is gone.
+ */
+export function p5ExamSeed() {
+  const examDate = new Date(Date.now() + 9 * 86_400_000).toISOString().slice(0, 10);
+  return [
+    { kind: "settings", at: noonDaysAgo(20), tz: LOCAL_TZ, dailyGoal: "regular", examDate },
+    ...entries(4, 12),
+  ];
+}
+
+/**
+ * The P5 seeds as BUILDERS rather than as values, and the difference is a bug
+ * this run actually hit.
+ *
+ * Every other piece's seed is a value computed once at import, which is fine
+ * because a 47 day streak is a 47 day streak whenever the page opens. Charge is
+ * not: it regenerates a point every 30 minutes from server time on read, so a
+ * seed frozen at import drifts toward the next boundary while the capture walks
+ * two viewports and two themes. The empty account measured 20 minutes stale on
+ * the first page and 26 on the last, and a slow enough run would have handed a
+ * point back mid capture and turned an empty meter into a one point meter.
+ *
+ * Building the journal per page pins the ages to the moment the page opens, so
+ * every one of the sixteen shots is of the same account in the same state.
+ */
+export const P5_SEED_BUILDERS = {
+  cost: p5ReadySeed,
+  spend: p5ReadySeed,
+  empty: p5EmptySeed,
+  exam: p5ExamSeed,
+};
+
+/** Everything about the sheet a still cannot prove: the state behind the picture. */
+async function readCharge(page) {
+  return page.evaluate(() => {
+    const sheet = document.querySelector("dialog.charge-sheet");
+    const text = (node) => (node === null ? "" : (node.textContent ?? "").trim());
+    const pips = [...document.querySelectorAll(".charge-pip")];
+    return {
+      open: sheet !== null && sheet.hasAttribute("open"),
+      // MODALITY, MEASURED. The piece is built on a native <dialog> so that
+      // focus trapping, Escape and the top layer are the browser's rather than
+      // ours, and every one of those follows from showModal() having been the
+      // call that opened it. `open` alone cannot tell that apart from an `open`
+      // attribute set by hand, which renders the same panel with no focus trap,
+      // no Escape and no scrim. `:modal` is the one thing that can.
+      modal: sheet !== null && sheet.matches(":modal"),
+      // What the scrim actually resolves to. A backdrop rule that is declared
+      // and not painted is exactly the sort of thing a still hides.
+      scrim: sheet === null ? "" : getComputedStyle(sheet, "::backdrop").backgroundColor,
+      state: sheet === null ? "" : (sheet.getAttribute("data-charge-state") ?? ""),
+      phase: sheet === null ? "" : (sheet.getAttribute("data-charge-phase") ?? ""),
+      title: text(document.querySelector(".charge-title")),
+      headline: text(document.querySelector(".charge-headline")),
+      line: text(document.querySelector(".charge-line")),
+      promise: text(document.querySelector(".charge-promise")),
+      primary: text(document.querySelector("[data-charge-primary]")),
+      topUp: text(document.querySelector("[data-charge-topup]")),
+      note: text(document.querySelector(".charge-note")),
+      pips: pips.length,
+      lit: pips.filter((pip) => pip.classList.contains("is-lit")).length,
+      leaving: pips.filter((pip) => pip.classList.contains("is-leaving")).length,
+      refilling: pips.filter((pip) => pip.classList.contains("is-next")).length,
+      band: document.querySelectorAll(".charge-exam-band").length,
+      bandWord: text(document.querySelector(".charge-exam-word")),
+      // Every control on the sheet, and whether it clears the 44pt floor in
+      // BOTH directions. A sheet that fails this is not judgeable on a phone
+      // whatever it looks like.
+      targets: [...document.querySelectorAll(".charge-panel button")].map((button) => {
+        const rect = button.getBoundingClientRect();
+        return { w: Math.round(rect.width), h: Math.round(rect.height) };
+      }),
+      hash: location.hash,
+    };
+  });
+}
+
+/** The 44 by 44 floor from CLAUDE.md's Budgets table, on every control. */
+function targetsHold(state) {
+  return state.targets.length > 0 && state.targets.every((target) => target.w >= 44 && target.h >= 44);
+}
+
+/** The centre of the first playable slab matching `selector`. */
+async function firstPlayableNode(page, selector) {
+  return page.evaluate((wanted) => {
+    const node = document.querySelector(wanted);
+    if (node === null) return null;
+    node.scrollIntoView({ block: "center", behavior: "instant" });
+    const rect = node.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }, selector);
+}
+
+/** Every playable spine slab. The first one is a resonance hunt: a reaction node, 8 charge. */
+const SPINE_SLAB = "a.path-node--press";
+
+/**
+ * A slab whose destination is a HASH route, which is what the commit moment
+ * needs and the reason it does not press the same node the other three do.
+ *
+ * Two href shapes hang off this track. A beat is "#/lesson/u1-kvt" and a
+ * trainer deep link is "?reaction=seq-eas#/trainer", a query and a hash, so
+ * following it is a full document load. Screenshotting a page mid reload hung
+ * `Page.captureScreenshot` for the whole protocol timeout on this machine, and
+ * the burst's 2500 ms frame lands exactly there. A beat is a hash change: no
+ * reload, and the frame is of the destination rather than of a blank document
+ * being replaced. The commit being judged is the same commit either way.
+ */
+const BEAT_SLAB = 'a.path-node--press[href^="#/lesson/"]';
+
+/** Open the sheet by pressing a real node, and burst from that press. */
+async function openChargeSheet(page, onTrigger, selector = SPINE_SLAB) {
+  await page.waitForSelector(selector, { timeout: 10_000 });
+  await sleep(500);
+  const at = await press(page, await firstPlayableNode(page, selector), "pathway node");
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  return { at, trigger };
+}
+
+/**
+ * The entry cost, before anything is spent.
+ *
+ * The assertions are the piece's own claims, so a build that drifts back to a
+ * silent debit fails rather than merely looking worse: the sheet is open on the
+ * ready state, the meter is drawn as its thirty units, exactly the cost is
+ * drawn as LEAVING, and the sentence docs/ECONOMY.md calls load bearing is on
+ * screen. The stored journal is asserted untouched: opening the sheet must not
+ * spend anything.
+ */
+export async function driveChargeCost(page, { onTrigger = null } = {}) {
+  const before = await page.evaluate(() => localStorage.getItem("blueberry.progress.v2") ?? "");
+  const { at, trigger } = await openChargeSheet(page, onTrigger);
+  await page.waitForSelector("dialog.charge-sheet[open]", { timeout: 5_000 }).catch(() => {});
+  const state = await readCharge(page);
+  const after = await page.evaluate(() => localStorage.getItem("blueberry.progress.v2") ?? "");
+  const reached =
+    state.open &&
+    state.modal &&
+    state.state === "ready" &&
+    state.phase === "idle" &&
+    state.pips === 30 &&
+    state.lit === 14 &&
+    state.leaving === 8 &&
+    // The PRICE is the headline. The node's name is above it, not in its
+    // place: a sheet whose headline is sometimes a title and sometimes a
+    // notice is two sheets, and the price is the thing this one exists to say.
+    state.headline === "8 charge to start" &&
+    state.title === "Allylic/resonance delocalization" &&
+    state.line === "You will have 6 left, and it refills on its own." &&
+    state.promise.includes("Wrong answers cost nothing") &&
+    state.primary === "Start" &&
+    targetsHold(state) &&
+    // NOTHING IS SPENT BY LOOKING. The whole point of the state is that the
+    // price is shown before the debit, so the stored journal is byte identical.
+    after === before;
+  return { moment: "charge-cost", reached, at, trigger, state };
+}
+
+/**
+ * The commit, which is where the halo thins.
+ *
+ * The burst hangs on the Start press, so frame 0 is the pressed state with the
+ * meter still full, 400 is mid drain, and 900 is the settled spent frame. The
+ * route changes at 1000 ms by design, so the 2500 ms frame is the destination:
+ * this moment is a TRANSITION and its last frame is the payoff, which is said
+ * here rather than left for a judge to work out.
+ */
+export async function driveChargeSpend(page, { onTrigger = null } = {}) {
+  await openChargeSheet(page, null, BEAT_SLAB);
+  await page.waitForSelector("dialog.charge-sheet[open]", { timeout: 5_000 });
+  await sleep(400);
+  const point = await page.evaluate(() => {
+    const button = document.querySelector("[data-charge-primary]");
+    if (button === null) return null;
+    const rect = button.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  });
+  const at = await press(page, point, "Start");
+  // Read the drain WHILE it is happening. After the navigation the sheet is
+  // gone, so a check that ran only at the end could never tell an animated
+  // commit from an instant one.
+  const during = await readCharge(page);
+  const spent = await page.evaluate(() =>
+    (localStorage.getItem("blueberry.progress.v2") ?? "").includes("node_started"),
+  );
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  // WAIT FOR THE ARRIVAL RATHER THAN FOR THE CALLER. The commit holds the sheet
+  // for a second so the drain can be read, and the first pass checked the
+  // destination immediately after onTrigger returned. That made the assertion a
+  // function of how long the CALLER took: the frame burst runs to 2500 ms and
+  // passed, the contrast audit measures one 300 ms frame and failed on a commit
+  // that was working perfectly. A drive must assert the same thing whoever
+  // calls it.
+  await page.waitForFunction(() => window.location.hash.startsWith("#/lesson/"), { timeout: 5_000 }).catch(() => {});
+  const state = await readCharge(page);
+  const reached =
+    during.modal &&
+    during.phase === "spending" &&
+    // A beat is a concept node, so five pips are on their way out rather than
+    // the eight the other three moments show. Both numbers come from
+    // CHARGE_COST in rules.ts by way of the sheet; neither is typed in the app.
+    during.leaving === 5 &&
+    // The spend reached the journal, which is what the animation is playing.
+    spent &&
+    // And the student arrived where they were going.
+    !state.open;
+  return { moment: "charge-spend", reached, at, trigger, state: { ...state, during: during.phase } };
+}
+
+/**
+ * Zero charge. Bloom flat grey and sleepy, the refill drawn and dated, and the
+ * free way out as the primary.
+ */
+export async function driveChargeEmpty(page, { onTrigger = null } = {}) {
+  const { at, trigger } = await openChargeSheet(page, onTrigger);
+  await page.waitForSelector("dialog.charge-sheet[open]", { timeout: 5_000 }).catch(() => {});
+  const state = await readCharge(page);
+  const reached =
+    state.open &&
+    state.modal &&
+    state.state === "empty" &&
+    state.pips === 30 &&
+    state.lit === 0 &&
+    // The point that is on its way back. It is the difference between a limiter
+    // drawn going away and one drawn coming back, and it is the reason
+    // docs/ECONOMY.md permits the mechanic at all.
+    state.refilling === 1 &&
+    state.headline === "Charge refills on its own" &&
+    // A real plural in a real capital. "unit quizs cost 10" shipped once.
+    state.line.startsWith("Reaction nodes cost 8, and you have 0.") &&
+    /Next point in \d+ min/.test(state.line) &&
+    /full by /.test(state.line) &&
+    // The honest way out is the PRIMARY, and it is true: review drills are
+    // priced at 0 in rules.ts.
+    state.primary === "Review drills are always free" &&
+    state.topUp.includes("60") &&
+    state.promise.includes("Being wrong has never cost you charge") &&
+    targetsHold(state);
+  return { moment: "charge-empty", reached, at, trigger, state };
+}
+
+/**
+ * The exam window. The meter is REPLACED, which is checkable: there is no pip
+ * on the sheet at all, and the band is in its place.
+ */
+export async function driveChargeExam(page, { onTrigger = null } = {}) {
+  const { at, trigger } = await openChargeSheet(page, onTrigger);
+  await page.waitForSelector("dialog.charge-sheet[open]", { timeout: 5_000 }).catch(() => {});
+  const state = await readCharge(page);
+  const reached =
+    state.open &&
+    state.modal &&
+    state.state === "exam" &&
+    // Not "thirty pips all lit". Replaced.
+    state.pips === 0 &&
+    state.band === 1 &&
+    state.headline === "Exam in 9 days. No limits until then." &&
+    // The meter's readout, in the meter's slot. Not the headline's sentence
+    // repeated: see charge.css's exam band block for why it stopped being one.
+    state.bandWord === "Unlimited" &&
+    state.primary === "Start" &&
+    targetsHold(state);
+  return { moment: "charge-exam", reached, at, trigger, state };
+}
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -915,4 +1284,11 @@ export const MOMENTS = {
   "streak-rest": { seed: P4_SEEDS.rest, drive: (page, options) => driveStreak(page, "rest", options) },
   "streak-milestone": { seed: P4_SEEDS.milestone, drive: (page, options) => driveStreak(page, "milestone", options) },
   "streak-exam": { seed: P4_SEEDS.exam, drive: (page, options) => driveStreak(page, "exam", options) },
+  // `seed` is a GETTER on these four, so every read builds a fresh journal
+  // against the wall clock. See P5_SEED_BUILDERS for why Charge cannot use a
+  // seed frozen at import the way the other pieces do.
+  "charge-cost": { get seed() { return p5ReadySeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeCost(page, options) },
+  "charge-spend": { get seed() { return p5ReadySeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeSpend(page, options) },
+  "charge-empty": { get seed() { return p5EmptySeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeEmpty(page, options) },
+  "charge-exam": { get seed() { return p5ExamSeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeExam(page, options) },
 };

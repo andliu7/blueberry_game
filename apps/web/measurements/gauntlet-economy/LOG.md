@@ -329,3 +329,37 @@ that was wrong: a gradient-painted element has no `background-color`, so the car
 could never see one. The check now reads `backgroundImage` directly and finds 56. A
 validator that reports zero because it cannot see is worse than no validator, and this
 is the second time this session that a gate has been measuring less than it claimed.
+
+## P5 Charge meter: the round that stalled, and what it left
+
+The workflow ran two builder attempts across roughly ten hours and never reported. The
+first died on a session limit; the second stopped growing at 3.5 MB and sat there for
+eight and a half hours. Killed deliberately under the rule written into the loop after
+attempt one: if it fails or stalls again, split it rather than retry a third time.
+
+**The work is real and it landed.** Typecheck clean, 931 web tests (up from 875, so the
+builder added 56 and they pass), and the three failures the earlier audit found in its
+own surfaces are fixed: contrast reads 0 failing over 5152 composed pairs. The builder
+did the work and died before saying so.
+
+**Three of four states exist:** the cost sheet, the empty sheet and the spend animation.
+The exam window does not. The contrast audit found that for us by ABORTING rather than
+scoring: "the drive did not reach the moment, so whatever is on screen is not the surface
+under audit." That refusal is the feature. It is also why the gate could not run at all,
+so the `charge-exam` route is withdrawn from the audit with a comment naming the exact
+line to restore and the commit that should restore it. The drive is already written and
+waiting. This is a withdrawal of a route for a surface that does not exist, not a
+softened assertion, and the distinction is recorded because it is the kind of thing that
+looks the same in a diff.
+
+### The finding that should change the order of work
+
+Sticker violations went **1027 to 1270** across three new routes, and fake-extrusion alone
+went 112 to 196. Per route it is 48.9 to 52.9, so it is slightly worse per surface, not
+just more surface.
+
+The charge screens were built consistent with the house style, and the house style is
+what the sticker validator is measuring against and finding wanting. So **every piece
+built before the design sequence adds to the design debt it will have to pay off.** The
+order already has S1 to S4 before P6 and P7, which is now not a preference but a
+constraint: P6 and P7 should not be built in a style that S3 will then have to rewrite.

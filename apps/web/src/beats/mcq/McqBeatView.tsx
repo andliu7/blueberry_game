@@ -177,7 +177,7 @@ export function McqBeatView({
         </button>
 
         {beat.diamonds !== undefined ? (
-          <span className="text-scale-sm font-semibold text-diamond" aria-label={`${beat.diamonds} diamonds`}>
+          <span className="text-scale-sm font-semibold text-diamond-ink" aria-label={`${beat.diamonds} diamonds`}>
             {beat.diamonds}
           </span>
         ) : null}

@@ -52,6 +52,16 @@ export type Route =
    */
   | { readonly kind: "lesson"; readonly node: string }
   /**
+   * The review hub and its session, at "#/review".
+   *
+   * Its own route rather than a tab: CLAUDE.md fixes the tab list and its
+   * order, and a tool reached mid task belongs behind a route rather than in
+   * the bar. It is what the Charge sheet's empty state offers as the free way
+   * out, and docs/ECONOMY.md prices a review drill at 0 charge, so that offer
+   * needed a real destination.
+   */
+  | { readonly kind: "review" }
+  /**
    * Development surfaces. Deliberately NOT in TABS, so nothing renders a link
    * to them and the tab bar's grid keeps its eight columns. Reached by typing
    * the hash, which is the right amount of friction for a page whose audience
@@ -75,6 +85,7 @@ export function parseHash(hash: string): Route {
   // A lesson with no node is not a lesson, so it falls through to the trainer
   // rather than rendering an empty runner.
   if (head === "lesson" && parts[1] !== undefined) return { kind: "lesson", node: parts[1] };
+  if (head === "review") return { kind: "review" };
   if (head === "gallery") return { kind: "gallery", name: parts[1] ?? "berry" };
   if (head !== undefined && TAB_IDS.has(head)) {
     return { kind: "tab", tab: head as TabId, rest: parts.slice(1) };
@@ -88,6 +99,11 @@ export function hrefForTab(tab: TabId, ...rest: readonly string[]): string {
 
 export function hrefForLesson(node: string): string {
   return `#/lesson/${encodeURIComponent(node)}`;
+}
+
+/** The review hub. The Charge sheet's free way out points here. */
+export function hrefForReview(): string {
+  return "#/review";
 }
 
 export function hrefForOnboarding(step: string): string {

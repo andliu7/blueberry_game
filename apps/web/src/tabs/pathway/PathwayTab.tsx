@@ -32,7 +32,7 @@
  * button styling and the pitch live in pathway.css beside this file.
  */
 
-import { useMemo, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import {
   ACTS,
   prerequisiteClosure,
@@ -47,7 +47,10 @@ import { Press } from "../../app/ui/Press";
 import { hrefForTab } from "../../app/routes";
 import { navigate } from "../../app/useHashRoute";
 import { useProgress } from "../../app/hooks";
-import { progress, type ProgressSnapshot } from "../../app/progress";
+import { lessonNodeId, progress, type ProgressSnapshot } from "../../app/progress";
+import { ChargeGate } from "../../charge/ChargeGate";
+import type { ChargeGateNode } from "../../charge/chargeGateModel";
+import type { NodeKind as EconomyNodeKind } from "@blueberry/economy";
 import { Berry } from "../../mascot/Berry";
 import { COURSE_LABEL, problemsForTopic } from "../courses/CoursesTab";
 import "./pathway.css";
@@ -254,14 +257,46 @@ export function trackWind(index: number): number {
   return WIND_CYCLE[index % WIND_CYCLE.length] ?? 0;
 }
 
+/**
+ * Entering a node costs charge, so a press opens the Charge sheet before the
+ * route changes.
+ *
+ * WHY THE SHEET AND NOT A STRAIGHT NAVIGATION. docs/ECONOMY.md charges on ENTRY
+ * and never per question ("if there was enough to begin, there is enough to
+ * finish"), which only works if the student is told the price at the door. A
+ * limiter that debits silently and explains later is the one this product is a
+ * correction of.
+ *
+ * The anchor stays an anchor: it keeps its href for the middle click, the
+ * keyboard and the status bar, and the sheet takes over the plain activation.
+ * `onPointerDown` is what opens it, so the acknowledgement and the action are
+ * the same frame per CLAUDE.md; `onClick` opens it too, because a keyboard
+ * Enter never produces a pointer event, and preventDefault is what stops the
+ * href from racing the sheet.
+ */
+export type EnterNode = (node: ChargeGateNode) => void;
+
+/** Props a track node needs to hand the sheet a node it can price. */
+function enterHandlers(onEnter: EnterNode, node: ChargeGateNode) {
+  return {
+    onPointerDown: () => onEnter(node),
+    onClick: (event: { preventDefault: () => void }) => {
+      event.preventDefault();
+      onEnter(node);
+    },
+  };
+}
+
 function TrackNode({
   node,
   index,
   course,
+  onEnter,
 }: {
   readonly node: PathwayNode;
   readonly index: number;
   readonly course: CourseId;
+  readonly onEnter: EnterNode;
 }) {
   const clickable = node.state !== "locked" && node.problemCount > 0;
   const slabClass = `path-node path-node--${node.state} ${clickable ? "path-node--press" : ""}`;
@@ -302,7 +337,18 @@ function TrackNode({
             href={hrefForTab("courses", course, node.topic)}
             aria-current={node.state === "current" ? "step" : undefined}
             aria-label={`${node.label}. ${detail}`}
+            aria-haspopup="dialog"
             className={slabClass}
+            {...enterHandlers(onEnter, {
+              // A lesson node is journalled as a concept clear by
+              // completeLesson, so it is priced as one here: the id and the
+              // kind the sheet spends against are the id and the kind the clear
+              // will carry, or the spend and the clear would name two nodes.
+              id: lessonNodeId(node.topic),
+              kind: "concept",
+              title: node.label,
+              href: hrefForTab("courses", course, node.topic),
+            })}
           >
             {slab}
           </a>
@@ -347,6 +393,35 @@ function CoursePicker() {
   );
 }
 
+/**
+ * What a map node costs, in the economy's own vocabulary.
+ *
+ * The map classifies nodes as spine, branch, gate or boss, and docs/ECONOMY.md
+ * prices concept, reaction, branch, quiz, review, tutorial and intro. The two
+ * lists are not the same list, so the mapping is written down once here rather
+ * than guessed at each call site:
+ *
+ *   branch          -> branch. Same word, same 8, and the map's side quests are
+ *                      exactly what that row is for.
+ *   spine, a beat   -> concept. A beat is recognition and ranking work, which is
+ *                      what the 5 charge concept row is priced against.
+ *   spine, anything -> reaction. Arrow work: a reaction, a sequence, a
+ *                      resonance hunt. The 8 charge row.
+ *   boss            -> quiz. UNREACHABLE TODAY, and flagged rather than settled:
+ *                      the map's one boss carries no `playable`, so no press can
+ *                      arrive here. ECONOMY.md prices no boss, and quiz is the
+ *                      closest priced row (an assessment, refunded on a pass).
+ *                      An owner decision before a boss is authored.
+ *
+ * Gates never reach this function: they render as the checkpoint strip and are
+ * not pressable.
+ */
+function economyKindFor(mapKind: string, link: MapPlayableLink): EconomyNodeKind {
+  if (mapKind === "branch") return "branch";
+  if (mapKind === "boss") return "quiz";
+  return link.kind === "beat" ? "concept" : "reaction";
+}
+
 /** The trainer deep link for one map node's playable entry. */
 function hrefForPlayable(link: MapPlayableLink): string {
   // A beat is not a mechanism and does not belong in the trainer: it gets its
@@ -365,7 +440,7 @@ function hrefForPlayable(link: MapPlayableLink): string {
  * slab visual system is the one that won its blind gauntlet; only the data
  * source changed.
  */
-function OrgoMapTrack() {
+function OrgoMapTrack({ onEnter }: { readonly onEnter: EnterNode }) {
   let running = 0;
   return (
     <div className="flex flex-col gap-2" role="region" aria-label="Orgo II pathway map">
@@ -397,7 +472,7 @@ function OrgoMapTrack() {
             {gates.length > 0 ? (
               <div className="mx-auto flex w-full max-w-md flex-wrap gap-1.5" aria-label="Checkpoint">
                 {gates.map((node) => (
-                  <span key={node.id} className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-scale-xs font-semibold text-primary" title={node.blurb}>
+                  <span key={node.id} className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-scale-xs font-semibold text-primary-ink" title={node.blurb}>
                     ★ {node.title}
                   </span>
                 ))}
@@ -423,7 +498,18 @@ function OrgoMapTrack() {
                   <li key={node.id} className="path-row relative w-full" style={{ "--wind": wind } as CSSProperties}>
                     <div className="path-row__slab relative">
                       {playable && node.playable !== undefined ? (
-                        <a href={hrefForPlayable(node.playable)} aria-label={`${node.title}. Playable now.`} className={`path-node path-node--${state} path-node--press`}>
+                        <a
+                          href={hrefForPlayable(node.playable)}
+                          aria-label={`${node.title}. Playable now.`}
+                          aria-haspopup="dialog"
+                          className={`path-node path-node--${state} path-node--press`}
+                          {...enterHandlers(onEnter, {
+                            id: node.id,
+                            kind: economyKindFor(node.kind, node.playable),
+                            title: node.title,
+                            href: hrefForPlayable(node.playable),
+                          })}
+                        >
                           {slab}
                         </a>
                       ) : (
@@ -449,7 +535,19 @@ function OrgoMapTrack() {
                 <div className="flex flex-wrap gap-1.5">
                   {branches.map((node) =>
                     node.playable !== undefined ? (
-                      <a key={node.id} href={hrefForPlayable(node.playable)} className="press rounded-full border border-not-requested/40 bg-not-requested-soft px-3 py-1.5 text-scale-xs font-semibold text-not-requested" title={node.blurb}>
+                      <a
+                        key={node.id}
+                        href={hrefForPlayable(node.playable)}
+                        aria-haspopup="dialog"
+                        className="press rounded-full border border-not-requested/40 bg-not-requested-soft px-3 py-1.5 text-scale-xs font-semibold text-not-requested"
+                        title={node.blurb}
+                        {...enterHandlers(onEnter, {
+                          id: node.id,
+                          kind: economyKindFor(node.kind, node.playable),
+                          title: node.title,
+                          href: hrefForPlayable(node.playable),
+                        })}
+                      >
                         {node.title}
                       </a>
                     ) : (
@@ -471,6 +569,15 @@ function OrgoMapTrack() {
 export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: boolean }) {
   const snapshot = useProgress();
   const course = snapshot.course;
+  /**
+   * The node whose Charge sheet is open, or null.
+   *
+   * It lives here rather than in the sheet because the sheet does not know what
+   * a pathway is: which node is being entered is the track's business, and the
+   * same sheet is opened by a spine slab, a side quest chip and the generic
+   * course track without any of them being a special case inside it.
+   */
+  const [gate, setGate] = useState<ChargeGateNode | null>(null);
   const nodes = useMemo(() => (course === null ? [] : derivePathway(course, snapshot)), [course, snapshot]);
   const units = useMemo(() => (course === null ? [] : groupIntoUnits(course, nodes)), [course, nodes]);
 
@@ -494,7 +601,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
       </header>
 
       {course === "orgo_2" ? (
-        <OrgoMapTrack />
+        <OrgoMapTrack onEnter={setGate} />
       ) : (
       <div className="flex flex-col gap-2" role="region" aria-label="Pathway">
         {units.map((unit) => {
@@ -505,7 +612,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
               <UnitBanner unit={unit} course={course} />
               <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
                 {unit.nodes.map((node, i) => (
-                  <TrackNode key={node.topic} node={node} index={first + i} course={course} />
+                  <TrackNode key={node.topic} node={node} index={first + i} course={course} onEnter={setGate} />
                 ))}
               </ol>
             </section>
@@ -543,6 +650,8 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
       <button type="button" className="press min-h-11 self-start text-scale-xs font-semibold text-muted-foreground" onPointerDown={() => progress.setCourse(course, snapshot.startTopics)}>
         Change track in Courses
       </button>
+
+      <ChargeGate node={gate} onClose={() => setGate(null)} reducedMotion={reducedMotion} />
     </div>
   );
 }

@@ -63,6 +63,15 @@
  *   node measurements/capture-economy.mjs --piece P2 --out measurements/gauntlet-economy/P2-r1/self-check
  *   node measurements/capture-economy.mjs --piece P3 --out measurements/gauntlet-economy/P3-r1/self-check
  *   node measurements/capture-economy.mjs --piece P4 --out measurements/gauntlet-economy/P4-r1/self-check
+ *   node measurements/capture-economy.mjs --piece P5 --out measurements/gauntlet-economy/P5-r1/self-check
+ *
+ * P5, THE CHARGE SURFACES, SEEDS THE JOURNAL for the same reason P3 and P4 do:
+ * a meter at 14 of 30 is two node entries, an empty one is four, and an exam
+ * nine days out is a settings event no press can produce. The seed is
+ * EconomyEvents plus the stored course, and every number on the sheet still
+ * comes out of deriveEconomy. Reaching the moment is otherwise a real press on
+ * a real pathway node: the entry cost belongs at the door, so the door is where
+ * the burst hangs.
  *
  * P4, THE STREAK SCREEN, SEEDS THE JOURNAL for the same reason P3 does: a 47
  * day streak is 47 days. It is otherwise reached by real clicks, one press
@@ -97,6 +106,13 @@ import {
   P3_SEED,
   P3_STORED,
   P4_SEEDS,
+  P5_SEED_BUILDERS,
+  P5_STORED,
+  PATHWAY_HASH,
+  driveChargeCost,
+  driveChargeEmpty,
+  driveChargeExam,
+  driveChargeSpend,
   driveCombo,
   driveFeedback,
   driveHudCharge,
@@ -196,7 +212,16 @@ async function burst(page, dir, name, startedAt) {
     const wait = startedAt + wanted - Date.now();
     if (wait > 0) await sleep(wait);
     const before = Date.now() - startedAt;
-    await page.screenshot({ path: path.join(dir, `${name}-${String(wanted).padStart(4, "0")}ms.png`), type: "png" });
+    // optimizeForSpeed trades PNG compression ratio for encode time. PNG is
+    // lossless at every compression level, so the pixels are identical; what
+    // changes is how long the encode blocks the NEXT frame in the burst. It was
+    // costing 300 to 500 ms per frame on this machine, which is how a 900 ms
+    // frame was landing at 1226 and stopping being a comparison with the bar.
+    await page.screenshot({
+      path: path.join(dir, `${name}-${String(wanted).padStart(4, "0")}ms.png`),
+      type: "png",
+      optimizeForSpeed: true,
+    });
     actual.push({ wanted, at: before });
   }
   return actual;
@@ -335,7 +360,56 @@ async function captureP4(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4 };
+/**
+ * P5, the Charge surfaces. Four moments, all on the pathway, all opened by a
+ * real press on a real node.
+ *
+ * The three the piece is judged on are `cost`, `empty` and `exam`, which are
+ * the three states the spec names. `spend` is the fourth and it is named so a
+ * judge can leave it out of a blind pair: it is a TRANSITION rather than a
+ * state, its last frame is the destination the student pressed toward, and a
+ * still of a screen mid navigation is not comparable with a still of a screen
+ * at rest. It is captured because "committing animates the halo thinning" is a
+ * claim, and a claim with no frame behind it is the sort of thing a still
+ * capture quietly hides.
+ *
+ * Every seed is a journal plus the stored course, for the reason P3's header
+ * gives: a snapshot with no course denominator reports a different diamond
+ * balance, and the empty state's top up button reads that balance.
+ */
+async function captureP5(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const drives = {
+    cost: driveChargeCost,
+    empty: driveChargeEmpty,
+    exam: driveChargeExam,
+    spend: driveChargeSpend,
+  };
+  const results = [];
+  for (const name of Object.keys(drives)) {
+    const page = await open(browser, viewport, theme, PATHWAY_HASH, P5_SEED_BUILDERS[name](), P5_STORED);
+    // TWO throwaway frames, taken AFTER the track has painted, before the drive.
+    // The first screenshot a page ever takes pays for the capture pipeline's own
+    // warm up, and on the first page of a run that cost was landing INSIDE the
+    // burst: the 400 ms frame was taken at 804 ms and the 900 at 1241, which is
+    // not the cadence the bar's captures use and therefore not a comparison.
+    // Taking them before the page had painted, which is what the first pass did,
+    // warmed up a blank document and left the real cost still to pay. They write
+    // nothing; the buffers are discarded.
+    await page.waitForSelector("a.path-node--press", { timeout: 10_000 });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    const { moment, reached, trigger, state } = await drives[name](page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-charge-${name}`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 
@@ -343,6 +417,10 @@ const browser = await puppeteer.launch({
   executablePath: findChrome(),
   headless: "new",
   args: ["--font-render-hinting=none"],
+  // A screenshot that hangs is a bug in the drive, and the default 180 s means
+  // finding out about it three minutes later. One minute is still far longer
+  // than any frame here has ever taken.
+  protocolTimeout: 60_000,
 });
 
 await mkdir(OUT, { recursive: true });

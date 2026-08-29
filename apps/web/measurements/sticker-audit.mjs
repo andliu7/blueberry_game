@@ -197,6 +197,15 @@ const ECONOMY_ROUTES = [
   "streak-rest",
   "streak-milestone",
   "streak-exam",
+  // P5's Charge sheet. An unvisited surface is an unmeasured one, and this
+  // file already says so; a sheet that is only reachable by pressing a pathway
+  // node is exactly the shape of thing that would otherwise never be audited.
+  // The page behind the sheet is measured with it, deliberately: the panel is
+  // composed over a live pathway and half these rules are aggregates over a
+  // whole screen.
+  "charge-cost",
+  "charge-empty",
+  "charge-exam",
 ];
 
 const ROUTES = [
