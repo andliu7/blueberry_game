@@ -159,11 +159,22 @@
 /*
  * A disturbance in the surface, not a pulsating disc.
  *
- * What was wrong with the first one: a hard violet circle that scaled up and
- * faded, which reads as a UI pulse. Real water does two things that fix it. The
- * ring is a thin BAND of lighter and darker rather than an outline, because a
- * ripple is a lens rather than a drawn circle. And the disturbance travels
- * outward while dying, so it is widest when it is faintest.
+ * Rebuilt against canvas-ui's Ripple, read for technique and reimplemented
+ * rather than copied: its licence is MIT plus a Commons Clause that forbids
+ * redistributing the components themselves, and this is a paid product.
+ *
+ * Two ideas from its parameter model changed this:
+ *
+ *   rings      it exposes 1 to 8 crests per wave train, and the reason is that
+ *              ONE ring reads as a UI pulse while three read as water. The old
+ *              version had one ring and an echo, which is why the owner said it
+ *              did not look like water.
+ *   decay      crests lose energy as they travel, so the outer ones are fainter
+ *              and slower to arrive rather than being copies.
+ *
+ * What was deliberately NOT taken: refraction and dispersion. Both bend the
+ * content behind the wave, and the content behind this wave is the molecule the
+ * student is reading. Bending it would trade legibility for prettiness.
  */
 .backdrop__ripple {
   position: absolute;
@@ -184,14 +195,22 @@
   animation: backdrop-ripple 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) forwards;
 }
 
-/* A second, later, wider ring. One stone makes more than one wave. */
+/* Crests two and three. Later, wider, fainter: that is what decay looks like. */
+.backdrop__ripple::before,
 .backdrop__ripple::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
   background: inherit;
-  animation: backdrop-ripple-echo 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) 260ms forwards;
+}
+
+.backdrop__ripple::before {
+  animation: backdrop-ripple-2 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) 200ms forwards;
+}
+
+.backdrop__ripple::after {
+  animation: backdrop-ripple-3 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) 420ms forwards;
 }
 
 @keyframes backdrop-ripple {
@@ -201,10 +220,53 @@
   100% { transform: scale(11); opacity: 0; }
 }
 
-@keyframes backdrop-ripple-echo {
+@keyframes backdrop-ripple-2 {
+  0% { transform: scale(0.3); opacity: 0; }
+  14% { opacity: 0.3; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes backdrop-ripple-3 {
   0% { transform: scale(0.4); opacity: 0; }
-  14% { opacity: 0.26; }
-  100% { transform: scale(1.55); opacity: 0; }
+  16% { opacity: 0.16; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/*
+ * THE AMBIENT DROP, which is the other borrowed idea and the one that matters
+ * most here. canvas-ui's Ripple takes an `interval`: seconds between ripples
+ * that nobody asked for. Still water that only ever moves when touched reads as
+ * dead, and dead is the opposite of the tranquil the owner wants. So a single
+ * faint drop lands every so often at a fixed offset, slow enough that a student
+ * concentrating on a molecule will not be pulled away from it.
+ */
+.backdrop__drop {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    transparent 55%,
+    var(--backdrop-ripple-trough) 66%,
+    var(--backdrop-ripple) 78%,
+    transparent 90%
+  );
+  opacity: 0;
+  animation: backdrop-drop 19s ease-out infinite;
+}
+
+.backdrop__drop--1 { left: 22%; top: 31%; animation-delay: 0s; }
+.backdrop__drop--2 { left: 71%; top: 66%; animation-delay: -7.5s; }
+.backdrop__drop--3 { left: 47%; top: 82%; animation-delay: -14s; }
+
+@keyframes backdrop-drop {
+  /* Fainter than a tap, and gone most of the time. */
+  0% { transform: scale(0.3); opacity: 0; }
+  3% { opacity: 0.24; }
+  22% { transform: scale(7); opacity: 0; }
+  100% { transform: scale(7); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -212,7 +274,10 @@
      This is the belt to that pair of braces. */
   .backdrop__plate--drift,
   .backdrop__ripple,
-  .backdrop__ripple::after {
+  .backdrop__ripple::before,
+  .backdrop__ripple::after,
+  .backdrop__drop {
     animation: none;
+    opacity: 0;
   }
 }

@@ -139,6 +139,17 @@ export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropP
           <div className="backdrop__water backdrop__water--c" />
         </>
       ) : null}
+      {/* Ambient drops. Borrowed from canvas-ui's Ripple, which exposes an
+          `interval` for exactly this: still water that only moves when touched
+          reads as dead, and dead is the opposite of tranquil. Pure CSS on fixed
+          offsets, so an idle canvas costs no JavaScript at all. */}
+      {mode === "resonance" && !reducedMotion ? (
+        <>
+          <span className="backdrop__drop backdrop__drop--1" />
+          <span className="backdrop__drop backdrop__drop--2" />
+          <span className="backdrop__drop backdrop__drop--3" />
+        </>
+      ) : null}
       {mode === "resonance"
         ? ripples.map((r) => (
             <span key={r.id} className="backdrop__ripple" style={{ left: r.x, top: r.y }} />
