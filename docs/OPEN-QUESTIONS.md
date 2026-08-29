@@ -70,7 +70,7 @@ nowhere in the 88 reference images. I cannot remove it without knowing what it i
 
 Neither is confident. What is it, and where did you see it?
 
-## 4. Five tabs, replacing eight? RESOLVED: yes, as mapped.
+## 4. Five tabs, replacing eight? RESOLVED: yes, as mapped. SUPERSEDED 2026-08-28 by "Four tabs, and two of them were never tabs" at the end of this file.
 
 "Periodic Table is good, but it is not a main attraction. We will somehow wiggle it into a button."
 The anatomy app you saved runs **five**: Learn, Sandbox, Community, Shop, Profile. We currently run
@@ -284,3 +284,47 @@ rare and small. Studio Ghibli is explicitly NOT a requirement.
 later set, `theme-d` through `theme-h`, chased the Ghibli reference harder and moved
 away from what the owner wanted; it is not a starting point. The two approved card
 concepts in `generations/` are the tone reference.
+
+## Four tabs, and two of them were never tabs
+
+Owner direction, 2026-08-28, superseding section 4 above and the eight-tab list in `CLAUDE.md`.
+
+> "Four tabs: Path, Train, Cards, Me. The periodic table and the reaction search are not
+> destinations, they are tools a student reaches for mid problem, so they live in the header
+> and are reachable from every tab and from inside a lesson. Courses collapses while there
+> is one course. Leaderboards, chat and tutor messages go behind a flag until their servers
+> exist. Nothing is deleted and no link 404s."
+
+What changed against section 4, and why the five-tab mapping there is not what shipped:
+
+- **Sandbox is gone as a tab.** Section 4 parked the periodic table inside a Sandbox tab. The
+  amendment goes further and says the table is not a destination at all. It is now a header
+  button that opens a sheet over whatever is on screen, which is the one thing a tab could
+  never do: a tab unmounts the lesson a student is three steps into. `CLAUDE.md`'s "interactive,
+  always reachable" is better served by the header than it was by the tab, not worse.
+- **Community, Shop and Profile collapse into Me.** Leaderboards is flagged off until it is
+  computed server side, the store has nothing to sell before Phase 6 prices it, and what is
+  left over is settings and identity, which is one screen and not three.
+- **Cards is the new one.** The review deck was `#/review`, linked from the Charge sheet and
+  nothing else. `CLAUDE.md`'s learning science section already cites the AAMC's 2020 to 2024
+  flashcard numbers as evidence for both the scheduler and "a flashcard surface the product
+  does not yet have"; a daily habit measurably held by most examinees is a destination.
+
+Rules the amendment carries that are not negotiable in a later round:
+
+1. **Every route still resolves.** A hash a student has in their history lands on a page. The
+   three flagged surfaces render an honest "not open yet" screen naming what they are waiting
+   on, and `#/review` lands on the Cards tab it became. `apps/web/test/shellRoutes.test.ts`
+   asserts this rather than trusting it.
+2. **Non-Orgo courses are greyed, never removed and never broken.** `orgo_2` is the one open
+   course; the other five render a card that says what it is waiting on, and their routes
+   resolve to the same honest screen. `apps/web/src/app/courses.ts` is the one list.
+3. **A flag decides whether the app LINKS to a surface, never whether it renders.** It is not
+   an entitlement, and it never becomes one: anything that gates access is server side per
+   `CLAUDE.md`'s non-negotiables.
+
+Still open, and reported rather than decided here: the placement quiz can still recommend a
+course that is not authored yet, because the recommender scores across all six. Today the
+courses surface catches that honestly and offers Organic Chemistry II. Whether the recommender
+itself should be restricted to open courses is an onboarding question, and onboarding copy is
+a human gate.

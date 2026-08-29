@@ -20,6 +20,7 @@
 
 import { curriculumCause, type GradingResult } from "@blueberry/curriculum";
 import { hrefForTab } from "../app/routes";
+import { isFlagOn } from "../app/flags";
 
 function Explain({ what, why, next }: { readonly what: string; readonly why: string; readonly next: string }) {
   return (
@@ -82,14 +83,25 @@ export function FeedbackBody({ result }: { readonly result: GradingResult }) {
       );
     }
     case "unmatched_wrong":
+      // The offer to ask Blueberry is only made when Ask Blueberry is actually
+      // on. Owner amendment of 2026-08-28 put chat behind app/flags.ts, and a
+      // link that lands on "not open yet" is worse than no link: it spends a
+      // student's attention at the exact moment they are already stuck.
       return (
         <p className="text-scale-sm text-muted-foreground">
           That is useful: it means this exact answer needs its own explanation written, and it
-          has been logged so one gets authored. Until then,{" "}
-          <a href={hrefForTab("chat")} className="font-semibold text-primary underline">
-            ask Blueberry
-          </a>{" "}
-          about it, or look at the solution below.
+          has been logged so one gets authored.{" "}
+          {isFlagOn("chat") ? (
+            <>
+              Until then,{" "}
+              <a href={hrefForTab("chat")} className="font-semibold text-primary underline">
+                ask Blueberry
+              </a>{" "}
+              about it, or look at the solution below.
+            </>
+          ) : (
+            <>Look at the solution below, and the worked step it turns on.</>
+          )}
         </p>
       );
     case "indeterminate":

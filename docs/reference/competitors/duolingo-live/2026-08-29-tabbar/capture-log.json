@@ -1,0 +1,115 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 3,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "log": [
+    {
+      "file": "t01-path-tabbar-0000ms.png",
+      "what": "path-tabbar-0000ms",
+      "did": "Standing on the learn path, bottom tab bar up",
+      "url": "https://www.duolingo.com/learn",
+      "burstNominalMs": 0,
+      "tabBar": {
+        "items": 4,
+        "hrefs": [
+          "/learn",
+          "/leaderboard",
+          "/quests",
+          "/shop"
+        ],
+        "labels": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "minWidth": 48,
+        "minHeight": 48,
+        "top": 780,
+        "viewportHeight": 844
+      }
+    },
+    {
+      "file": "t02-path-tabbar-0400ms.png",
+      "what": "path-tabbar-0400ms",
+      "did": "Standing on the learn path, bottom tab bar up",
+      "url": "https://www.duolingo.com/learn",
+      "burstNominalMs": 400,
+      "tabBar": {
+        "items": 4,
+        "hrefs": [
+          "/learn",
+          "/leaderboard",
+          "/quests",
+          "/shop"
+        ],
+        "labels": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "minWidth": 48,
+        "minHeight": 48,
+        "top": 780,
+        "viewportHeight": 844
+      }
+    },
+    {
+      "file": "t03-path-tabbar-0900ms.png",
+      "what": "path-tabbar-0900ms",
+      "did": "Standing on the learn path, bottom tab bar up",
+      "url": "https://www.duolingo.com/learn",
+      "burstNominalMs": 900,
+      "tabBar": {
+        "items": 4,
+        "hrefs": [
+          "/learn",
+          "/leaderboard",
+          "/quests",
+          "/shop"
+        ],
+        "labels": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "minWidth": 48,
+        "minHeight": 48,
+        "top": 780,
+        "viewportHeight": 844
+      }
+    },
+    {
+      "file": "t04-path-tabbar-2500ms.png",
+      "what": "path-tabbar-2500ms",
+      "did": "Standing on the learn path, bottom tab bar up",
+      "url": "https://www.duolingo.com/learn",
+      "burstNominalMs": 2500,
+      "tabBar": {
+        "items": 4,
+        "hrefs": [
+          "/learn",
+          "/leaderboard",
+          "/quests",
+          "/shop"
+        ],
+        "labels": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "minWidth": 48,
+        "minHeight": 48,
+        "top": 780,
+        "viewportHeight": 844
+      }
+    }
+  ]
+}

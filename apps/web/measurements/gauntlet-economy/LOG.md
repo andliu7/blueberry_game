@@ -363,3 +363,52 @@ what the sticker validator is measuring against and finding wanting. So **every 
 built before the design sequence adds to the design debt it will have to pay off.** The
 order already has S1 to S4 before P6 and P7, which is now not a preference but a
 constraint: P6 and P7 should not be built in a style that S3 will then have to rewrite.
+
+## S1 Four tab shell
+
+### Round 1: BAR WON, confidence 0.72. But read where the gap actually sits.
+
+Audit clean. The judge's biggest gap in ours: "every topic node renders in the same
+purple fill at the same size with the same drop-shadow, so there is no current node, no
+locked state, and no start affordance. A returning student has to read four multi-line
+descriptions to work out where they stopped." It praised the bar for answering "what do
+I tap right now" in under a second: one saturated node, ringed, labelled START, with
+everything below it deliberately grey.
+
+**That gap is real and it is not the tab shell.** `derivePathway` already computes five
+states (done, current, open, review, locked) and has since Phase 5; the pathway simply
+does not RENDER them distinctly. That is `PathwayTab.tsx`, which is S2's file and S2's
+spec. A tab bar cannot be photographed alone, so S1 was judged on a full screen that the
+pathway dominates, and it lost on the pathway.
+
+So: **S1 is not recorded as won, its named gap is assigned to S2, and S1 is re-judged
+after S2 lands.** Declaring it won because the defect belongs to a neighbour would be
+exactly the kind of bookkeeping this loop exists to prevent.
+
+### What S1 did achieve, measured
+
+- Sticker, apples to apples on the 24 routes the baseline walked: **1270 to 1170**.
+  Rule 10's nav half went **30 findings to 0**. Its mascot half improved 64 to 52 because
+  the wordmark left the phone header. Rules 2, 3, 3-fake, 4, 5, 7 and 8 raised zero rows
+  on pre-existing routes.
+- Contrast 0 failing over **7858** composed pairs, up from 5152, because three shell
+  moments joined the audit.
+- 946 web tests, up from 931. Typecheck clean, suite 30 of 30, payload 189.0 KB.
+- The owner amendment is written into CLAUDE.md as a PLACEMENT table (nav, tool,
+  collapsed, flagged) rather than a shorter tab list, so every surface keeps its route
+  and only its placement changes. It argues, correctly, that the periodic table's
+  "always reachable" is strengthened by becoming a header tool: as a tab it was not
+  reachable inside a lesson at all.
+- It noticed the tab list was duplicated between the two audits and made
+  economy-moments.mjs own it, which is the class of bug that bites exactly when a list
+  changes.
+
+### An escalation the builder raised rather than papered over
+
+Rule 9 rose by 4 rows and could not be taken to zero honestly. All four are `#7c3aed`,
+which is `--primary` in light AND the mascot's costume cape in `MASCOT_PALETTE`. Any new
+surface using the brand colour adds rows, and the 154 baseline rows are the same
+collision. **This needs an owner decision, not a builder's workaround:** either the cape
+moves off the UI primary, or rule 9 must exclude the shared brand hue and say so. The
+builder removed six other rows legitimately by moving tinted-disc glyphs to
+`--muted-foreground`, which was the right call regardless.

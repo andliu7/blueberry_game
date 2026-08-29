@@ -64,6 +64,7 @@
  *   node measurements/capture-economy.mjs --piece P3 --out measurements/gauntlet-economy/P3-r1/self-check
  *   node measurements/capture-economy.mjs --piece P4 --out measurements/gauntlet-economy/P4-r1/self-check
  *   node measurements/capture-economy.mjs --piece P5 --out measurements/gauntlet-economy/P5-r1/self-check
+ *   node measurements/capture-economy.mjs --piece S1 --out measurements/gauntlet-economy/S1-r1/self-check
  *
  * P5, THE CHARGE SURFACES, SEEDS THE JOURNAL for the same reason P3 and P4 do:
  * a meter at 14 of 30 is two node entries, an empty one is four, and an exam
@@ -72,6 +73,23 @@
  * comes out of deriveEconomy. Reaching the moment is otherwise a real press on
  * a real pathway node: the entry cost belongs at the door, so the door is where
  * the burst hangs.
+ *
+ * S1, THE FOUR TAB SHELL, IS THE FIRST PIECE HERE WHOSE SUBJECT IS CHROME.
+ * Three moments: the bar at rest on the Path tab, a header tool open over a
+ * pathway that is still mounted behind it, and the greyed course list. Two of
+ * the three run their burst from the moment the screen settles rather than from
+ * a press, for the reason P3's header gives: what a critic judges about a
+ * readout or a bar is what is on screen when the tab opens. The tool sheet is
+ * the exception and runs from the press, because a sheet rising IS the
+ * transition being judged.
+ *
+ * It seeds P3's journal and stored blob unchanged. Not because the bar needs a
+ * journal, but because the bar is drawn under a header full of numbers, and a
+ * header of zeroes is a shot of a fresh install rather than of the product.
+ * Using P3's exact seed also keeps the two pieces comparable: the header in an
+ * S1 frame is the same header on the same account as the header in a P3 frame.
+ * No hook of any kind is needed: every one of the three is reached by opening a
+ * hash a student can open and, for the sheet, by one real press.
  *
  * P4, THE STREAK SCREEN, SEEDS THE JOURNAL for the same reason P3 does: a 47
  * day streak is 47 days. It is otherwise reached by real clicks, one press
@@ -99,6 +117,7 @@ import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
 import {
+  COURSES_HASH,
   HUD_HASH,
   LESSON_HASH,
   P2_SEEDS,
@@ -120,6 +139,9 @@ import {
   driveHudRest,
   driveHudStreak,
   driveReward,
+  driveShellBar,
+  driveShellCourses,
+  driveShellTool,
   driveStreak,
   openSeeded,
   sleep,
@@ -409,7 +431,53 @@ async function captureP5(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5 };
+/**
+ * S1, the four tab shell.
+ *
+ * Three moments and no seeds of its own; see this file's header for why it
+ * borrows P3's account and why two of the three bursts run from a settle rather
+ * than from a press.
+ *
+ * `bar` is the judged one, and it is judged at BOTH viewports on purpose. The
+ * bar is the piece: at 390px it is four items across the bottom edge, at 1280px
+ * it is the same four items as a rail, and a shot of only one of those is a
+ * shot of half the claim. `tool` and `courses` are the two things that make
+ * four tabs honest rather than amputated, which is the pair a blind critic
+ * should be looking at when it asks where the periodic table went.
+ *
+ * Each drive asserts its own moment: four items in a bar whose narrowest target
+ * still clears 44px, a sheet open over a pathway that is still in the document
+ * behind it, and one selectable course card against five that carry no link at
+ * all. A shot of the wrong state is never handed to a critic.
+ */
+async function captureS1(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const moments = [
+    { name: "bar", hash: PATHWAY_HASH, drive: driveShellBar },
+    { name: "tool", hash: PATHWAY_HASH, drive: driveShellTool },
+    { name: "courses", hash: COURSES_HASH, drive: driveShellCourses },
+  ];
+  const results = [];
+  for (const entry of moments) {
+    const page = await open(browser, viewport, theme, entry.hash, P3_SEED, P3_STORED);
+    // The same two throwaway frames P5 takes, and for the same measured reason:
+    // the first screenshot a page ever takes pays for the capture pipeline's
+    // warm up, and on the first page of a run that cost lands INSIDE the burst.
+    // Taken after the bar has painted, so what is warmed up is a real document.
+    await page.waitForSelector("nav.tabbar a.tabbar-item", { timeout: 10_000 });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    const { moment, reached, trigger, state } = await entry.drive(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-shell-${entry.name}`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 

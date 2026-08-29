@@ -1,0 +1,4 @@
+This is the screen a student lands on when they open the app: it shows where they are in the
+course they are studying and carries the bar they use to move between the app's main sections.
+The frames are a burst at 0, 400, 900 and 2500 ms from the moment the screen settled, phone
+shape 390x844 at 3x, light theme, nothing pressed.

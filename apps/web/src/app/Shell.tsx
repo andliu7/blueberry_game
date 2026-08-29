@@ -1,9 +1,34 @@
 /**
  * The app shell: header, the tab bar, and the outlet the current tab renders in.
  *
- * Layout decision: the tab bar is a bottom bar under 768px (thumb reach on a
- * phone, the same place Duolingo and the reference capture put it) and a left
- * rail above. One component, two CSS layouts, no duplicated route logic.
+ * FOUR TABS. Owner amendment of 2026-08-28, quoted in full in routes.ts and in
+ * CLAUDE.md. Path, Train, Cards, Me. The periodic table and the reaction search
+ * are header TOOLS now, not destinations; Courses collapsed to a link because
+ * there is one course; leaderboards, chat and tutor messages sit behind
+ * app/flags.ts. Every id still parses and every route still resolves, so a link
+ * a student already has lands on a page.
+ *
+ * WHAT THE HEADER CARRIES, AND WHY IT CHANGED.
+ *
+ * The header's right half is the P3 HUD, which was won blind at round two and
+ * is untouched here: three status items and the daily goal meter as the
+ * header's bottom edge. The left half used to be the wordmark plus two ghost
+ * chrome buttons, language and theme. It is now the language button and the two
+ * tool buttons.
+ *
+ * That trade is the piece. A tool a student reaches for MID PROBLEM has to be
+ * in the header or it is not reachable at all from inside a lesson, which is
+ * the half of CLAUDE.md's "interactive, always reachable" that a tab never
+ * satisfied. Theme is not that: it is a setting, it is chosen once, and it
+ * belongs on the Me tab with the other settings. Language stays because it is
+ * the closest thing this app has to the reference bar's course chip, and
+ * because a student on a non-English course changes it far more often than
+ * they change a colour scheme.
+ *
+ * The wordmark leaves the phone header for the same reason the reference bar
+ * has no wordmark on a signed-in screen: the tab bar already says which app
+ * this is, and 390px of header is worth more to a tool than to a logo. It
+ * stays above the rail on the wide layout, where there is room.
  *
  * Every tab except the trainer is behind React.lazy, so a student who opens
  * the app for a mechanism downloads the mechanism. The trainer is a static
@@ -13,17 +38,23 @@
  * are the loading contract: never a blank rectangle.
  */
 
-import { lazy, Suspense, useState, type ReactNode } from "react";
-import { TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
+import { lazy, Suspense, useCallback, useState, type ReactNode } from "react";
+import { NAV_TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
+import { isFlagOn } from "./flags";
 import { TabSkeleton } from "./ui/Skeleton";
-import { useReducedMotion, useTheme, setTheme } from "./hooks";
+import { useReducedMotion } from "./hooks";
 import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
 import { Hud } from "./ui/Hud";
+import { NotOpenYet } from "./ui/NotOpenYet";
+import { ToolRail } from "./ui/ToolRail";
 import { BlueberryMark } from "../mascot/BlueberryMark";
 import { TrainerTab } from "../tabs/trainer/TrainerTab";
 import { TabIcon } from "./ui/TabIcon";
+import "./ui/tabs.css";
 
 const PathwayTab = lazy(() => import("../tabs/pathway/PathwayTab"));
+const CardsTab = lazy(() => import("../tabs/cards/CardsTab"));
+const MeTab = lazy(() => import("../tabs/me/MeTab"));
 const CoursesTab = lazy(() => import("../tabs/courses/CoursesTab"));
 const SearchTab = lazy(() => import("../tabs/search/SearchTab"));
 const LeaderboardsTab = lazy(() => import("../tabs/leaderboards/LeaderboardsTab"));
@@ -32,52 +63,44 @@ const ChatTab = lazy(() => import("../tabs/chat/ChatTab"));
 const MessagesTab = lazy(() => import("../tabs/messages/MessagesTab"));
 
 /**
- * Theme and language are CHROME, and the header has readouts in it.
+ * One item in the bar.
  *
- * They shipped as bordered white pills, which on a phone put two 44px discs
- * beside four flat numbers and made the loudest things in the header the two
- * that say the least. They are ghost buttons now: same 44px target, same press,
- * no box. The border was carrying "this is pressable", and next to things that
- * are visibly NOT pressable it no longer has to.
- *
- * Round two moved them out of the status row entirely, to the left of the
- * header beside the wordmark. Same buttons, same targets; what changed is which
- * half of the header a student's eye lands in when it is looking for a number.
+ * An <a> and not a button, so the browser's own middle click, back button and
+ * "copy link" all work on a destination. `aria-current="page"` is both the
+ * accessible state and the CSS hook the active chip hangs off, which means the
+ * two can never disagree: there is no second boolean to keep in sync.
  */
-function ThemeToggle() {
-  const theme = useTheme();
-  const next = theme === "dark" ? "light" : "dark";
-  return (
-    <button
-      type="button"
-      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-scale-base text-muted-foreground hover:text-foreground"
-      onPointerDown={() => setTheme(next)}
-      aria-label={`Switch to ${next} mode`}
-      title={`Switch to ${next} mode`}
-    >
-      {theme === "dark" ? "☀" : "☾"}
-    </button>
-  );
-}
-
 function TabLink({ tab, active }: { readonly tab: TabId; readonly active: boolean }) {
   const definition = tabDefinition(tab);
   return (
-    <a
-      href={hrefForTab(tab)}
-      aria-current={active ? "page" : undefined}
-      className={`press flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-scale-xs font-semibold md:flex-row md:justify-start md:gap-3 md:px-3 md:text-scale-sm ${
-        active ? "bg-primary/10 text-primary-ink" : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      <TabIcon tab={tab} className="h-5 w-5" />
+    <a href={hrefForTab(tab)} aria-current={active ? "page" : undefined} className="press tabbar-item">
+      <TabIcon tab={tab} className="tabbar-icon" />
       <span className="md:hidden">{definition.short}</span>
       <span className="hidden md:inline">{definition.label}</span>
     </a>
   );
 }
 
-function Outlet({ route }: { readonly route: Route }) {
+/**
+ * The three flagged surfaces render honestly rather than 404ing.
+ *
+ * flags.ts decides whether the app LINKS to a surface, never whether it
+ * renders: a student who typed the hash or followed an old link has to land
+ * somewhere true. With the flag off that landing is NotOpenYet; with it on the
+ * built surface renders as it always did.
+ */
+function Flagged({ flag, children }: { readonly flag: "leaderboards" | "chat" | "messages"; readonly children: ReactNode }) {
+  if (isFlagOn(flag)) return <>{children}</>;
+  return <NotOpenYet surface={flag} />;
+}
+
+function Outlet({
+  route,
+  onImmersiveChange,
+}: {
+  readonly route: Route;
+  readonly onImmersiveChange: (immersive: boolean) => void;
+}) {
   // Hooks run before any early return, always, or React loses track of them
   // between renders.
   const reducedMotion = useReducedMotion();
@@ -88,18 +111,34 @@ function Outlet({ route }: { readonly route: Route }) {
       return <TrainerTab reducedMotion={reducedMotion} />;
     case "pathway":
       return <PathwayTab reducedMotion={reducedMotion} />;
+    case "cards":
+      return <CardsTab onImmersiveChange={onImmersiveChange} />;
+    case "me":
+      return <MeTab />;
     case "courses":
       return <CoursesTab rest={rest} reducedMotion={reducedMotion} />;
     case "search":
       return <SearchTab query={rest[0] ?? ""} />;
-    case "leaderboards":
-      return <LeaderboardsTab />;
     case "periodic":
       return <PeriodicTab selected={rest[0] ?? null} />;
+    case "leaderboards":
+      return (
+        <Flagged flag="leaderboards">
+          <LeaderboardsTab />
+        </Flagged>
+      );
     case "chat":
-      return <ChatTab />;
+      return (
+        <Flagged flag="chat">
+          <ChatTab />
+        </Flagged>
+      );
     case "messages":
-      return <MessagesTab />;
+      return (
+        <Flagged flag="messages">
+          <MessagesTab />
+        </Flagged>
+      );
     default: {
       const unreachable: never = route.tab;
       return <>{unreachable}</>;
@@ -109,48 +148,54 @@ function Outlet({ route }: { readonly route: Route }) {
 
 export function Shell({ route, children }: { readonly route: Route; readonly children?: ReactNode }) {
   const [languageOpen, setLanguageOpen] = useState(false);
+  /**
+   * True while a tab is running a full screen task and the bar should get out
+   * of the way. mobile-ui: "The bar is contextual: entering an editor may
+   * replace or hide it entirely."
+   *
+   * The state is here rather than in the tab because the bar is here. That is
+   * LIFTING STATE UP, the React pattern for a flag one component owns and
+   * another sets; useCallback keeps the setter identity stable so the tab's
+   * reporting effect does not re-run on every shell render.
+   */
+  const [immersive, setImmersive] = useState(false);
+  const onImmersiveChange = useCallback((next: boolean) => setImmersive(next), []);
   const activeTab = route.kind === "tab" ? route.tab : null;
   const label = activeTab === null ? "the page" : tabDefinition(activeTab).label;
+  // The bar lights the tab the current route lives UNDER, so #/courses lights
+  // Path and #/chat lights Me. A bar with nothing lit reads as broken, and six
+  // of the ten routes are off-bar now. See TabDefinition.parent.
+  const litTab = activeTab === null ? null : tabDefinition(activeTab).parent;
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
-      <nav
-        aria-label="Tabs"
-        className="order-last fixed inset-x-0 bottom-0 z-20 grid grid-cols-8 gap-0.5 border-t border-border bg-card/90 px-1 pt-1 pb-safe backdrop-blur-md md:static md:order-first md:flex md:w-60 md:flex-col md:gap-1 md:border-t-0 md:border-r md:p-3"
-      >
-        <a href={hrefForTab("trainer")} className="mb-3 hidden items-center gap-2 px-2 md:flex" aria-label="Blueberry home">
+      <nav aria-label="Tabs" className={`tabbar order-last md:order-first ${immersive ? "tabbar--away" : ""}`}>
+        <a href={hrefForTab("pathway")} className="tabbar-brand" aria-label="Blueberry home">
           <BlueberryMark className="h-8 w-8" />
-          <span className="title-face text-scale-lg font-semibold text-foreground">Blueberry</span>
+          <span className="title-face text-scale-lg font-semibold">Blueberry</span>
         </a>
-        {TABS.map((tab) => (
-          <TabLink key={tab.id} tab={tab.id} active={tab.id === activeTab} />
+        {NAV_TABS.map((tab) => (
+          <TabLink key={tab.id} tab={tab.id} active={tab.id === litTab} />
         ))}
       </nav>
 
-      <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-20 md:pb-0">
+      <div className={`flex min-h-dvh min-w-0 flex-1 flex-col md:pb-0 ${immersive ? "pb-4" : "pb-24"}`}>
         {/* No `border-b`. The header's bottom edge is the daily goal meter the
             HUD draws, and a border a pixel above a track is a seam rather than
             a design. See hud.css, "the daily goal edge". */}
         <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-background/85 px-2 pb-2.5 pt-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
-          {/* CHROME ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
-              on round one was that the language code and the theme toggle sat in
-              the status row at the same size and weight as the readouts, so the
-              row had seven equal chips and no primacy. They are chrome: they
-              belong beside the wordmark, muted, on the other side of the header
-              from anything a student reads as a score.
-
-              The wordmark TEXT is still the first thing to go on a phone, and
-              the tab bar already says which app this is. The mark stays as the
-              home link and keeps the accessible name. */}
-          <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
-            <a href={hrefForTab("trainer")} className="flex items-center gap-2 md:hidden" aria-label="Blueberry home">
-              <BlueberryMark className="h-6 w-6 shrink-0" />
-              <span className="title-face hidden text-scale-base font-semibold sm:inline">Blueberry</span>
-            </a>
-            <h1 className="hidden truncate text-scale-lg font-semibold text-foreground md:block">{label}</h1>
-            <span className="mx-0.5 hidden h-5 w-px bg-border md:inline-block" aria-hidden />
+          {/* TOOLS ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
+              on the P3 round was that the header's left half held chrome at the
+              same size and weight as the readouts, so the row had seven equal
+              chips and no primacy. The split survives; what changed is that the
+              left half is now worth its space. A tool is an OBJECT you pick up,
+              so it carries an outline per sticker rule 3; the readouts opposite
+              are flat because they are readings, not controls. Two different
+              kinds of thing, drawn as two different kinds of thing. */}
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h1 className="hidden truncate pr-1 text-scale-lg font-semibold text-foreground md:block">{label}</h1>
             <LanguageButton onOpen={() => setLanguageOpen(true)} />
-            <ThemeToggle />
+            <ToolRail />
           </div>
           <Hud />
         </header>
@@ -158,7 +203,7 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
         <main className="min-h-0 flex-1">
           {children ?? (
             <Suspense fallback={<TabSkeleton label={label} />}>
-              <Outlet route={route} />
+              <Outlet route={route} onImmersiveChange={onImmersiveChange} />
             </Suspense>
           )}
         </main>

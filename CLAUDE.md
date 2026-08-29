@@ -15,12 +15,54 @@ adjustable, something a student goes into and plays with, not watches.
   know a reaction's name. The lookup a real student actually performs the night before an exam
 - **Leaderboards.** Daily, weekly, and monthly, global. See the privacy note below
 - **Onboarding quiz.** Real chemistry questions, sat before signup, that place a student into a course
-- **Periodic table.** Interactive, always reachable
+- **Periodic table.** Interactive, always reachable. Since the amendment below it is a header
+  TOOL rather than a tab, which is what makes "always" true inside a lesson
 - **Short form video.** Roughly one minute per concept, embedded in lessons. Authored content from a
   named creator, not generated. See "Content pipeline" below
 - **AI chat.** Server metered, sees the student's current state
 - **Tutor messaging.** Async, moderated, shipped last. Connects tutors to customers; the logistics
   are an owner decision recorded before Phase 8 builds them
+
+### The bar is four tabs, and the list above is a list of SURFACES, not of tabs
+
+Owner amendment, 2026-08-28. The list above named ten things and the shell drew eight of them as
+tabs in a fixed order. That is what changed; nothing in the list is cancelled by it.
+
+> "Four tabs: Path, Train, Cards, Me. The periodic table and the reaction search are not
+> destinations, they are tools a student reaches for mid problem, so they live in the header
+> and are reachable from every tab and from inside a lesson. Courses collapses while there
+> is one course. Leaderboards, chat and tutor messages go behind a flag until their servers
+> exist. Nothing is deleted and no link 404s."
+
+So every surface above still exists and still has a route. What it has instead of a tab is a
+PLACEMENT, and `apps/web/src/app/routes.ts` is where the placements live:
+
+| Placement | Surfaces | What it means |
+|---|---|---|
+| `nav` | Path, Train, Cards, Me | The four in the bar, in that order |
+| `tool` | Periodic table, Reaction search | A header button on every screen and inside a lesson, opening a sheet over the current one. Still routes of their own |
+| `collapsed` | Courses | Reachable from Me and from the pathway. One course does not need a browsing tab |
+| `flagged` | Leaderboards, AI chat, Tutor messaging | Built, off by default, still routable. See `apps/web/src/app/flags.ts` |
+
+Four, because mobile-ui's rule is that five is the hard limit and three or four is right, and
+because tabs are destinations: a lookup a student performs mid problem is a tool, and a tool in
+the bar costs a destination its place. **The periodic table's "always reachable" below is
+strengthened by this, not weakened.** As a tab it was not reachable from inside a lesson at all;
+as a header tool it is reachable from every screen in the product, which is what that phrase was
+always asking for.
+
+Three rules travel with the amendment and are not a later round's to negotiate away:
+
+- **Every route resolves.** A hash in a student's history lands on a page. A flagged surface
+  renders an honest "not open yet" screen naming what it waits on; `#/review` lands on Cards.
+- **Non-Orgo courses render greyed with an honest coming treatment**, never a dead end and never
+  a broken link. `orgo_2` is the only selectable course today, and
+  `apps/web/src/app/courses.ts` is the single list that says so.
+- **A flag decides whether the app LINKS to a surface, never whether it renders**, and it is
+  never an entitlement. Anything that gates access stays server side per the non-negotiables.
+
+The reasoning, the superseded five-tab mapping it replaces, and the one thing still open are in
+`docs/OPEN-QUESTIONS.md`, section 4 and the section at the end of that file.
 
 ## Progression, rating, and economy
 

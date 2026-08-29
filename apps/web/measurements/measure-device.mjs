@@ -53,7 +53,7 @@ const addresses = Object.values(os.networkInterfaces())
 console.log("Device measurement server running.");
 console.log("");
 for (const address of addresses) {
-  console.log(`  On the phone, open:  http://${address}:${PORT}/?auto=1&stats=1`);
+  console.log(`  On the phone, open:  http://${address}:${PORT}/?auto=1&stats=1#/trainer`);
 }
 console.log("");
 console.log("Steps, per reference device (Pixel 6a, then iPhone 12):");

@@ -90,7 +90,7 @@ const browser = await puppeteer.launch({
 try {
   const page = await browser.newPage();
   await page.setViewport({ width: 412, height: 915, deviceScaleFactor: 2 });
-  await page.goto(`http://127.0.0.1:${port}/?auto=1`, { waitUntil: "networkidle0" });
+  await page.goto(`http://127.0.0.1:${port}/?auto=1#/trainer`, { waitUntil: "networkidle0" });
   await new Promise((resolve) => setTimeout(resolve, MEASURE_MS));
 
   const frames = await page.evaluate(() => window.__blueberryFrames ?? []);

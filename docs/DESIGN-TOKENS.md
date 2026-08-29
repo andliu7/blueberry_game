@@ -90,6 +90,22 @@ now the surface and `--primary-ink` is the ink, the same split `--good` and `--g
 use. Light mode needs no split and defines the token anyway so a component names one thing in both
 themes.
 
+**`--tab-active`, the selected object.** `#f1eafe` light, `#2e233e` dark. One token for every
+place the interface says "you are here as an object rather than as a colour": the tab bar's active
+chip, the chosen half of the theme segment, the tinted disc behind a tool glyph. It is a FLAT value
+and not an alpha over whatever is behind it, because the chip sits on the white bar and on the cream
+page, and an alpha composites to two different colours in those two places, which is two different
+measured contrasts for one token.
+
+Measured where it is composed, because the label inside it is 12px and 12px is body text under
+WCAG AA: `--primary-ink` on it is 4.87:1 light and 5.44:1 dark, and the 2px border of the same ink
+on the bar's ground is 5.70:1 light and 6.44:1 dark, over the 3:1 an interface component needs
+under WCAG 1.4.11. The two values are derived separately rather than one being the other darkened,
+because `--primary-ink` is a different hue in each theme.
+
+The glyph INSIDE a `--tab-active` disc is `--muted-foreground`, not the primary. The fill is where
+the colour goes; the line work recedes so the fill is what leads. See sticker-ui rules 5 and 6.
+
 **Do not use red for a wrong answer.** Per the game shell rules, an incorrect arrow snaps back and
 a leaving group that will not leave wobbles. `--destructive` is for destructive actions, such as
 deleting saved work, not for a student learning.

@@ -24,8 +24,9 @@ import {
   type Problem,
   type TopicId,
 } from "@blueberry/curriculum";
-import { Card, Pill } from "../../app/ui/Card";
+import { Pill } from "../../app/ui/Card";
 import { hrefForTab } from "../../app/routes";
+import { COURSE_COMING, isCourseOpen } from "../../app/courses";
 import { navigate } from "../../app/useHashRoute";
 import { useProgress } from "../../app/hooks";
 import { LessonPlayer } from "../../lesson/LessonPlayer";
@@ -77,28 +78,131 @@ export function problemsForTopic(topic: TopicId): readonly Problem[] {
   return SEED_CORPUS.filter((problem) => problem.topic === topic && (SERVE_ALL || SERVED_KINDS.has(problem.answer.kind)));
 }
 
+/**
+ * The course list, one open course and five greyed.
+ *
+ * WHY A GREYED CARD AND NOT A MISSING ONE. Owner amendment of 2026-08-28: the
+ * closed courses "render greyed with an honest coming treatment, never a dead
+ * end and never a broken link". A student who was told this app covers General
+ * Chemistry and finds no mention of it concludes the app lied; one who finds a
+ * card saying what it is waiting on concludes it is being built. Same reasoning
+ * as app/ui/NotOpenYet.tsx, one layer down.
+ *
+ * THE OPEN ONE LEADS, AND IT IS NOT A SIXTH OF THE SCREEN. Round one drew all
+ * six as equal cards in source order, which put the one course a student can
+ * actually open fourth, in white, surrounded by five larger-looking greyed ones.
+ * That is the hierarchy exactly backwards: the loudest thing on the screen was
+ * the part of the product that does not exist yet. So this is two sections and
+ * not one grid. The open course is a full width card with the primary border
+ * and the entry action on it; the five are a compact list underneath, under a
+ * heading that says what they are. mobile-ui's rule that a section extends in
+ * one direction only is satisfied by both halves.
+ *
+ * WHAT "GREYED" MEANS MECHANICALLY, and it is not `opacity: 0.6` on the whole
+ * row. Fading a row fades its text with it, and text under an opacity is text
+ * that quietly stops meeting the contrast floor in the Budgets table. So a
+ * closed row keeps full strength ink and drops the two things that say
+ * PRESSABLE: it is a <div> and not an <a>, and it is a dashed outline on the
+ * page ground rather than a raised card. What is greyed is the affordance.
+ *
+ * Each closed row is still announced as unavailable through `aria-disabled`,
+ * and the coming line is the accessible reason.
+ */
 function CourseList() {
   const snapshot = useProgress();
+  const open = ALL_COURSE_IDS.filter((course) => isCourseOpen(course));
+  const closed = ALL_COURSE_IDS.filter((course) => !isCourseOpen(course));
+
   return (
-    <div className="mx-auto grid max-w-3xl gap-3 p-4 md:grid-cols-2 md:p-6">
-      {ALL_COURSE_IDS.map((course) => {
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4 pb-10 md:p-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="title-face text-scale-2xl font-bold text-foreground">Courses</h1>
+        <p className="text-scale-sm text-muted-foreground">
+          One is open. The other five are scoped, and they arrive in the order below.
+        </p>
+      </div>
+
+      {open.map((course) => {
         const topics = probeTopicIdsForCourse(course);
         const done = topics.filter((topic) => snapshot.lessons[topic] !== undefined).length;
         return (
           <a key={course} href={hrefForTab("courses", course)} className="press block">
-            <Card className="flex h-full flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <h2 className="title-face text-scale-lg font-semibold">{COURSE_LABEL[course]}</h2>
+            {/* The primary border, and it is the only one on the screen. A card
+                that is the single thing you can press should say so with the
+                colour the rest of the app uses for "you are here". */}
+            <div className="flex flex-col gap-3 rounded-2xl border-2 border-[color:var(--primary-ink)] bg-card p-5">
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="title-face text-scale-xl font-bold text-foreground">{COURSE_LABEL[course]}</h2>
                 {snapshot.course === course ? <Pill tone="primary">Your track</Pill> : null}
               </div>
               <p className="text-scale-sm text-muted-foreground">{COURSE_BLURB[course]}</p>
-              <p className="mt-auto text-scale-xs text-muted-foreground">
+              {/* NO BUTTON INSIDE THE CARD. The whole card is the link, and a
+                  filled pill inside a link is a control inside a control: two
+                  press targets for one action, and mobile-ui's "do not nest"
+                  applied to affordances rather than to padding. It is also what
+                  the reference course picker does, which is nothing: the tile
+                  IS the button. */}
+              <span className="text-scale-xs font-semibold text-muted-foreground">
                 {done} of {topics.length} topics done
-              </p>
-            </Card>
+              </span>
+            </div>
           </a>
         );
       })}
+
+      <section className="flex flex-col gap-2">
+        <h2 className="text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">Being authored</h2>
+        {closed.map((course) => (
+          <div
+            key={course}
+            aria-disabled
+            className="flex flex-col gap-1 rounded-2xl border-2 border-dashed border-border px-4 py-3"
+          >
+            {/* The name is --muted-foreground, and that is a measured choice
+                rather than a fade. It is 8.5:1 on this ground in light and
+                6.9:1 in dark, both well over the AA floor, so the row is
+                legible at full strength while reading as inactive. What is NOT
+                done is an opacity over the card: an opacity multiplies the
+                contrast of everything under it, and a row that is quietly
+                below the floor is worse than a row that is loud. */}
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="title-face text-scale-base font-semibold text-muted-foreground">{COURSE_LABEL[course]}</h3>
+              <span className="shrink-0 text-scale-xs font-semibold text-muted-foreground">Soon</span>
+            </div>
+            <p className="text-scale-xs text-muted-foreground">{COURSE_COMING[course]}</p>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+/**
+ * What `#/courses/gen_chem_1` renders. Not a 404 and not an empty topic list.
+ *
+ * The link is gone from the list above, but the route is not, and a hash a
+ * student typed or kept in a bookmark has to land somewhere true. It also
+ * catches the one case the list cannot: a placement that recommended a course
+ * before that course was authored.
+ */
+function CourseComingSoon({ course }: { readonly course: CourseId }) {
+  return (
+    <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-10 text-center md:py-16">
+      <span className="rounded-full border-2 border-border bg-muted px-3 py-1 text-scale-xs font-bold text-muted-foreground">
+        Being authored
+      </span>
+      <h1 className="title-face text-scale-2xl font-bold text-foreground">{COURSE_LABEL[course]}</h1>
+      <p className="text-scale-base text-muted-foreground">{COURSE_BLURB[course]}</p>
+      <p className="text-scale-sm font-medium text-muted-foreground">{COURSE_COMING[course]}</p>
+      <a
+        href={hrefForTab("courses", "orgo_2")}
+        className="press mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-scale-base font-semibold text-primary-foreground"
+      >
+        Open Organic Chemistry II
+      </a>
+      <a href={hrefForTab("courses")} className="press inline-flex min-h-11 items-center text-scale-sm font-semibold text-muted-foreground">
+        All courses
+      </a>
     </div>
   );
 }
@@ -158,6 +262,10 @@ export default function CoursesTab({ rest, reducedMotion }: { readonly rest: rea
   const topicParam = rest[1];
 
   if (courseParam === undefined || !isCourseId(courseParam)) return <CourseList />;
+  // A closed course resolves to its own honest screen at every depth, so
+  // #/courses/gen_chem_1 and #/courses/gen_chem_1/gas_laws both land somewhere
+  // true rather than on an empty list or a lesson with no problems in it.
+  if (!isCourseOpen(courseParam)) return <CourseComingSoon course={courseParam} />;
   if (topicParam === undefined) return <TopicList course={courseParam} />;
 
   let topic: TopicId;

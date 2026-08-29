@@ -199,6 +199,22 @@
      goal always looks met. The FILL still carries the meaning; the track has to
      carry the EXTENT. */
   --hud-track: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
+
+  /* THE SELECTED OBJECT. The tab bar's active chip, the theme segment's chosen
+     half, the tinted disc behind a tool glyph. One token, because a student who
+     learns that this tint means "you are here" should not have to learn it
+     twice.
+
+     A flat value and not an alpha over whatever is behind it: the chip sits on
+     the white bar and on the cream page, and an alpha composites to two
+     different colours in those two places, which is two different measured
+     contrasts for one token. Sticker rule 2 wants flat fills anyway.
+
+     Measured, because the label inside it is 12px and 12px is body text under
+     WCAG AA. --primary-ink #7c3aed on #f1eafe is 4.88:1, over the 4.5 floor,
+     and the 2px border of the same #7c3aed on the bar's white is 5.70:1, over
+     the 3:1 floor a WCAG 1.4.11 interface component needs. */
+  --tab-active: #f1eafe;
 }
 
 .dark {
@@ -284,6 +300,12 @@
   --hud-out: #a8a29e;
   /* See the light half: 65 percent so the gauge's extent is visible. */
   --hud-track: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
+  /* The dark half of the selected object. Not the light value darkened: the
+     dark theme's --primary-ink is #a78bfa, a different ink, so the tint under
+     it is derived against that ink and not against the light one. #a78bfa on
+     #2e233e is 5.44:1, and the border of the same ink on the bar's #1c1917 is
+     6.44:1. */
+  --tab-active: #2e233e;
 }
 
 /* Map the tokens into Tailwind v4 utility names (bg-background, text-foreground,

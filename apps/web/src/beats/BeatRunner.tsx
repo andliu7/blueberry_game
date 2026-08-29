@@ -34,6 +34,7 @@ import { mcqBeatsForNode } from "./mcq";
 import { MATCH_BOARDS } from "./match";
 import { sortContentById } from "./sort";
 import { synthesisGapsForNode } from "./synthesis";
+import { ToolRail } from "../app/ui/ToolRail";
 
 /** The match boards authored for one pathway node. None gives an empty list. */
 function matchBoardsForNode(node: string) {
@@ -145,6 +146,16 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
 
   return (
     <div className="beat-runner">
+      {/* THE TOOLS, INSIDE A LESSON. This is the half of CLAUDE.md's
+          "interactive, always reachable" that a tab could never satisfy: a
+          student three steps into a directing-effects beat who wants an
+          electronegativity had to leave the beat to get it, and leaving was a
+          decision they then had to reverse. The rail opens a sheet over this
+          screen instead, so the lesson is still underneath it. See
+          app/ui/ToolRail.tsx for why these two stopped being tabs. */}
+      <header className="beat-runner-tools">
+        <ToolRail />
+      </header>
       <Suspense fallback={<p role="status">Loading the lesson.</p>}>
         {resolved.kind === "mcq" ? <McqRunner node={resolved.node} level={level} onExit={onExit} /> : null}
         {resolved.kind === "match" ? (

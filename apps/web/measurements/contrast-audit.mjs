@@ -48,9 +48,18 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
-import { LESSON_HASH, MOMENTS, installSeed, sleep } from "./economy-moments.mjs";
+import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, sleep } from "./economy-moments.mjs";
 
-const TABS = ["trainer", "pathway", "courses", "search", "leaderboards", "periodic", "chat", "messages"];
+/**
+ * The tab routes, imported rather than restated.
+ *
+ * This was a literal eight name array here and another copy of the same array
+ * in the sticker audit. The owner amendment of 2026-08-28 changed the list,
+ * which is exactly when a duplicated constant costs something: one of the two
+ * copies gets updated. economy-moments.mjs owns it now, beside the moments,
+ * because that is already the file both audits import their drives from.
+ */
+const TABS = TAB_ROUTES;
 
 /**
  * The economy moments, as routes.
@@ -105,6 +114,16 @@ const ECONOMY_ROUTES = [
   // Re-add this line in the same commit that builds the exam window:
   //   { name: "charge-exam", moment: "charge-exam", root: null, midMs: null },
   // The drive is already written and waiting for it.
+  //
+  // S1's shell surfaces. `root` is null on all three for the reason the charge
+  // block gives one line up: the tool sheet is a modal over a live pathway, and
+  // scoping to the panel would leave the ground it is composed against
+  // unmeasured. The bar and the greyed course list are chrome at rest, which is
+  // the easiest kind of surface to leave unaudited precisely because nothing
+  // has to be driven to see it.
+  { name: "shell-bar", moment: "shell-bar", root: null, midMs: null },
+  { name: "shell-tool", moment: "shell-tool", root: null, midMs: null },
+  { name: "shell-courses", moment: "shell-courses", root: null, midMs: null },
 ];
 
 const ROUTES = [

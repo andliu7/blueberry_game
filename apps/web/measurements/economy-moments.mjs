@@ -1266,6 +1266,153 @@ export async function driveChargeExam(page, { onTrigger = null } = {}) {
   return { moment: "charge-exam", reached, at, trigger, state };
 }
 
+/* ------------------------------------------------------------ S1, the shell */
+
+/**
+ * S1 is the four tab shell, and it is the first piece here whose subject is
+ * CHROME rather than a moment.
+ *
+ * That changes one thing about how it is captured and nothing else. The other
+ * pieces hang a burst off a press because what is judged is a transition; the
+ * bar and the greyed course list are at rest, so two of the three bursts run
+ * from the moment the screen settles, exactly as the P3 header does and for the
+ * same reason: what a critic judges is what is on screen when the tab opens.
+ * The third, the tool sheet, IS a transition and runs from the press.
+ *
+ * WHY IT SEEDS THE JOURNAL. The bar is drawn under a header full of numbers,
+ * and a header of zeroes is a shot of a fresh install rather than of the
+ * product. So S1 borrows P3's seed and stored blob unchanged, which is also
+ * what keeps the two pieces comparable: the header in an S1 frame and the
+ * header in a P3 frame are the same header on the same account.
+ *
+ * REACHED IS ASSERTED, NOT ASSUMED. Every drive below reads the page back and
+ * fails unless the thing the piece claims is actually there: four items in a
+ * bar that is at the bottom edge, every one of them clearing the 44px floor in
+ * the Budgets table, a sheet that opened over a page that is still mounted
+ * behind it, and one selectable course card against five that are not links.
+ */
+
+export const COURSES_HASH = "#/courses";
+
+/** Everything about the bar that this piece claims, read off the built page. */
+async function readBar(page) {
+  return page.evaluate(() => {
+    const bar = document.querySelector("nav.tabbar");
+    if (bar === null) return { present: false };
+    const box = bar.getBoundingClientRect();
+    const items = [...bar.querySelectorAll("a.tabbar-item")];
+    const style = getComputedStyle(bar);
+    return {
+      present: true,
+      items: items.length,
+      labels: items.map((item) => item.textContent?.trim() ?? ""),
+      /** The narrowest and shortest target in the bar, against the 44px floor. */
+      minWidth: Math.min(...items.map((item) => item.getBoundingClientRect().width)),
+      minHeight: Math.min(...items.map((item) => item.getBoundingClientRect().height)),
+      current: items.filter((item) => item.getAttribute("aria-current") === "page").length,
+      atBottom: Math.abs(box.bottom - window.innerHeight) <= 4,
+      /** Rules 2 and 3 of sticker-ui, read where they are composed. */
+      backgroundImage: style.backgroundImage,
+      boxShadow: style.boxShadow,
+      backdropFilter: style.backdropFilter ?? "none",
+      /** The two header tools, which are the whole reason four tabs is enough. */
+      tools: document.querySelectorAll("header [data-tool]").length,
+    };
+  });
+}
+
+function barHolds(state, { phone }) {
+  if (!state.present) return false;
+  if (state.items !== 4) return false;
+  if (state.current !== 1) return false;
+  if (state.tools !== 2) return false;
+  // 44 by 44 is the floor in CLAUDE.md's Budgets table, and a bar is the one
+  // place a miss is guaranteed to be hit by a thumb.
+  if (state.minWidth < 44 || state.minHeight < 44) return false;
+  if (state.backgroundImage !== "none") return false;
+  if (state.boxShadow !== "none") return false;
+  // No glass. sticker-ui forbids it, and the eight tab bar had it.
+  if (state.backdropFilter !== "none") return false;
+  // The bar is at the bottom edge on a phone and a rail on a wide screen.
+  return phone ? state.atBottom : !state.atBottom;
+}
+
+/** The bar at rest, under a populated header, on the Path tab. */
+export async function driveShellBar(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("nav.tabbar a.tabbar-item", { timeout: 10_000 });
+  await page.waitForSelector("[data-hud='charge']", { timeout: 10_000 });
+  await page.waitForSelector("[role='region']", { timeout: 10_000 }).catch(() => {});
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await readBar(page);
+  const phone = page.viewport().width < 768;
+  return { moment: "shell-bar", reached: barHolds(state, { phone }), at, trigger, state };
+}
+
+/**
+ * A header tool opened by a real press, over a page that stays mounted.
+ *
+ * "Still mounted" is the claim being tested and not a detail: the argument for
+ * taking the periodic table out of the bar is that a tab unmounts the lesson a
+ * student is inside, and a sheet does not. So the drive asserts the pathway is
+ * still in the document behind the open dialog.
+ */
+export async function driveShellTool(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("header [data-tool='periodic']", { timeout: 10_000 });
+  await page.waitForSelector("[role='region']", { timeout: 10_000 }).catch(() => {});
+  await sleep(500);
+  const point = await page.evaluate(() => {
+    const node = document.querySelector("header [data-tool='periodic']");
+    if (node === null) return null;
+    const rect = node.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  });
+  const at = await press(page, point, "the periodic table tool");
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  await page.waitForSelector("dialog[data-tool-sheet='periodic'][open]", { timeout: 5_000 }).catch(() => {});
+  const state = await page.evaluate(() => {
+    const dialog = document.querySelector("dialog[data-tool-sheet='periodic']");
+    const panel = "dialog[data-tool-sheet='periodic'] .tool-panel";
+    return {
+      open: dialog !== null && dialog.open === true,
+      /** The screen the sheet is over. If this is 0 the sheet is a route. */
+      behind: document.querySelectorAll("main [role='region']").length,
+      /** The sheet's own way out to the full page, and its close. */
+      panelControls: document.querySelectorAll(`${panel} a, ${panel} button`).length,
+      heading: document.querySelector(`${panel} h2`)?.textContent?.trim() ?? "",
+    };
+  });
+  const reached = state.open && state.behind > 0 && state.panelControls >= 2;
+  return { moment: "shell-tool", reached, at, trigger, state };
+}
+
+/** The course list: one open card, five greyed, no broken link among them. */
+export async function driveShellCourses(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("main h1", { timeout: 10_000 });
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await page.evaluate(() => {
+    // Selected by ROLE rather than by position in a grid: the open course is
+    // the only link into a course, and a closed one is the only thing marked
+    // unavailable. A count taken off "the children of the grid" would keep
+    // passing after the layout stopped being a grid, which is what happened.
+    const open = [...document.querySelectorAll('main a[href^="#/courses/"]')];
+    const greyed = [...document.querySelectorAll('main [aria-disabled="true"]')];
+    return {
+      cards: open.length + greyed.length,
+      open: open.length,
+      greyed: greyed.length,
+      /** A greyed card must not contain a link, or it is a dead end with a cursor. */
+      greyedLinks: greyed.filter((card) => card.querySelector("a") !== null).length,
+      names: [...open, ...greyed].map((card) => card.querySelector("h2, h3")?.textContent?.trim() ?? ""),
+    };
+  });
+  const reached = state.cards === 6 && state.open === 1 && state.greyed === 5 && state.greyedLinks === 0;
+  return { moment: "shell-courses", reached, at, trigger, state };
+}
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -1291,4 +1438,35 @@ export const MOMENTS = {
   "charge-spend": { get seed() { return p5ReadySeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeSpend(page, options) },
   "charge-empty": { get seed() { return p5EmptySeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeEmpty(page, options) },
   "charge-exam": { get seed() { return p5ExamSeed(); }, stored: P5_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveChargeExam(page, options) },
+  // S1, the shell. Chrome rather than a moment; the block above says what that
+  // changes about the capture and what it does not.
+  "shell-bar": { seed: P3_SEED, stored: P3_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveShellBar(page, options) },
+  "shell-tool": { seed: P3_SEED, stored: P3_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveShellTool(page, options) },
+  "shell-courses": { seed: P3_SEED, stored: P3_STORED, hash: COURSES_HASH, drive: (page, options) => driveShellCourses(page, options) },
 };
+
+/**
+ * The plain tab routes both audits walk, in one place.
+ *
+ * They each kept their own copy of an eight name array, which was fine while
+ * the list never moved and became a liability the moment it did: the owner
+ * amendment of 2026-08-28 added two tabs and changed what four of the others
+ * are for, and a list living in two files gets updated in one of them.
+ *
+ * Every id in app/routes.ts is here, INCLUDING the three that left the bar and
+ * the two that became header tools, because a route that resolves is a route a
+ * student can be looking at, and an unaudited surface is one that is failing a
+ * rule nobody has measured. "cards" and "me" are the two new ones.
+ */
+export const TAB_ROUTES = [
+  "trainer",
+  "pathway",
+  "cards",
+  "me",
+  "courses",
+  "search",
+  "leaderboards",
+  "periodic",
+  "chat",
+  "messages",
+];

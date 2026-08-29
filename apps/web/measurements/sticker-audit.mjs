@@ -75,7 +75,7 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
-import { LESSON_HASH, MOMENTS, installSeed, sleep } from "./economy-moments.mjs";
+import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, sleep } from "./economy-moments.mjs";
 
 /* ------------------------------------------------------------------ config */
 
@@ -171,7 +171,16 @@ const DISPLAY_FACES = [
 /** The one shadow exemption, and it is opt-in in the markup. Nothing carries it today. */
 const STACKING_ALLOW_SELECTOR = "[data-stacking]";
 
-const TABS = ["trainer", "pathway", "courses", "search", "leaderboards", "periodic", "chat", "messages"];
+/**
+ * The tab routes, imported rather than restated.
+ *
+ * This was a literal eight name array here and another copy of the same array
+ * in the other audit. The owner amendment of 2026-08-28 changed the list, which
+ * is exactly when a duplicated constant costs something: one of the two copies
+ * gets updated. economy-moments.mjs owns it now, beside the moments, because
+ * that is already the file both audits import their drives from.
+ */
+const TABS = TAB_ROUTES;
 
 /**
  * The economy moments as routes.
@@ -206,6 +215,13 @@ const ECONOMY_ROUTES = [
   "charge-cost",
   "charge-empty",
   "charge-exam",
+  // S1's shell surfaces. The bar and the greyed course list are chrome at rest,
+  // which is the easiest kind of surface to leave unmeasured because nothing
+  // has to be driven to see it; the tool sheet is the opposite, a surface that
+  // exists only while a dialog is open and would otherwise never be walked.
+  "shell-bar",
+  "shell-tool",
+  "shell-courses",
 ];
 
 const ROUTES = [

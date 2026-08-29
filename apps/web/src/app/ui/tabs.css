@@ -1,0 +1,158 @@
+/*
+ * The tab bar. Four items at the bottom edge on a phone, four items in a left
+ * rail above 768px, one component and two layouts.
+ *
+ * WHY FOUR. mobile-ui: "Five is the hard limit. Three or four is right", and
+ * "tabs are DESTINATIONS. Tools you reach for mid-task belong in the header or
+ * a sheet, not a tab." The eight this bar used to carry failed both halves. See
+ * routes.ts for the owner amendment that settled it and app/ui/ToolRail.tsx for
+ * where the periodic table and the reaction search went.
+ *
+ * THE SHAPE, AND WHERE IT COMES FROM. The reference bar's move is that the
+ * active tab is not a coloured icon, it is an OBJECT: a rounded rectangle in a
+ * tint of the app's one colour with a hard 2px border of that colour around it,
+ * with the icon sitting inside. The inactive tabs carry no box at all. That
+ * reads at arm's length in a way a coloured-icon-versus-grey-icon bar does not,
+ * because the eye finds a filled shape before it finds a hue.
+ *
+ * What we take is that construction. What we do not take is the colour: the
+ * chip here is Blueberry purple, per sticker-ui's loudest rule, that a
+ * reference brand's dominant colour is its equity and copying it produces a
+ * clone. And we add the label the reference cannot afford, because it draws six
+ * icons across a phone and we draw four.
+ *
+ * NO BACKDROP BLUR, and that is a change from the eight-tab bar. Sticker rule 2
+ * and 3: flat fills, no gradients, no glass. A translucent blurred bar is glass,
+ * and the language it belongs to is not this one. The bar is a flat sheet of the
+ * card colour with a 2px rule along its top edge, which is the same rule weight
+ * every other outlined thing in the app carries.
+ *
+ * NO SHADOW EITHER. Rule 3 allows a shadow only where stacking is the meaning,
+ * and a navigation bar is chrome. The top border is what separates it from the
+ * page.
+ *
+ * THE TARGET. --hit-min is 44px, the floor in CLAUDE.md's Budgets table. The
+ * item is 56px tall before the label, so the target clears the floor by a
+ * margin at every viewport, and `padding-bottom: env(safe-area-inset-bottom)`
+ * keeps it clear of the home indicator rather than under it.
+ */
+
+.tabbar {
+  /* The knockout colour inside the card-stack icon. See TabIcon.tsx. */
+  --tab-paper: var(--card);
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
+  border-top: 2px solid var(--border);
+  background: var(--card);
+}
+
+.tabbar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: var(--hit-min, 2.75rem);
+  padding: 0.375rem 0.25rem 0.3125rem;
+  /* Two pixels of transparent border on the inactive item, so nothing shifts
+     by 2px when it becomes the active one. A bar that jumps on every tap is a
+     bar a student notices. */
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  color: var(--muted-foreground);
+  font-size: var(--text-scale-xs);
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.tabbar-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* The active object. Tint, hard border, same hue. */
+.tabbar-item[aria-current="page"] {
+  border-color: var(--primary-ink);
+  background: var(--tab-active);
+  color: var(--primary-ink);
+}
+
+/* The rail, above 768px. Same object, laid on its side, with the long label. */
+@media (min-width: 48rem) {
+  .tabbar {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 15rem;
+    padding: 0.75rem;
+    border-top: 0;
+    border-right: 2px solid var(--border);
+  }
+
+  .tabbar-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: var(--text-scale-sm);
+  }
+
+  .tabbar-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/*
+ * THE BAR GETS OUT OF THE WAY. mobile-ui: "The bar is contextual: entering an
+ * editor may replace or hide it entirely." A running review session is an
+ * editor by that definition, a full screen task with one job and its own way
+ * out, and the tab bar under it is only an invitation to abandon it.
+ *
+ * `display: none` and not an opacity, because a bar a thumb can still hit while
+ * it is invisible is worse than either state. The rail on the wide layout keeps
+ * standing: there is no thumb reach argument at 1280px and the sidebar is where
+ * a desktop student expects to find their way out.
+ */
+.tabbar--away {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .tabbar--away {
+    display: flex;
+  }
+}
+
+/*
+ * The wordmark above the rail. Phone-side it lives in the header instead,
+ * because the bottom bar is thumb space and a logo is not something a thumb
+ * needs.
+ */
+.tabbar-brand {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .tabbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--hit-min, 2.75rem);
+    margin-bottom: 0.5rem;
+    padding-inline: 0.875rem;
+    color: var(--foreground);
+    text-decoration: none;
+  }
+}

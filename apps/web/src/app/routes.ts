@@ -8,17 +8,50 @@
  *
  * Routes are data here and nowhere else. A tab component never reads
  * window.location; it receives what it needs as props from the shell.
+ *
+ * FOUR TABS, NOT EIGHT. Owner amendment of 2026-08-28, recorded in CLAUDE.md
+ * and in docs/OPEN-QUESTIONS.md §4:
+ *
+ *   "Four tabs: Path, Train, Cards, Me. The periodic table and the reaction
+ *   search are not destinations, they are tools a student reaches for mid
+ *   problem, so they live in the header and are reachable from every tab and
+ *   from inside a lesson. Courses collapses while there is one course.
+ *   Leaderboards, chat and tutor messages go behind a flag until their servers
+ *   exist. Nothing is deleted and no link 404s."
+ *
+ * So a tab id has a PLACEMENT, and the placement is what the shell reads:
+ *
+ *   nav        the four in the bar. mobile-ui: five is the hard limit, three
+ *              or four is right, and tabs are DESTINATIONS
+ *   tool       reachable from the header on every screen, and still a route of
+ *              its own so a deep link and a browser back button both work
+ *   collapsed  reachable, not in the bar, because one course does not need a
+ *              browsing surface. #/courses still resolves and still lists all
+ *              six, five of them greyed with an honest coming treatment
+ *   flagged    built, off by default, still routable. See app/flags.ts
+ *
+ * Every id in TabId still parses, which is the half of this that is not a
+ * design decision: a link a student already has in their history must land on
+ * a page, and a tab we stopped showing is not a reason to serve a 404.
  */
 
 export type TabId =
-  | "trainer"
+  // the four
   | "pathway"
-  | "courses"
-  | "search"
-  | "leaderboards"
+  | "trainer"
+  | "cards"
+  | "me"
+  // header tools
   | "periodic"
+  | "search"
+  // collapsed
+  | "courses"
+  // behind a flag
+  | "leaderboards"
   | "chat"
   | "messages";
+
+export type TabPlacement = "nav" | "tool" | "collapsed" | "flagged";
 
 export interface TabDefinition {
   readonly id: TabId;
@@ -27,19 +60,62 @@ export interface TabDefinition {
   readonly short: string;
   /** Which phase ships the data behind it. Rendered honestly on stub tabs. */
   readonly dataPhase: 5 | 6 | 7 | 8;
+  readonly placement: TabPlacement;
+  /**
+   * For a tab that is not in the bar, which bar item it lives under.
+   *
+   * This exists so the bar is never blank. A student on #/courses or #/chat is
+   * somewhere real, and a bar with nothing lit reads as a broken state rather
+   * than as a considered one. The mapping is where the surface is REACHED from,
+   * not where it is filed: Courses hangs off the pathway because the pathway is
+   * the course, and everything else off Me because Me is the screen that lists
+   * it.
+   *
+   * A nav tab is its own parent, which is the degenerate case and saves the
+   * shell a null check.
+   */
+  readonly parent: TabId;
 }
 
-/** Order here is the order in the tab bar. CLAUDE.md lists them in this order. */
-export const TABS: readonly TabDefinition[] = Object.freeze([
-  { id: "trainer", label: "Mechanism Trainer", short: "Trainer", dataPhase: 5 },
-  { id: "pathway", label: "Pathway", short: "Pathway", dataPhase: 6 },
-  { id: "courses", label: "Courses", short: "Courses", dataPhase: 5 },
-  { id: "search", label: "Reaction search", short: "Search", dataPhase: 5 },
-  { id: "leaderboards", label: "Leaderboards", short: "Boards", dataPhase: 6 },
-  { id: "periodic", label: "Periodic table", short: "Table", dataPhase: 5 },
-  { id: "chat", label: "AI chat", short: "Chat", dataPhase: 7 },
-  { id: "messages", label: "Tutor messages", short: "Tutors", dataPhase: 8 },
+/**
+ * Every tab id, with its placement. NAV_TABS below is the slice the bar draws
+ * and its order is the bar's order.
+ */
+export const ALL_TABS: readonly TabDefinition[] = Object.freeze([
+  { id: "pathway", label: "Path", short: "Path", dataPhase: 6, placement: "nav", parent: "pathway" },
+  { id: "trainer", label: "Train", short: "Train", dataPhase: 5, placement: "nav", parent: "trainer" },
+  { id: "cards", label: "Cards", short: "Cards", dataPhase: 5, placement: "nav", parent: "cards" },
+  { id: "me", label: "Me", short: "Me", dataPhase: 5, placement: "nav", parent: "me" },
+  { id: "periodic", label: "Periodic table", short: "Table", dataPhase: 5, placement: "tool", parent: "me" },
+  { id: "search", label: "Reaction search", short: "Search", dataPhase: 5, placement: "tool", parent: "me" },
+  { id: "courses", label: "Courses", short: "Courses", dataPhase: 5, placement: "collapsed", parent: "pathway" },
+  { id: "leaderboards", label: "Leaderboards", short: "Boards", dataPhase: 6, placement: "flagged", parent: "me" },
+  { id: "chat", label: "Ask Blueberry", short: "Chat", dataPhase: 7, placement: "flagged", parent: "me" },
+  { id: "messages", label: "Tutor messages", short: "Tutors", dataPhase: 8, placement: "flagged", parent: "me" },
 ]);
+
+/** The bar. Four items, in this order. */
+export const NAV_TABS: readonly TabDefinition[] = Object.freeze(
+  ALL_TABS.filter((tab) => tab.placement === "nav"),
+);
+
+/**
+ * The header tools, in the order they sit in the header.
+ *
+ * A tool is a thing a student reaches for WITHOUT leaving what they are doing,
+ * which is why these are also rendered as a sheet over the current screen. The
+ * route is the deep link and the accessible fallback, not the normal way in.
+ */
+export const TOOL_TABS: readonly TabDefinition[] = Object.freeze(
+  ALL_TABS.filter((tab) => tab.placement === "tool"),
+);
+
+/** Tabs held behind app/flags.ts. Routable always, linked only when the flag is on. */
+export const FLAGGED_TABS: readonly TabDefinition[] = Object.freeze(
+  ALL_TABS.filter((tab) => tab.placement === "flagged"),
+);
+
+export type ToolId = "periodic" | "search";
 
 export type Route =
   | { readonly kind: "tab"; readonly tab: TabId; readonly rest: readonly string[] }
@@ -52,24 +128,13 @@ export type Route =
    */
   | { readonly kind: "lesson"; readonly node: string }
   /**
-   * The review hub and its session, at "#/review".
-   *
-   * Its own route rather than a tab: CLAUDE.md fixes the tab list and its
-   * order, and a tool reached mid task belongs behind a route rather than in
-   * the bar. It is what the Charge sheet's empty state offers as the free way
-   * out, and docs/ECONOMY.md prices a review drill at 0 charge, so that offer
-   * needed a real destination.
-   */
-  | { readonly kind: "review" }
-  /**
-   * Development surfaces. Deliberately NOT in TABS, so nothing renders a link
-   * to them and the tab bar's grid keeps its eight columns. Reached by typing
-   * the hash, which is the right amount of friction for a page whose audience
-   * is a critic and an author rather than a student.
+   * Development surfaces. Deliberately NOT in ALL_TABS, so nothing renders a
+   * link to them. Reached by typing the hash, which is the right amount of
+   * friction for a page whose audience is a critic and an author.
    */
   | { readonly kind: "gallery"; readonly name: string };
 
-const TAB_IDS = new Set<string>(TABS.map((tab) => tab.id));
+const TAB_IDS = new Set<string>(ALL_TABS.map((tab) => tab.id));
 
 /** "#/courses/orgo_2/aromaticity" gives tab courses, rest [orgo_2, aromaticity]. */
 export function parseHash(hash: string): Route {
@@ -85,12 +150,15 @@ export function parseHash(hash: string): Route {
   // A lesson with no node is not a lesson, so it falls through to the trainer
   // rather than rendering an empty runner.
   if (head === "lesson" && parts[1] !== undefined) return { kind: "lesson", node: parts[1] };
-  if (head === "review") return { kind: "review" };
+  // "#/review" is the hash the Charge sheet has been handing out since Phase 5
+  // and it is in students' history. The deck became the Cards tab; the old link
+  // lands on it rather than on a 404.
+  if (head === "review") return { kind: "tab", tab: "cards", rest: [] };
   if (head === "gallery") return { kind: "gallery", name: parts[1] ?? "berry" };
   if (head !== undefined && TAB_IDS.has(head)) {
     return { kind: "tab", tab: head as TabId, rest: parts.slice(1) };
   }
-  return { kind: "tab", tab: "trainer", rest: [] };
+  return { kind: "tab", tab: "pathway", rest: [] };
 }
 
 export function hrefForTab(tab: TabId, ...rest: readonly string[]): string {
@@ -101,9 +169,9 @@ export function hrefForLesson(node: string): string {
   return `#/lesson/${encodeURIComponent(node)}`;
 }
 
-/** The review hub. The Charge sheet's free way out points here. */
+/** The review deck. The Charge sheet's free way out points here. */
 export function hrefForReview(): string {
-  return "#/review";
+  return hrefForTab("cards");
 }
 
 export function hrefForOnboarding(step: string): string {
@@ -116,7 +184,7 @@ export function hrefForGallery(name: string): string {
 }
 
 export function tabDefinition(id: TabId): TabDefinition {
-  const found = TABS.find((tab) => tab.id === id);
+  const found = ALL_TABS.find((tab) => tab.id === id);
   if (found === undefined) throw new Error(`no tab ${id}`);
   return found;
 }
