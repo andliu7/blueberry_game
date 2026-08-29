@@ -42,7 +42,7 @@ import {
   type CourseId,
   type TopicId,
 } from "@blueberry/curriculum";
-import { Card, Pill } from "../../app/ui/Card";
+import { Card } from "../../app/ui/Card";
 import { Press } from "../../app/ui/Press";
 import { hrefForTab } from "../../app/routes";
 import { navigate } from "../../app/useHashRoute";
@@ -58,6 +58,9 @@ import "./pathway.css";
 export type NodeState = "done" | "current" | "open" | "review" | "locked";
 
 import { PATHWAY_UNITS, type PlayableLink as MapPlayableLink } from "../../demo/pathwayMap";
+import PathScene from "./PathScene";
+import { deriveMapPathway, statusOf, type MapPathwayStatus } from "./pathwayState";
+import { isCheckpointUnit } from "./terrain";
 
 export interface PathwayNode {
   readonly topic: TopicId;
@@ -159,22 +162,21 @@ const BANNER_COLOUR: Record<ActId | "course", string> = {
 };
 
 const LEGEND: readonly { readonly state: NodeState; readonly label: string }[] = [
+  { state: "current", label: "Up next" },
   { state: "done", label: "Done" },
-  { state: "current", label: "Current" },
-  { state: "open", label: "Open" },
   { state: "review", label: "Review" },
+  { state: "open", label: "Open" },
   { state: "locked", label: "Locked" },
 ];
 
 const STAR_PATH = "M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.7L12 17.5l-5.9 3.3 1.3-6.7L2.5 9.5l6.6-.8z";
 
-/** The glyph on the face. SVG so it scales and never depends on a font's emoji. */
 /**
- * A map unit's title is authored as "Unit 1 · Conjugation, Resonance & Dienes".
- * The banner sets the number as its eyebrow and the name as its headline, so
- * the thing a student is looking for is the largest text in the banner. A title
- * with no separator has no number to lift, and keeps the whole string as its
- * name rather than inventing one.
+ * A map unit's title is authored as "Unit 1 - Conjugation, Resonance & Dienes"
+ * with a middot separator. The banner sets the number as its eyebrow and the
+ * name as its headline, so the thing a student is looking for is the largest
+ * text in the banner. A title with no separator has no number to lift, and
+ * keeps the whole string as its name rather than inventing one.
  */
 const UNIT_TITLE_SEPARATOR = " · ";
 
@@ -188,18 +190,27 @@ export function unitName(title: string): string {
   return at === -1 ? title : title.slice(at + UNIT_TITLE_SEPARATOR.length);
 }
 
+/**
+ * The glyph on the face. SVG so it scales and never depends on a font's emoji.
+ *
+ * One glyph per state and no two states sharing one, because the desaturated
+ * states sit next to each other and colour alone is never the only carrier of
+ * state: a check for finished, a star for the live node, a number for
+ * reachable, a lock for not yet, and the star again in amber for a topic that
+ * wants another pass.
+ */
 function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index: number }) {
   switch (state) {
     case "done":
       return (
-        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
           <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "review":
     case "current":
       return (
-        <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
+        <svg viewBox="0 0 24 24" className={state === "current" ? "h-10 w-10" : "h-7 w-7"} aria-hidden>
           <path d={STAR_PATH} fill="currentColor" />
         </svg>
       );
@@ -213,6 +224,33 @@ function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index
     default:
       return <span className="text-scale-lg font-extrabold">{index + 1}</span>;
   }
+}
+
+/**
+ * The ring around the current node, carrying this unit's own progress.
+ *
+ * `done` of the unit's authored nodes. A ring with nothing on it yet is still
+ * drawn, because the ring is also what says "this one" at a glance, and an
+ * absent ring on a fresh account would take that away on exactly the screen
+ * that needs it most.
+ */
+function ProgressRing({ done, total }: { readonly done: number; readonly total: number }) {
+  const radius = 60;
+  const span = 2 * Math.PI * radius;
+  const fraction = total <= 0 ? 0 : Math.min(1, done / total);
+  const size = radius * 2 + 14;
+  return (
+    <svg className="path-ring" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+      <circle className="path-ring__track" cx={radius + 7} cy={radius + 7} r={radius} />
+      <circle
+        className="path-ring__arc"
+        cx={radius + 7}
+        cy={radius + 7}
+        r={radius}
+        strokeDasharray={`${(span * fraction).toFixed(1)} ${span.toFixed(1)}`}
+      />
+    </svg>
+  );
 }
 
 function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly course: CourseId }) {
@@ -239,12 +277,8 @@ function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly cou
 }
 
 /**
- * Horizontal wander of node i on the track, in steps of -2..2. The reference
- * path swings a full node width or more either side of centre, so the cycle
- * is centre, right, far right, right, centre, left, far left, left. The step
- * size lives in pathway.css (.path-row) so it can shrink with the viewport.
- */
-/**
+ * Horizontal wander of node i on the track, in steps of -2..2.
+ *
  * Period four, not eight. An eight step cycle is a mathematically nicer sine,
  * and it is the wrong shape here: five nodes is about what a viewport holds,
  * so a reader almost always sees one limb of the wave and nothing else, which
@@ -287,87 +321,142 @@ function enterHandlers(onEnter: EnterNode, node: ChargeGateNode) {
   };
 }
 
-function TrackNode({
-  node,
+/**
+ * One slab on the track, in whatever state it is in.
+ *
+ * Shared by the generic course track and the Orgo map, so the five states can
+ * never be rendered two ways. `ring` is the unit's own progress and is drawn
+ * only on the current node, which is the whole point of it.
+ */
+function TrackSlab({
+  state,
   index,
-  course,
+  label,
+  detail,
+  href,
+  wind,
+  ring,
   onEnter,
+  gateNode,
 }: {
-  readonly node: PathwayNode;
+  readonly state: NodeState;
   readonly index: number;
-  readonly course: CourseId;
+  readonly label: string;
+  readonly detail: string;
+  readonly href: string | null;
+  readonly wind: number;
+  readonly ring: { readonly done: number; readonly total: number } | null;
   readonly onEnter: EnterNode;
+  readonly gateNode: ChargeGateNode | null;
 }) {
-  const clickable = node.state !== "locked" && node.problemCount > 0;
-  const slabClass = `path-node path-node--${node.state} ${clickable ? "path-node--press" : ""}`;
-  const detail =
-    node.state === "locked"
-      ? "Locked until the topics before it are done"
-      : node.problemCount === 0
-        ? "Not yet authored"
-        : `${node.problemCount} problem${node.problemCount === 1 ? "" : "s"}`;
-
-  // The slab: a floor disc, then the face that drops onto it. The glyph rides
-  // on the face so it moves with the press.
-  const slab = (
-    <>
-      <span className="path-node__edge" aria-hidden />
-      <span className="path-node__face">
-        <NodeGlyph state={node.state} index={index} />
-      </span>
-    </>
+  const clickable = href !== null && gateNode !== null;
+  const slabClass = `path-node path-node--${state} ${clickable ? "path-node--press" : ""}`;
+  // The label sits on the side the node swung away from, so a far right node
+  // keeps its name inside the column instead of off the edge of a phone. The
+  // text itself stays left aligned either way.
+  const labelLeft = wind > 0;
+  const face = (
+    <span className="path-node__face">
+      <NodeGlyph state={state} index={index} />
+    </span>
   );
 
-  const wind = trackWind(index);
-  // The label sits on the side the node swung away from, so a far right node
-  // keeps its name inside the column instead of off the edge of a phone.
-  const labelLeft = wind > 0;
-
   return (
-    <li className={`path-row relative w-full ${node.state === "current" ? "path-row--current" : ""}`} style={{ "--wind": wind } as CSSProperties}>
+    <li
+      className={`path-row relative w-full ${state === "current" ? "path-row--current" : ""}`}
+      style={{ "--wind": wind } as CSSProperties}
+      data-node-state={state}
+    >
       <div className="path-row__slab relative">
-        {node.state === "current" ? <span className="path-halo" aria-hidden /> : null}
-        {node.state === "current" ? (
+        {state === "current" && ring !== null ? <ProgressRing done={ring.done} total={ring.total} /> : null}
+        {state === "current" ? (
           <span className="path-start" aria-hidden>
             START
           </span>
         ) : null}
         {clickable ? (
           <a
-            href={hrefForTab("courses", course, node.topic)}
-            aria-current={node.state === "current" ? "step" : undefined}
-            aria-label={`${node.label}. ${detail}`}
+            href={href}
+            aria-current={state === "current" ? "step" : undefined}
+            aria-label={`${label}. ${detail}`}
             aria-haspopup="dialog"
             className={slabClass}
-            {...enterHandlers(onEnter, {
-              // A lesson node is journalled as a concept clear by
-              // completeLesson, so it is priced as one here: the id and the
-              // kind the sheet spends against are the id and the kind the clear
-              // will carry, or the spend and the clear would name two nodes.
-              id: lessonNodeId(node.topic),
-              kind: "concept",
-              title: node.label,
-              href: hrefForTab("courses", course, node.topic),
-            })}
+            {...enterHandlers(onEnter, gateNode)}
           >
-            {slab}
+            {face}
           </a>
         ) : (
-          <span className={slabClass} role="img" aria-label={`${node.label}. ${detail}`}>
-            {slab}
+          <span className={slabClass} role="img" aria-label={`${label}. ${detail}`}>
+            {face}
           </span>
         )}
       </div>
-      <div className={`path-row__label flex min-w-0 flex-col ${labelLeft ? "path-row__label--left items-end text-right" : ""}`} aria-hidden>
-        <span className={`text-scale-sm font-semibold leading-tight ${node.state === "locked" ? "text-muted-foreground" : "text-foreground"}`}>
-          {node.label}
+      <div className={`path-row__label flex min-w-0 flex-col ${labelLeft ? "path-row__label--left" : ""}`} aria-hidden>
+        <span
+          className={`path-row__title text-scale-sm font-semibold leading-tight ${state === "locked" || state === "open" ? "text-muted-foreground" : "text-foreground"}`}
+        >
+          {label}
         </span>
-        <span className="text-scale-xs text-muted-foreground">
-          {node.homeCourse !== course ? `Detour into ${COURSE_LABEL[node.homeCourse]} · ` : ""}
-          {node.state === "locked" ? "locked" : detail.toLowerCase()}
-        </span>
+        {/*
+          NO blurb, on any node including the current one. The judge's words
+          about the old track were that a returning student "has to read four
+          multi-line descriptions to work out where they stopped", and the bar's
+          own path carries no text beside a node at all. One title is the
+          compromise: enough to know which reaction it is, little enough that the
+          saturated node still wins the glance. `detail` is still the accessible
+          name, and the entry sheet says it in full.
+        */}
       </div>
     </li>
+  );
+}
+
+function TrackNode({
+  node,
+  index,
+  course,
+  onEnter,
+  ring,
+}: {
+  readonly node: PathwayNode;
+  readonly index: number;
+  readonly course: CourseId;
+  readonly onEnter: EnterNode;
+  readonly ring: { readonly done: number; readonly total: number } | null;
+}) {
+  const clickable = node.state !== "locked" && node.problemCount > 0;
+  const detail =
+    node.state === "locked"
+      ? "Locked until the topics before it are done"
+      : node.problemCount === 0
+        ? "Not yet authored"
+        : `${node.problemCount} problem${node.problemCount === 1 ? "" : "s"}`;
+  const href = hrefForTab("courses", course, node.topic);
+  return (
+    <TrackSlab
+      state={node.state}
+      index={index}
+      label={node.label}
+      detail={detail}
+      href={clickable ? href : null}
+      wind={trackWind(index)}
+      ring={ring}
+      onEnter={onEnter}
+      gateNode={
+        clickable
+          ? {
+              // A lesson node is journalled as a concept clear by completeLesson,
+              // so it is priced as one here: the id and the kind the sheet spends
+              // against are the id and the kind the clear will carry, or the
+              // spend and the clear would name two nodes.
+              id: lessonNodeId(node.topic),
+              kind: "concept",
+              title: node.label,
+              href,
+            }
+          : null
+      }
+    />
   );
 }
 
@@ -432,77 +521,131 @@ function hrefForPlayable(link: MapPlayableLink): string {
 }
 
 /**
- * The Duolingo-shaped track, restructured onto the Orgo Pathway Map. Owner
+ * The Duolingo shaped track, restructured onto the Orgo Pathway Map. Owner
  * direction 2026-08-26: the map's own inventory IS the game's track. Spine
  * nodes ride the winding slab track and open the trainer when playable;
  * branch nodes hang off each unit as side quests; gates render as the
- * checkpoint strip their PDF row describes; the boss closes the run. The
- * slab visual system is the one that won its blind gauntlet; only the data
- * source changed.
+ * checkpoint strip their PDF row describes; the boss closes the run.
+ *
+ * WHAT CHANGED IN THIS ROUND. The track drew its state from one boolean, "is
+ * there a playable link", so every authored node came out identical and the
+ * screen answered none of the three questions a returning student arrives
+ * with: where did I stop, what do I tap, what is not open yet. It reads the
+ * journal now, through deriveMapPathway, which applies derivePathway's own rule
+ * to the map's ids. See pathwayState.ts for the correspondence, line by line.
  */
-function OrgoMapTrack({ onEnter }: { readonly onEnter: EnterNode }) {
+function OrgoMapTrack({
+  onEnter,
+  status,
+  reducedMotion,
+}: {
+  readonly onEnter: EnterNode;
+  readonly status: MapPathwayStatus;
+  readonly reducedMotion: boolean;
+}) {
   let running = 0;
   return (
-    <div className="flex flex-col gap-2" role="region" aria-label="Orgo II pathway map">
-      {PATHWAY_UNITS.map((unit) => {
-        const spineNodes = unit.nodes.filter((node) => node.kind === "spine" || node.kind === "boss");
-        const gates = unit.nodes.filter((node) => node.kind === "gate");
-        const branches = unit.nodes.filter((node) => node.kind === "branch");
-        const first = running;
-        running += spineNodes.length;
-        return (
-          <section key={unit.id} className="flex flex-col gap-3" aria-label={unit.title}>
-            <header className="path-banner flex items-stretch overflow-hidden" style={{ "--banner": "var(--primary)" } as CSSProperties}>
-              <div className="flex-1 px-4 py-3">
-                {/*
-                  The eyebrow is the unit's own number, split off the title,
-                  NOT `unit.note`. A blind critic reading the pathway called the
-                  old eyebrow out as engineering metadata leaking at the
-                  student: `note` is the dependency ledger the authoring waves
-                  burn down ("Gates Unit 9's control logic and all of Unit 12"),
-                  it was set in caps above the title, and it was the first thing
-                  the eye landed on. It stays in the data, where it is useful,
-                  and off the screen, where it is not.
-                */}
-                <p className="text-scale-xs font-bold uppercase tracking-wide text-white/80">{unitNumber(unit.title)}</p>
-                <h3 className="text-scale-base font-semibold text-white">{unitName(unit.title)}</h3>
-              </div>
-            </header>
+    <div className="path-stage">
+      <PathScene units={PATHWAY_UNITS} reducedMotion={reducedMotion} />
+      <div className="path-stage__content flex flex-col gap-2" data-path-content role="region" aria-label="Orgo II pathway map">
+        {PATHWAY_UNITS.map((unit) => {
+          const spineNodes = unit.nodes.filter((node) => node.kind === "spine" || node.kind === "boss");
+          const gates = unit.nodes.filter((node) => node.kind === "gate");
+          const branches = unit.nodes.filter((node) => node.kind === "branch");
+          const first = running;
+          running += spineNodes.length;
+          const unitStatus = status.units.get(unit.id);
+          const ring = unitStatus === undefined ? null : { done: unitStatus.done, total: unitStatus.playable };
+          const checkpoint = isCheckpointUnit(unit);
+          return (
+            <section
+              key={unit.id}
+              className="flex flex-col gap-3"
+              aria-label={unit.title}
+              data-unit-id={unit.id}
+              data-checkpoint={checkpoint ? "true" : "false"}
+            >
+              <header className="path-banner flex items-stretch overflow-hidden" style={{ "--banner": "var(--primary)" } as CSSProperties}>
+                <div className="flex-1 px-4 py-3">
+                  {/*
+                    The eyebrow is the unit's own number, split off the title,
+                    NOT `unit.note`. A blind critic reading the pathway called
+                    the old eyebrow out as engineering metadata leaking at the
+                    student: `note` is the dependency ledger the authoring waves
+                    burn down ("Gates Unit 9's control logic and all of Unit
+                    12"), it was set in caps above the title, and it was the
+                    first thing the eye landed on. It stays in the data, where it
+                    is useful, and off the screen, where it is not.
+                  */}
+                  <p className="text-scale-xs font-bold uppercase tracking-wide text-white/85">{unitNumber(unit.title)}</p>
+                  <h3 className="text-scale-base font-semibold text-white">{unitName(unit.title)}</h3>
+                </div>
+              </header>
 
-            {gates.length > 0 ? (
-              <div className="mx-auto flex w-full max-w-md flex-wrap gap-1.5" aria-label="Checkpoint">
-                {gates.map((node) => (
-                  <span key={node.id} className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-scale-xs font-semibold text-primary-ink" title={node.blurb}>
-                    ★ {node.title}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+              {gates.length > 0 ? (
+                <div className="path-gate mx-auto flex w-full max-w-md flex-col gap-1.5 px-3 pb-3 pt-10" aria-label="Checkpoint">
+                  <p className="text-scale-xs font-bold uppercase tracking-wide text-foreground">
+                    Checkpoint, the barrier between units
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {gates.map((node) => (
+                      <span key={node.id} className="path-quests__chip px-3 py-1 text-scale-xs font-semibold" title={node.blurb}>
+                        {node.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
-            <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
-              {spineNodes.map((node, i) => {
-                const index = first + i;
-                const playable = node.playable !== undefined;
-                const wind = trackWind(index);
-                const labelLeft = wind > 0;
-                const state = node.kind === "boss" ? (playable ? "current" : "locked") : playable ? "open" : "locked";
-                const slab = (
-                  <>
-                    <span className="path-node__edge" aria-hidden />
-                    <span className="path-node__face">
-                      <NodeGlyph state={playable ? "open" : "locked"} index={index} />
-                    </span>
-                  </>
-                );
-                return (
-                  <li key={node.id} className="path-row relative w-full" style={{ "--wind": wind } as CSSProperties}>
-                    <div className="path-row__slab relative">
-                      {playable && node.playable !== undefined ? (
+              <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
+                {spineNodes.map((node, i) => {
+                  const index = first + i;
+                  const nodeStatus = statusOf(status, node.id);
+                  const playable = node.playable;
+                  const clickable = playable !== undefined && nodeStatus.state !== "locked";
+                  const detail = nodeStatus.queued
+                    ? "Authoring queued"
+                    : nodeStatus.state === "locked"
+                      ? "Opens when the unit before it is done"
+                      : node.blurb;
+                  return (
+                    <TrackSlab
+                      key={node.id}
+                      state={nodeStatus.state}
+                      index={index}
+                      label={node.title}
+                      detail={detail}
+                      href={clickable && playable !== undefined ? hrefForPlayable(playable) : null}
+                      wind={trackWind(index)}
+                      ring={ring}
+                      onEnter={onEnter}
+                      gateNode={
+                        clickable && playable !== undefined
+                          ? {
+                              id: node.id,
+                              kind: economyKindFor(node.kind, playable),
+                              title: node.title,
+                              href: hrefForPlayable(playable),
+                            }
+                          : null
+                      }
+                    />
+                  );
+                })}
+              </ol>
+
+              {branches.length > 0 ? (
+                <div className="path-quests mx-auto mb-2 w-full max-w-md px-3 py-3" role="group" aria-label="Side quests">
+                  <p className="mb-2 text-scale-xs font-bold uppercase tracking-wide text-foreground">Side quests</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {branches.map((node) =>
+                      node.playable !== undefined ? (
                         <a
+                          key={node.id}
                           href={hrefForPlayable(node.playable)}
-                          aria-label={`${node.title}. Playable now.`}
                           aria-haspopup="dialog"
-                          className={`path-node path-node--${state} path-node--press`}
+                          className="press path-quests__chip px-3 py-1.5 text-scale-xs font-semibold"
+                          title={node.blurb}
                           {...enterHandlers(onEnter, {
                             id: node.id,
                             kind: economyKindFor(node.kind, node.playable),
@@ -510,58 +653,25 @@ function OrgoMapTrack({ onEnter }: { readonly onEnter: EnterNode }) {
                             href: hrefForPlayable(node.playable),
                           })}
                         >
-                          {slab}
+                          {node.title}
                         </a>
                       ) : (
-                        <span className={`path-node path-node--${state}`} role="img" aria-label={`${node.title}. Authoring queued.`}>
-                          {slab}
+                        <span
+                          key={node.id}
+                          className="path-quests__chip path-quests__chip--queued px-3 py-1.5 text-scale-xs font-semibold"
+                          title={`${node.blurb} (authoring queued)`}
+                        >
+                          {node.title}
                         </span>
-                      )}
-                    </div>
-                    <div className={`path-row__label flex min-w-0 flex-col ${labelLeft ? "path-row__label--left items-end text-right" : ""}`} aria-hidden>
-                      <span className={`text-scale-sm font-semibold leading-tight ${playable ? "text-foreground" : "text-muted-foreground"}`}>{node.title}</span>
-                      <span className="text-scale-xs text-muted-foreground">{playable ? node.blurb : "authoring queued"}</span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-
-            {branches.length > 0 ? (
-              <div className="cloud-veil mx-auto w-full max-w-md" role="group" aria-label="Side quests, tap to part the clouds">
-                <span className="cloud-puff cloud-puff--a" aria-hidden />
-                <span className="cloud-puff cloud-puff--b" aria-hidden />
-                <p className="mb-1 text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">Side quests</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {branches.map((node) =>
-                    node.playable !== undefined ? (
-                      <a
-                        key={node.id}
-                        href={hrefForPlayable(node.playable)}
-                        aria-haspopup="dialog"
-                        className="press rounded-full border border-not-requested/40 bg-not-requested-soft px-3 py-1.5 text-scale-xs font-semibold text-not-requested"
-                        title={node.blurb}
-                        {...enterHandlers(onEnter, {
-                          id: node.id,
-                          kind: economyKindFor(node.kind, node.playable),
-                          title: node.title,
-                          href: hrefForPlayable(node.playable),
-                        })}
-                      >
-                        {node.title}
-                      </a>
-                    ) : (
-                      <span key={node.id} className="rounded-full border border-border bg-card px-3 py-1.5 text-scale-xs text-muted-foreground opacity-60" title={`${node.blurb} (authoring queued)`}>
-                        {node.title}
-                      </span>
-                    ),
-                  )}
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
-            ) : null}
-          </section>
-        );
-      })}
+              ) : null}
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -580,10 +690,13 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
   const [gate, setGate] = useState<ChargeGateNode | null>(null);
   const nodes = useMemo(() => (course === null ? [] : derivePathway(course, snapshot)), [course, snapshot]);
   const units = useMemo(() => (course === null ? [] : groupIntoUnits(course, nodes)), [course, nodes]);
+  const mapStatus = useMemo(() => deriveMapPathway(PATHWAY_UNITS, snapshot.journal), [snapshot.journal]);
 
   if (course === null) return <CoursePicker />;
 
-  const doneCount = nodes.filter((node) => node.state === "done").length;
+  const onMap = course === "orgo_2";
+  const doneCount = onMap ? mapStatus.doneCount : nodes.filter((node) => node.state === "done").length;
+  const totalCount = onMap ? mapStatus.playableCount : nodes.length;
   // Node numbering runs over the whole track, so the wind offset and the
   // number on an open face both count from the first node, not per unit.
   let running = 0;
@@ -594,52 +707,45 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
         <div>
           <h2 className="title-face text-scale-xl font-semibold">{COURSE_LABEL[course]}</h2>
           <p className="text-scale-sm text-muted-foreground">
-            {doneCount} of {nodes.length} topics done
+            {doneCount} of {totalCount} lessons done
           </p>
         </div>
-        <Berry mood={doneCount === nodes.length && nodes.length > 0 ? "proud" : "curious"} reducedMotion={reducedMotion} sizePx={56} />
+        <Berry mood={totalCount > 0 && doneCount === totalCount ? "proud" : "curious"} reducedMotion={reducedMotion} sizePx={56} />
       </header>
 
-      {course === "orgo_2" ? (
-        <OrgoMapTrack onEnter={setGate} />
+      {onMap ? (
+        <OrgoMapTrack onEnter={setGate} status={mapStatus} reducedMotion={reducedMotion} />
       ) : (
-      <div className="flex flex-col gap-2" role="region" aria-label="Pathway">
-        {units.map((unit) => {
-          const first = running;
-          running += unit.nodes.length;
-          return (
-            <section key={unit.key} className="flex flex-col gap-3" aria-label={unit.title}>
-              <UnitBanner unit={unit} course={course} />
-              <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
-                {unit.nodes.map((node, i) => (
-                  <TrackNode key={node.topic} node={node} index={first + i} course={course} onEnter={setGate} />
-                ))}
-              </ol>
-            </section>
-          );
-        })}
-      </div>
-      )}
-
-      <Card className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-scale-base font-semibold">Mechanism cycle</h3>
-          <Pill tone="primary">Unlockable</Pill>
+        <div className="flex flex-col gap-2" role="region" aria-label="Pathway">
+          {units.map((unit) => {
+            const first = running;
+            running += unit.nodes.length;
+            const done = unit.nodes.filter((node) => node.state === "done").length;
+            return (
+              <section key={unit.key} className="flex flex-col gap-3" aria-label={unit.title}>
+                <UnitBanner unit={unit} course={course} />
+                <ol className="path-track mx-auto flex w-full max-w-md flex-col py-2">
+                  {unit.nodes.map((node, i) => (
+                    <TrackNode
+                      key={node.topic}
+                      node={node}
+                      index={first + i}
+                      course={course}
+                      onEnter={setGate}
+                      ring={{ done, total: unit.nodes.length }}
+                    />
+                  ))}
+                </ol>
+              </section>
+            );
+          })}
         </div>
-        <p className="text-scale-sm text-muted-foreground">
-          The trainer opens with S<sub>N</sub>2 at bromomethane. Cycles unlock along this track as
-          lessons complete; the server keeps that state from Phase 6.
-        </p>
-        <a href={hrefForTab("trainer")} className="press inline-flex min-h-11 items-center justify-center rounded-[9px] bg-primary px-5 font-semibold text-primary-foreground">
-          Open the trainer
-        </a>
-      </Card>
+      )}
 
       <ul className="flex flex-wrap gap-3 text-scale-xs text-muted-foreground" aria-label="Legend">
         {LEGEND.map((entry) => (
           <li key={entry.state} className="flex items-center gap-1.5">
             <span className={`path-node path-node--${entry.state} path-node--swatch`} aria-hidden>
-              <span className="path-node__edge" />
               <span className="path-node__face" />
             </span>
             {entry.label}
@@ -647,7 +753,11 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
         ))}
       </ul>
 
-      <button type="button" className="press min-h-11 self-start text-scale-xs font-semibold text-muted-foreground" onPointerDown={() => progress.setCourse(course, snapshot.startTopics)}>
+      <button
+        type="button"
+        className="press min-h-11 self-start rounded-full border-2 border-border px-4 text-scale-xs font-semibold text-muted-foreground"
+        onPointerDown={() => progress.setCourse(course, snapshot.startTopics)}
+      >
         Change track in Courses
       </button>
 

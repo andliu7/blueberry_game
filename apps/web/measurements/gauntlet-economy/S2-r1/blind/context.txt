@@ -1,0 +1,4 @@
+This is the screen a student opens to see the whole course laid out as a run of lessons and to
+work out which single lesson to do next.
+The frames are a burst at 0, 400, 900 and 2500 ms from the moment the screen settled, phone
+shape 390x844 at 3x, light theme, nothing pressed.

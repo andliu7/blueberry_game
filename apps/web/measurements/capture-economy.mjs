@@ -65,6 +65,7 @@
  *   node measurements/capture-economy.mjs --piece P4 --out measurements/gauntlet-economy/P4-r1/self-check
  *   node measurements/capture-economy.mjs --piece P5 --out measurements/gauntlet-economy/P5-r1/self-check
  *   node measurements/capture-economy.mjs --piece S1 --out measurements/gauntlet-economy/S1-r1/self-check
+ *   node measurements/capture-economy.mjs --piece S2 --out measurements/gauntlet-economy/S2-r1/self-check
  *
  * P5, THE CHARGE SURFACES, SEEDS THE JOURNAL for the same reason P3 and P4 do:
  * a meter at 14 of 30 is two node entries, an empty one is four, and an exam
@@ -128,6 +129,8 @@ import {
   P5_SEED_BUILDERS,
   P5_STORED,
   PATHWAY_HASH,
+  S2_SEED,
+  S2_STORED,
   driveChargeCost,
   driveChargeEmpty,
   driveChargeExam,
@@ -138,6 +141,9 @@ import {
   driveHudLit,
   driveHudRest,
   driveHudStreak,
+  drivePathGate,
+  drivePathRest,
+  drivePathScroll,
   driveReward,
   driveShellBar,
   driveShellCourses,
@@ -477,7 +483,56 @@ async function captureS1(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1 };
+/**
+ * S2, the descending pathway and its backdrop.
+ *
+ * Three moments and one screen: the path at rest, the same path mid scroll, and
+ * the path standing at a gate. That is deliberate. The subject is a CONTINUOUS
+ * landscape derived from the unit data, and one still of it is a still of a
+ * backdrop; three positions down the same run is the only way a frame burst can
+ * show that the layers move against each other and that the curve draws itself.
+ *
+ * No hook. Everything here is a function of the journal and of where the page is
+ * scrolled to, and a student produces both. The seed is P3's account plus two
+ * map node clears, and economy-moments.mjs says at length why a fresh account is
+ * the one state that cannot photograph this piece's claim.
+ *
+ * Each drive asserts its own moment by MEASURING the track rather than by
+ * counting class names: one current node, a face measurably larger than every
+ * other face, three different fills, a START tag, a ring, no right aligned
+ * label, and a scene carrying two ground shapes and two drawn curves. The gap
+ * this piece was assigned was five correct states rendering as one appearance,
+ * so a capture that checks the class list would pass on exactly the defect it
+ * exists to catch.
+ */
+async function captureS2(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const moments = [
+    { name: "rest", drive: drivePathRest },
+    { name: "scroll", drive: drivePathScroll },
+    { name: "gate", drive: drivePathGate },
+  ];
+  const results = [];
+  for (const entry of moments) {
+    const page = await open(browser, viewport, theme, PATHWAY_HASH, S2_SEED, S2_STORED);
+    // The same two throwaway frames P5 and S1 take, and for the same measured
+    // reason: the first screenshot a page ever takes pays for the capture
+    // pipeline's warm up, and on the first page of a run that cost lands INSIDE
+    // the burst. Taken after the track has painted, so a real document is warmed.
+    await page.waitForSelector(".path-node--current", { timeout: 10_000 });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    const { moment, reached, trigger, state } = await entry.drive(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-path-${entry.name}`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1, S2: captureS2 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 

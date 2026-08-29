@@ -1413,6 +1413,197 @@ export async function driveShellCourses(page, { onTrigger = null } = {}) {
   return { moment: "shell-courses", reached, at, trigger, state };
 }
 
+/* ------------------------------------------------------------------------- */
+/* S2, the descending pathway and its backdrop.                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Three moments, all on #/pathway, all reached by opening a hash and scrolling.
+ * No hook of any kind: everything on this screen is a function of the journal
+ * plus where the page is scrolled to, and both are things a student produces.
+ *
+ * THE SEED IS P3's ACCOUNT PLUS TWO MAP CLEARS, and the two clears are the
+ * point. The piece's whole subject is that a returning student can see where
+ * they stopped, so a capture of a fresh account with nothing done would photograph
+ * the one state that cannot show it: no done node, no partial ring, and the
+ * current node sitting at the very top where "first" and "current" look the
+ * same. Two clears put the START tag on the third node of unit one, two checks
+ * above it, and two of the unit's nodes on the progress ring.
+ *
+ * The ids are the MAP's ids and not topic ids, because the Orgo II track renders
+ * the owner's pathway map. src/tabs/pathway/pathwayState.ts explains why the
+ * journal is the only place those ids appear.
+ */
+const S2_CLEARED_NODES = ["u1-allylic", "u1-12v14"];
+
+export function s2Seed() {
+  const journal = hudSeed();
+  for (let i = 0; i < S2_CLEARED_NODES.length; i += 1) {
+    journal.push({
+      kind: "node_cleared",
+      at: noonDaysAgo(2 - i),
+      tz: LOCAL_TZ,
+      nodeId: S2_CLEARED_NODES[i],
+      nodeKind: "reaction",
+      flawless: true,
+      stepsInOneSitting: 1,
+      spine: true,
+      difficulty: 3,
+    });
+  }
+  return journal;
+}
+
+export const S2_SEED = s2Seed();
+export const S2_STORED = { course: "orgo_2", startTopics: [], onboardingDone: true };
+
+/**
+ * Everything this piece claims about the track, read off the built page.
+ *
+ * Read rather than described, for the reason the contrast audit exists: the
+ * named gap was that five computed states rendered as one, and a capture that
+ * cannot tell them apart is exactly the capture that let that ship. So the drive
+ * measures the FACE DIAMETERS and the FILLS, not the class names.
+ */
+async function readTrack(page) {
+  return page.evaluate(() => {
+    const faceOf = (node) => node.querySelector(".path-node__face");
+    const boxOf = (node) => {
+      const face = faceOf(node);
+      return face === null ? null : face.getBoundingClientRect();
+    };
+    const fillOf = (node) => {
+      const face = faceOf(node);
+      return face === null ? "" : getComputedStyle(face).backgroundColor;
+    };
+    const pick = (state) => [...document.querySelectorAll(`.path-node--${state}:not(.path-node--swatch)`)];
+    const current = pick("current");
+    const open = pick("open");
+    const done = pick("done");
+    const locked = pick("locked");
+    const scene = document.querySelector("svg.path-scene");
+    const sceneBox = scene === null ? null : scene.getBoundingClientRect();
+    return {
+      current: current.length,
+      done: done.length,
+      open: open.length,
+      locked: locked.length,
+      start: document.querySelectorAll(".path-start").length,
+      ring: document.querySelectorAll(".path-ring__arc").length,
+      currentDiameter: current[0] === undefined ? 0 : (boxOf(current[0])?.width ?? 0),
+      otherDiameter: (open[0] ?? locked[0] ?? done[0]) === undefined ? 0 : (boxOf(open[0] ?? locked[0] ?? done[0])?.width ?? 0),
+      currentFill: current[0] === undefined ? "" : fillOf(current[0]),
+      lockedFill: locked[0] === undefined ? "" : fillOf(locked[0]),
+      doneFill: done[0] === undefined ? "" : fillOf(done[0]),
+      /** The backdrop: present, sized, and carrying a drawn curve. */
+      scene: scene !== null,
+      sceneWidth: sceneBox === null ? 0 : Math.round(sceneBox.width),
+      curves: document.querySelectorAll("path.path-curve").length,
+      grounds: document.querySelectorAll("path.path-ground").length,
+      humps: document.querySelectorAll("path.path-hump").length,
+      progress: scene === null ? "" : getComputedStyle(scene).getPropertyValue("--path-progress").trim(),
+      /** Left aligned on both sides. The judge called the ragged right column a bug. */
+      rightAlignedLabels: [...document.querySelectorAll(".path-row__label")].filter(
+        (label) => getComputedStyle(label).textAlign === "right",
+      ).length,
+      scrollY: Math.round(window.scrollY),
+    };
+  });
+}
+
+/**
+ * The five states are DISTINCT, which is the whole assignment.
+ *
+ * Exactly one current node with a START tag and a ring; a current face
+ * measurably larger than every other face; and the three fills different from
+ * each other. Class names are not enough: the gap this piece exists to close
+ * was five correct class names rendering as one appearance.
+ */
+function trackHolds(state) {
+  if (!state.scene || state.sceneWidth < 100) return false;
+  if (state.curves < 2 || state.grounds < 2) return false;
+  if (state.current !== 1 || state.start !== 1 || state.ring !== 1) return false;
+  if (state.done < 1 || state.locked < 1) return false;
+  if (state.currentDiameter <= state.otherDiameter + 8) return false;
+  if (state.currentFill === state.lockedFill || state.currentFill === state.doneFill) return false;
+  if (state.rightAlignedLabels !== 0) return false;
+  return true;
+}
+
+/** The path at rest: what a returning student opens the app to. */
+export async function drivePathRest(page, { onTrigger = null } = {}) {
+  await page.waitForSelector(".path-node--current", { timeout: 10_000 });
+  await page.waitForSelector("svg.path-scene", { timeout: 10_000 });
+  await sleep(600);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await readTrack(page);
+  return { moment: "path-rest", reached: trackHolds(state), at, trigger, state };
+}
+
+/**
+ * Mid scroll, deep enough that the landscape has moved against the track.
+ *
+ * Scrolled by the page rather than by an injected value, so what is captured is
+ * what a thumb produces: the parallax layers, the curve's own draw and the
+ * lens are all functions of the same scroll the browser reports.
+ */
+export async function drivePathScroll(page, { onTrigger = null } = {}) {
+  await page.waitForSelector(".path-node--current", { timeout: 10_000 });
+  await page.waitForSelector("svg.path-scene", { timeout: 10_000 });
+  await sleep(400);
+  await page.evaluate(() => {
+    const rows = [...document.querySelectorAll(".path-row")];
+    const target = rows[Math.min(6, rows.length - 1)];
+    if (target !== undefined) target.scrollIntoView({ block: "center", behavior: "instant" });
+    else window.scrollBy(0, window.innerHeight);
+  });
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await readTrack(page);
+  // The moment is only the moment if the page actually moved, and if the curve
+  // has drawn further than it had at rest.
+  const reached = state.scene && state.curves >= 2 && state.scrollY > 40 && Number(state.progress) > 0.35;
+  return { moment: "path-scroll", reached, at, trigger, state };
+}
+
+/**
+ * At a gate. A checkpoint unit is the hump between two wells, which is the
+ * activation barrier, and this is the frame where a student meets that shape.
+ */
+export async function drivePathGate(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("[data-checkpoint='true']", { timeout: 10_000 });
+  await page.waitForSelector("path.path-hump", { timeout: 10_000 });
+  await sleep(400);
+  const found = await page.evaluate(() => {
+    const gate = document.querySelector("[data-checkpoint='true']");
+    if (gate === null) return false;
+    gate.scrollIntoView({ block: "center", behavior: "instant" });
+    return true;
+  });
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await page.evaluate(() => {
+    const gate = document.querySelector("[data-checkpoint='true']");
+    const box = gate === null ? null : gate.getBoundingClientRect();
+    const humps = [...document.querySelectorAll("path.path-hump")].map((hump) => {
+      const rect = hump.getBoundingClientRect();
+      return { top: Math.round(rect.top), height: Math.round(rect.height) };
+    });
+    return {
+      onScreen: box !== null && box.top < window.innerHeight && box.bottom > 0,
+      gateChips: document.querySelectorAll("[data-checkpoint='true'] .path-quests__chip").length,
+      humps,
+      humpsOnScreen: humps.filter((hump) => hump.top < window.innerHeight && hump.top + hump.height > 0).length,
+      scrollY: Math.round(window.scrollY),
+    };
+  });
+  const reached = found && state.onScreen && state.gateChips > 0 && state.humpsOnScreen > 0;
+  return { moment: "path-gate", reached, at, trigger, state };
+}
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -1443,6 +1634,12 @@ export const MOMENTS = {
   "shell-bar": { seed: P3_SEED, stored: P3_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveShellBar(page, options) },
   "shell-tool": { seed: P3_SEED, stored: P3_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveShellTool(page, options) },
   "shell-courses": { seed: P3_SEED, stored: P3_STORED, hash: COURSES_HASH, drive: (page, options) => driveShellCourses(page, options) },
+  // S2, the pathway itself. Three scroll positions on one screen rather than
+  // three screens, because the subject is a continuous landscape and a single
+  // frame of it is a frame of a backdrop.
+  "path-rest": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathRest(page, options) },
+  "path-scroll": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathScroll(page, options) },
+  "path-gate": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathGate(page, options) },
 };
 
 /**

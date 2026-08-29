@@ -1,0 +1,543 @@
+{
+  "piece": "S2",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "path-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 1
+            },
+            {
+              "wanted": 400,
+              "at": 411
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2545
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(124, 58, 237)",
+            "lockedFill": "rgb(216, 212, 205)",
+            "doneFill": "rgb(4, 120, 87)",
+            "scene": true,
+            "sceneWidth": 1280,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.382",
+            "rightAlignedLabels": 0,
+            "scrollY": 0
+          }
+        },
+        {
+          "moment": "path-scroll",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 918
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(124, 58, 237)",
+            "lockedFill": "rgb(216, 212, 205)",
+            "doneFill": "rgb(4, 120, 87)",
+            "scene": true,
+            "sceneWidth": 1280,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.436",
+            "rightAlignedLabels": 0,
+            "scrollY": 1240
+          }
+        },
+        {
+          "moment": "path-gate",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 407
+            },
+            {
+              "wanted": 900,
+              "at": 921
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "onScreen": true,
+            "gateChips": 13,
+            "humps": [
+              {
+                "top": 345,
+                "height": 101
+              },
+              {
+                "top": 4225,
+                "height": 101
+              }
+            ],
+            "humpsOnScreen": 1,
+            "scrollY": 670
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "path-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 953
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(130, 80, 240)",
+            "lockedFill": "rgb(66, 61, 56)",
+            "doneFill": "rgb(15, 118, 110)",
+            "scene": true,
+            "sceneWidth": 1280,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.382",
+            "rightAlignedLabels": 0,
+            "scrollY": 0
+          }
+        },
+        {
+          "moment": "path-scroll",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 412
+            },
+            {
+              "wanted": 900,
+              "at": 916
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(130, 80, 240)",
+            "lockedFill": "rgb(66, 61, 56)",
+            "doneFill": "rgb(15, 118, 110)",
+            "scene": true,
+            "sceneWidth": 1280,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.436",
+            "rightAlignedLabels": 0,
+            "scrollY": 1240
+          }
+        },
+        {
+          "moment": "path-gate",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "onScreen": true,
+            "gateChips": 13,
+            "humps": [
+              {
+                "top": 345,
+                "height": 101
+              },
+              {
+                "top": 4225,
+                "height": 101
+              }
+            ],
+            "humpsOnScreen": 1,
+            "scrollY": 670
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "path-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 417
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(124, 58, 237)",
+            "lockedFill": "rgb(216, 212, 205)",
+            "doneFill": "rgb(4, 120, 87)",
+            "scene": true,
+            "sceneWidth": 390,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.378",
+            "rightAlignedLabels": 0,
+            "scrollY": 0
+          }
+        },
+        {
+          "moment": "path-scroll",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 407
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(124, 58, 237)",
+            "lockedFill": "rgb(216, 212, 205)",
+            "doneFill": "rgb(4, 120, 87)",
+            "scene": true,
+            "sceneWidth": 390,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.431",
+            "rightAlignedLabels": 0,
+            "scrollY": 1336
+          }
+        },
+        {
+          "moment": "path-gate",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 917
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "onScreen": true,
+            "gateChips": 13,
+            "humps": [
+              {
+                "top": 317,
+                "height": 101
+              },
+              {
+                "top": 4509,
+                "height": 101
+              }
+            ],
+            "humpsOnScreen": 1,
+            "scrollY": 748
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "path-rest",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(130, 80, 240)",
+            "lockedFill": "rgb(66, 61, 56)",
+            "doneFill": "rgb(15, 118, 110)",
+            "scene": true,
+            "sceneWidth": 390,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.378",
+            "rightAlignedLabels": 0,
+            "scrollY": 0
+          }
+        },
+        {
+          "moment": "path-scroll",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "current": 1,
+            "done": 2,
+            "open": 1,
+            "locked": 83,
+            "start": 1,
+            "ring": 1,
+            "currentDiameter": 88,
+            "otherDiameter": 68,
+            "currentFill": "rgb(130, 80, 240)",
+            "lockedFill": "rgb(66, 61, 56)",
+            "doneFill": "rgb(15, 118, 110)",
+            "scene": true,
+            "sceneWidth": 390,
+            "curves": 2,
+            "grounds": 2,
+            "humps": 2,
+            "progress": "0.431",
+            "rightAlignedLabels": 0,
+            "scrollY": 1336
+          }
+        },
+        {
+          "moment": "path-gate",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 650
+            },
+            {
+              "wanted": 900,
+              "at": 921
+            },
+            {
+              "wanted": 2500,
+              "at": 2504
+            }
+          ],
+          "state": {
+            "onScreen": true,
+            "gateChips": 13,
+            "humps": [
+              {
+                "top": 317,
+                "height": 101
+              },
+              {
+                "top": 4509,
+                "height": 101
+              }
+            ],
+            "humpsOnScreen": 1,
+            "scrollY": 748
+          }
+        }
+      ]
+    }
+  ]
+}

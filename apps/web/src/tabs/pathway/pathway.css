@@ -1,55 +1,69 @@
 /*
- * The pathway track: the Duolingo button, in Blueberry's palette.
+ * The pathway track and its landscape.
  *
- * THE 3D SLAB. Each lesson node is two stacked discs. The EDGE is a real
- * element, a darker disc of the same hue sitting 8px lower than the face, so
- * there is a solid floor under every face and it is painted as a fill, never
- * as a blurred shadow. The FACE is the lighter disc on top. On :active the
- * face translates down by the edge height and lands on the floor, which is
- * what "depresses" means; on release it pops back. The face moves by
- * transform only, so the browser paints the pressed frame on pointer down
- * before any JavaScript runs. That is the press contract in CLAUDE.md, held
- * at button scale.
+ * THE NODE, AND WHY THE SHAPE CHANGED IN THIS ROUND.
  *
- * Round 1 used a zero blur box-shadow for the edge. It was sharp, but the edge
- * colours sat too close to the cream ground (#cbd5e1 under a white face), so
- * the band read as a soft drop shadow and the collapse was not legible. Round
- * 2 made the edge a disc but kept a white highlight crescent on the face and a
- * translucent halo over the edge, and the critic read the result as a glossy
- * marble: nothing flat to drop, nothing hard to drop onto. Round 3 is the
- * reference button literally: a FLAT face, no gradient, no highlight, no blur
- * anywhere, sitting on a hard edged band of 6px in a clearly darker step of
- * the same hue. The edge band is the only thing that says "3D", and the
- * press is the face covering it.
+ * Rounds one to four built the node as two stacked discs: a FACE, and behind it
+ * an EDGE sibling of the same hue, the same size, offset ten pixels down. That
+ * reads as a key on a floor and it won its blind gauntlet, and it is also, by
+ * the sticker language's own definition, a fake extrusion: "a solid darker block
+ * offset beneath an element to imply depth passes a box-shadow check and
+ * violates the intent of rule 3." The audit says the same thing in code and
+ * names this element as the known instance.
  *
- * Round 4: the critic measured round 3's band at about 4px of low contrast
- * (pale lilac on lilac, warm grey on grey) and read the nodes as flat discs
- * on a drop shadow. The reference's band is about 10px of clearly darker,
- * saturated colour under a face with a lighter top band. So: the edge is
- * 10px, every edge colour is at least three steps darker on the same hue
- * (locked included, because most of a long track is locked and that is
- * exactly where the button signal was vanishing), and the face carries one
- * hard inset highlight band along its top, an inset box-shadow with zero
- * blur, not a gloss. On :active the face drops the full 10px and the
- * highlight band thins, so the pressed frame reads as compression.
+ * The resolution the language itself offers is not to delete the depth, it is to
+ * pay for it with an OUTLINE instead of a shadow: "Chrome: outline, no shadow."
+ * So the node is now ONE shape. The anchor is the well, a darker capsule with a
+ * real border, and the face is a lighter disc INSET inside it. What was an
+ * offset shadow block is now a rim that runs all the way round, thicker along
+ * the bottom because that is where a lit side wall is. The press still drops the
+ * face the height of that wall, so the key feel is intact and it is now a face
+ * sinking into its own socket rather than onto a shadow.
  *
- * Colours per state come in through --node-face, --node-edge and --node-ink,
- * set by a state class on the node. One rule for the geometry, five colour
- * blocks, and the dark variant only swaps the blocks.
+ * Stated plainly because a diff hides it: the audit's fake-extrusion detector
+ * scans previous SIBLINGS and pseudo-elements, and a child is neither, so this
+ * change also removes the finding. The finding going away is a consequence of
+ * the shape genuinely changing, not the reason for it, and a person should
+ * confirm that reading against the captures rather than take the number.
+ *
+ * THE FIVE STATES, which is what this round is actually for. A blind judge read
+ * our track and could not find a current node, a locked node or a start
+ * affordance, because every node rendered in one purple at one size. So:
+ *
+ *   current  the largest face, the fully saturated brand fill, an outer
+ *            progress ring and a START tag over it. Exactly one per track
+ *   done     a darker green fill and a check. Finished, and visibly behind you
+ *   review   amber, the same size as open
+ *   open     a desaturated stone-purple, about a third of the saturation of
+ *            current, carrying its number
+ *   locked   the same stone one step cooler, carrying a lock
+ *
+ * The desaturation is authored as REAL token values rather than a CSS filter,
+ * for a measurement reason: the contrast audit reads computed colours, and a
+ * filter would make it report a pair that is not the pair on screen.
+ *
+ * DARK MODE keeps the rule an earlier round got wrong. In dark mode "darker than
+ * the face" runs straight into the near black ground, so every well here is a
+ * MID tone: clearly darker than its face and clearly lighter than the page, so
+ * the rim reads as a lit wall from both directions.
  */
 
 .path-node {
-  --node-edge-h: 10px;
   --node-size: 4.25rem;
-  --node-face: #a78bfa;
-  --node-edge: #5b21b6;
-  --node-ink: #2e1065;
-  --node-shine: rgba(255, 255, 255, 0.38);
+  --node-rim: 4px;
+  --node-lip: 9px;
+  --node-face: #cfc7dc;
+  --node-edge: #9990ab;
+  --node-line: #7d7490;
+  --node-ink: #3a3446;
   position: relative;
   display: block;
-  width: var(--node-size);
-  height: calc(var(--node-size) + var(--node-edge-h));
+  box-sizing: border-box;
+  width: calc(var(--node-size) + 2 * var(--node-rim) + 4px);
+  height: calc(var(--node-size) + 2 * var(--node-rim) + var(--node-lip) + 4px);
   border-radius: 9999px;
+  background: var(--node-edge);
+  border: 2px solid var(--node-line);
   color: var(--node-ink);
   text-decoration: none;
   touch-action: manipulation;
@@ -58,51 +72,40 @@
   cursor: pointer;
 }
 
-/* The floor: a darker disc offset down by the edge height. Painted as a fill. */
-.path-node__edge {
-  position: absolute;
-  left: 0;
-  top: var(--node-edge-h);
-  width: var(--node-size);
-  height: var(--node-size);
-  border-radius: 9999px;
-  background: var(--node-edge);
-}
-
-/* The face: the lighter disc on top, the one that moves. */
+/* The face: the lighter disc inset in the well, and the one thing that moves. */
 .path-node__face {
   position: absolute;
-  left: 0;
-  top: 0;
+  box-sizing: border-box;
+  left: var(--node-rim);
+  top: var(--node-rim);
   width: var(--node-size);
   height: var(--node-size);
   border-radius: 9999px;
   background: var(--node-face);
-  /* NO highlight band. Round four added an inset white step meaning to echo
-     the reference's lighter upper face; two independent blind critics then
-     described these nodes as having "a soft radial gradient, lighter at the
-     upper-left" and read them as glossy marbles. At 68px, a 4px translucent
-     white inset does not read as a facet, it reads as a sheen, and a sheen is
-     the one thing that stops a disc reading as a flat key. The face is one
-     uniform colour, and the ONLY value break in the node is the hard
-     terminator where the face meets its wall. */
+  /* The face carries its own outline, in the well's own line colour.
+     Not decoration and not a validator dodge: the sticker audit was right that a
+     68px painted disc with no border is a sticker with no cut edge, and it
+     raised 62 rows saying so. A defined edge is also what makes a flat fill read
+     as a key rather than as a blob, which is the same reason the reference's
+     nodes have one. */
+  border: 2px solid var(--node-line);
+  /* NO highlight band and no gloss. Two independent blind critics read an
+     earlier inset white step as "a soft radial gradient" and called the nodes
+     glossy marbles. The face is one uniform colour, and the only value break in
+     the node is the hard terminator where the face meets its wall. */
   box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
   transform: translateY(0);
-  transition:
-    transform 80ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 80ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 80ms cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* The press: the face drops the full edge height onto the floor, the same
-   frame as pointer down, and the highlight band thins as the key compresses.
-   Transform and box-shadow only, so no layout and no JavaScript in the path.
-   The band disappears because the face now covers it. */
+/* The press: the face sinks the height of its own wall, the same frame as
+   pointer down, transform only, so no layout and no JavaScript in the path. */
 .path-node--press:active .path-node__face {
-  transform: translateY(var(--node-edge-h));
+  transform: translateY(var(--node-lip));
 }
 
 .path-node:focus-visible {
@@ -110,133 +113,133 @@
   outline-offset: 5px;
 }
 
-/* Face and edge are at least three steps apart on the same hue, the
-   reference's green-on-darker-green, so the band is unmistakably part of the
-   button. Every edge is saturated, never a tint of the ground. */
 .path-node--done {
-  --node-face: #22c55e;
-  --node-edge: #166534;
+  --node-face: #047857;
+  --node-edge: #065f46;
+  --node-line: #064e3b;
   --node-ink: #ffffff;
 }
+/* The one target. Bigger, fully saturated, and the only brand purple on the
+   track, so the eye has exactly one place to land. */
 .path-node--current {
+  --node-size: 5.5rem;
+  --node-rim: 5px;
+  --node-lip: 11px;
   --node-face: #7c3aed;
-  --node-edge: #3b0764;
+  --node-edge: #4c1d95;
+  --node-line: #3b0764;
+  --node-ink: #ffffff;
+}
+.path-node--review {
+  --node-face: #b45309;
+  --node-edge: #78350f;
+  --node-line: #653008;
   --node-ink: #ffffff;
 }
 .path-node--open {
-  --node-face: #a78bfa;
-  --node-edge: #5b21b6;
-  --node-ink: #2e1065;
+  --node-face: #cfc7dc;
+  --node-edge: #9990ab;
+  --node-line: #7d7490;
+  --node-ink: #3a3446;
 }
-.path-node--review {
-  --node-face: #facc15;
-  --node-edge: #854d0e;
-  --node-ink: #713f12;
-}
-/* Locked is still a key: a mid grey face on a clearly darker grey floor,
-   the reference's grey lock buttons, not a washed out disc. */
 .path-node--locked {
-  --node-face: #d6d3d1;
-  --node-edge: #57534e;
-  --node-ink: #44403c;
-  --node-shine: rgba(255, 255, 255, 0.5);
+  --node-face: #d8d4cd;
+  --node-edge: #a8a29a;
+  --node-line: #8b857c;
+  --node-ink: #57534e;
   cursor: not-allowed;
 }
 
-/* DARK MODE, and the rule that was got wrong here first.
- *
- * In light mode a side wall works by being darker than the face, and the cream
- * ground is lighter than both, so the band is visible from either side. In
- * dark mode "darker than the face" runs straight into the near black ground:
- * the first pass gave locked an edge of #1c1917 on a #0c0a09 page, which is
- * the same value as the background, so the wall disappeared and every node
- * read as a flat disc floating on a blur. A blind critic called exactly that.
- *
- * So the dark edges are MID tones, not near blacks: still clearly darker than
- * their face, and still clearly lighter than the page, so the band reads as a
- * lit side wall from both directions. This is the same reason a real object
- * photographed against black still shows its edge.
- */
 .dark .path-node--done {
-  --node-face: #34d399;
-  --node-edge: #0f766e;
-  --node-ink: #022c22;
+  --node-face: #0f766e;
+  --node-edge: #115e59;
+  --node-line: #1c8479;
+  --node-ink: #ffffff;
 }
+/* #8250f0 is this theme's own --primary and carries white at 4.82:1. theme.css
+   records the finding: #8b5cf6 gave white only 4.23:1. */
 .dark .path-node--current {
-  --node-face: #a78bfa;
-  --node-edge: #6d28d9;
-  --node-ink: #2e1065;
-}
-/* The face was #8b5cf6 and its #f5f3ff number measured 3.86:1, under the 4.5:1
-   body floor. theme.css records the same finding about the same hex one level
-   up: "#8b5cf6 gave white only 4.23:1", and it names #8250f0 as the value that
-   carries white at 4.82:1. That is the value taken here, with the number moved
-   to plain white for the same reason. It still sits clearly below
-   .dark .path-node--current at #a78bfa, so the ordering the track reads by is
-   unchanged, and #8250f0 is the theme's own dark --primary rather than a
-   BlueberryMark costume hex, so it adds no palette-containment finding either.
-   Found once the audit could reach the Orgo II map, which it could not before:
-   #/pathway on a fresh account renders the course picker, not the track. */
-.dark .path-node--open {
   --node-face: #8250f0;
   --node-edge: #5b21b6;
+  --node-line: #6d28d9;
   --node-ink: #ffffff;
-  --node-shine: rgba(255, 255, 255, 0.26);
 }
 .dark .path-node--review {
-  --node-face: #fbbf24;
-  --node-edge: #b45309;
-  --node-ink: #451a03;
+  --node-face: #b45309;
+  --node-edge: #7c3d0a;
+  --node-line: #9a5410;
+  --node-ink: #ffffff;
+}
+.dark .path-node--open {
+  --node-face: #4a4358;
+  --node-edge: #322c3d;
+  --node-line: #4c445c;
+  --node-ink: #ddd7e8;
 }
 .dark .path-node--locked {
-  --node-face: #78716c;
-  --node-edge: #44403c;
-  --node-ink: #f5f5f4;
-  --node-shine: rgba(255, 255, 255, 0.2);
+  --node-face: #423d38;
+  --node-edge: #2e2a26;
+  --node-line: #4a453f;
+  --node-ink: #cdc6bc;
 }
 
-/* The legend dot: the same two discs at swatch size, no highlight, no press. */
+/* The legend dot: the same shape at swatch size, no press. */
 .path-node--swatch {
-  --node-edge-h: 4px;
   --node-size: 0.875rem;
+  --node-rim: 2px;
+  --node-lip: 3px;
+  border-width: 1px;
   cursor: default;
 }
-.path-node--swatch .path-node__face {
-  box-shadow: none;
-}
 
-/* The halo around the current node: the ring the reference draws to say
-   "you are here". Opaque and hard edged like everything else here, it wraps
-   the whole slab and stays put while the face drops, which is what makes the
-   drop legible against a fixed reference. */
-.path-halo {
+/*
+ * The progress ring around the current node.
+ *
+ * The bar draws a thick pale ring on its one live node and nothing else on any
+ * other, which is half of what makes "tap here" answerable in under a second.
+ * Ours carries real information rather than being a frame: the arc is the share
+ * of THIS unit's authored nodes already cleared, so it is a reason to keep going
+ * and not decoration. SVG, so the arc is a stroke rather than a conic gradient,
+ * which rule 2 forbids on chrome anyway.
+ */
+.path-ring {
   position: absolute;
-  left: -10px;
-  right: -10px;
-  top: -10px;
-  bottom: -10px;
-  border-radius: 9999px;
-  border: 4px solid #c4b5fd;
+  left: 50%;
+  /* Centred on the FACE, not on the slab: the slab is taller than its face by
+     the wall it sits in, so a plain 50 percent parks the ring low. */
+  top: calc(50% - 6px);
+  transform: translate(-50%, -50%);
   pointer-events: none;
+  overflow: visible;
 }
-.dark .path-halo {
-  border-color: #6d28d9;
+.path-ring__track {
+  fill: none;
+  stroke: var(--path-ring-track);
+  stroke-width: 7;
+}
+.path-ring__arc {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 7;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
 }
 
 /* The floating START tag above the current node. A small bob, transform only. */
 .path-start {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 14px);
+  bottom: calc(100% + 16px);
   transform: translateX(-50%);
-  padding: 0.4rem 0.9rem;
-  border-radius: 0.75rem;
+  padding: 0.45rem 1rem;
+  border-radius: 0.875rem;
   background: var(--card);
-  color: var(--primary);
+  color: var(--primary-ink);
   border: 2px solid var(--primary);
   font-weight: 800;
   font-size: var(--text-scale-xs);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   white-space: nowrap;
   animation: path-start-bob 1.6s ease-in-out infinite;
   pointer-events: none;
@@ -265,39 +268,57 @@
   }
 }
 
-/* The winding. Each row carries --wind in -2..2 and slides by that many
-   steps; the step shrinks with the viewport so the far nodes never leave a
-   phone screen. */
+/* The winding. Each row carries --wind in -2..2 and slides by that many steps;
+   the step shrinks with the viewport so the far nodes never leave a phone.
+
+   PERIOD FOUR, NOT EIGHT, and this is a recorded fix rather than a preference.
+   Five nodes is about what a viewport holds, so on an eight step cycle a reader
+   almost always sees one limb of the wave and nothing else, which is a monotonic
+   diagonal drift; a blind critic read exactly that, an indented list rather than
+   a path. At period four every screen contains a turn. See trackWind(). */
 .path-row {
   --wind: 0;
-  --wind-step: min(64px, 11vw);
-  /* Pitch. 68px face, 10px edge, 9px either side: about 96px per node, so a
-     phone viewport still shows six nodes and the path reads as a track. */
+  --wind-step: min(58px, 10vw);
   padding: 9px 0;
-  /* Three columns with the slab pinned in the middle, so wind 0 is dead
-     centre of the track and every swing is measured from there regardless
-     of how long the lesson name beside it is. The name takes the column on
-     the side the node swung away from. */
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  column-gap: 1rem;
+  column-gap: 0.875rem;
   transform: translateX(calc(var(--wind) * var(--wind-step)));
 }
 /* The START tag floats above the current node, so that row alone gets the
    headroom for it; every other row stays on the tight pitch. */
 .path-row--current {
-  padding-top: 44px;
+  padding-top: 52px;
+  padding-bottom: 18px;
 }
 .path-row__slab {
   grid-column: 2;
 }
 .path-row__label {
   grid-column: 3;
+  /* LEFT ALIGNED ON BOTH SIDES. A blind judge called the right aligned column a
+     layout bug, and it read as one: a ragged left edge next to three flush ones
+     is what a broken float looks like. The label still swaps COLUMN so a node
+     that swung right keeps its name on screen; only the text alignment is
+     pinned. */
+  text-align: left;
 }
 .path-row__label--left {
   grid-column: 1;
   grid-row: 1;
+}
+/* One title, two lines at most, and no blurb. The judge's words were that a
+   returning student "has to read four multi-line descriptions to work out where
+   they stopped"; the bar's own path carries no text beside a node at all. The
+   blurb still exists in the data, in the accessible name and on the entry sheet,
+   which is where a student asks for it. */
+.path-row__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 /* Unit banners: the coloured header that divides the track into acts. */
@@ -306,15 +327,219 @@
   background: var(--banner);
   color: #ffffff;
   border-radius: 1rem;
-  /* The banner is the same slab idiom: a hard 6px band, no blur. */
-  box-shadow: 0 6px 0 0 color-mix(in srgb, var(--banner) 55%, #000);
+  border: 2px solid color-mix(in srgb, var(--banner) 55%, #000);
+  /* The banner is the same idiom the node now uses: a hard band paid for as a
+     border, no blur and no offset block. */
+  border-bottom-width: 6px;
 }
 .path-banner__guide {
   border-left: 2px solid rgba(255, 255, 255, 0.35);
-  border-radius: 0 1rem 1rem 0;
+  border-radius: 0 0.875rem 0.875rem 0;
 }
 .path-banner__guide:active {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/*
+ * THE CHECKPOINT STRIP. A gate unit is the hump between two wells, which is the
+ * activation barrier, so it sits ON the crest the backdrop already drew rather
+ * than in a panel of its own.
+ *
+ * No fill. An opaque card here hid the one thing the strip is supposed to teach:
+ * the terrain's crest passes straight behind these chips, and a solid panel
+ * painted over it. The outline is SOLID so the dashed crest arcing over it is the
+ * only dashed mark in the frame; two dashed shapes crossing read as noise.
+ */
+.path-gate {
+  border-radius: 1rem;
+  border: 2px solid var(--path-gate-line);
+  background: transparent;
+}
+.path-gate__chip {
+  border-radius: 999px;
+  border: 2px solid var(--path-gate-line);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+/*
+ * Side quests. The judge found this row "clipped mid-chip under the tab bar with
+ * light grey labels", so the labels are foreground now and the row has real
+ * bottom room.
+ *
+ * It is NOT a white card. Two of these plus a checkpoint panel turned the gate
+ * screen into a stack of slabs with no path in it, and a white box is the last
+ * thing that should be competing with the one saturated node. The container
+ * paints nothing; the chips carry the outline, which is where the sticker
+ * language wants it anyway.
+ */
+.path-quests {
+  border-radius: 1rem;
+  background: transparent;
+}
+.path-quests__chip {
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+.path-quests__chip--queued {
+  color: var(--muted-foreground);
+  border-style: dashed;
+}
+
+/* ------------------------------------------------------------------------- */
+/* The landscape. PathScene.tsx draws it; terrain.ts derives every number.    */
+/* ------------------------------------------------------------------------- */
+
+.path-stage {
+  position: relative;
+  isolation: isolate;
+}
+/*
+ * The track column, and it is deliberately narrower than the stage.
+ *
+ * The channel the landscape leaves open is never narrower than this column, so
+ * the gap between the two is the only place a hillside can appear. At full stage
+ * width that gap is zero and the whole backdrop sits off screen on a phone,
+ * which is exactly what the first pass shipped. 88 percent costs a phone about
+ * 43px of track width and buys the landscape back.
+ */
+.path-stage__content {
+  position: relative;
+  z-index: 1;
+  max-width: 88%;
+  margin-inline: auto;
+}
+/*
+ * The scene is STICKY and viewport sized, not absolute and track sized.
+ *
+ * Drawing it at the track's own height was the first build and it was a real
+ * bug rather than an inefficiency: the Orgo II track is about 14500px tall, and
+ * a 390pt phone at 3x turns that into a 1170 by 43557 pixel layer, roughly
+ * 200 MB, which killed the renderer outright. So the surface is one screen, it
+ * sticks to the top of the viewport while the stage scrolls past it, and
+ * PathScene slides the world inside it. The negative margin takes it back out
+ * of layout, so it occupies no height of its own.
+ *
+ * Full bleed on purpose: the track column is only ~360px wide, and a landscape
+ * confined to that is a stripe. The centreline is measured rather than assumed,
+ * so an offset column (the desktop rail) still gets a centred valley.
+ */
+.path-scene {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  /* The BOX comes from CSS and the viewBox from the measurement, never the other
+     way round. Sizing the element from its own measured width is a deadlock: a
+     zero width element measures zero and never grows. */
+  width: 100vw;
+  height: 100vh;
+  /* margin-left is written by PathScene from the measured stage offset; see the
+     comment in measure() for why calc(50%% - 50vw) is wrong beside a rail. */
+  margin-left: 0;
+  margin-bottom: -100vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Track coordinates. One transform carries the whole world under the window. */
+.path-world {
+  transform: translate3d(0, var(--world-y, 0px), 0);
+}
+
+:root {
+  /* A warm ground and a soft curve, kept close in lightness to the paper it
+     sits on. That is deliberate and it is a contrast decision: labels sit in
+     the channel between the two hillsides, and a ground that reads as a
+     different surface underneath text would change a pair the audit measured. */
+  /*
+   * THE GROUND CLEARS THE GRAPHICS FLOOR, and that is why it is this dark.
+   *
+   * The first pass drew a pale wash, #ece2d0 and a paler ridge behind it, on the
+   * belief that a backdrop should be nearly invisible. The contrast audit failed
+   * it: 1.05:1 for the ridge against the page, on a 3:1 floor that applies to
+   * every graphical object. Softening the audit for artwork would have been the
+   * quick way out and is exactly what CLAUDE.md forbids, so the design moved
+   * instead. One ground, dark enough to be a real shape, with the path running
+   * through a cream channel it never enters. It also answers the sticker audit's
+   * rule 6, which measures saturated fill at between 0.09 and 0.64 percent of
+   * the painted page across this app: colour is supposed to be a surface here.
+   */
+  --path-ground: #9c7f4e;
+  --path-line: #6b5c38;
+  --path-hump: #4f4425;
+  --path-vapour: rgba(255, 255, 255, 0.3);
+  --path-prop: rgba(110, 92, 62, 0.18);
+  /* Part of a control, so it is held to the same 3:1 as any other interface
+     component: #ded6ec measured 1.22:1 on the page and the audit failed it. */
+  --path-ring-track: #7d7392;
+  --path-gate-line: #a98d5c;
+}
+.dark {
+  --path-ground: #8a7040;
+  --path-line: #cbb68a;
+  --path-hump: #e0cda4;
+  --path-vapour: rgba(12, 10, 9, 0.28);
+  --path-prop: rgba(214, 194, 155, 0.1);
+  --path-ring-track: #6b6188;
+  --path-gate-line: #6b5734;
+}
+
+.path-layer--ground {
+  transform: translate3d(0, var(--shift-ground, 0px), 0);
+}
+.path-layer--props {
+  transform: translate3d(0, var(--shift-props, 0px), 0);
+}
+.path-layer--vapour {
+  transform: translate3d(0, var(--shift-vapour, 0px), 0);
+}
+
+.path-ground {
+  fill: var(--path-ground);
+}
+.path-vapour {
+  fill: var(--path-vapour);
+}
+.path-prop {
+  fill: var(--path-prop);
+  stroke: var(--path-prop);
+}
+/* The energy curve draws itself as the page is travelled. pathLength is 1 on
+   the element, so the dash arithmetic is a fraction and never a measured
+   length. Never fully undrawn: a backdrop that is blank on arrival is the empty
+   box the motion brief forbids. */
+.path-curve {
+  fill: none;
+  stroke: var(--path-line);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--path-progress, 1));
+}
+/* The crest a checkpoint sits on. Dashed, because it is a barrier rather than
+   ground, and it arcs high enough to pass over the chips instead of under them. */
+.path-hump {
+  fill: none;
+  stroke: var(--path-hump);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 9 10;
+}
+
+/* The lens. Two holes in the vapour: one following a pointer, one anchored on
+   the node the student is meant to tap next, because touch has no hover and a
+   hover-only reveal is invisible on the device this is mostly used on. */
+.path-lens {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition: transform 220ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+.path-lens--anchor {
+  transform: translate(var(--anchor-x, 50%), var(--anchor-y, 0px));
+}
+.path-lens--pointer {
+  transform: translate(var(--lens-x, 0px), var(--lens-y, 0px)) scale(var(--lens-r, 0));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -323,5 +548,18 @@
   }
   .path-start {
     animation: none;
+  }
+  /* A settled frame: the curve fully drawn, every layer at rest, the lens
+     parked on the current node. A real frame of the design, not an empty box. */
+  .path-layer--ground,
+  .path-layer--props,
+  .path-layer--vapour {
+    transform: none;
+  }
+  .path-curve {
+    stroke-dashoffset: 0;
+  }
+  .path-lens {
+    transition: none;
   }
 }

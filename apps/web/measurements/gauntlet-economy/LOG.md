@@ -412,3 +412,58 @@ collision. **This needs an owner decision, not a builder's workaround:** either 
 moves off the UI primary, or rule 9 must exclude the shared brand hue and say so. The
 builder removed six other rows legitimately by moving tinted-disc glyphs to
 `--muted-foreground`, which was the right call regardless.
+
+## S2 Descending pathway and backdrop
+
+### Round 1: BAR WON, confidence 0.78. Concept intact, execution buggy.
+
+Audit clean. The judge credited ours with "more genuinely useful information (lesson
+names, a unit title, a completion count)" and then faulted the execution: labels clipped
+mid-glyph with no ellipsis, the active node's label touching its own progress ring, two
+raw tan bars flanking the path, a static mascot identical at all four frames, and a bare
+"4" on the locked node that could mean lesson 4 or 4 problems.
+
+Its criticism of the BAR is the reason to keep going rather than retreat: "Not one node
+carries a lesson name, five identical grey pucks, a chest and a trophy, so the screen
+shows the shape of the course but not its content. A student who wants to know what
+tomorrow's lesson is gets nothing but the next circle, which fails half the stated job."
+Our information architecture is right. The rendering is not.
+
+### The measured half moved a long way
+
+| measure | before | after |
+|---|---|---|
+| sticker, baseline routes | 1170 | **1055** |
+| 3-fake-extrusion | 196 | **0** |
+| 5-radius-floor | 196 | 180 |
+| 4-outlines-structural | 172 | 192 |
+| contrast | 0 / 7858 | 0 / 7918 |
+| payload | 189.0 KB | 188.9 KB |
+| web tests | 946 | 974 |
+
+The inherited S1 gap is fixed at the root: `OrgoMapTrack` never called `derivePathway` at
+all. It derived state from a single boolean, `playable !== undefined`, so all 86 authored
+nodes rendered identically no matter what the engine knew. `pathwayState.ts` now applies
+derivePathway's rule line for line to the map's own ids, reading the journal because
+`snapshot.lessons` is keyed by TopicId and a map node is not a topic.
+
+Two decisions in that work worth keeping:
+
+- **Desaturation is authored token values, not a CSS filter**, because the contrast audit
+  reads computed colours and a filter would make it report a pair that is not on screen.
+  That is a builder noticing one gate could lie to another and refusing to let it.
+- **The node stopped being a fake extrusion.** The old `.path-node__edge` was a same-hue
+  darker disc offset only on Y, which is the sticker language's own definition of a
+  shadow. It is one shape now: a bordered well with a bordered face inset in it, depth
+  paid for with an outline.
+
+### A validator blind spot the builder declared rather than banked
+
+Its words: the fake-extrusion detector scans previous siblings and pseudo-elements, so a
+CHILD element is invisible to it, and the count going to 0 "is a consequence of the shape
+changing, not the reason for it, and a person should confirm that against the captures."
+That is exactly right and it is a real gap in `sticker-audit.mjs`: a fake extrusion nested
+as a child would pass today. Queued as a validator fix, not a design one.
+
+Gap for round 2: the label clipping first, then the tan bars, the static mascot, and the
+ambiguous locked glyph.
