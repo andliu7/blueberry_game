@@ -42,6 +42,7 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
+import { settleBoot } from "./economy-moments.mjs";
 
 const VIEWPORT = { width: 1280, height: 900, deviceScaleFactor: 2 };
 const SETTLE_MS = 700;
@@ -246,6 +247,10 @@ async function openTrainer(browser, theme) {
     document.documentElement.classList.toggle("dark", wanted === "dark");
   }, theme);
   await page.goto(`${origin}/?targets=1&primitive=${PRIMITIVE}#/trainer`, { waitUntil: "networkidle0" });
+  // The front door (src/app/Loader.tsx) covers every route for about 1.25 s
+  // and networkidle0 can resolve first, so a shot taken here would be of a
+  // purple field. Wait for it to leave the document.
+  await settleBoot(page);
   await page.waitForFunction(() => (window.__blueberryTargets ?? []).length > 0, { timeout: 10_000 });
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
   return page;

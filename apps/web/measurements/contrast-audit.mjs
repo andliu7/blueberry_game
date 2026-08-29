@@ -48,7 +48,7 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
-import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, sleep } from "./economy-moments.mjs";
+import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, settleBoot, sleep } from "./economy-moments.mjs";
 
 /**
  * The tab routes, imported rather than restated.
@@ -124,6 +124,20 @@ const ECONOMY_ROUTES = [
   { name: "shell-bar", moment: "shell-bar", root: null, midMs: null },
   { name: "shell-tool", moment: "shell-tool", root: null, midMs: null },
   { name: "shell-courses", moment: "shell-courses", root: null, midMs: null },
+  //
+  // S4's front door, and it is the surface with the strongest claim to be here:
+  // every student sees it on every cold open, and until this line it was the one
+  // screen in the app that no audit had ever stood in front of. It is also the
+  // shortest lived, so it is the only route that needs the app told to wait
+  // (`?boot=hold`, in the moment's own hash); the frame capture uses no hook and
+  // watches the real thing.
+  //
+  // `root` is "#boot" because the loader is a FULL SCREEN stage, the same reason
+  // the reward moment and the combo interstitial scope to theirs: the page it
+  // will part to reveal is mounted and in position behind an opaque field, so a
+  // pair measured there is a pair nobody is looking at, and every one of them is
+  // already measured on its own tab's route.
+  { name: "boot", moment: "boot", root: "#boot", midMs: null },
 ];
 
 const ROUTES = [
@@ -482,6 +496,10 @@ try {
           document.documentElement.classList.toggle("dark", wanted === "dark");
         }, theme);
         await page.goto(`${origin}/?targets=1${route.hash}`, { waitUntil: "networkidle0" });
+        // The front door is a full bleed layer over every route and it leaves
+        // on its own about 1.25 s in, which networkidle0 can beat. Measuring
+        // before it goes would file the loader's colours under this tab.
+        await settleBoot(page);
         await sleep(500);
         await collect(page, route.name, theme, null);
         await page.close();
@@ -498,6 +516,10 @@ try {
         await page.setViewport(VIEWPORT);
         await installSeed(page, theme, route.seed, route.stored);
         await page.goto(`${origin}/${route.momentHash}`, { waitUntil: "networkidle0" });
+        // Every route but the front door itself waits for the loader to go.
+        // `?boot=hold` is what holds it, and holding it is the whole point of
+        // that one route, so it is the one route that must not wait.
+        if (!String(route.momentHash).includes("boot=hold")) await settleBoot(page);
         const onTrigger =
           route.midMs === null
             ? null

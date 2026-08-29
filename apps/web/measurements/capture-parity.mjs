@@ -24,6 +24,7 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
+import { settleBoot } from "./economy-moments.mjs";
 
 const VIEWPORT = { width: 1280, height: 900, deviceScaleFactor: 2 };
 const SETTLE_MS = 700;
@@ -98,6 +99,8 @@ async function open(browser, reaction) {
   const page = await browser.newPage();
   await page.setViewport(VIEWPORT);
   await page.goto(`${origin}/?targets=1&reaction=${reaction}#/trainer`, { waitUntil: "networkidle0" });
+  // See capture-trainer.mjs: the front door outlives networkidle0.
+  await settleBoot(page);
   await page.waitForFunction(() => (window.__blueberryTargets ?? []).length > 0, { timeout: 10_000 });
   await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
   return page;

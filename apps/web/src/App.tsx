@@ -16,9 +16,10 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Shell } from "./app/Shell";
 import { useHashRoute, navigate } from "./app/useHashRoute";
-import { hrefForTab, hrefForOnboarding } from "./app/routes";
+import { hrefForTab, hrefForOnboarding, type Route } from "./app/routes";
 import { useProgress, useReducedMotion } from "./app/hooks";
 import { TabSkeleton } from "./app/ui/Skeleton";
+import { BootReady, Loader } from "./app/Loader";
 
 const Onboarding = lazy(() => import("./onboarding/Onboarding"));
 const BeatRunner = lazy(() => import("./beats/BeatRunner").then((m) => ({ default: m.BeatRunner })));
@@ -51,9 +52,36 @@ export default function App() {
     if (needsOnboarding && route.kind !== "onboarding") navigate(hrefForOnboarding("welcome"));
   }, [needsOnboarding, route.kind]);
 
+  // THE FRONT DOOR WRAPS EVERY ROUTE. The loader is a fixed layer over the
+  // whole app, and the app renders underneath it the whole time, which is what
+  // makes the reveal a reveal: the page behind the field was already in
+  // position and at rest before the field parted. See app/Loader.tsx.
+  //
+  // <BootReady/> sits inside each Suspense boundary rather than beside it. A
+  // component inside a boundary does not mount until every sibling in that
+  // boundary has resolved, so its first effect is the honest moment "the page
+  // behind the loader is now in position".
+  return (
+    <>
+      <Loader reducedMotion={reducedMotion} />
+      <Body route={route} reducedMotion={reducedMotion} needsOnboarding={needsOnboarding} />
+    </>
+  );
+}
+
+function Body({
+  route,
+  reducedMotion,
+  needsOnboarding,
+}: {
+  readonly route: Route;
+  readonly reducedMotion: boolean;
+  readonly needsOnboarding: boolean;
+}) {
   if (route.kind === "gallery") {
     return (
       <Suspense fallback={<TabSkeleton label="the mascot gallery" />}>
+        <BootReady />
         <BerryGallery reducedMotion={reducedMotion} />
       </Suspense>
     );
@@ -62,6 +90,7 @@ export default function App() {
   if (route.kind === "onboarding") {
     return (
       <Suspense fallback={<TabSkeleton label="the placement quiz" />}>
+        <BootReady />
         <Onboarding step={route.step} reducedMotion={reducedMotion} />
       </Suspense>
     );
@@ -70,6 +99,7 @@ export default function App() {
   if (route.kind === "lesson") {
     return (
       <Suspense fallback={<TabSkeleton label="the lesson" />}>
+        <BootReady />
         <BeatRunner
           node={route.node}
           reducedMotion={reducedMotion}

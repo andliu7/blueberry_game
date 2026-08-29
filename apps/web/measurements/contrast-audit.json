@@ -1,8 +1,8 @@
 {
-  "measured": 1976,
-  "distinct": 95,
+  "measured": 8037,
+  "distinct": 161,
   "failing": 0,
-  "unresolved": 634,
+  "unresolved": 1448,
   "rows": [
     {
       "theme": "light",
@@ -16,7 +16,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg11",
+      "key": "svg10",
       "count": 1,
       "where": [
         "trainer:line"
@@ -34,7 +34,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg12",
+      "key": "svg11",
       "carriedBy": "stroke",
       "count": 2,
       "where": [
@@ -60,39 +60,45 @@
       ]
     },
     {
-      "theme": "light",
-      "route": "leaderboards",
+      "theme": "dark",
+      "route": "charge-cost",
       "kind": "svg-stroke",
-      "element": "path",
+      "element": "circle",
       "text": "",
-      "fg": "rgb(255,255,255)",
-      "bg": "rgb(217,70,239)",
-      "ratio": 3.46,
+      "fg": "rgb(107,97,136)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 3.27,
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg11",
-      "count": 1,
+      "key": "svg12",
+      "count": 5,
       "where": [
-        "leaderboards:path"
+        "charge-cost:circle",
+        "charge-empty:circle",
+        "charge-spend@300ms:circle",
+        "shell-bar:circle"
       ]
     },
     {
-      "theme": "dark",
-      "route": "leaderboards",
-      "kind": "svg-stroke",
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-fill",
       "element": "path",
       "text": "",
-      "fg": "rgb(255,255,255)",
-      "bg": "rgb(217,70,239)",
-      "ratio": 3.46,
+      "fg": "rgb(156,127,78)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 3.28,
       "floor": 3,
       "pass": true,
-      "paint": "stroke",
-      "key": "svg11",
-      "count": 1,
+      "paint": "fill",
+      "key": "svg10",
+      "count": 10,
       "where": [
-        "leaderboards:path"
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
       ]
     },
     {
@@ -107,13 +113,33 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
-      "count": 10,
+      "key": "svg8",
+      "count": 22,
       "where": [
         "trainer:path",
         "pathway:path",
-        "courses:path",
-        "search:path"
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,74,6)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 3.69,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 3,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
       ]
     },
     {
@@ -128,10 +154,52 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg14",
+      "key": "svg13",
       "count": 3,
       "where": [
         "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(125,115,146)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 3.85,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 5,
+      "where": [
+        "charge-cost:circle",
+        "charge-empty:circle",
+        "charge-spend@300ms:circle",
+        "shell-bar:circle"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(138,112,64)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 3.96,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg10",
+      "count": 10,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
       ]
     },
     {
@@ -147,10 +215,67 @@
       "pass": true,
       "paint": "fill",
       "key": "svg5",
-      "count": 2,
+      "count": 3,
       "where": [
         "reward-first:path",
-        "reward-streak:path"
+        "reward-streak:path",
+        "charge-empty:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(217,74,6)",
+      "ratio": 4.26,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 20,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(194,65,12)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 4.42,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 1,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(15,118,110)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 4.68,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 1,
+      "where": [
+        "cards:path"
       ]
     },
     {
@@ -166,12 +291,33 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 20,
+      "count": 104,
       "where": [
         "pathway:button.press.inline-flex.min-h-11",
-        "leaderboards:button.press.min-h-11.rounded-full",
-        "leaderboards:button.press.min-h-11.rounded-[9px]",
-        "periodic:button.press.min-h-11.rounded-full"
+        "cards:button.press.min-h-14.w-full",
+        "cards:button.press.min-h-11.w-full",
+        "leaderboards:a.press.mt-2.inline-flex"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(130,80,240)",
+      "ratio": 4.82,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg13",
+      "count": 5,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
       ]
     },
     {
@@ -179,26 +325,65 @@
       "route": "trainer",
       "kind": "text",
       "element": "span.hidden.md:inline",
-      "text": "Mechanism Trainer",
+      "text": "Train",
       "fg": "rgb(124,58,237)",
-      "bg": "rgb(240,239,234)",
-      "ratio": 4.95,
+      "bg": "rgb(241,234,254)",
+      "ratio": 4.87,
       "floor": 4.5,
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 18,
       "where": [
         "trainer:span.hidden.md:inline",
         "pathway:span.hidden.md:inline",
-        "courses:span.hidden.md:inline",
-        "search:span.hidden.md:inline"
+        "cards:span.hidden.md:inline",
+        "me:span.hidden.md:inline"
       ]
     },
     {
       "theme": "light",
-      "route": "trainer",
+      "route": "pathway",
       "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 4.87,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "pathway:path",
+        "courses:path",
+        "charge-cost:path",
+        "charge-empty:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-bold",
+      "text": "0",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 4.87,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
       "element": "path",
       "text": "",
       "fg": "rgb(124,58,237)",
@@ -206,14 +391,11 @@
       "ratio": 4.95,
       "floor": 3,
       "pass": true,
-      "paint": "stroke",
-      "key": "svg1",
-      "count": 8,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 1,
       "where": [
-        "trainer:path",
-        "pathway:path",
-        "courses:path",
-        "search:path"
+        "streak-rest:path"
       ]
     },
     {
@@ -248,12 +430,93 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 21,
       "where": [
         "trainer:span.text-scale-sm.font-bold.leading-none",
         "pathway:span.text-scale-sm.font-bold.leading-none",
-        "courses:span.text-scale-sm.font-bold.leading-none",
-        "search:span.text-scale-sm.font-bold.leading-none"
+        "cards:span.text-scale-sm.font-bold.leading-none",
+        "me:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(3,105,161)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 5.15,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 1,
+      "where": [
+        "streak-rest:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "rect",
+      "text": "",
+      "fg": "rgb(87,83,78)",
+      "bg": "rgb(216,212,205)",
+      "ratio": 5.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg17",
+      "count": 415,
+      "where": [
+        "charge-cost:rect",
+        "charge-empty:rect",
+        "charge-spend@300ms:rect",
+        "shell-bar:rect"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(87,83,78)",
+      "bg": "rgb(216,212,205)",
+      "ratio": 5.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg18",
+      "count": 415,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "pathway",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(194,65,12)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.18,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 15,
+      "where": [
+        "pathway:path",
+        "cards:path",
+        "me:path",
+        "courses:path"
       ]
     },
     {
@@ -306,10 +569,112 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg14",
+      "key": "svg13",
       "count": 3,
       "where": [
         "trainer:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hidden.md:inline",
+      "text": "Train",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 5.41,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 18,
+      "where": [
+        "trainer:span.hidden.md:inline",
+        "pathway:span.hidden.md:inline",
+        "cards:span.hidden.md:inline",
+        "me:span.hidden.md:inline"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "pathway",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 5.41,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "pathway:path",
+        "courses:path",
+        "charge-cost:path",
+        "charge-empty:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-bold",
+      "text": "0",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 5.41,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(15,118,110)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.47,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "me:path",
+        "courses:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(124,58,237)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 5.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "cards:path",
+        "me:path",
+        "search:path"
       ]
     },
     {
@@ -325,20 +690,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 20,
+      "count": 105,
       "where": [
         "pathway:button.press.inline-flex.min-h-11",
-        "leaderboards:button.press.min-h-11.rounded-full",
-        "leaderboards:button.press.min-h-11.rounded-[9px]",
-        "periodic:button.press.min-h-11.rounded-full"
+        "cards:button.press.min-h-14.w-full",
+        "cards:button.press.min-h-11.w-full",
+        "leaderboards:a.press.mt-2.inline-flex"
       ]
     },
     {
       "theme": "light",
-      "route": "feedback-correct@250ms",
+      "route": "me",
       "kind": "text",
-      "element": "span.inline-flex.items-center.rounded-full",
-      "text": "Calculate",
+      "element": "span.shrink-0.text-scale-sm.font-bold",
+      "text": "English",
       "fg": "rgb(124,58,237)",
       "bg": "rgb(255,255,255)",
       "ratio": 5.7,
@@ -346,12 +711,114 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 4,
+      "count": 11,
       "where": [
-        "feedback-correct@250ms:span.inline-flex.items-center.rounded-full",
-        "feedback-correct:span.inline-flex.items-center.rounded-full",
-        "feedback-wrong@250ms:span.inline-flex.items-center.rounded-full",
-        "feedback-wrong:span.inline-flex.items-center.rounded-full"
+        "me:span.shrink-0.text-scale-sm.font-bold",
+        "feedback-correct@250ms:span.inline-flex.shrink-0.items-center",
+        "feedback-correct:span.inline-flex.shrink-0.items-center",
+        "feedback-wrong@250ms:span.inline-flex.shrink-0.items-center"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(124,58,237)",
+      "ratio": 5.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg13",
+      "count": 5,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(29,78,216)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 5.73,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg4",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(29,78,216)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 5.73,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "text",
+      "element": "span.text-center.text-scale-xs.font-semibold",
+      "text": "Diamonds",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 5.84,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.text-center.text-scale-xs.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 5.84,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 9,
+      "where": [
+        "me:path",
+        "leaderboards:path",
+        "chat:path",
+        "messages:path"
       ]
     },
     {
@@ -394,10 +861,10 @@
     },
     {
       "theme": "dark",
-      "route": "leaderboards",
+      "route": "courses",
       "kind": "text",
-      "element": "button.press.min-h-11.rounded-full",
-      "text": "This week",
+      "element": "span.flex.h-12.w-12",
+      "text": "G1",
       "fg": "rgb(168,162,158)",
       "bg": "rgb(41,37,36)",
       "ratio": 6.01,
@@ -405,12 +872,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 20,
       "where": [
-        "leaderboards:button.press.min-h-11.rounded-full",
-        "leaderboards:span.inline-flex.items-center.rounded-full",
-        "periodic:span.inline-flex.items-center.rounded-full",
-        "chat:span.inline-flex.items-center.rounded-full"
+        "courses:span.flex.h-12.w-12",
+        "periodic:span.inline-flex.shrink-0.items-center",
+        "feedback-correct@250ms:span.inline-flex.shrink-0.items-center",
+        "feedback-correct:span.inline-flex.shrink-0.items-center"
       ]
     },
     {
@@ -493,6 +960,108 @@
     },
     {
       "theme": "light",
+      "route": "streak-rest",
+      "kind": "large-text",
+      "element": "span.streak-number.text-streak-ink",
+      "text": "47",
+      "fg": "rgb(154,52,18)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.34,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "streak-rest:span.streak-number.text-streak-ink",
+        "streak-rest:span.streak-reveal.streak-unit.mt-2",
+        "streak-milestone:span.streak-number.text-streak-ink",
+        "streak-milestone:span.streak-reveal.streak-unit.mt-2"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "S",
+      "fg": "rgb(154,52,18)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.34,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-note-strong",
+        "streak-milestone:span.streak-day-letter",
+        "streak-exam:span.streak-day-letter"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "rect",
+      "text": "",
+      "fg": "rgb(205,198,188)",
+      "bg": "rgb(66,61,56)",
+      "ratio": 6.34,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg17",
+      "count": 415,
+      "where": [
+        "charge-cost:rect",
+        "charge-empty:rect",
+        "charge-spend@300ms:rect",
+        "shell-bar:rect"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(205,198,188)",
+      "bg": "rgb(66,61,56)",
+      "ratio": 6.34,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg18",
+      "count": 415,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(254,243,199)",
+      "ratio": 6.37,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 2,
+      "where": [
+        "cards:path"
+      ]
+    },
+    {
+      "theme": "light",
       "route": "reward-streak",
       "kind": "text",
       "element": "div.reward-card__band",
@@ -511,10 +1080,31 @@
     },
     {
       "theme": "dark",
-      "route": "feedback-correct@250ms",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(167,139,250)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 6.43,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 8,
+      "where": [
+        "trainer:path",
+        "cards:path",
+        "me:path",
+        "search:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
       "kind": "text",
-      "element": "span.inline-flex.items-center.rounded-full",
-      "text": "Calculate",
+      "element": "span.shrink-0.text-scale-sm.font-bold",
+      "text": "English",
       "fg": "rgb(167,139,250)",
       "bg": "rgb(28,25,23)",
       "ratio": 6.43,
@@ -522,12 +1112,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 4,
+      "count": 11,
       "where": [
-        "feedback-correct@250ms:span.inline-flex.items-center.rounded-full",
-        "feedback-correct:span.inline-flex.items-center.rounded-full",
-        "feedback-wrong@250ms:span.inline-flex.items-center.rounded-full",
-        "feedback-wrong:span.inline-flex.items-center.rounded-full"
+        "me:span.shrink-0.text-scale-sm.font-bold",
+        "feedback-correct@250ms:span.inline-flex.shrink-0.items-center",
+        "feedback-correct:span.inline-flex.shrink-0.items-center",
+        "feedback-wrong@250ms:span.inline-flex.shrink-0.items-center"
       ]
     },
     {
@@ -551,10 +1141,85 @@
     },
     {
       "theme": "light",
+      "route": "me",
+      "kind": "text",
+      "element": "span.text-center.text-scale-xs.font-semibold",
+      "text": "Diamonds",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 6.47,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.text-center.text-scale-xs.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 6.47,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 9,
+      "where": [
+        "me:path",
+        "leaderboards:path",
+        "chat:path",
+        "messages:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "boot",
+      "kind": "text",
+      "element": "p#boot-word.boot-word",
+      "text": "Finding your place",
+      "fg": "rgb(245,243,255)",
+      "bg": "rgb(109,40,217)",
+      "ratio": 6.48,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "boot:p#boot-word.boot-word"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(251,146,60)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 6.51,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 1,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
       "route": "trainer",
       "kind": "text",
-      "element": "span.hidden.md:inline",
-      "text": "Pathway",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "en",
       "fg": "rgb(71,85,105)",
       "bg": "rgb(240,239,234)",
       "ratio": 6.58,
@@ -562,33 +1227,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 95,
+      "count": 583,
       "where": [
-        "trainer:span.hidden.md:inline",
         "trainer:button.press.inline-flex.min-h-11",
         "trainer:span.text-scale-sm.font-bold.leading-none",
-        "trainer:p.text-scale-sm.text-muted-foreground"
-      ]
-    },
-    {
-      "theme": "light",
-      "route": "trainer",
-      "kind": "svg-stroke",
-      "element": "path",
-      "text": "",
-      "fg": "rgb(71,85,105)",
-      "bg": "rgb(240,239,234)",
-      "ratio": 6.58,
-      "floor": 3,
-      "pass": true,
-      "paint": "stroke",
-      "key": "svg2",
-      "count": 56,
-      "where": [
-        "trainer:path",
-        "pathway:path",
-        "courses:path",
-        "search:path"
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground"
       ]
     },
     {
@@ -603,13 +1247,33 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg10",
-      "count": 8,
+      "key": "svg9",
+      "count": 16,
       "where": [
         "trainer:path",
         "pathway:path",
-        "courses:path",
-        "search:path"
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(71,85,105)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 6.58,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 5,
+      "where": [
+        "streak-rest:g",
+        "streak-milestone:g",
+        "streak-exam:g"
       ]
     },
     {
@@ -632,6 +1296,69 @@
       ]
     },
     {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(221,215,232)",
+      "bg": "rgb(74,67,88)",
+      "ratio": 6.69,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 15,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(29,78,216)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 6.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg4",
+      "count": 10,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "courses:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(29,78,216)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 6.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 10,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "courses:path"
+      ]
+    },
+    {
       "theme": "light",
       "route": "trainer",
       "kind": "large-text",
@@ -644,12 +1371,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 16,
       "where": [
         "trainer:span.hud-charge-value",
         "pathway:span.hud-charge-value",
-        "courses:span.hud-charge-value",
-        "search:span.hud-charge-value"
+        "cards:span.hud-charge-value",
+        "me:span.hud-charge-value"
       ]
     },
     {
@@ -665,12 +1392,50 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 12,
+      "count": 22,
       "where": [
         "trainer:span.hud-charge-word",
         "pathway:span.hud-charge-word",
-        "courses:span.hud-charge-word",
-        "search:span.hud-charge-word"
+        "cards:span.hud-charge-word",
+        "cards:span.rounded-full.border-2.border-[color:color-mix(in_srgb,var(--good)_40%,transparent)]"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-exam",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(6,95,70)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 6.78,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(6,95,70)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 6.78,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg183",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
       ]
     },
     {
@@ -685,7 +1450,7 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg11",
+      "key": "svg10",
       "count": 1,
       "where": [
         "trainer:line"
@@ -693,29 +1458,8 @@
     },
     {
       "theme": "dark",
-      "route": "trainer",
-      "kind": "text",
-      "element": "span.hidden.md:inline",
-      "text": "Mechanism Trainer",
-      "fg": "rgb(167,139,250)",
-      "bg": "rgb(21,19,18)",
-      "ratio": 6.83,
-      "floor": 4.5,
-      "pass": true,
-      "paint": null,
-      "key": null,
-      "count": 8,
-      "where": [
-        "trainer:span.hidden.md:inline",
-        "pathway:span.hidden.md:inline",
-        "courses:span.hidden.md:inline",
-        "search:span.hidden.md:inline"
-      ]
-    },
-    {
-      "theme": "dark",
-      "route": "trainer",
-      "kind": "svg-stroke",
+      "route": "streak-rest",
+      "kind": "svg-fill",
       "element": "path",
       "text": "",
       "fg": "rgb(167,139,250)",
@@ -723,14 +1467,11 @@
       "ratio": 6.83,
       "floor": 3,
       "pass": true,
-      "paint": "stroke",
-      "key": "svg1",
-      "count": 8,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 1,
       "where": [
-        "trainer:path",
-        "pathway:path",
-        "courses:path",
-        "search:path"
+        "streak-rest:path"
       ]
     },
     {
@@ -754,10 +1495,10 @@
     },
     {
       "theme": "light",
-      "route": "leaderboards",
+      "route": "courses",
       "kind": "text",
-      "element": "button.press.min-h-11.rounded-full",
-      "text": "This week",
+      "element": "span.flex.h-12.w-12",
+      "text": "G1",
       "fg": "rgb(71,85,105)",
       "bg": "rgb(241,245,249)",
       "ratio": 6.92,
@@ -765,20 +1506,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 21,
       "where": [
-        "leaderboards:button.press.min-h-11.rounded-full",
-        "leaderboards:span.inline-flex.items-center.rounded-full",
-        "periodic:span.inline-flex.items-center.rounded-full",
-        "chat:span.inline-flex.items-center.rounded-full"
+        "courses:span.flex.h-12.w-12",
+        "periodic:span.inline-flex.shrink-0.items-center",
+        "feedback-correct@250ms:span.inline-flex.shrink-0.items-center",
+        "feedback-correct:span.inline-flex.shrink-0.items-center"
       ]
     },
     {
       "theme": "dark",
       "route": "trainer",
       "kind": "text",
-      "element": "span.text-scale-xs.font-normal.text-muted-foreground",
-      "text": "· change",
+      "element": "span.hidden.md:inline",
+      "text": "Path",
       "fg": "rgb(168,162,158)",
       "bg": "rgb(28,25,23)",
       "ratio": 6.93,
@@ -786,12 +1527,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 49,
+      "count": 126,
       "where": [
+        "trainer:span.hidden.md:inline",
         "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
-        "pathway:p.text-scale-sm.text-muted-foreground",
-        "courses:p.text-scale-sm.text-muted-foreground",
-        "courses:p.mt-auto.text-scale-xs.text-muted-foreground"
+        "pathway:span.hidden.md:inline",
+        "pathway:p.text-scale-sm.text-muted-foreground"
       ]
     },
     {
@@ -851,11 +1592,50 @@
       ]
     },
     {
+      "theme": "light",
+      "route": "streak-milestone",
+      "kind": "text",
+      "element": "span.streak-milestone-band",
+      "text": "Milestone",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(154,52,18)",
+      "ratio": 7.31,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "streak-milestone:span.streak-milestone-band"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(58,52,70)",
+      "bg": "rgb(207,199,220)",
+      "ratio": 7.31,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 15,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
       "theme": "dark",
       "route": "trainer",
       "kind": "text",
-      "element": "span.hidden.md:inline",
-      "text": "Pathway",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "en",
       "fg": "rgb(168,162,158)",
       "bg": "rgb(21,19,18)",
       "ratio": 7.37,
@@ -863,33 +1643,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 95,
+      "count": 581,
       "where": [
-        "trainer:span.hidden.md:inline",
         "trainer:button.press.inline-flex.min-h-11",
         "trainer:span.text-scale-sm.font-bold.leading-none",
-        "trainer:p.text-scale-sm.text-muted-foreground"
-      ]
-    },
-    {
-      "theme": "dark",
-      "route": "trainer",
-      "kind": "svg-stroke",
-      "element": "path",
-      "text": "",
-      "fg": "rgb(168,162,158)",
-      "bg": "rgb(21,19,18)",
-      "ratio": 7.37,
-      "floor": 3,
-      "pass": true,
-      "paint": "stroke",
-      "key": "svg2",
-      "count": 56,
-      "where": [
-        "trainer:path",
-        "pathway:path",
-        "courses:path",
-        "search:path"
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground"
       ]
     },
     {
@@ -904,21 +1663,41 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg10",
-      "count": 8,
+      "key": "svg9",
+      "count": 21,
       "where": [
         "trainer:path",
         "pathway:path",
-        "courses:path",
-        "search:path"
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(168,162,158)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 7.37,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 5,
+      "where": [
+        "streak-rest:g",
+        "streak-milestone:g",
+        "streak-exam:g"
       ]
     },
     {
       "theme": "light",
       "route": "trainer",
       "kind": "text",
-      "element": "span.text-scale-xs.font-normal.text-muted-foreground",
-      "text": "· change",
+      "element": "span.hidden.md:inline",
+      "text": "Path",
       "fg": "rgb(71,85,105)",
       "bg": "rgb(255,255,255)",
       "ratio": 7.58,
@@ -926,12 +1705,89 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 49,
+      "count": 126,
       "where": [
+        "trainer:span.hidden.md:inline",
         "trainer:span.text-scale-xs.font-normal.text-muted-foreground",
-        "pathway:p.text-scale-sm.text-muted-foreground",
-        "courses:p.text-scale-sm.text-muted-foreground",
-        "courses:p.mt-auto.text-scale-xs.text-muted-foreground"
+        "pathway:span.hidden.md:inline",
+        "pathway:p.text-scale-sm.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "pathway",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(251,146,60)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 7.73,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 15,
+      "where": [
+        "pathway:path",
+        "cards:path",
+        "me:path",
+        "courses:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(28,25,23)",
+      "bg": "rgb(251,146,60)",
+      "ratio": 7.73,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 20,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-milestone",
+      "kind": "text",
+      "element": "span.streak-milestone-band",
+      "text": "Milestone",
+      "fg": "rgb(28,25,23)",
+      "bg": "rgb(251,146,60)",
+      "ratio": 7.73,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "streak-milestone:span.streak-milestone-band"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(69,58,18)",
+      "ratio": 7.8,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "count": 2,
+      "where": [
+        "cards:path"
       ]
     },
     {
@@ -1002,10 +1858,73 @@
       "pass": true,
       "paint": "fill",
       "key": "svg5",
-      "count": 2,
+      "count": 3,
       "where": [
         "reward-first:path",
-        "reward-streak:path"
+        "reward-streak:path",
+        "charge-empty:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(147,197,253)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 8.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg4",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(147,197,253)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 8.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(251,146,60)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 8.21,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 3,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
       ]
     },
     {
@@ -1029,6 +1948,26 @@
     },
     {
       "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(32,55,44)",
+      "ratio": 8.41,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg183",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
+      ]
+    },
+    {
+      "theme": "dark",
       "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
@@ -1039,13 +1978,13 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
-      "count": 10,
+      "key": "svg8",
+      "count": 22,
       "where": [
         "trainer:path",
         "pathway:path",
-        "courses:path",
-        "search:path"
+        "cards:path",
+        "me:path"
       ]
     },
     {
@@ -1070,6 +2009,66 @@
     {
       "theme": "dark",
       "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(147,197,253)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 9.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg4",
+      "count": 10,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "courses:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(147,197,253)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 9.7,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 10,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "courses:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(94,234,212)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 9.95,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 1,
+      "where": [
+        "cards:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "large-text",
       "element": "span.hud-charge-value",
       "text": "30",
@@ -1080,12 +2079,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 16,
       "where": [
         "trainer:span.hud-charge-value",
         "pathway:span.hud-charge-value",
-        "courses:span.hud-charge-value",
-        "search:span.hud-charge-value"
+        "cards:span.hud-charge-value",
+        "me:span.hud-charge-value"
       ]
     },
     {
@@ -1101,12 +2100,30 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 10,
+      "count": 20,
       "where": [
         "trainer:span.hud-charge-word",
         "pathway:span.hud-charge-word",
-        "courses:span.hud-charge-word",
-        "search:span.hud-charge-word"
+        "cards:span.hud-charge-word",
+        "cards:span.rounded-full.border-2.border-[color:color-mix(in_srgb,var(--good)_40%,transparent)]"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-exam",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(18,42,32)",
+      "ratio": 9.98,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "streak-exam:path"
       ]
     },
     {
@@ -1122,10 +2139,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 12,
+      "count": 24,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1141,10 +2160,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 12,
+      "count": 24,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1160,10 +2181,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 9,
       "where": [
         "feedback-correct@250ms:dt.font-semibold.text-foreground",
-        "feedback-correct:dt.font-semibold.text-foreground"
+        "feedback-correct:dt.font-semibold.text-foreground",
+        "charge-cost:span",
+        "charge-empty:span"
       ]
     },
     {
@@ -1179,11 +2202,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 23,
+      "count": 46,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
         "periodic:span.text-scale-sm.font-bold.leading-tight",
-        "periodic:span.text-scale-xs"
+        "periodic:span.text-scale-xs",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70"
       ]
     },
     {
@@ -1199,9 +2223,10 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 2,
       "where": [
-        "periodic:span.title-face.text-scale-2xl.font-semibold"
+        "periodic:span.title-face.text-scale-2xl.font-semibold",
+        "shell-tool:span.title-face.text-scale-2xl.font-semibold"
       ]
     },
     {
@@ -1217,11 +2242,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 23,
+      "count": 46,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
         "periodic:span.text-scale-sm.font-bold.leading-tight",
-        "periodic:span.text-scale-xs"
+        "periodic:span.text-scale-xs",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70"
       ]
     },
     {
@@ -1237,9 +2263,10 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 2,
       "where": [
-        "periodic:span.title-face.text-scale-2xl.font-semibold"
+        "periodic:span.title-face.text-scale-2xl.font-semibold",
+        "shell-tool:span.title-face.text-scale-2xl.font-semibold"
       ]
     },
     {
@@ -1254,7 +2281,7 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg12",
+      "key": "svg11",
       "carriedBy": "fill",
       "count": 2,
       "where": [
@@ -1312,10 +2339,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 28,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1331,10 +2360,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 28,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1350,10 +2381,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 30,
+      "count": 60,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1369,10 +2402,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 30,
+      "count": 60,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1388,10 +2423,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 30,
+      "count": 60,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1407,10 +2444,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 30,
+      "count": 60,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1426,10 +2465,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 12,
+      "count": 24,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1445,10 +2486,54 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 12,
+      "count": 24,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "large-text",
+      "element": "span.streak-number.text-streak-ink",
+      "text": "47",
+      "fg": "rgb(253,186,116)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 11.02,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "streak-rest:span.streak-number.text-streak-ink",
+        "streak-rest:span.streak-reveal.streak-unit.mt-2",
+        "streak-milestone:span.streak-number.text-streak-ink",
+        "streak-milestone:span.streak-reveal.streak-unit.mt-2"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "S",
+      "fg": "rgb(253,186,116)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 11.02,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 4,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-note-strong",
+        "streak-milestone:span.streak-day-letter",
+        "streak-exam:span.streak-day-letter"
       ]
     },
     {
@@ -1464,12 +2549,49 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 20,
       "where": [
         "trainer:span.text-scale-sm.font-bold.leading-none",
         "pathway:span.text-scale-sm.font-bold.leading-none",
-        "courses:span.text-scale-sm.font-bold.leading-none",
-        "search:span.text-scale-sm.font-bold.leading-none"
+        "cards:span.text-scale-sm.font-bold.leading-none",
+        "me:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 11.15,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 1,
+      "where": [
+        "streak-rest:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(21,19,18)",
+      "ratio": 11.15,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "streak-rest:path"
       ]
     },
     {
@@ -1485,10 +2607,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 28,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1504,10 +2628,31 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 14,
+      "count": 28,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "courses",
+      "kind": "text",
+      "element": "span.flex.h-14.w-14",
+      "text": "O2",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(46,35,62)",
+      "ratio": 11.73,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "courses:span.flex.h-14.w-14",
+        "shell-courses:span.flex.h-14.w-14"
       ]
     },
     {
@@ -1523,10 +2668,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 76,
+      "count": 152,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1542,10 +2689,33 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 76,
+      "count": 152,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(94,234,212)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 11.82,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "me:path",
+        "courses:path"
       ]
     },
     {
@@ -1561,10 +2731,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 26,
+      "count": 52,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1580,10 +2752,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 26,
+      "count": 52,
       "where": [
         "periodic:span.text-[0.6rem].leading-none.opacity-70",
-        "periodic:span.text-scale-sm.font-bold.leading-tight"
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
@@ -1606,10 +2780,29 @@
     },
     {
       "theme": "light",
+      "route": "courses",
+      "kind": "text",
+      "element": "span.flex.h-14.w-14",
+      "text": "O2",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(241,234,254)",
+      "ratio": 12.5,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "courses:span.flex.h-14.w-14",
+        "shell-courses:span.flex.h-14.w-14"
+      ]
+    },
+    {
+      "theme": "light",
       "route": "trainer",
       "kind": "text",
-      "element": "span.title-face.text-scale-lg.font-semibold",
-      "text": "Blueberry",
+      "element": "h1.hidden.truncate.pr-1",
+      "text": "Train",
       "fg": "rgb(30,41,59)",
       "bg": "rgb(240,239,234)",
       "ratio": 12.69,
@@ -1617,20 +2810,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 22,
+      "count": 136,
       "where": [
-        "trainer:span.title-face.text-scale-lg.font-semibold",
-        "trainer:h1.hidden.truncate.text-scale-lg",
+        "trainer:h1.hidden.truncate.pr-1",
         "trainer:h2.title-face.text-scale-xl.font-semibold",
-        "pathway:span.title-face.text-scale-lg.font-semibold"
+        "pathway:h1.hidden.truncate.pr-1",
+        "cards:h1.hidden.truncate.pr-1"
       ]
     },
     {
       "theme": "light",
-      "route": "onboarding",
+      "route": "cards",
       "kind": "large-text",
-      "element": "h1.title-face.text-scale-display.font-semibold",
-      "text": "Blueberry",
+      "element": "h1.title-face.text-scale-2xl.font-bold",
+      "text": "No cards yet",
       "fg": "rgb(30,41,59)",
       "bg": "rgb(240,239,234)",
       "ratio": 12.69,
@@ -1638,11 +2831,30 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 3,
+      "count": 7,
       "where": [
-        "onboarding:h1.title-face.text-scale-display.font-semibold",
-        "reward-first:h2.reward-headline.title-face.mt-6",
-        "reward-streak:h2.reward-headline.title-face.mt-6"
+        "cards:h1.title-face.text-scale-2xl.font-bold",
+        "me:h1.title-face.text-scale-2xl.font-bold",
+        "courses:h1.title-face.text-scale-2xl.font-bold",
+        "onboarding:h1.title-face.text-scale-display.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "boot",
+      "kind": "text",
+      "element": "p#boot-word.boot-word",
+      "text": "Finding your place",
+      "fg": "rgb(237,233,254)",
+      "bg": "rgb(46,16,101)",
+      "ratio": 12.83,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "boot:p#boot-word.boot-word"
       ]
     },
     {
@@ -1717,10 +2929,33 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 6,
+      "count": 9,
       "where": [
         "feedback-correct@250ms:dt.font-semibold.text-foreground",
-        "feedback-correct:dt.font-semibold.text-foreground"
+        "feedback-correct:dt.font-semibold.text-foreground",
+        "charge-cost:span",
+        "charge-empty:span"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-quests__chip.path-quests__chip--queued.px-3",
+      "text": "Allylic halogenation",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(246,244,239)",
+      "ratio": 13.31,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 526,
+      "where": [
+        "charge-cost:span.path-quests__chip.path-quests__chip--queued.px-3",
+        "charge-cost:span.path-quests__chip.px-3.py-1",
+        "charge-cost:a.press.path-quests__chip.px-3",
+        "charge-empty:span.path-quests__chip.path-quests__chip--queued.px-3"
       ]
     },
     {
@@ -1746,8 +2981,8 @@
       "theme": "dark",
       "route": "trainer",
       "kind": "text",
-      "element": "button.press.mt-2.inline-flex",
-      "text": "Sₙ2 at bromomethane",
+      "element": "span.title-face.text-scale-lg.font-semibold",
+      "text": "Blueberry",
       "fg": "rgb(231,229,228)",
       "bg": "rgb(28,25,23)",
       "ratio": 13.93,
@@ -1755,20 +2990,62 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 29,
+      "count": 55,
       "where": [
+        "trainer:span.title-face.text-scale-lg.font-semibold",
         "trainer:button.press.mt-2.inline-flex",
         "trainer:span",
-        "trainer:span.inline-block.font-semibold.text-foreground",
-        "pathway:button.press.inline-flex.min-h-11"
+        "trainer:span.inline-block.font-semibold.text-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 13.93,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 32,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "courses",
+      "kind": "large-text",
+      "element": "h2.title-face.min-w-0.flex-1",
+      "text": "Organic Chemistry II",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(28,25,23)",
+      "ratio": 13.93,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "courses:h2.title-face.min-w-0.flex-1",
+        "charge-cost:h2.charge-headline",
+        "charge-empty:h2.charge-headline",
+        "charge-spend@300ms:h2.charge-headline"
       ]
     },
     {
       "theme": "light",
       "route": "trainer",
       "kind": "text",
-      "element": "button.press.mt-2.inline-flex",
-      "text": "Sₙ2 at bromomethane",
+      "element": "span.title-face.text-scale-lg.font-semibold",
+      "text": "Blueberry",
       "fg": "rgb(30,41,59)",
       "bg": "rgb(255,255,255)",
       "ratio": 14.63,
@@ -1776,20 +3053,62 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 29,
+      "count": 58,
       "where": [
+        "trainer:span.title-face.text-scale-lg.font-semibold",
         "trainer:button.press.mt-2.inline-flex",
         "trainer:span",
-        "trainer:span.inline-block.font-semibold.text-foreground",
-        "pathway:button.press.inline-flex.min-h-11"
+        "trainer:span.inline-block.font-semibold.text-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 14.63,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 34,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "courses",
+      "kind": "large-text",
+      "element": "h2.title-face.min-w-0.flex-1",
+      "text": "Organic Chemistry II",
+      "fg": "rgb(30,41,59)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 14.63,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "courses:h2.title-face.min-w-0.flex-1",
+        "charge-cost:h2.charge-headline",
+        "charge-empty:h2.charge-headline",
+        "charge-spend@300ms:h2.charge-headline"
       ]
     },
     {
       "theme": "dark",
       "route": "trainer",
       "kind": "text",
-      "element": "span.title-face.text-scale-lg.font-semibold",
-      "text": "Blueberry",
+      "element": "h1.hidden.truncate.pr-1",
+      "text": "Train",
       "fg": "rgb(231,229,228)",
       "bg": "rgb(21,19,18)",
       "ratio": 14.81,
@@ -1797,20 +3116,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 22,
+      "count": 135,
       "where": [
-        "trainer:span.title-face.text-scale-lg.font-semibold",
-        "trainer:h1.hidden.truncate.text-scale-lg",
+        "trainer:h1.hidden.truncate.pr-1",
         "trainer:h2.title-face.text-scale-xl.font-semibold",
-        "pathway:span.title-face.text-scale-lg.font-semibold"
+        "pathway:h1.hidden.truncate.pr-1",
+        "cards:h1.hidden.truncate.pr-1"
       ]
     },
     {
       "theme": "dark",
-      "route": "onboarding",
+      "route": "cards",
       "kind": "large-text",
-      "element": "h1.title-face.text-scale-display.font-semibold",
-      "text": "Blueberry",
+      "element": "h1.title-face.text-scale-2xl.font-bold",
+      "text": "No cards yet",
       "fg": "rgb(231,229,228)",
       "bg": "rgb(21,19,18)",
       "ratio": 14.81,
@@ -1818,11 +3137,33 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 3,
+      "count": 7,
       "where": [
-        "onboarding:h1.title-face.text-scale-display.font-semibold",
-        "reward-first:h2.reward-headline.title-face.mt-6",
-        "reward-streak:h2.reward-headline.title-face.mt-6"
+        "cards:h1.title-face.text-scale-2xl.font-bold",
+        "me:h1.title-face.text-scale-2xl.font-bold",
+        "courses:h1.title-face.text-scale-2xl.font-bold",
+        "onboarding:h1.title-face.text-scale-display.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-quests__chip.path-quests__chip--queued.px-3",
+      "text": "Allylic halogenation",
+      "fg": "rgb(231,229,228)",
+      "bg": "rgb(12,10,9)",
+      "ratio": 15.73,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 526,
+      "where": [
+        "charge-cost:span.path-quests__chip.path-quests__chip--queued.px-3",
+        "charge-cost:span.path-quests__chip.px-3.py-1",
+        "charge-cost:a.press.path-quests__chip.px-3",
+        "charge-empty:span.path-quests__chip.path-quests__chip--queued.px-3"
       ]
     },
     {
@@ -1838,12 +3179,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 18,
+      "count": 16,
       "where": [
         "pathway:h2.title-face.text-scale-xl.font-semibold",
-        "courses:h2.title-face.text-scale-lg.font-semibold",
-        "leaderboards:h2.text-scale-lg.font-semibold.leading-tight",
-        "leaderboards:h2.text-scale-base.font-semibold"
+        "cards:h3.text-scale-base.font-semibold.text-card-foreground",
+        "periodic:h2.title-face.text-scale-xl.font-semibold",
+        "periodic:dd.font-mono"
       ]
     },
     {
@@ -1859,12 +3200,33 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 18,
+      "count": 16,
       "where": [
         "pathway:h2.title-face.text-scale-xl.font-semibold",
-        "courses:h2.title-face.text-scale-lg.font-semibold",
-        "leaderboards:h2.text-scale-lg.font-semibold.leading-tight",
-        "leaderboards:h2.text-scale-base.font-semibold"
+        "cards:h3.text-scale-base.font-semibold.text-card-foreground",
+        "periodic:h2.title-face.text-scale-xl.font-semibold",
+        "periodic:dd.font-mono"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(0,0,0)",
+      "bg": "rgb(240,239,234)",
+      "ratio": 18.22,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg10",
+      "carriedBy": "fill",
+      "count": 6,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
       ]
     }
   ]

@@ -20,9 +20,194 @@
         }
       })();
     </script>
+    <style>
+      /* THE FRONT DOOR. Read src/app/Loader.tsx first: it holds the reasoning
+         for every rule below and for why the markup lives here rather than in a
+         component. Comments in this block ship to every student on the critical
+         path, uncompressed and unminified, so they stay short on purpose and
+         the prose lives in the module that gets minified. */
+      :root {
+        /* The product's purple. White ink clears AA on it, 7.1:1 light and
+           12.8:1 dark, and it is far enough from the cream page that the reveal
+           is a change of world rather than a change of shade. */
+        --boot-field: #6d28d9;
+        --boot-ink: #f5f3ff;
+        --boot-rule-track: rgba(255, 255, 255, 0.32);
+        --boot-rule-fill: #f5f3ff;
+      }
+      .dark {
+        --boot-field: #2e1065;
+        --boot-ink: #ede9fe;
+        --boot-rule-track: rgba(237, 233, 254, 0.26);
+        --boot-rule-fill: #ddd2fb;
+      }
+
+      /* The field is on #boot AND on the panels. Loader.tsx, "the backdrop
+         climb", says why the duplicate is load bearing. */
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        background: var(--boot-field);
+        transition: opacity 120ms linear;
+      }
+      #boot[data-boot="reveal"] {
+        background: transparent;
+        pointer-events: none;
+      }
+
+      /* Two halves that part from the line the mark sits on. 1px of overlap
+         each, so no sub-pixel seam can open at 2x or 3x. The curve is a curtain
+         with mass: a plain ease-out was measured effectively finished at 380 ms,
+         so the field did not travel, it vanished. */
+      .boot-panel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: calc(50% + 1px);
+        background: var(--boot-field);
+        transform: translate3d(0, 0, 0);
+        transition: transform 820ms cubic-bezier(0.5, 0.02, 0.2, 1);
+      }
+      .boot-panel--top {
+        top: 0;
+        transform-origin: 50% 100%;
+      }
+      .boot-panel--bottom {
+        bottom: 0;
+        transform-origin: 50% 0%;
+      }
+      #boot[data-boot="reveal"] .boot-panel--top {
+        transform: translate3d(0, -101%, 0) scale(1.06);
+      }
+      #boot[data-boot="reveal"] .boot-panel--bottom {
+        transform: translate3d(0, 101%, 0) scale(1.06);
+      }
+
+      .boot-centre {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      /* Only the mark is in the centred stack, so the parting line runs through
+         the mark and not between it and the words under it. */
+      .boot-stack {
+        position: relative;
+      }
+      /* Sized in step with MARK_PX in Loader.tsx, at the same breakpoint: a
+         berry wider than its box would eat the gap under it. The fade leads the
+         swell so this and the pathway's own Bloom are never on screen together
+         at two sizes. */
+      .boot-mark {
+        width: 96px;
+        height: 96px;
+        display: grid;
+        place-items: center;
+        transform: scale(1);
+        opacity: 1;
+        transition:
+          transform 700ms cubic-bezier(0.34, 1.2, 0.64, 1),
+          opacity 400ms cubic-bezier(0.4, 0, 1, 1) 60ms;
+      }
+      #boot[data-boot="reveal"] .boot-mark {
+        transform: scale(2.15);
+        opacity: 0;
+      }
+      .boot-meta {
+        position: absolute;
+        top: calc(100% + 34px);
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        transition: opacity 180ms linear;
+      }
+      #boot[data-boot="reveal"] .boot-meta {
+        opacity: 0;
+      }
+      .boot-rule {
+        width: 132px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--boot-rule-track);
+        overflow: hidden;
+      }
+      .boot-rule__fill {
+        display: block;
+        height: 100%;
+        width: 100%;
+        border-radius: inherit;
+        background: var(--boot-rule-fill);
+        transform: scaleX(var(--boot-progress, 0.16));
+        transform-origin: left center;
+        transition: transform 520ms cubic-bezier(0.2, 0.8, 0.3, 1);
+      }
+      .boot-word {
+        margin: 0;
+        white-space: nowrap;
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--boot-ink);
+      }
+
+      @media (min-width: 768px) {
+        .boot-mark {
+          width: 112px;
+          height: 112px;
+        }
+        .boot-rule {
+          width: 156px;
+        }
+      }
+
+      /* Reduced motion: the first three beats hold exactly as they are and the
+         reveal becomes a 120ms cross fade. The rule still reports the same
+         milestones, it just stops gliding between them. */
+      @media (prefers-reduced-motion: reduce) {
+        .boot-panel,
+        .boot-mark,
+        .boot-meta,
+        .boot-rule__fill {
+          transition: none;
+        }
+        #boot[data-boot="reveal"] {
+          opacity: 0;
+        }
+        #boot[data-boot="reveal"] .boot-panel--top,
+        #boot[data-boot="reveal"] .boot-panel--bottom,
+        #boot[data-boot="reveal"] .boot-mark {
+          transform: none;
+        }
+        #boot[data-boot="reveal"] .boot-mark,
+        #boot[data-boot="reveal"] .boot-meta {
+          opacity: 1;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <!-- The loader. Markup, not a component: see src/app/Loader.tsx. -->
+    <div id="boot" data-boot="load" style="--boot-progress: 0.16">
+      <div class="boot-panel boot-panel--top" aria-hidden="true"></div>
+      <div class="boot-panel boot-panel--bottom" aria-hidden="true"></div>
+      <div class="boot-centre">
+        <div class="boot-stack">
+          <!-- Loader.tsx portals the live Bloom in here. -->
+          <div class="boot-mark" id="boot-mark" aria-hidden="true"></div>
+          <div class="boot-meta">
+            <div class="boot-rule" aria-hidden="true"><i class="boot-rule__fill"></i></div>
+            <p class="boot-word" id="boot-word" role="status">Warming up</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

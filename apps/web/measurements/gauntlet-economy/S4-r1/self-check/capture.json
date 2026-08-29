@@ -1,0 +1,515 @@
+{
+  "piece": "S4",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "boot-open",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 137
+            },
+            {
+              "wanted": 400,
+              "at": 433
+            },
+            {
+              "wanted": 900,
+              "at": 907
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1259,
+            "removedAt": 2158,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-wipe",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 1250,
+              "at": 1256
+            },
+            {
+              "wanted": 1480,
+              "at": 1487
+            },
+            {
+              "wanted": 1670,
+              "at": 1672
+            },
+            {
+              "wanted": 2250,
+              "at": 2253
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1274,
+            "removedAt": 2155,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-reduced",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 1250,
+              "at": 1264
+            },
+            {
+              "wanted": 1450,
+              "at": 1497
+            },
+            {
+              "wanted": 1700,
+              "at": 1714
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 0,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1274,
+            "removedAt": 1443,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "boot-open",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 155
+            },
+            {
+              "wanted": 400,
+              "at": 403
+            },
+            {
+              "wanted": 900,
+              "at": 903
+            },
+            {
+              "wanted": 2500,
+              "at": 2512
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1258,
+            "removedAt": 2158,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-wipe",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 1250,
+              "at": 1265
+            },
+            {
+              "wanted": 1480,
+              "at": 1496
+            },
+            {
+              "wanted": 1670,
+              "at": 1682
+            },
+            {
+              "wanted": 2250,
+              "at": 2258
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1274,
+            "removedAt": 2156,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-reduced",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 900,
+              "at": 906
+            },
+            {
+              "wanted": 1250,
+              "at": 1265
+            },
+            {
+              "wanted": 1450,
+              "at": 1511
+            },
+            {
+              "wanted": 1700,
+              "at": 1741
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 0,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1274,
+            "removedAt": 1424,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "boot-open",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 156
+            },
+            {
+              "wanted": 400,
+              "at": 413
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2515
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1269,
+            "removedAt": 2152,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-wipe",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 1250,
+              "at": 1255
+            },
+            {
+              "wanted": 1480,
+              "at": 1542
+            },
+            {
+              "wanted": 1670,
+              "at": 1765
+            },
+            {
+              "wanted": 2250,
+              "at": 2253
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1267,
+            "removedAt": 2149,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-reduced",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 1250,
+              "at": 1254
+            },
+            {
+              "wanted": 1450,
+              "at": 1615
+            },
+            {
+              "wanted": 1700,
+              "at": 1933
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 0,
+            "maxProgress": 1,
+            "field": "rgb(109, 40, 217)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1266,
+            "removedAt": 1417,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "boot-open",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 314
+            },
+            {
+              "wanted": 400,
+              "at": 554
+            },
+            {
+              "wanted": 900,
+              "at": 902
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1261,
+            "removedAt": 2160,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-wipe",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 1250,
+              "at": 1253
+            },
+            {
+              "wanted": 1480,
+              "at": 1526
+            },
+            {
+              "wanted": 1670,
+              "at": 1773
+            },
+            {
+              "wanted": 2250,
+              "at": 2254
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 1,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1265,
+            "removedAt": 2163,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "boot-reduced",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 900,
+              "at": 900
+            },
+            {
+              "wanted": 1250,
+              "at": 1261
+            },
+            {
+              "wanted": 1450,
+              "at": 1502
+            },
+            {
+              "wanted": 1700,
+              "at": 1737
+            }
+          ],
+          "state": {
+            "sawBoot": true,
+            "sawMark": true,
+            "blinks": 0,
+            "maxProgress": 1,
+            "field": "rgb(46, 16, 101)",
+            "words": [
+              "Warming up",
+              "Finding your place",
+              "Ready"
+            ],
+            "revealAt": 1263,
+            "removedAt": 1430,
+            "bootGone": true,
+            "track": 1,
+            "bar": 4
+          }
+        }
+      ]
+    }
+  ]
+}

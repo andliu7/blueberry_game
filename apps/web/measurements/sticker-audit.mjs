@@ -75,7 +75,7 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer-core";
-import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, sleep } from "./economy-moments.mjs";
+import { LESSON_HASH, MOMENTS, TAB_ROUTES, installSeed, settleBoot, sleep } from "./economy-moments.mjs";
 
 /* ------------------------------------------------------------------ config */
 
@@ -915,6 +915,8 @@ try {
             document.documentElement.classList.toggle("dark", wanted === "dark");
           }, theme);
           await page.goto(`${origin}/?targets=1${route.hash}`, { waitUntil: "networkidle0" });
+          // See contrast-audit.mjs: the front door outlives networkidle0.
+          await settleBoot(page);
           await sleep(500);
           await collect(page, route.name, theme, viewportName);
           await page.close();
@@ -943,6 +945,7 @@ try {
             await page.setViewport(viewport);
             await installSeed(page, theme, route.seed, route.stored);
             await page.goto(`${origin}/${route.momentHash ?? LESSON_HASH}`, { waitUntil: "networkidle0" });
+            if (!String(route.momentHash ?? "").includes("boot=hold")) await settleBoot(page);
             const result = await route.drive(page, {});
             reached = result.reached;
             if (!reached && attempt >= 2) {

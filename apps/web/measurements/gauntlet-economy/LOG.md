@@ -557,3 +557,84 @@ because nothing will ever fail. **Assigned to S3**, with a constraint: P3 won sp
 on the readouts being DRAWN fractions rather than written ones, with the goal meter as the
 header's bottom edge costing zero horizontal space. Whatever disambiguates the two meters
 must not undo that.
+
+## S4 The loader and the first reveal
+
+### Round 1: built. Not yet judged.
+
+Bar: the landonorris.com preloader captured 28 August, a full bleed colour field with one
+small mark and a load word that WIPES away to reveal a page already at rest; and Duolingo's
+own app open, which the live capture holds at `2026-08-27-run2/p04-course-picker-loading.png`:
+white ground, wordmark, and three grey dots.
+
+**What was there before: nothing.** `<div id="root"></div>` is empty until the entry chunk
+has been downloaded, parsed and run, so the first thing every student has ever seen on a cold
+open is a white rectangle, which CLAUDE.md already rules is never a loading state.
+
+**The shape of the answer, and the one structural argument in it.** A React component cannot
+close that gap, because a React component IS the thing being waited for. So the field, the
+mark slot, the hairline rule and the word are markup in `index.html` and paint with the
+document; `src/app/Loader.tsx` adopts that layer rather than redrawing it. One copy of the
+design, in the place that paints first, and no second copy to drift. The reasoning behind
+every CSS rule lives in Loader.tsx and not beside the rules, because comments inside an
+inline `<style>` are shipped to every student uncompressed: moving the prose took index.html
+from 3839 to 2776 bytes gzipped.
+
+- Field: `#6d28d9` light, `#2e1065` dark. The mark is the live Bloom, portalled into the
+  slot, so the blink is Berry.tsx's own rAF clock and not a second implementation.
+- The rule reports three REAL milestones, never a timer: the document parsed (0.16, written
+  by index.html), the entry chunk ran and the store was read (0.58), the route's own chunk
+  resolved (0.92). The fourth position, 1.00, lands at the instant the field parts. "Ready"
+  is not said until then, because writing it and then holding the door shut for another
+  second is a sentence contradicted by the screen it is printed on.
+- The middle word differs for the two students who see it: "Finding your place" when there
+  is a journal to read, "Setting up" on a first run.
+- The reveal: the mark scales to 2.15 and dissolves, and the field parts in two halves from
+  the line the mark sits on, 820 ms, `cubic-bezier(0.5, 0.02, 0.2, 1)`. The pathway behind it
+  was mounted and at rest the whole time. Transform and opacity only; `test/bootLoader.test.ts`
+  parses the block and fails on anything else.
+- `prefers-reduced-motion`: the first three beats hold and the reveal is a 120 ms cross fade.
+  Measured, not asserted: `removedAt - revealAt` is about 165 ms on those runs against about
+  880 ms on the others, and the drive requires Bloom did NOT blink there.
+
+**Two capture findings worth keeping.**
+
+The reveal is at the 1250 ms floor and the judged cadence is 0/400/900/2500, so the default
+four frames step either side of the wipe and never inside it. `boot-wipe` is a second cold
+open of the same moment with the burst moved to 1250/1480/1670/2250, named so a judge can see
+it is one event photographed twice. And PNG encode blocks the page it is photographing: at
+2560 by 1800 the 900 ms frame can still be encoding when the 1250 ms reveal timer is due, which
+put one burst's reveal at 2.4 s. A context per run, 1200 ms of quiet between runs, and one
+LOGGED retry in the shape sticker-audit.mjs already uses.
+
+**A pre-existing measurement bug this piece had to fix to get a number.** The sticker audit
+failed at `hud-streak` on the phone twice in a row, on both attempts, in different themes.
+Cause: `readHud` measured `getBoundingClientRect()`, which is the TRANSFORMED box, on buttons
+carrying `.press` (`transform: scale(0.96)`, 120 ms back), and the streak and charge drives
+read the header immediately after pressing one. Four clean runs measured the same 44px button
+at 43.9, 43.5, 44.0 and 43.8, and 43.5 is exactly the slack `hudGeometryHolds` allows. It now
+reads `offsetWidth`, which is the layout box CLAUDE.md's 44 by 44 budget is actually about and
+is immune to transforms: 44.0 on four of four runs, and `driveRetries` came back empty. The
+tolerance was left alone; it is there for fractional layout, which is a different argument.
+
+### Measured at the exit of round 1
+
+- Contrast **0 failing over 8037 composed pairs**, up from 8005: the loader is a route in the
+  audit now (`?boot=hold`, the piece's one hook, because a surface that removes itself after
+  1.25 s cannot be reached by a script that navigates and then measures). Its two new pairs are
+  the word on the field, 6.48:1 light and 12.83:1 dark against a 4.5 floor.
+- Sticker **1020, unchanged, and +0 on every one of the ten rules.**
+- Payload **192.2 KB** against 191.5 KB at S1 round 2, so **+0.7 KB** on the gate, all of it
+  Loader.tsx in the entry chunk. Reported separately because the gate does not weigh it:
+  index.html went 571 to 2776 bytes gzipped, so the real first request is about +2.9 KB.
+- 999 web tests, up from 990. Typecheck clean. Suite 30 of 30, integrity unmodified.
+- 48 frames in `S4-r1/self-check`, both themes, both viewports, three bursts each, every one
+  asserted through `driveBoot`.
+
+**What a critic will still have.** There is no wordmark: the bar's splash names the product
+and ours shows only the character, which is the spec's "the mark alone" and is a real risk in
+a blind pair. The wipe parts on one axis where "outward from the mark" suggests a radius, and
+the argument for two panels rather than a growing hole is a browser support one, written in
+Loader.tsx. The 1250 ms floor is time taken from every student on every cold open. And the
+120 ms reduced motion fade is shorter than one PNG encode, so it is evidenced by a number in
+the drive rather than by a frame.

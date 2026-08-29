@@ -91,6 +91,9 @@ try {
   const page = await browser.newPage();
   await page.setViewport({ width: 412, height: 915, deviceScaleFactor: 2 });
   await page.goto(`http://127.0.0.1:${port}/?auto=1#/trainer`, { waitUntil: "networkidle0" });
+  // The front door's own reveal is a transition, and frames spent behind it
+  // are not frames of the animation this script measures. Wait it out.
+  await page.waitForFunction(() => document.getElementById("boot") === null, { timeout: 20000 });
   await new Promise((resolve) => setTimeout(resolve, MEASURE_MS));
 
   const frames = await page.evaluate(() => window.__blueberryFrames ?? []);

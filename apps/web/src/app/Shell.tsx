@@ -42,6 +42,7 @@ import { lazy, Suspense, useCallback, useState, type ReactNode } from "react";
 import { NAV_TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
 import { isFlagOn } from "./flags";
 import { TabSkeleton } from "./ui/Skeleton";
+import { BootReady } from "./Loader";
 import { useReducedMotion } from "./hooks";
 import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
 import { Hud } from "./ui/Hud";
@@ -214,6 +215,10 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
         <main className="min-h-0 flex-1">
           {children ?? (
             <Suspense fallback={<TabSkeleton label={label} />}>
+              {/* Renders nothing. It cannot mount until this boundary has
+                  resolved, which is the honest definition of "the page behind
+                  the loader is in position". See app/Loader.tsx. */}
+              <BootReady />
               <Outlet route={route} onImmersiveChange={onImmersiveChange} />
             </Suspense>
           )}

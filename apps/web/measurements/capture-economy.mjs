@@ -66,6 +66,7 @@
  *   node measurements/capture-economy.mjs --piece P5 --out measurements/gauntlet-economy/P5-r1/self-check
  *   node measurements/capture-economy.mjs --piece S1 --out measurements/gauntlet-economy/S1-r1/self-check
  *   node measurements/capture-economy.mjs --piece S2 --out measurements/gauntlet-economy/S2-r1/self-check
+ *   node measurements/capture-economy.mjs --piece S4 --out measurements/gauntlet-economy/S4-r1/self-check
  *
  * P5, THE CHARGE SURFACES, SEEDS THE JOURNAL for the same reason P3 and P4 do:
  * a meter at 14 of 30 is two node entries, an empty one is four, and an exam
@@ -100,6 +101,16 @@
  * observation rather than a fixture. The arithmetic behind every number is in
  * economy-moments.mjs beside the drives.
  *
+ * S4, THE FRONT DOOR, IS THE ONE PIECE WHOSE MOMENT IS THE COLD OPEN, so it
+ * is the one piece that does not open its page through `openSeeded`. Every
+ * other capture here navigates, waits for the network to go idle and then
+ * drives; the loader is gone by then, by design. S4 installs a probe before the
+ * document exists, navigates without waiting, aligns the burst clock to the
+ * page's own navigation origin, and shoots. It uses NO hook: `?boot=hold`
+ * exists for the contrast audit, which cannot be restructured that way, and
+ * this script deliberately does not set it, because a photograph of a loader
+ * that was told to wait is a photograph of something a student never sees.
+ *
  * Exits nonzero if any moment did not appear: a shot of the wrong state is
  * never handed to a critic.
  *
@@ -129,8 +140,12 @@ import {
   P5_SEED_BUILDERS,
   P5_STORED,
   PATHWAY_HASH,
+  BOOT_HASH,
   S2_SEED,
   S2_STORED,
+  S4_SEED,
+  S4_STORED,
+  driveBoot,
   driveChargeCost,
   driveChargeEmpty,
   driveChargeExam,
@@ -149,6 +164,8 @@ import {
   driveShellCourses,
   driveShellTool,
   driveStreak,
+  installBootProbe,
+  installSeed,
   openSeeded,
   sleep,
 } from "./economy-moments.mjs";
@@ -160,6 +177,29 @@ import {
  * A judged run always uses the default, or it is not comparing like with like.
  */
 const DEFAULT_FRAMES_MS = [0, 400, 900, 2500];
+/**
+ * The second burst S4 takes, inside its own reveal. Absolute milliseconds from
+ * the same navigation: the reveal begins at the 1250 ms floor in Loader.tsx and
+ * its longest transition is 820 ms, so these are the instant it starts, the
+ * field just parted, most of the way open, and settled. Not a substitute for
+ * the judged cadence, an addition to it.
+ */
+const WIPE_FRAMES_MS = [1250, 1480, 1670, 2250];
+/**
+ * The third burst, with prefers-reduced-motion emulated: the held field, the
+ * instant the reveal starts, just after, and settled.
+ *
+ * THE 120 MS CROSS FADE ITSELF IS NOT PHOTOGRAPHED, and that is a limit of the
+ * harness rather than an omission. One PNG encode at these sizes costs about
+ * 200 ms, so no frame can be placed inside a 120 ms window: asking for one at
+ * 1330 landed at 1466, past the end. The evidence that the reveal is the short
+ * fade and not the wipe is in the drive's own state instead, and it is a
+ * stronger form of evidence than a frame: `removedAt - revealAt` is about 165 ms
+ * here against about 880 ms on the other two runs. The frames still show that
+ * the first three beats hold, and the drive asserts Bloom did NOT blink, which
+ * is the other half of reusing Berry.tsx's clock rather than writing a second.
+ */
+const REDUCED_FRAMES_MS = [900, 1250, 1450, 1700];
 const VIEWPORTS = {
   desktop: { width: 1280, height: 900, deviceScaleFactor: 2 },
   phone: { width: 390, height: 844, deviceScaleFactor: 3 },
@@ -233,10 +273,17 @@ const origin = `http://127.0.0.1:${server.address().port}`;
 const open = (browser, viewport, theme, hash, journal = null, stored = {}) =>
   openSeeded(browser, { origin, viewport, theme, hash, journal, stored });
 
-/** Four PNGs at the burst cadence, measured from `startedAt`. Returns actual offsets. */
-async function burst(page, dir, name, startedAt) {
+/**
+ * PNGs at the burst cadence, measured from `startedAt`. Returns actual offsets.
+ *
+ * `frames` defaults to the judged cadence and is only ever passed for a moment
+ * whose transition does not fall inside it. S4 is the one: its reveal starts at
+ * the 1250 ms floor, so the default four frames step over the wipe entirely and
+ * the piece would be judged on two stills of a field and one of a settled page.
+ */
+async function burst(page, dir, name, startedAt, frames = FRAMES_MS) {
   const actual = [];
-  for (const wanted of FRAMES_MS) {
+  for (const wanted of frames) {
     const wait = startedAt + wanted - Date.now();
     if (wait > 0) await sleep(wait);
     const before = Date.now() - startedAt;
@@ -532,7 +579,155 @@ async function captureS2(browser, viewportName, theme, dir) {
   return results;
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1, S2: captureS2 };
+/**
+ * S4, the loader and the first reveal.
+ *
+ * One moment, and the whole piece is a transition, so unlike S1 and S2 there is
+ * nothing to settle in front of: the burst runs from the navigation itself and
+ * the four frames are the four beats. At the cadence the bar's captures use,
+ * 0 is the field with the mark on it, 400 is the rule advancing, 900 is Bloom
+ * having blinked with the rule at its end, and 2500 is the pathway revealed and
+ * at rest with the loader out of the document.
+ *
+ * THE BURST CLOCK IS THE PAGE'S OWN. `page.goto` resolves when the harness
+ * hears about the navigation, not when the browser began it, and on this
+ * machine those differ by a hundred milliseconds or so. The page knows the
+ * truth: `performance.now()` is milliseconds since the navigation started. So
+ * the clock is set BACKWARDS from that reading, and every printed offset is
+ * measured from the cold open rather than from puppeteer. The 0 ms frame is
+ * therefore honestly late, and the report says by how much.
+ *
+ * The two throwaway frames P5, S1 and S2 take are taken here too and for the
+ * same measured reason, with one difference that matters: they are taken on
+ * about:blank BEFORE the navigation, because the whole point of this piece is
+ * the first second of the real page and a warm up frame inside it would land in
+ * the middle of the burst.
+ */
+let s4Warmed = false;
+
+/**
+ * One throwaway LOAD of the whole app before the first S4 burst.
+ *
+ * The two throwaway screenshots the other pieces take warm the capture
+ * pipeline. They do not warm the BROWSER, and this is the one piece where that
+ * matters: the first page of a run pays for fetching, parsing and compiling a
+ * 190 KB bundle in a cold Chrome, and on this machine that put the first burst's
+ * reveal at 7.1 seconds against 1.3 for every page after it. Since the reveal is
+ * driven by real readiness rather than by a timer, that number was honest and
+ * it was still not a comparison: three of the four runs would have been of one
+ * product and the first of another. So the browser is warmed once, and every
+ * burst including the first is then of a warm cold-open, which is what a
+ * returning student on a warm cache actually gets.
+ */
+async function warmS4(browser, viewport, theme) {
+  if (s4Warmed) return;
+  s4Warmed = true;
+  const page = await browser.newPage();
+  await page.setViewport(viewport);
+  await installSeed(page, theme, S4_SEED, S4_STORED);
+  await page.goto(`${origin}/${BOOT_HASH}`, { waitUntil: "networkidle0" });
+  await page.waitForFunction(() => document.getElementById("boot") === null, { timeout: 20_000 }).catch(() => {});
+  await page.close();
+}
+
+/**
+ * One cold open, photographed at `frames`, in a browser context of its own.
+ *
+ * THE ISOLATION IS NOT TIDINESS. PNG encode blocks, and a page that is still
+ * being torn down while the next one is starting steals main thread time from
+ * the very transition the next burst exists to photograph: the reveal fired
+ * 670 ms late, and its own capture is what made it late. A context per run plus
+ * a beat of quiet between them is what makes the offsets repeatable.
+ */
+async function s4Run(browser, viewport, theme, dir, name, frames, reducedMotion = false) {
+  const context = await browser.createBrowserContext();
+  try {
+    const page = await context.newPage();
+    await page.setViewport(viewport);
+    if (reducedMotion) await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    await installSeed(page, theme, S4_SEED, S4_STORED);
+    await installBootProbe(page);
+    await page.goto(`${origin}/${BOOT_HASH}`, { waitUntil: "domcontentloaded" });
+    // The page knows when the navigation really started; puppeteer only knows
+    // when it heard about it, and on this machine those differ by a hundred
+    // milliseconds or more. Setting the clock backwards from performance.now()
+    // makes every printed offset a measurement from the cold open.
+    const elapsed = await page.evaluate(() => performance.now());
+    const at = Date.now() - Math.round(elapsed);
+    const result = await driveBoot(page, {
+      at,
+      reducedMotion,
+      onTrigger: (from) => burst(page, dir, name, from, frames),
+    });
+    return result;
+  } finally {
+    await context.close();
+    // A beat of quiet, so the next run does not start inside this one's teardown.
+    // 400 ms was not enough once the piece grew to three runs per cell: a phone
+    // frame is 3510 by 7596 device pixels and its PNG encode is still finishing
+    // while the next context is being built, which showed up as a burst whose
+    // first frame landed 842 ms into a navigation instead of 150.
+    await sleep(1200);
+  }
+}
+
+/**
+ * S4, the loader and the first reveal.
+ *
+ * One moment and two bursts of it, because the piece is a transition and the
+ * judged cadence steps over its own subject.
+ *
+ * `boot` is the judged one, at the bar's own 0/400/900/2500: the field with the
+ * mark on it, the rule advancing, the rule at its end with Bloom having
+ * blinked, and the pathway revealed and at rest. `boot-wipe` is the same cold
+ * open with the burst moved inside the reveal, which runs from the 1250 ms
+ * floor for about 800 ms and therefore falls in the gap between the third and
+ * fourth judged frames. It is named rather than folded in so a judge can see it
+ * is one event photographed twice and not two claims. `boot-reduced` is the
+ * same open again with prefers-reduced-motion emulated, and it is named for the
+ * same reason the P4 and P5 extras are: the reduced motion path is a promise
+ * this piece makes and a still capture would otherwise hide whether it is kept.
+ *
+ * All three assert the same five things through driveBoot, so a shot of a
+ * loader that never blinked, never filled its rule, or never left, is not
+ * something this script can hand to anybody. The reduced run inverts exactly
+ * one of the five, the blink, and asserts it absent.
+ */
+/**
+ * ONE RETRY, AND IT IS PRINTED. Same shape the sticker audit already uses and
+ * for the same reason it gives: re-running a check is not the same act as
+ * loosening one. The assertion is untouched, a second failure still fails the
+ * run, and the retry is on the line so a flake cannot hide behind a green one.
+ *
+ * What flakes, specifically: PNG encode blocks the page's main thread, so the
+ * 900 ms frame of a 2560 by 1800 desktop burst can still be encoding when the
+ * 1250 ms reveal timer is due, and once in a while the machine is busy enough
+ * that the reveal lands at 2.4 s instead of 1.27. That is the capture delaying
+ * the thing it is capturing, not the product being slow, and the drive is right
+ * to refuse the frames either way.
+ */
+async function s4RunOnce(browser, viewport, theme, dir, name, frames, reducedMotion = false) {
+  const first = await s4Run(browser, viewport, theme, dir, name, frames, reducedMotion);
+  if (first.reached) return first;
+  console.log(`  RETRY ${name}: reveal landed at ${first.state.revealAt} ms, outside the burst. Re-running once.`);
+  return s4Run(browser, viewport, theme, dir, name, frames, reducedMotion);
+}
+
+async function captureS4(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  await warmS4(browser, viewport, theme);
+  const open = await s4RunOnce(browser, viewport, theme, dir, `${tag}-boot`, FRAMES_MS);
+  const wipe = await s4RunOnce(browser, viewport, theme, dir, `${tag}-boot-wipe`, WIPE_FRAMES_MS);
+  const reduced = await s4RunOnce(browser, viewport, theme, dir, `${tag}-boot-reduced`, REDUCED_FRAMES_MS, true);
+  return [
+    { moment: "boot-open", reached: open.reached, frames: open.trigger, state: open.state },
+    { moment: "boot-wipe", reached: wipe.reached, frames: wipe.trigger, state: wipe.state },
+    { moment: "boot-reduced", reached: reduced.reached, frames: reduced.trigger, state: reduced.state },
+  ];
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1, S2: captureS2, S4: captureS4 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 

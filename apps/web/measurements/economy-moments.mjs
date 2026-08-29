@@ -159,6 +159,26 @@ export async function installSeed(page, theme, journal = null, stored = {}) {
 }
 
 /**
+ * Wait for the front door to have left the screen.
+ *
+ * EVERY SCRIPT HERE NAVIGATES AND THEN MEASURES, and since S4 the app opens
+ * behind a full bleed loader that reveals the page underneath it about 1.25
+ * seconds in (src/app/Loader.tsx). `networkidle0` can resolve well before that,
+ * so without this a run would photograph a purple field and call it the
+ * pathway, or audit the loader's colours and file them under whichever tab it
+ * happened to be covering. That is not a hypothetical: the reveal floor and
+ * the idle timeout are the same order of magnitude.
+ *
+ * It waits for the element to LEAVE THE DOCUMENT, which Loader.tsx does only
+ * after the reveal transition has finished, so what follows is the settled
+ * screen. A page held open with `?boot=hold` never satisfies it, which is why
+ * the two boot moments below do not call it.
+ */
+export async function settleBoot(page) {
+  await page.waitForFunction(() => document.getElementById("boot") === null, { timeout: 20_000 });
+}
+
+/**
  * A fresh page on a hash route, in a theme, with nothing stored except an
  * optional seeded journal under the progress store's key.
  */
@@ -167,6 +187,7 @@ export async function openSeeded(browser, { origin, viewport, theme, hash, journ
   await page.setViewport(viewport);
   await installSeed(page, theme, journal, stored);
   await page.goto(`${origin}/${hash}`, { waitUntil: "networkidle0" });
+  await settleBoot(page);
   return page;
 }
 
@@ -500,12 +521,30 @@ async function readHud(page) {
     const headerRect = header === null ? null : header.getBoundingClientRect();
     const fontPx = (node) => (node === null ? 0 : Number.parseFloat(getComputedStyle(node).fontSize));
     const items = [...document.querySelectorAll("[data-hud]")].map((node) => {
-      const rect = node.getBoundingClientRect();
       return {
         id: node.getAttribute("data-hud"),
         label: node.getAttribute("aria-label"),
-        width: Math.round(rect.width * 10) / 10,
-        height: Math.round(rect.height * 10) / 10,
+        // offsetWidth and offsetHeight, NOT getBoundingClientRect, and this is a
+        // correction rather than a preference.
+        //
+        // getBoundingClientRect returns the TRANSFORMED box, and every one of
+        // these readouts carries `.press`, which is `transform: scale(0.96)`
+        // while active with a 120 ms transition back (theme.css). The streak and
+        // charge drives read the header immediately after pressing a readout, so
+        // they were measuring a 44px control mid release: four clean runs of the
+        // streak drive measured 43.9, 43.5, 44.0 and 43.8 px for the same button,
+        // and 43.5 is exactly the slack hudGeometryHolds allows. That is the race
+        // sticker-audit.mjs already records in its own header, and it failed both
+        // attempts twice in a row on 2026-08-29.
+        //
+        // CLAUDE.md's 44 by 44 budget is about the target a thumb has to hit,
+        // which is its layout box; a press animation does not shrink a target.
+        // offsetWidth is that box and is immune to transforms, so this makes the
+        // check exact instead of tolerant. The slack in hudGeometryHolds is left
+        // in place deliberately: it is there for fractional layout, which is a
+        // real thing, and removing it is a separate argument from this one.
+        width: node.offsetWidth,
+        height: node.offsetHeight,
         // The number's own type size, which is what the verdict measured.
         numberPx: fontPx(node.querySelector(".hud-charge-value") ?? node.querySelector("span:last-child")),
       };
@@ -1604,6 +1643,224 @@ export async function drivePathGate(page, { onTrigger = null } = {}) {
   return { moment: "path-gate", reached, at, trigger, state };
 }
 
+/* ------------------------------------------------- S4, the front door ----- */
+
+/**
+ * S4 is the loader and the first reveal, and it is the only piece here whose
+ * moment is the COLD OPEN itself.
+ *
+ * That changes two things.
+ *
+ * FIRST, THERE IS NOTHING TO PRESS. The burst clock is the navigation, not a
+ * click, and the capture aligns it to the page's own `performance.now()` origin
+ * rather than to when puppeteer's goto happened to resolve, so 0/400/900/2500
+ * are milliseconds since the browser started fetching the document. The 0 ms
+ * frame is really "as early as the harness can shoot", a hundred milliseconds
+ * or so in; the report prints the actual offsets so nobody has to take the
+ * label on trust.
+ *
+ * SECOND, THE MOMENT REMOVES ITSELF. Everything else here can be photographed
+ * at leisure. This one is on screen for about 1.25 seconds and then is gone by
+ * construction, which is fine for a frame burst and impossible for the contrast
+ * audit, whose whole shape is "navigate, wait for the network to go idle, then
+ * measure". So there are two drives:
+ *
+ *   driveBoot      opens the app exactly as a student does, watches the real
+ *                  thing through a probe installed before the document exists,
+ *                  and asserts what it saw. No hook.
+ *   driveBootHold  adds `?boot=hold`, the one measurement hook, in the same
+ *                  family as `?targets=1`. Loader.tsx then waits for
+ *                  window.__blueberryBootRelease() instead of revealing on its
+ *                  own. It changes WHEN the reveal runs and nothing about what
+ *                  is drawn. Only the audits use it.
+ *
+ * THE SEED IS P3's ACCOUNT, unchanged, for the reason S1 gives: what the field
+ * parts to reveal is the product, and a header of zeroes over an untouched
+ * track is a shot of a fresh install. Using the same seed also keeps the three
+ * shell pieces comparable frame to frame.
+ */
+
+export const S4_SEED = P3_SEED;
+export const S4_STORED = P3_STORED;
+/** The tab the reveal lands on. The app's own default route. */
+export const BOOT_HASH = "#/pathway";
+/** The same tab with the hold hook, for an audit that cannot outrun the reveal. */
+export const BOOT_HOLD_HASH = "?boot=hold#/pathway";
+
+/**
+ * A probe that watches the front door from before the document exists.
+ *
+ * It runs in a requestAnimationFrame loop rather than a MutationObserver
+ * because three of the five things it records are computed values rather than
+ * attributes: the rule's position is a custom property, the blink is written
+ * and deleted on a data attribute sixty times a second, and "the layer left the
+ * document" is the absence of a node. One loop reads all of them.
+ *
+ * Nothing here is read by the app. It is a measurement, installed by the
+ * capture and the audits, and it does not exist in a shipped page.
+ */
+export async function installBootProbe(page) {
+  await page.evaluateOnNewDocument(() => {
+    const probe = {
+      sawBoot: false,
+      sawMark: false,
+      blinks: 0,
+      maxProgress: 0,
+      field: "",
+      words: [],
+      revealAt: null,
+      removedAt: null,
+    };
+    window.__blueberryBoot = probe;
+    let lastBlink = "";
+    const tick = () => {
+      const boot = document.getElementById("boot");
+      if (boot !== null) {
+        probe.sawBoot = true;
+        const style = getComputedStyle(boot);
+        if (probe.field === "" && boot.dataset.boot !== "reveal") probe.field = style.backgroundColor;
+        const value = Number.parseFloat(style.getPropertyValue("--boot-progress"));
+        if (Number.isFinite(value) && value > probe.maxProgress) probe.maxProgress = value;
+        if (boot.dataset.boot === "reveal" && probe.revealAt === null) probe.revealAt = Math.round(performance.now());
+        const word = document.getElementById("boot-word");
+        const text = word === null ? "" : (word.textContent ?? "").trim();
+        if (text !== "" && probe.words[probe.words.length - 1] !== text) probe.words.push(text);
+        // The live Bloom, portalled in by Loader.tsx. `data-blink` is written by
+        // Berry.tsx's own rAF loop; this counts every transition INTO closed.
+        const berry = boot.querySelector(".berry-origin");
+        if (berry !== null) {
+          probe.sawMark = true;
+          const state = berry.dataset.blink ?? "";
+          if (state === "closed" && lastBlink !== "closed") probe.blinks += 1;
+          lastBlink = state;
+        }
+      } else if (probe.sawBoot && probe.removedAt === null) {
+        probe.removedAt = Math.round(performance.now());
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+const readBootProbe = (page) => page.evaluate(() => window.__blueberryBoot ?? null);
+
+/**
+ * The floor Loader.tsx holds the field for, and the ceiling this drive will
+ * accept for the whole reveal being over. Both are read off the design rather
+ * than guessed: BOOT_MIN_MS is 1250 there and the longest reveal transition is
+ * 820, so a reveal that is over by 2400 is one that ran at its own speed.
+ */
+const BOOT_MIN_MS = 1250;
+const BOOT_SETTLED_BY_MS = 2400;
+
+/**
+ * The cold open, watched rather than staged.
+ *
+ * `reached` is five claims, and each one is a thing a still frame cannot prove
+ * on its own: the field was up before anything else, the live mark was in it,
+ * Bloom blinked at least once while it was, the rule reached its end, and the
+ * layer left the document inside the window the burst's last frame sits in,
+ * with the pathway underneath it and at rest.
+ *
+ * `reducedMotion` inverts exactly one of those. It does not relax anything: the
+ * caller emulates the media feature, and the blink is then asserted ABSENT,
+ * because Berry.tsx does not run its clock there. A run that still blinked
+ * would mean a second blink had been written somewhere, which is the thing this
+ * piece was told not to do.
+ */
+export async function driveBoot(page, { onTrigger = null, at = Date.now(), reducedMotion = false } = {}) {
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  await page.waitForFunction(() => document.getElementById("boot") === null, { timeout: 20000 }).catch(() => {});
+  await page.waitForSelector(".path-node--current", { timeout: 10000 }).catch(() => {});
+  const probe = await readBootProbe(page);
+  const after = await page.evaluate(() => ({
+    bootGone: document.getElementById("boot") === null,
+    // The swatch in the unit legend carries the same class, so it is excluded
+    // here exactly as readTrack excludes it. Counting it made "one current node"
+    // read as two.
+    track: document.querySelectorAll(".path-node--current:not(.path-node--swatch)").length,
+    bar: document.querySelectorAll("nav.tabbar a.tabbar-item").length,
+  }));
+  const state = { ...(probe ?? {}), ...after };
+  const reached =
+    probe !== null &&
+    probe.sawBoot &&
+    probe.sawMark &&
+    probe.field !== "" &&
+    probe.field !== "rgba(0, 0, 0, 0)" &&
+    // Bloom blinks while the field holds, and does NOT under reduced motion:
+    // Berry.tsx does not start its rAF loop there, so an eyelid appearing in
+    // that run would mean a second blink had been written somewhere.
+    (reducedMotion ? probe.blinks === 0 : probe.blinks >= 1) &&
+    probe.maxProgress >= 0.99 &&
+    probe.revealAt !== null &&
+    probe.revealAt >= BOOT_MIN_MS - 120 &&
+    probe.removedAt !== null &&
+    probe.removedAt <= BOOT_SETTLED_BY_MS &&
+    probe.words.includes("Warming up") &&
+    probe.words.includes("Ready") &&
+    after.bootGone &&
+    after.track === 1 &&
+    after.bar === 4;
+  return { moment: "boot-open", reached, at, trigger, state };
+}
+
+/**
+ * The same screen, held, for a script that measures rather than photographs.
+ *
+ * No mid-reveal measurement is asked for and that is a decision rather than an
+ * omission: the reveal introduces no colour pair the held frame does not
+ * already carry. It translates two panels and fades the mark and the words out,
+ * and text on its way off a surface that is itself being removed is not text a
+ * student reads.
+ */
+export async function driveBootHold(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("#boot .berry-origin", { timeout: 10000 }).catch(() => {});
+  // The rule's second milestone and the word that comes with it are written by
+  // Loader.tsx's mount effect, so wait for the number rather than for a sleep.
+  await page
+    .waitForFunction(
+      () => {
+        const boot = document.getElementById("boot");
+        if (boot === null) return false;
+        return Number.parseFloat(getComputedStyle(boot).getPropertyValue("--boot-progress")) >= 0.5;
+      },
+      { timeout: 10000 },
+    )
+    .catch(() => {});
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await page.evaluate(() => {
+    const boot = document.getElementById("boot");
+    if (boot === null) return { held: false };
+    const style = getComputedStyle(boot);
+    const box = boot.getBoundingClientRect();
+    const fill = boot.querySelector(".boot-rule__fill");
+    return {
+      held: boot.dataset.boot === "load",
+      field: style.backgroundColor,
+      fullBleed: Math.round(box.width) >= window.innerWidth && Math.round(box.height) >= window.innerHeight,
+      panels: boot.querySelectorAll(".boot-panel").length,
+      mark: boot.querySelectorAll(".berry-origin").length,
+      word: document.getElementById("boot-word")?.textContent?.trim() ?? "",
+      progress: Number.parseFloat(style.getPropertyValue("--boot-progress")),
+      ruleTransform: fill === null ? "" : getComputedStyle(fill).transform,
+      /** The page it will part to reveal, already in position behind it. */
+      behind: document.querySelectorAll("nav.tabbar a.tabbar-item").length,
+    };
+  });
+  const reached =
+    state.held === true &&
+    state.fullBleed === true &&
+    state.panels === 2 &&
+    state.mark === 1 &&
+    state.word !== "" &&
+    state.progress >= 0.5 &&
+    state.behind === 4;
+  return { moment: "boot-hold", reached, at, trigger, state };
+}
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -1640,6 +1897,13 @@ export const MOMENTS = {
   "path-rest": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathRest(page, options) },
   "path-scroll": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathScroll(page, options) },
   "path-gate": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathGate(page, options) },
+  // S4, the front door. "boot" is the HELD loader, which is the only way a
+  // script that navigates and then measures can stand in front of a surface
+  // that removes itself; "boot-open" is the real cold open with no hook at
+  // all, and it is what the frame burst uses. The S4 block above says why
+  // there are two rather than one.
+  boot: { seed: S4_SEED, stored: S4_STORED, hash: BOOT_HOLD_HASH, drive: (page, options) => driveBootHold(page, options) },
+  "boot-open": { seed: S4_SEED, stored: S4_STORED, hash: BOOT_HASH, drive: (page, options) => driveBoot(page, options) },
 };
 
 /**

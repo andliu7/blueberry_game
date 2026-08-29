@@ -1,0 +1,4 @@
+This is the gap between a student asking for the app and the app being usable: what they are
+shown while it is still loading, and how it hands over to the first screen.
+The frames are a burst at 0, 400, 900 and 2500 ms from the instant the app was opened in a blank
+tab, phone shape 390x844, light theme, nothing pressed.

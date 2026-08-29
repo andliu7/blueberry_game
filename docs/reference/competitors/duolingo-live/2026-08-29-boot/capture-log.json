@@ -1,0 +1,67 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 3,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "scheme": "light",
+  "burstMs": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "cold": {
+    "frames": [
+      {
+        "file": "b01-app-cold-open-0000ms.png",
+        "nominalMs": 0,
+        "actualMs": 38,
+        "reusedEarlierFrame": false
+      },
+      {
+        "file": "b02-app-cold-open-0400ms.png",
+        "nominalMs": 400,
+        "actualMs": 38,
+        "reusedEarlierFrame": true
+      },
+      {
+        "file": "b03-app-cold-open-0900ms.png",
+        "nominalMs": 900,
+        "actualMs": 38,
+        "reusedEarlierFrame": true
+      },
+      {
+        "file": "b04-app-cold-open-2500ms.png",
+        "nominalMs": 2500,
+        "actualMs": 2489,
+        "reusedEarlierFrame": false
+      }
+    ],
+    "screencastFrames": 228,
+    "timing": {
+      "firstContentfulPaintMs": 1720
+    },
+    "pathUpAfterBurst": false
+  },
+  "log": [
+    {
+      "file": "b01-app-cold-open-0000ms.png",
+      "what": "app-cold-open-0000ms"
+    },
+    {
+      "file": "b02-app-cold-open-0400ms.png",
+      "what": "app-cold-open-0400ms"
+    },
+    {
+      "file": "b03-app-cold-open-0900ms.png",
+      "what": "app-cold-open-0900ms"
+    },
+    {
+      "file": "b04-app-cold-open-2500ms.png",
+      "what": "app-cold-open-2500ms"
+    }
+  ]
+}
