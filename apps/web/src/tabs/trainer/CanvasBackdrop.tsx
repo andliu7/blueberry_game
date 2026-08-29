@@ -58,13 +58,22 @@ interface Ripple {
 }
 
 /** Long enough to read as water, short enough not to pile up. Matches the CSS. */
-const RIPPLE_MS = 1400;
+const RIPPLE_MS = 2600;
 /** More than this on screen at once reads as noise rather than water. */
-const MAX_RIPPLES = 6;
+const MAX_RIPPLES = 4;
+/**
+ * Taps closer together than this are one gesture.
+ *
+ * The first version rippled on every pointerdown, which the owner found too
+ * sensitive: a double tap, a drag that started with a jitter, or a stray touch
+ * all made rings. Still water does not respond to everything.
+ */
+const QUIET_MS = 260;
 
 export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropProps) {
   const [ripples, setRipples] = useState<readonly Ripple[]>([]);
   const nextId = useRef(0);
+  const lastAt = useRef(0);
 
   useEffect(() => {
     // Only resonance is touchable, and reduced motion opts out of the whole
@@ -79,6 +88,27 @@ export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropP
     function onPointerDown(ev: PointerEvent) {
       const host = surface.current;
       if (host === null) return;
+
+      // WHERE THE TAP MUST NOT RIPPLE. The tool sheets (scratchpaper, the
+      // periodic table, the 3D view) render as `fixed inset-0` overlays that
+      // are DOM children of this same section, so their taps bubble straight
+      // into this listener. The owner hit exactly that: drawing on the
+      // scratchpaper was rippling the water behind it. Anything inside a
+      // dialog, and any real control, is somebody else's gesture.
+      const target = ev.target instanceof Element ? ev.target : null;
+      if (target !== null && target.closest('[role="dialog"], button, a, input, textarea, select, [role="button"]')) {
+        return;
+      }
+      // A sheet open anywhere means the canvas is not what is being touched,
+      // even when the tap lands outside the sheet's own box.
+      if (document.querySelector('[role="dialog"][aria-modal="true"]') !== null) return;
+
+      // Not every touch is a disturbance. Two taps in the same instant are one
+      // gesture, and a student mid-drag is drawing, not skipping stones.
+      const now = ev.timeStamp;
+      if (now - lastAt.current < QUIET_MS) return;
+      lastAt.current = now;
+
       const box = host.getBoundingClientRect();
       const id = nextId.current;
       nextId.current += 1;
@@ -99,6 +129,16 @@ export function CanvasBackdrop({ mode, surface, reducedMotion }: CanvasBackdropP
   return (
     <div className={`backdrop backdrop--${mode}`} aria-hidden="true">
       <div className={`backdrop__plate${reducedMotion ? "" : " backdrop__plate--drift"}`} />
+      {/* Real water for resonance: three photographs of one still pool,
+          crossfading so the surface breathes in place rather than travelling.
+          Travelling is the mechanism idea and this is not that. */}
+      {mode === "resonance" ? (
+        <>
+          <div className="backdrop__water backdrop__water--a" />
+          <div className="backdrop__water backdrop__water--b" />
+          <div className="backdrop__water backdrop__water--c" />
+        </>
+      ) : null}
       {mode === "resonance"
         ? ripples.map((r) => (
             <span key={r.id} className="backdrop__ripple" style={{ left: r.x, top: r.y }} />

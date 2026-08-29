@@ -14,6 +14,21 @@
   overflow: hidden;
   pointer-events: none;
   border-radius: inherit;
+  /*
+   * BEHIND THE MOLECULES, and this line is the whole reason they are legible.
+   *
+   * A positioned element paints ABOVE non positioned in flow content whatever
+   * the DOM order says, and the molecule SVG is static. So an absolutely
+   * positioned backdrop with z-index auto sits ON TOP of the chemistry: the
+   * owner reported the resonance molecules as washed out and low contrast, and
+   * this was why. The carbons went from mid grey back to near black the moment
+   * this was set.
+   *
+   * Negative rather than 0: it has to land above the section's own background
+   * gradient and below everything drawn into it, and only a negative index does
+   * both.
+   */
+  z-index: -1;
 }
 
 /* ------------------------------------------------------------------ */
@@ -46,21 +61,62 @@
 }
 
 /*
- * Resonance has no plate image on purpose. Still water is a flat wash, and the
- * only thing that ever moves is the ripple the student makes. A photograph of
- * ripples would be claiming motion the chemistry does not have.
+ * Resonance is real water now.
+ *
+ * The first version was a flat violet wash and a pulsating circle where you
+ * tapped. Owner verdict 2026-08-28: it did not look like water at all, the
+ * purple was wrong, and the whole thing was too loud. So this is three
+ * photographs of the same still pool, pale blue and light grey, crossfading on
+ * a slow cycle. Nothing races: the drift is barely perceptible, which is the
+ * point, because a background a student notices is a background competing with
+ * the molecule.
+ *
+ * Three frames rather than one panning image because a pan slides the whole
+ * surface in a direction, and direction is the mechanism idea. Crossfading
+ * between near identical frames reads as water breathing in place, which is
+ * what still water actually does.
  */
 .backdrop--resonance .backdrop__plate {
-  background-image: none;
-  background: radial-gradient(
-    120% 90% at 50% 45%,
-    var(--backdrop-still-centre) 0%,
-    var(--backdrop-still-edge) 100%
-  );
-  /* The still wash is the ground here rather than a tint of it, so it sits
-     normally and a little stronger: there is no photograph underneath. */
-  opacity: 0.5;
+  background: none;
+  opacity: 1;
   mix-blend-mode: normal;
+}
+
+.backdrop__water {
+  position: absolute;
+  inset: -4%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  /* Pale water under dark line art: strong enough to read as a surface, far too
+     quiet to compete. Measured against the molecules, not chosen by taste. */
+  animation: backdrop-water 33s ease-in-out infinite;
+}
+
+.backdrop__water--a { background-image: url("/backdrops/water-a.webp"); animation-delay: 0s; }
+.backdrop__water--b { background-image: url("/backdrops/water-b.webp"); animation-delay: -11s; }
+.backdrop__water--c { background-image: url("/backdrops/water-c.webp"); animation-delay: -22s; }
+
+@keyframes backdrop-water {
+  /* Each frame holds, then hands over. Three of them at a third of the cycle
+     apart means one is always arriving as another leaves. */
+  0%, 100% { opacity: 0; }
+  8%, 26% { opacity: 0.55; }
+  40% { opacity: 0; }
+}
+
+.dark .backdrop__water {
+  /* The same pool, dimmed and cooled rather than swapped: still water at night
+     is the same water. */
+  opacity: 0;
+  filter: brightness(0.32) saturate(0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* One frame, held. Still water that is actually still. */
+  .backdrop__water { animation: none; opacity: 0; }
+  .backdrop__water--a { opacity: 0.55; }
 }
 
 /* Dark theme swaps the plate rather than dimming it: a dimmed light plate goes
@@ -100,36 +156,55 @@
 /* The ripple: resonance only, and only where a finger lands           */
 /* ------------------------------------------------------------------ */
 
+/*
+ * A disturbance in the surface, not a pulsating disc.
+ *
+ * What was wrong with the first one: a hard violet circle that scaled up and
+ * faded, which reads as a UI pulse. Real water does two things that fix it. The
+ * ring is a thin BAND of lighter and darker rather than an outline, because a
+ * ripple is a lens rather than a drawn circle. And the disturbance travels
+ * outward while dying, so it is widest when it is faintest.
+ */
 .backdrop__ripple {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
   border-radius: 50%;
-  border: 1.5px solid var(--backdrop-ripple);
+  /* The lens: a bright crest with a soft trough just inside it. */
+  background: radial-gradient(
+    circle,
+    transparent 52%,
+    var(--backdrop-ripple-trough) 62%,
+    var(--backdrop-ripple) 74%,
+    transparent 88%
+  );
   transform: scale(0);
-  opacity: 0.9;
-  animation: backdrop-ripple 1400ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  opacity: 0;
+  animation: backdrop-ripple 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) forwards;
 }
 
-/* A second, slower ring, so one tap reads as water rather than as a dot. */
+/* A second, later, wider ring. One stone makes more than one wave. */
 .backdrop__ripple::after {
   content: "";
   position: absolute;
-  inset: -1.5px;
+  inset: 0;
   border-radius: 50%;
-  border: 1px solid var(--backdrop-ripple);
-  animation: backdrop-ripple-echo 1400ms cubic-bezier(0.22, 0.61, 0.36, 1) 120ms forwards;
+  background: inherit;
+  animation: backdrop-ripple-echo 2600ms cubic-bezier(0.16, 0.72, 0.3, 1) 260ms forwards;
 }
 
 @keyframes backdrop-ripple {
-  from { transform: scale(0); opacity: 0.85; }
-  to { transform: scale(26); opacity: 0; }
+  /* Peaks early and low. The whole gesture should be felt more than seen. */
+  0% { transform: scale(0.2); opacity: 0; }
+  12% { opacity: 0.5; }
+  100% { transform: scale(11); opacity: 0; }
 }
 
 @keyframes backdrop-ripple-echo {
-  from { transform: scale(1); opacity: 0.5; }
-  to { transform: scale(1.7); opacity: 0; }
+  0% { transform: scale(0.4); opacity: 0; }
+  14% { opacity: 0.26; }
+  100% { transform: scale(1.55); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

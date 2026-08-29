@@ -57,6 +57,14 @@ describe("the backdrop cannot interfere with drawing", () => {
     expect(CSS).toContain("pointer-events: none");
   });
 
+  it("paints BEHIND the molecules", () => {
+    // The bug this pins: an absolutely positioned element paints above static
+    // in-flow content whatever the DOM order says, so the backdrop was sitting
+    // on top of the chemistry and washing the atoms out. Without a negative
+    // index the molecules lose contrast and nothing else reports it.
+    expect(RULES).toMatch(/\.backdrop\s*\{[^}]*z-index:\s*-1/);
+  });
+
   it("listens passively and never cancels the event", () => {
     // preventDefault on a pointerdown would kill the drag that draws an arrow;
     // stopPropagation would stop the canvas ever hearing about it.
