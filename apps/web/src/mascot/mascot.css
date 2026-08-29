@@ -90,6 +90,33 @@
   transform: scaleY(0.4);
 }
 
+/*
+ * THE BLINK. The lid, drawn as a vertical squash of whichever eye the mood is
+ * currently showing.
+ *
+ * `data-blink` is written by Berry.tsx's rAF loop and exists ONLY while that
+ * loop is running, so a reduced motion berry never matches these rules and
+ * holds one settled expression, which is what the tokens document asks for.
+ * The squash is about the eye group's own centre, so both eyes close onto the
+ * same line rather than sliding toward each other.
+ *
+ * These two selectors are placed after every mood rule deliberately: they have
+ * the same specificity as `.bb-eyes[data-mood="sleepy"] .bb-eye-kind`, and a
+ * blink has to win over the resting shape for the 110ms it lasts.
+ */
+.berry-origin[data-blink] .bb-eye-open,
+.berry-origin[data-blink] .bb-eye-kind {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 70ms linear,
+    opacity 200ms ease;
+}
+.berry-origin[data-blink="closed"] .bb-eye-open,
+.berry-origin[data-blink="closed"] .bb-eye-kind {
+  transform: scaleY(0.06);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bb-smile,
   .bb-eye-kind {

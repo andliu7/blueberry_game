@@ -60,6 +60,10 @@ export type NodeState = "done" | "current" | "open" | "review" | "locked";
 import { PATHWAY_UNITS, type PlayableLink as MapPlayableLink } from "../../demo/pathwayMap";
 import PathScene from "./PathScene";
 import { deriveMapPathway, statusOf, type MapPathwayStatus } from "./pathwayState";
+// Pure label geometry, in its own module so it can be tested without a document.
+// Re-exported because callers and tests have always reached it through this file.
+import { trackWind, withBreakHints } from "./pathwayLayout";
+export { trackWind, withBreakHints } from "./pathwayLayout";
 import { isCheckpointUnit } from "./terrain";
 
 export interface PathwayNode {
@@ -171,6 +175,7 @@ const LEGEND: readonly { readonly state: NodeState; readonly label: string }[] =
 
 const STAR_PATH = "M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.7L12 17.5l-5.9 3.3 1.3-6.7L2.5 9.5l6.6-.8z";
 
+
 /**
  * A map unit's title is authored as "Unit 1 - Conjugation, Resonance & Dienes"
  * with a middot separator. The banner sets the number as its eyebrow and the
@@ -195,11 +200,20 @@ export function unitName(title: string): string {
  *
  * One glyph per state and no two states sharing one, because the desaturated
  * states sit next to each other and colour alone is never the only carrier of
- * state: a check for finished, a star for the live node, a number for
- * reachable, a lock for not yet, and the star again in amber for a topic that
- * wants another pass.
+ * state: a check for finished, a filled star for the live node, a HOLLOW star
+ * for reachable, a lock for not yet, and the filled star again in amber for a
+ * topic that wants another pass.
+ *
+ * WHY THE NUMBER WENT. A reachable node used to carry its own index, and a
+ * blind judge read the result exactly right: "a bare 4 with no unit, legend or
+ * icon, ambiguous against the star and check glyphs, so a student cannot tell
+ * whether it means lesson 4, 4 problems, or 4 to unlock." A numeral beside a
+ * tick and a lock reads as a quantity, because that is what numerals do. The
+ * hollow star says the same thing the filled one says and says it is not earned
+ * yet, which is the one fact the face is there to carry; the lesson's position
+ * is in its label and its order on the track, where it was never ambiguous.
  */
-function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index: number }) {
+function NodeGlyph({ state }: { readonly state: NodeState }) {
   switch (state) {
     case "done":
       return (
@@ -222,7 +236,11 @@ function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index
         </svg>
       );
     default:
-      return <span className="text-scale-lg font-extrabold">{index + 1}</span>;
+      return (
+        <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
+          <path d={STAR_PATH} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+        </svg>
+      );
   }
 }
 
@@ -235,7 +253,12 @@ function NodeGlyph({ state, index }: { readonly state: NodeState; readonly index
  * that needs it most.
  */
 function ProgressRing({ done, total }: { readonly done: number; readonly total: number }) {
-  const radius = 60;
+  // 57, not 60. The ring is drawn proud of the node and the label has to clear
+  // its OUTER edge, not the node's, so every pixel of radius is a pixel off the
+  // current row's label column. 57 with a 7 wide stroke leaves a 2.5px channel
+  // between the node's rim and the ring, which still reads as two rings, and it
+  // is 3px less overhang for the label to be pushed past.
+  const radius = 57;
   const span = 2 * Math.PI * radius;
   const fraction = total <= 0 ? 0 : Math.min(1, done / total);
   const size = radius * 2 + 14;
@@ -276,20 +299,6 @@ function UnitBanner({ unit, course }: { readonly unit: PathwayUnit; readonly cou
   );
 }
 
-/**
- * Horizontal wander of node i on the track, in steps of -2..2.
- *
- * Period four, not eight. An eight step cycle is a mathematically nicer sine,
- * and it is the wrong shape here: five nodes is about what a viewport holds,
- * so a reader almost always sees one limb of the wave and nothing else, which
- * is a monotonic diagonal drift. A blind critic read exactly that, an indented
- * list rather than a path. At period four every screen contains a turn, so the
- * track reads as a track from any scroll position.
- */
-const WIND_CYCLE: readonly number[] = [0, 1.7, 0, -1.7];
-export function trackWind(index: number): number {
-  return WIND_CYCLE[index % WIND_CYCLE.length] ?? 0;
-}
 
 /**
  * Entering a node costs charge, so a press opens the Charge sheet before the
@@ -330,7 +339,6 @@ function enterHandlers(onEnter: EnterNode, node: ChargeGateNode) {
  */
 function TrackSlab({
   state,
-  index,
   label,
   detail,
   href,
@@ -340,7 +348,6 @@ function TrackSlab({
   gateNode,
 }: {
   readonly state: NodeState;
-  readonly index: number;
   readonly label: string;
   readonly detail: string;
   readonly href: string | null;
@@ -357,7 +364,7 @@ function TrackSlab({
   const labelLeft = wind > 0;
   const face = (
     <span className="path-node__face">
-      <NodeGlyph state={state} index={index} />
+      <NodeGlyph state={state} />
     </span>
   );
 
@@ -395,7 +402,7 @@ function TrackSlab({
         <span
           className={`path-row__title text-scale-sm font-semibold leading-tight ${state === "locked" || state === "open" ? "text-muted-foreground" : "text-foreground"}`}
         >
-          {label}
+          {withBreakHints(label)}
         </span>
         {/*
           NO blurb, on any node including the current one. The judge's words
@@ -435,7 +442,6 @@ function TrackNode({
   return (
     <TrackSlab
       state={node.state}
-      index={index}
       label={node.label}
       detail={detail}
       href={clickable ? href : null}
@@ -583,10 +589,18 @@ function OrgoMapTrack({
               </header>
 
               {gates.length > 0 ? (
-                <div className="path-gate mx-auto flex w-full max-w-md flex-col gap-1.5 px-3 pb-3 pt-10" aria-label="Checkpoint">
-                  <p className="text-scale-xs font-bold uppercase tracking-wide text-foreground">
-                    Checkpoint, the barrier between units
-                  </p>
+                <div className="path-gate mx-auto mt-2 flex w-full max-w-md flex-col gap-1.5 px-3 pb-3 pt-14" aria-label="Checkpoint">
+                  {/*
+                    TWO LINES, and the reason is geometric rather than editorial.
+                    The crest is a wide arc drawn through this panel, and on a
+                    390pt phone one 210px line of heading runs straight into the
+                    arc's descending flanks: the capture had the dashed curve
+                    crossing the C of CHECKPOINT. Split, neither line is wide
+                    enough to reach a flank, and the label plus its explanation
+                    is the better shape for the sentence anyway.
+                  */}
+                  <p className="text-scale-xs font-bold uppercase tracking-wide text-foreground">Checkpoint</p>
+                  <p className="text-scale-xs text-foreground">The barrier between units</p>
                   <div className="flex flex-wrap gap-1.5">
                     {gates.map((node) => (
                       <span key={node.id} className="path-quests__chip px-3 py-1 text-scale-xs font-semibold" title={node.blurb}>
@@ -612,7 +626,6 @@ function OrgoMapTrack({
                     <TrackSlab
                       key={node.id}
                       state={nodeStatus.state}
-                      index={index}
                       label={node.title}
                       detail={detail}
                       href={clickable && playable !== undefined ? hrefForPlayable(playable) : null}
@@ -702,7 +715,16 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
   let running = 0;
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4 p-4 md:p-6">
+    /*
+      pb-16 on top of the shell's own pb-24. The shell's padding clears the tab
+      bar by about seven pixels, which is not clearance, it is a coincidence:
+      the judge read the last unit's SIDE QUESTS row as "clipped mid-chip under
+      the tab bar" twice. The bar is fixed and roughly 89px tall on a phone, so
+      the last row of a 14000px track needs room a reader can see is deliberate.
+      md:pb-6 puts it back to the page padding on a desktop, where the bar is a
+      rail down the side and there is nothing underneath to clear.
+    */
+    <div className="mx-auto flex max-w-xl flex-col gap-4 p-4 pb-16 md:p-6 md:pb-6">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h2 className="title-face text-scale-xl font-semibold">{COURSE_LABEL[course]}</h2>
@@ -710,7 +732,24 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
             {doneCount} of {totalCount} lessons done
           </p>
         </div>
-        <Berry mood={totalCount > 0 && doneCount === totalCount ? "proud" : "curious"} reducedMotion={reducedMotion} sizePx={56} />
+        {/*
+          Bloom has an OPINION about the count beside it, which is the note a
+          blind judge left on the last round: "sitting in the corner as a static
+          logo with no opinion about the two lessons just completed". Proud when
+          the track is finished, happy while there is a cleared node behind you,
+          curious on a track not yet started. The face is the whole message; the
+          copy stays the count, because two sentences beside a 14000px track is
+          the multi-line reading the same judge cut last round.
+
+          It also blinks now. See the blink block in Berry.tsx and mascot.css:
+          MODIFIERS.blink has described one since the mark was imported and
+          nothing drew it, which is most of why this corner read as a logo.
+        */}
+        <Berry
+          mood={totalCount > 0 && doneCount === totalCount ? "proud" : doneCount > 0 ? "happy" : "curious"}
+          reducedMotion={reducedMotion}
+          sizePx={64}
+        />
       </header>
 
       {onMap ? (

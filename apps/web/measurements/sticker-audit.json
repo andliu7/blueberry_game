@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-29T08:32:12.070Z",
+  "generated": "2026-08-29T10:44:10.333Z",
   "config": {
     "radiusFloorPx": 12,
     "saturationMin": 0.3,
@@ -63,13 +63,8 @@
     "shell-tool",
     "shell-courses"
   ],
-  "elementsInspected": 50180,
+  "elementsInspected": 50252,
   "driveRetries": [
-    {
-      "route": "hud-streak",
-      "theme": "light",
-      "viewport": "phone"
-    },
     {
       "route": "hud-streak",
       "theme": "dark",
@@ -7230,8 +7225,8 @@
         "route": "onboarding",
         "rule": "6-colour-as-surface",
         "element": "the route",
-        "value": "1.75 percent saturated fill, floor 2 percent",
-        "detail": "chrome fills 1.53 percent, art fills 0.22 percent, first screen 1.75 percent, 0 element(s) carry a saturated border",
+        "value": "1.73 percent saturated fill, floor 2 percent",
+        "detail": "chrome fills 1.53 percent, art fills 0.20 percent, first screen 1.73 percent, 0 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -7244,7 +7239,7 @@
         "rule": "6-colour-as-surface",
         "element": "the route",
         "value": "0.97 percent saturated fill, floor 2 percent",
-        "detail": "chrome fills 0.88 percent, art fills 0.08 percent, first screen 0.97 percent, 6 element(s) carry a saturated border",
+        "detail": "chrome fills 0.88 percent, art fills 0.09 percent, first screen 0.97 percent, 6 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -7360,8 +7355,8 @@
         "route": "onboarding",
         "rule": "6-colour-as-surface",
         "element": "the route",
-        "value": "1.72 percent saturated fill, floor 2 percent",
-        "detail": "chrome fills 1.53 percent, art fills 0.19 percent, first screen 1.72 percent, 7 element(s) carry a saturated border",
+        "value": "1.73 percent saturated fill, floor 2 percent",
+        "detail": "chrome fills 1.53 percent, art fills 0.20 percent, first screen 1.73 percent, 7 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -7374,7 +7369,7 @@
         "rule": "6-colour-as-surface",
         "element": "the route",
         "value": "1.52 percent saturated fill, floor 2 percent",
-        "detail": "chrome fills 1.44 percent, art fills 0.09 percent, first screen 1.52 percent, 35 element(s) carry a saturated border",
+        "detail": "chrome fills 1.44 percent, art fills 0.08 percent, first screen 1.52 percent, 35 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -7966,7 +7961,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 2,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold",
@@ -7981,12 +7976,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8022,7 +8017,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 2,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold",
@@ -8037,12 +8032,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8078,7 +8073,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8092,12 +8087,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8323,7 +8318,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8337,12 +8332,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8378,7 +8373,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8392,12 +8387,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8433,7 +8428,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8447,12 +8442,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8501,7 +8496,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8515,12 +8510,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8759,7 +8754,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -8773,12 +8768,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8816,12 +8811,12 @@
         "element": "span.text-scale-xs",
         "value": "#1e293b at 12px",
         "detail": "text: \"6\"",
-        "count": 28,
+        "count": 124,
         "where": [
           "span.text-scale-xs",
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -8844,7 +8839,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9433,7 +9428,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 2,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold",
@@ -9448,12 +9443,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9476,7 +9471,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 2,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold",
@@ -9491,12 +9486,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9519,7 +9514,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9533,12 +9528,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9737,7 +9732,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9751,12 +9746,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9779,7 +9774,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9793,12 +9788,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9821,7 +9816,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9835,12 +9830,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -9876,7 +9871,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -9890,12 +9885,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -10043,7 +10038,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -10057,12 +10052,12 @@
         "element": "p.mb-2.text-scale-xs.font-bold",
         "value": "#1e293b at 12px",
         "detail": "text: \"Side quests\"",
-        "count": 27,
+        "count": 123,
         "where": [
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -10086,12 +10081,12 @@
         "element": "span.text-scale-xs",
         "value": "#1e293b at 12px",
         "detail": "text: \"6\"",
-        "count": 28,
+        "count": 124,
         "where": [
           "span.text-scale-xs",
           "p.mb-2.text-scale-xs.font-bold",
-          "p.text-scale-xs.font-bold.uppercase",
-          "span.path-quests__chip.px-3.py-1"
+          "span.path-quests__chip.path-quests__chip--queued.px-3",
+          "span.path-quests__chip.path-quests__chip--queued.px-3"
         ]
       },
       {
@@ -10114,7 +10109,7 @@
         "rule": "7-body-recedes",
         "element": "span.path-row__title.text-scale-sm.font-semibold",
         "value": "#1e293b at 14px",
-        "detail": "text: \"Allylic/resonance delocalization\"",
+        "detail": "text: \"Allylic/​resonance delocalization\"",
         "count": 1,
         "where": [
           "span.path-row__title.text-scale-sm.font-semibold"
@@ -13561,7 +13556,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 27px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13574,7 +13569,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13587,7 +13582,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px, berry 58px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 27px, berry 65px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13613,7 +13608,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin.shrink-0 + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 81px, berry 184px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 80px, berry 185px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin.shrink-0 + div.berry-origin"
@@ -13639,7 +13634,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 80px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 27px, berry 80px, berry 67px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13652,7 +13647,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13665,7 +13660,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13678,7 +13673,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13730,7 +13725,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px, berry 98px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 27px, berry 101px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13769,7 +13764,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13795,7 +13790,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13834,7 +13829,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13847,7 +13842,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13860,7 +13855,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px, berry 57px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13912,7 +13907,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "4 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 80px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 80px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin + div.berry-origin"
@@ -13925,7 +13920,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13938,7 +13933,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13951,7 +13946,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -13977,7 +13972,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin"
@@ -14003,7 +13998,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 27px, berry 100px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 27px, berry 91px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -14042,7 +14037,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -14068,7 +14063,7 @@
         "rule": "10-reachability",
         "element": "svg + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "flat mark 32px, berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "flat mark 32px, berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "svg + div.berry-origin + div.berry-origin"
@@ -14094,7 +14089,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "berry 27px, berry 56px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 65px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin + div.berry-origin"
@@ -14107,7 +14102,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 65px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin + div.berry-origin"
@@ -14120,7 +14115,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin + div.berry-origin"
@@ -14133,7 +14128,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin.shrink-0 + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 80px, berry 184px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 80px, berry 185px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin.shrink-0 + div.berry-origin"
@@ -14146,7 +14141,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin + div.berry-origin",
         "value": "3 mascot instances on one screen",
-        "detail": "berry 27px, berry 80px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 80px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin + div.berry-origin"
@@ -14159,7 +14154,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin"
@@ -14172,7 +14167,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin"
@@ -14185,7 +14180,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 27px, berry 56px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin"
@@ -14193,162 +14188,6 @@
       },
       {
         "theme": "dark",
-        "viewport": "phone",
-        "route": "pathway",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 27px, berry 94px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "dark",
-        "viewport": "phone",
-        "route": "shell-bar",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "dark",
-        "viewport": "phone",
-        "route": "shell-tool",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "dark",
-        "viewport": "phone",
-        "route": "trainer",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 27px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "charge-cost",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
-        "value": "3 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px, berry 76px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "charge-empty",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
-        "value": "3 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px, berry 73px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "charge-exam",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
-        "value": "3 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "combo",
-        "rule": "10-reachability",
-        "element": "div.berry-origin.shrink-0 + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 80px, berry 184px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin.shrink-0 + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "hud-charge",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
-        "value": "3 mascot instances on one screen",
-        "detail": "berry 27px, berry 79px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "hud-lit",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "hud-rest",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 27px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
-        "viewport": "phone",
-        "route": "hud-streak",
-        "rule": "10-reachability",
-        "element": "div.berry-origin + div.berry-origin",
-        "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
-        "count": 1,
-        "where": [
-          "div.berry-origin + div.berry-origin"
-        ]
-      },
-      {
-        "theme": "light",
         "viewport": "phone",
         "route": "pathway",
         "rule": "10-reachability",
@@ -14361,13 +14200,169 @@
         ]
       },
       {
+        "theme": "dark",
+        "viewport": "phone",
+        "route": "shell-bar",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "dark",
+        "viewport": "phone",
+        "route": "shell-tool",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "dark",
+        "viewport": "phone",
+        "route": "trainer",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 27px, berry 74px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "charge-cost",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
+        "value": "3 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "charge-empty",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
+        "value": "3 mascot instances on one screen",
+        "detail": "berry 26px, berry 64px, berry 74px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "charge-exam",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
+        "value": "3 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px, berry 75px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "combo",
+        "rule": "10-reachability",
+        "element": "div.berry-origin.shrink-0 + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 75px, berry 199px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin.shrink-0 + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "hud-charge",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin + div.berry-origin",
+        "value": "3 mascot instances on one screen",
+        "detail": "berry 27px, berry 79px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "hud-lit",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "hud-rest",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "hud-streak",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 26px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "phone",
+        "route": "pathway",
+        "rule": "10-reachability",
+        "element": "div.berry-origin + div.berry-origin",
+        "value": "2 mascot instances on one screen",
+        "detail": "berry 27px, berry 100px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "count": 1,
+        "where": [
+          "div.berry-origin + div.berry-origin"
+        ]
+      },
+      {
         "theme": "light",
         "viewport": "phone",
         "route": "shell-bar",
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 26px, berry 66px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin"
@@ -14380,7 +14375,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 26px, berry 57px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 27px, berry 65px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin + div.berry-origin"
@@ -20053,9 +20048,9 @@
       "viewport": "phone",
       "route": "trainer",
       "chromeFillFraction": 0.02145261802770689,
-      "artFillFraction": 0.004617534693017447,
-      "totalFillFraction": 0.026070152720724337,
-      "firstScreenFraction": 0.026070152720724337,
+      "artFillFraction": 0.004611143153199608,
+      "totalFillFraction": 0.0260637611809065,
+      "firstScreenFraction": 0.0260637611809065,
       "saturatedBorderElements": 45,
       "pageArea": 329160,
       "faceSizes": {
@@ -20070,9 +20065,9 @@
       "viewport": "phone",
       "route": "pathway",
       "chromeFillFraction": 0.05027389795236359,
-      "artFillFraction": 0.0033650129107769128,
-      "totalFillFraction": 0.0536389108631405,
-      "firstScreenFraction": 0.0536389108631405,
+      "artFillFraction": 0.0033485229177712722,
+      "totalFillFraction": 0.053622420870134864,
+      "firstScreenFraction": 0.053622420870134864,
       "saturatedBorderElements": 31,
       "pageArea": 329160,
       "faceSizes": {
@@ -20087,9 +20082,9 @@
       "viewport": "phone",
       "route": "cards",
       "chromeFillFraction": 0.1410939829839488,
-      "artFillFraction": 0.0018055229851021938,
-      "totalFillFraction": 0.14289950596905096,
-      "firstScreenFraction": 0.14848680892755653,
+      "artFillFraction": 0.0018055001807514642,
+      "totalFillFraction": 0.14289948316470025,
+      "firstScreenFraction": 0.14848678523156647,
       "saturatedBorderElements": 40,
       "pageArea": 342030,
       "faceSizes": {
@@ -20104,9 +20099,9 @@
       "viewport": "phone",
       "route": "me",
       "chromeFillFraction": 0.0144501273865799,
-      "artFillFraction": 0.0008407810386817592,
-      "totalFillFraction": 0.01529090842526166,
-      "firstScreenFraction": 0.022700839166887275,
+      "artFillFraction": 0.0008407929267475124,
+      "totalFillFraction": 0.015290920313327414,
+      "firstScreenFraction": 0.022700856815875886,
       "saturatedBorderElements": 60,
       "pageArea": 488670,
       "faceSizes": {
@@ -20121,9 +20116,9 @@
       "viewport": "phone",
       "route": "courses",
       "chromeFillFraction": 0.017527598853228087,
-      "artFillFraction": 0.0019527610024297518,
-      "totalFillFraction": 0.01948035985565784,
-      "firstScreenFraction": 0.023842667927600175,
+      "artFillFraction": 0.0019513107723255403,
+      "totalFillFraction": 0.01947890962555363,
+      "firstScreenFraction": 0.02384089294217642,
       "saturatedBorderElements": 43,
       "pageArea": 402870,
       "faceSizes": {
@@ -20140,9 +20135,9 @@
       "viewport": "phone",
       "route": "search",
       "chromeFillFraction": 0.02145261802770689,
-      "artFillFraction": 0.0012459105999115519,
-      "totalFillFraction": 0.022698528627618442,
-      "firstScreenFraction": 0.022698528627618442,
+      "artFillFraction": 0.0012477114195199998,
+      "totalFillFraction": 0.02270032944722689,
+      "firstScreenFraction": 0.02270032944722689,
       "saturatedBorderElements": 32,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20153,9 +20148,9 @@
       "viewport": "phone",
       "route": "leaderboards",
       "chromeFillFraction": 0.043924402266375014,
-      "artFillFraction": 0.0012483143323542955,
-      "totalFillFraction": 0.04517271659872931,
-      "firstScreenFraction": 0.04517271659872931,
+      "artFillFraction": 0.0012483327771236497,
+      "totalFillFraction": 0.04517273504349866,
+      "firstScreenFraction": 0.04517273504349866,
       "saturatedBorderElements": 32,
       "pageArea": 329160,
       "faceSizes": {
@@ -20170,9 +20165,9 @@
       "viewport": "phone",
       "route": "periodic",
       "chromeFillFraction": 0.4546744446286472,
-      "artFillFraction": 0.0009081043392662166,
-      "totalFillFraction": 0.45558254896791345,
-      "firstScreenFraction": 0.2949461740584641,
+      "artFillFraction": 0.0009081087151708437,
+      "totalFillFraction": 0.45558255334381803,
+      "firstScreenFraction": 0.2949461800727406,
       "saturatedBorderElements": 272,
       "pageArea": 452400,
       "faceSizes": {
@@ -20188,9 +20183,9 @@
       "viewport": "phone",
       "route": "chat",
       "chromeFillFraction": 0.043924402266375014,
-      "artFillFraction": 0.0012479093881228342,
-      "totalFillFraction": 0.04517231165449785,
-      "firstScreenFraction": 0.04517231165449785,
+      "artFillFraction": 0.001248425173664642,
+      "totalFillFraction": 0.045172827440039656,
+      "firstScreenFraction": 0.045172827440039656,
       "saturatedBorderElements": 32,
       "pageArea": 329160,
       "faceSizes": {
@@ -20205,9 +20200,9 @@
       "viewport": "phone",
       "route": "messages",
       "chromeFillFraction": 0.043924402266375014,
-      "artFillFraction": 0.001246242378105477,
-      "totalFillFraction": 0.04517064464448049,
-      "firstScreenFraction": 0.04517064464448049,
+      "artFillFraction": 0.0012483901062959272,
+      "totalFillFraction": 0.04517279237267094,
+      "firstScreenFraction": 0.04517279237267094,
       "saturatedBorderElements": 32,
       "pageArea": 329160,
       "faceSizes": {
@@ -20222,9 +20217,9 @@
       "viewport": "phone",
       "route": "onboarding",
       "chromeFillFraction": 0.045716368939117756,
-      "artFillFraction": 0.005204910755029073,
-      "totalFillFraction": 0.05092127969414683,
-      "firstScreenFraction": 0.05092127969414683,
+      "artFillFraction": 0.007754121012475284,
+      "totalFillFraction": 0.053470489951593037,
+      "firstScreenFraction": 0.053470489951593037,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
@@ -20239,9 +20234,9 @@
       "viewport": "phone",
       "route": "feedback-correct",
       "chromeFillFraction": 0.5559222198566461,
-      "artFillFraction": 0.005475025742950236,
-      "totalFillFraction": 0.5613972455995964,
-      "firstScreenFraction": 0.5767880851435591,
+      "artFillFraction": 0.004244994356932597,
+      "totalFillFraction": 0.5601672142135787,
+      "firstScreenFraction": 0.575524332153375,
       "saturatedBorderElements": 11,
       "pageArea": 338184,
       "faceSizes": {},
@@ -20252,9 +20247,9 @@
       "viewport": "phone",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.07805829979265765,
-      "artFillFraction": 0.0012766976411532514,
-      "totalFillFraction": 0.0793349974338109,
-      "firstScreenFraction": 0.05348334042481432,
+      "artFillFraction": 0.001283859081398461,
+      "totalFillFraction": 0.0793421588740561,
+      "firstScreenFraction": 0.05349118929022051,
       "saturatedBorderElements": 12,
       "pageArea": 360756,
       "faceSizes": {},
@@ -20265,10 +20260,10 @@
       "viewport": "phone",
       "route": "combo",
       "chromeFillFraction": 0.6177447040664253,
-      "artFillFraction": 0.03289005850887867,
-      "totalFillFraction": 0.6506347625753041,
-      "firstScreenFraction": 0.6684720699561508,
-      "saturatedBorderElements": 35,
+      "artFillFraction": 0.0258120761944014,
+      "totalFillFraction": 0.6435567802608267,
+      "firstScreenFraction": 0.6612000430663734,
+      "saturatedBorderElements": 34,
       "pageArea": 338184,
       "faceSizes": {
         "Fraunces": {
@@ -20282,9 +20277,9 @@
       "viewport": "phone",
       "route": "reward-first",
       "chromeFillFraction": 0.056369622675902294,
-      "artFillFraction": 0.024698230500809673,
-      "totalFillFraction": 0.08106785317671197,
-      "firstScreenFraction": 0.08106785317671197,
+      "artFillFraction": 0.024809425976131276,
+      "totalFillFraction": 0.08117904865203357,
+      "firstScreenFraction": 0.08117904865203357,
       "saturatedBorderElements": 32,
       "pageArea": 329160,
       "faceSizes": {
@@ -20300,9 +20295,9 @@
       "viewport": "phone",
       "route": "reward-streak",
       "chromeFillFraction": 0.07144397861222505,
-      "artFillFraction": 0.026041981683156665,
-      "totalFillFraction": 0.09748596029538172,
-      "firstScreenFraction": 0.09748596029538172,
+      "artFillFraction": 0.02607587464237216,
+      "totalFillFraction": 0.09751985325459722,
+      "firstScreenFraction": 0.09751985325459722,
       "saturatedBorderElements": 42,
       "pageArea": 329160,
       "faceSizes": {
@@ -20317,12 +20312,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-rest",
-      "chromeFillFraction": 0.06118778319670713,
-      "artFillFraction": 0.2255000452703965,
-      "totalFillFraction": 0.2866878284671036,
-      "firstScreenFraction": 0.2732917902147987,
-      "saturatedBorderElements": 395,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.06484342326020014,
+      "artFillFraction": 0.3043455626004003,
+      "totalFillFraction": 0.36918898586060045,
+      "firstScreenFraction": 0.2984604060337576,
+      "saturatedBorderElements": 397,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20334,12 +20329,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-lit",
-      "chromeFillFraction": 0.061295049770699904,
-      "artFillFraction": 0.22555397563526394,
-      "totalFillFraction": 0.28684902540596385,
-      "firstScreenFraction": 0.27650573719122656,
-      "saturatedBorderElements": 396,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.06495709843350596,
+      "artFillFraction": 0.3044025949935302,
+      "totalFillFraction": 0.3693596934270361,
+      "firstScreenFraction": 0.3016720949525158,
+      "saturatedBorderElements": 398,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20351,12 +20346,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-charge",
-      "chromeFillFraction": 0.06362337296887288,
-      "artFillFraction": 0.22557468102589295,
-      "totalFillFraction": 0.28919805399476584,
-      "firstScreenFraction": 0.32334070430601547,
-      "saturatedBorderElements": 432,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.06742452638624469,
+      "artFillFraction": 0.30442522704799907,
+      "totalFillFraction": 0.3718497534342438,
+      "firstScreenFraction": 0.3485200367231919,
+      "saturatedBorderElements": 434,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20368,12 +20363,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-streak",
-      "chromeFillFraction": 0.06364282869178506,
-      "artFillFraction": 0.22550013455485785,
-      "totalFillFraction": 0.2891429632466429,
-      "firstScreenFraction": 0.3222423041464921,
-      "saturatedBorderElements": 420,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.06744512775344039,
+      "artFillFraction": 0.30434559587580934,
+      "totalFillFraction": 0.3717907236292498,
+      "firstScreenFraction": 0.3474094510910832,
+      "saturatedBorderElements": 422,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20386,9 +20381,9 @@
       "viewport": "phone",
       "route": "streak-rest",
       "chromeFillFraction": 0.07147891602867906,
-      "artFillFraction": 0.032878895084800144,
-      "totalFillFraction": 0.1043578111134792,
-      "firstScreenFraction": 0.1043578111134792,
+      "artFillFraction": 0.03284019159476517,
+      "totalFillFraction": 0.10431910762344423,
+      "firstScreenFraction": 0.10431910762344423,
       "saturatedBorderElements": 36,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20399,9 +20394,9 @@
       "viewport": "phone",
       "route": "streak-milestone",
       "chromeFillFraction": 0.0827334873237939,
-      "artFillFraction": 0.032647448545377704,
-      "totalFillFraction": 0.1153809358691716,
-      "firstScreenFraction": 0.1153809358691716,
+      "artFillFraction": 0.032647302494261225,
+      "totalFillFraction": 0.11538078981805512,
+      "firstScreenFraction": 0.11538078981805512,
       "saturatedBorderElements": 31,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20412,9 +20407,9 @@
       "viewport": "phone",
       "route": "streak-exam",
       "chromeFillFraction": 0.10909834882731802,
-      "artFillFraction": 0.03235016338526877,
-      "totalFillFraction": 0.1414485122125868,
-      "firstScreenFraction": 0.1414485122125868,
+      "artFillFraction": 0.03235037278966457,
+      "totalFillFraction": 0.1414487216169826,
+      "firstScreenFraction": 0.1414487216169826,
       "saturatedBorderElements": 27,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20424,12 +20419,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-cost",
-      "chromeFillFraction": 0.06677764926295907,
-      "artFillFraction": 0.2255255815114267,
-      "totalFillFraction": 0.2923032307743858,
-      "firstScreenFraction": 0.385251765351585,
-      "saturatedBorderElements": 413,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.07076725367805568,
+      "artFillFraction": 0.30437266669322255,
+      "totalFillFraction": 0.37513992037127825,
+      "firstScreenFraction": 0.4104211751037257,
+      "saturatedBorderElements": 415,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20441,12 +20436,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-empty",
-      "chromeFillFraction": 0.06645936366765573,
-      "artFillFraction": 0.22556897885272284,
-      "totalFillFraction": 0.29202834252037857,
-      "firstScreenFraction": 0.37977103923439626,
-      "saturatedBorderElements": 404,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.07042995223493051,
+      "artFillFraction": 0.3044181011354673,
+      "totalFillFraction": 0.3748480533703978,
+      "firstScreenFraction": 0.40492999488218445,
+      "saturatedBorderElements": 406,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20458,12 +20453,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-exam",
-      "chromeFillFraction": 0.06484652347270595,
-      "artFillFraction": 0.22558440262167667,
-      "totalFillFraction": 0.2904309260943826,
-      "firstScreenFraction": 0.3490308276224863,
-      "saturatedBorderElements": 404,
-      "pageArea": 6564054,
+      "chromeFillFraction": 0.06872093254855673,
+      "artFillFraction": 0.3044231339452864,
+      "totalFillFraction": 0.37314406649384313,
+      "firstScreenFraction": 0.37419755955833434,
+      "saturatedBorderElements": 406,
+      "pageArea": 6193980,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20475,12 +20470,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "shell-bar",
-      "chromeFillFraction": 0.06118778319670713,
-      "artFillFraction": 0.22550045753564413,
-      "totalFillFraction": 0.2866882407323513,
-      "firstScreenFraction": 0.2733000099654685,
-      "saturatedBorderElements": 395,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.06484342326020014,
+      "artFillFraction": 0.3043457501570889,
+      "totalFillFraction": 0.3691891734172891,
+      "firstScreenFraction": 0.29846393472174226,
+      "saturatedBorderElements": 397,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20492,12 +20487,12 @@
       "theme": "light",
       "viewport": "phone",
       "route": "shell-tool",
-      "chromeFillFraction": 0.09145435627522838,
-      "artFillFraction": 0.2255001243348836,
-      "totalFillFraction": 0.31695448061011194,
-      "firstScreenFraction": 0.5302605330273484,
-      "saturatedBorderElements": 644,
-      "pageArea": 6562797,
+      "chromeFillFraction": 0.09691826085411953,
+      "artFillFraction": 0.3043449382898878,
+      "totalFillFraction": 0.4012631991440073,
+      "firstScreenFraction": 0.5554158266912349,
+      "saturatedBorderElements": 646,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -20512,9 +20507,9 @@
       "viewport": "phone",
       "route": "shell-courses",
       "chromeFillFraction": 0.01849247726944725,
-      "artFillFraction": 0.0018893009080966409,
-      "totalFillFraction": 0.020381778177543892,
-      "firstScreenFraction": 0.025742862010973682,
+      "artFillFraction": 0.0018891241003160758,
+      "totalFillFraction": 0.020381601369763327,
+      "firstScreenFraction": 0.02574263869688117,
       "saturatedBorderElements": 45,
       "pageArea": 415740,
       "faceSizes": {
@@ -20531,9 +20526,9 @@
       "viewport": "phone",
       "route": "trainer",
       "chromeFillFraction": 0.002091972748815166,
-      "artFillFraction": 0.004628977603724365,
-      "totalFillFraction": 0.006720950352539531,
-      "firstScreenFraction": 0.006720950352539531,
+      "artFillFraction": 0.00464623687243539,
+      "totalFillFraction": 0.0067382096212505556,
+      "firstScreenFraction": 0.0067382096212505556,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
@@ -20548,9 +20543,9 @@
       "viewport": "phone",
       "route": "pathway",
       "chromeFillFraction": 0.030913252673471867,
-      "artFillFraction": 0.0032012272444900134,
-      "totalFillFraction": 0.03411447991796188,
-      "firstScreenFraction": 0.03411447991796188,
+      "artFillFraction": 0.003360513402880585,
+      "totalFillFraction": 0.034273766076352456,
+      "firstScreenFraction": 0.034273766076352456,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
@@ -20565,9 +20560,9 @@
       "viewport": "phone",
       "route": "cards",
       "chromeFillFraction": 0.11428410885010087,
-      "artFillFraction": 0.0018034620612304697,
-      "totalFillFraction": 0.11608757091133134,
-      "firstScreenFraction": 0.12062653991615828,
+      "artFillFraction": 0.001805451698765132,
+      "totalFillFraction": 0.116089560548866,
+      "firstScreenFraction": 0.12062860734757759,
       "saturatedBorderElements": 6,
       "pageArea": 342030,
       "faceSizes": {
@@ -20582,9 +20577,9 @@
       "viewport": "phone",
       "route": "me",
       "chromeFillFraction": 0.001409118116520351,
-      "artFillFraction": 0.0008397777402069209,
-      "totalFillFraction": 0.002248895856727272,
-      "firstScreenFraction": 0.0033387043939327866,
+      "artFillFraction": 0.0008401038563989303,
+      "totalFillFraction": 0.0022492219729192816,
+      "firstScreenFraction": 0.0033391885451040993,
       "saturatedBorderElements": 12,
       "pageArea": 488670,
       "faceSizes": {
@@ -20599,9 +20594,9 @@
       "viewport": "phone",
       "route": "courses",
       "chromeFillFraction": 0.0017092207163601162,
-      "artFillFraction": 0.0019521053958720719,
-      "totalFillFraction": 0.0036613261122321883,
-      "firstScreenFraction": 0.0044812202297818135,
+      "artFillFraction": 0.001952776167801886,
+      "totalFillFraction": 0.003661996884162002,
+      "firstScreenFraction": 0.004482041210117711,
       "saturatedBorderElements": 7,
       "pageArea": 402870,
       "faceSizes": {
@@ -20618,9 +20613,9 @@
       "viewport": "phone",
       "route": "search",
       "chromeFillFraction": 0.002091972748815166,
-      "artFillFraction": 0.0012483559379124925,
-      "totalFillFraction": 0.0033403286867276583,
-      "firstScreenFraction": 0.0033403286867276583,
+      "artFillFraction": 0.0012482688988959647,
+      "totalFillFraction": 0.0033402416477111307,
+      "firstScreenFraction": 0.0033402416477111307,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20631,9 +20626,9 @@
       "viewport": "phone",
       "route": "leaderboards",
       "chromeFillFraction": 0.024563756987483292,
-      "artFillFraction": 0.0012481138566787513,
-      "totalFillFraction": 0.025811870844162043,
-      "firstScreenFraction": 0.025811870844162043,
+      "artFillFraction": 0.0012482913021790159,
+      "totalFillFraction": 0.025812048289662305,
+      "firstScreenFraction": 0.025812048289662305,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
@@ -20648,9 +20643,9 @@
       "viewport": "phone",
       "route": "periodic",
       "chromeFillFraction": 0.44058790616710874,
-      "artFillFraction": 0.0009081506461601045,
-      "totalFillFraction": 0.44149605681326887,
-      "firstScreenFraction": 0.27558559242411845,
+      "artFillFraction": 0.0009077110919751129,
+      "totalFillFraction": 0.4414956172590839,
+      "firstScreenFraction": 0.2755849882975135,
       "saturatedBorderElements": 244,
       "pageArea": 452400,
       "faceSizes": {
@@ -20666,9 +20661,9 @@
       "viewport": "phone",
       "route": "chat",
       "chromeFillFraction": 0.024563756987483292,
-      "artFillFraction": 0.0012481465326395819,
-      "totalFillFraction": 0.025811903520122872,
-      "firstScreenFraction": 0.025811903520122872,
+      "artFillFraction": 0.0012483271779703711,
+      "totalFillFraction": 0.025812084165453664,
+      "firstScreenFraction": 0.025812084165453664,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
@@ -20683,9 +20678,9 @@
       "viewport": "phone",
       "route": "messages",
       "chromeFillFraction": 0.024563756987483292,
-      "artFillFraction": 0.0012481922842518696,
-      "totalFillFraction": 0.02581194927173516,
-      "firstScreenFraction": 0.02581194927173516,
+      "artFillFraction": 0.0012483498293783429,
+      "totalFillFraction": 0.025812106816861635,
+      "firstScreenFraction": 0.025812106816861635,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
@@ -20700,9 +20695,9 @@
       "viewport": "phone",
       "route": "onboarding",
       "chromeFillFraction": 0.045716368939117756,
-      "artFillFraction": 0.006743559357011323,
-      "totalFillFraction": 0.052459928296129076,
-      "firstScreenFraction": 0.052459928296129076,
+      "artFillFraction": 0.007821603994949806,
+      "totalFillFraction": 0.05353797293406756,
+      "firstScreenFraction": 0.05353797293406756,
       "saturatedBorderElements": 0,
       "pageArea": 329160,
       "faceSizes": {
@@ -20717,9 +20712,9 @@
       "viewport": "phone",
       "route": "feedback-correct",
       "chromeFillFraction": 0.08326827998959146,
-      "artFillFraction": 0.00573960964482263,
-      "totalFillFraction": 0.0890078896344141,
-      "firstScreenFraction": 0.09144806218290405,
+      "artFillFraction": 0.004168181743835607,
+      "totalFillFraction": 0.08743646173342708,
+      "firstScreenFraction": 0.08983355321077076,
       "saturatedBorderElements": 2,
       "pageArea": 338184,
       "faceSizes": {},
@@ -20730,9 +20725,9 @@
       "viewport": "phone",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.07805829979265765,
-      "artFillFraction": 0.0012806795947222364,
-      "totalFillFraction": 0.07933897938737988,
-      "firstScreenFraction": 0.053487704605278935,
+      "artFillFraction": 0.0012845431843784127,
+      "totalFillFraction": 0.07934284297703606,
+      "firstScreenFraction": 0.05349193906010335,
       "saturatedBorderElements": 1,
       "pageArea": 360756,
       "faceSizes": {},
@@ -20743,9 +20738,9 @@
       "viewport": "phone",
       "route": "combo",
       "chromeFillFraction": 0.14509076419937075,
-      "artFillFraction": 0.030541738334322423,
-      "totalFillFraction": 0.17563250253369317,
-      "firstScreenFraction": 0.18044750952987756,
+      "artFillFraction": 0.0316864546439186,
+      "totalFillFraction": 0.17677721884328937,
+      "firstScreenFraction": 0.1816236085104477,
       "saturatedBorderElements": 4,
       "pageArea": 338184,
       "faceSizes": {
@@ -20760,9 +20755,9 @@
       "viewport": "phone",
       "route": "reward-first",
       "chromeFillFraction": 0.047855146433345486,
-      "artFillFraction": 0.024789565401490736,
-      "totalFillFraction": 0.07264471183483623,
-      "firstScreenFraction": 0.07264471183483623,
+      "artFillFraction": 0.024750895413264404,
+      "totalFillFraction": 0.07260604184660989,
+      "firstScreenFraction": 0.07260604184660989,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
@@ -20778,9 +20773,9 @@
       "viewport": "phone",
       "route": "reward-streak",
       "chromeFillFraction": 0.06292950236966825,
-      "artFillFraction": 0.0260161652878955,
-      "totalFillFraction": 0.08894566765756375,
-      "firstScreenFraction": 0.08894566765756375,
+      "artFillFraction": 0.025920588559439267,
+      "totalFillFraction": 0.08885009092910752,
+      "firstScreenFraction": 0.08885009092910752,
       "saturatedBorderElements": 11,
       "pageArea": 329160,
       "faceSizes": {
@@ -20795,12 +20790,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-rest",
-      "chromeFillFraction": 0.0602405117817906,
-      "artFillFraction": 0.22550037093280073,
-      "totalFillFraction": 0.2857408827145913,
-      "firstScreenFraction": 0.25441157164707967,
+      "chromeFillFraction": 0.06383955748682747,
+      "artFillFraction": 0.304345939345844,
+      "totalFillFraction": 0.36818549683267143,
+      "firstScreenFraction": 0.2795807824857906,
       "saturatedBorderElements": 17,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20812,12 +20807,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-lit",
-      "chromeFillFraction": 0.06032400800299019,
-      "artFillFraction": 0.22555396453877183,
-      "totalFillFraction": 0.285877972541762,
-      "firstScreenFraction": 0.25714487067030894,
+      "chromeFillFraction": 0.06392804215695298,
+      "artFillFraction": 0.3044025834755325,
+      "totalFillFraction": 0.36833062563248553,
+      "firstScreenFraction": 0.28231123297423505,
       "saturatedBorderElements": 18,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20829,12 +20824,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-charge",
-      "chromeFillFraction": 0.06267610155395634,
-      "artFillFraction": 0.2255762930456685,
-      "totalFillFraction": 0.2882523945996249,
-      "firstScreenFraction": 0.30448613315079304,
+      "chromeFillFraction": 0.06642032627381947,
+      "artFillFraction": 0.3044276955422593,
+      "totalFillFraction": 0.37084802181607873,
+      "firstScreenFraction": 0.3296734770492078,
       "saturatedBorderElements": 17,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20846,27 +20841,27 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-streak",
-      "chromeFillFraction": 0.0626955625779679,
-      "artFillFraction": 0.22549978981607396,
-      "totalFillFraction": 0.28819535239404187,
-      "firstScreenFraction": 0.30334882480326214,
+      "chromeFillFraction": 0.06644126129016105,
+      "artFillFraction": 0.30434574283480037,
+      "totalFillFraction": 0.37078700412496146,
+      "firstScreenFraction": 0.32852549136526105,
       "saturatedBorderElements": 17,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
         }
       },
-      "chrome": 219
+      "chrome": 218
     },
     {
       "theme": "dark",
       "viewport": "phone",
       "route": "streak-rest",
       "chromeFillFraction": 0.07147891602867906,
-      "artFillFraction": 0.03279907772240951,
-      "totalFillFraction": 0.10427799375108858,
-      "firstScreenFraction": 0.10427799375108858,
+      "artFillFraction": 0.032838899858213526,
+      "totalFillFraction": 0.10431781588689258,
+      "firstScreenFraction": 0.10431781588689258,
       "saturatedBorderElements": 10,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20877,9 +20872,9 @@
       "viewport": "phone",
       "route": "streak-milestone",
       "chromeFillFraction": 0.0827334873237939,
-      "artFillFraction": 0.03264706339343515,
-      "totalFillFraction": 0.11538055071722905,
-      "firstScreenFraction": 0.11538055071722905,
+      "artFillFraction": 0.03288190107942142,
+      "totalFillFraction": 0.11561538840321532,
+      "firstScreenFraction": 0.11561538840321532,
       "saturatedBorderElements": 8,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20890,9 +20885,9 @@
       "viewport": "phone",
       "route": "streak-exam",
       "chromeFillFraction": 0.07541621096123466,
-      "artFillFraction": 0.03235026310161199,
-      "totalFillFraction": 0.10776647406284665,
-      "firstScreenFraction": 0.10776647406284665,
+      "artFillFraction": 0.0323901334031958,
+      "totalFillFraction": 0.10780634436443046,
+      "firstScreenFraction": 0.10780634436443046,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {},
@@ -20902,12 +20897,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "charge-cost",
-      "chromeFillFraction": 0.0626594165947842,
-      "artFillFraction": 0.22552519751736633,
-      "totalFillFraction": 0.2881846141121505,
-      "firstScreenFraction": 0.3031347247784057,
+      "chromeFillFraction": 0.06640297881737046,
+      "artFillFraction": 0.3043723633319783,
+      "totalFillFraction": 0.37077534214934876,
+      "firstScreenFraction": 0.3283060831771645,
       "saturatedBorderElements": 26,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20919,12 +20914,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "charge-empty",
-      "chromeFillFraction": 0.06244455489023963,
-      "artFillFraction": 0.22556894051703744,
-      "totalFillFraction": 0.28801349540727705,
-      "firstScreenFraction": 0.2997229574829037,
+      "chromeFillFraction": 0.06617528028471728,
+      "artFillFraction": 0.30441817533716736,
+      "totalFillFraction": 0.3705934556218846,
+      "firstScreenFraction": 0.3248840734975397,
       "saturatedBorderElements": 18,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20936,12 +20931,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "charge-exam",
-      "chromeFillFraction": 0.06412042104620103,
-      "artFillFraction": 0.22558462268007884,
-      "totalFillFraction": 0.28970504372627987,
-      "firstScreenFraction": 0.33455540210943896,
+      "chromeFillFraction": 0.0679514474134563,
+      "artFillFraction": 0.3044232101816366,
+      "totalFillFraction": 0.3723746575950929,
+      "firstScreenFraction": 0.35971918025744415,
       "saturatedBorderElements": 19,
-      "pageArea": 6564054,
+      "pageArea": 6193980,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20953,12 +20948,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "shell-bar",
-      "chromeFillFraction": 0.0602405117817906,
-      "artFillFraction": 0.22550050654682707,
-      "totalFillFraction": 0.28574101832861765,
-      "firstScreenFraction": 0.2544142755215637,
+      "chromeFillFraction": 0.06383955748682747,
+      "artFillFraction": 0.3043452662909907,
+      "totalFillFraction": 0.3681848237778182,
+      "firstScreenFraction": 0.2795681196445401,
       "saturatedBorderElements": 17,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "22": 1
@@ -20970,12 +20965,12 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "shell-tool",
-      "chromeFillFraction": 0.09050708486031185,
-      "artFillFraction": 0.22550032922795005,
-      "totalFillFraction": 0.3160074140882619,
-      "firstScreenFraction": 0.5113779065587674,
+      "chromeFillFraction": 0.09591439508074687,
+      "artFillFraction": 0.30434524989175804,
+      "totalFillFraction": 0.40025964497250494,
+      "firstScreenFraction": 0.5365349775333113,
       "saturatedBorderElements": 255,
-      "pageArea": 6562797,
+      "pageArea": 6192810,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -20990,9 +20985,9 @@
       "viewport": "phone",
       "route": "shell-courses",
       "chromeFillFraction": 0.0035390207822196566,
-      "artFillFraction": 0.0018895927956343757,
-      "totalFillFraction": 0.0054286135778540325,
-      "firstScreenFraction": 0.00685651904501469,
+      "artFillFraction": 0.0018887863209184513,
+      "totalFillFraction": 0.005427807103138108,
+      "firstScreenFraction": 0.006855500440693392,
       "saturatedBorderElements": 8,
       "pageArea": 415740,
       "faceSizes": {
@@ -21009,9 +21004,9 @@
       "viewport": "desktop",
       "route": "trainer",
       "chromeFillFraction": 0.006129638671875,
-      "artFillFraction": 0.0012234622768743672,
-      "totalFillFraction": 0.007353100948749367,
-      "firstScreenFraction": 0.007353100948749367,
+      "artFillFraction": 0.0012227878852502018,
+      "totalFillFraction": 0.007352426557125202,
+      "firstScreenFraction": 0.007352426557125202,
       "saturatedBorderElements": 49,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21027,9 +21022,9 @@
       "viewport": "desktop",
       "route": "pathway",
       "chromeFillFraction": 0.01436471896701389,
-      "artFillFraction": 0.0008593345772122423,
-      "totalFillFraction": 0.01522405354422613,
-      "firstScreenFraction": 0.01522405354422613,
+      "artFillFraction": 0.0007960191024525456,
+      "totalFillFraction": 0.015160738069466434,
+      "firstScreenFraction": 0.015160738069466434,
       "saturatedBorderElements": 35,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21045,9 +21040,9 @@
       "viewport": "desktop",
       "route": "cards",
       "chromeFillFraction": 0.05664789496527778,
-      "artFillFraction": 0.0004743818170352117,
-      "totalFillFraction": 0.05712227678231299,
-      "firstScreenFraction": 0.05712227678231299,
+      "artFillFraction": 0.0004742946870270417,
+      "totalFillFraction": 0.05712218965230482,
+      "firstScreenFraction": 0.05712218965230482,
       "saturatedBorderElements": 44,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21063,9 +21058,9 @@
       "viewport": "desktop",
       "route": "me",
       "chromeFillFraction": 0.005314715611452312,
-      "artFillFraction": 0.0002970255688777708,
-      "totalFillFraction": 0.005611741180330083,
-      "firstScreenFraction": 0.006472208161314029,
+      "artFillFraction": 0.00029566125963027595,
+      "totalFillFraction": 0.005610376871082588,
+      "firstScreenFraction": 0.006470634657981918,
       "saturatedBorderElements": 64,
       "pageArea": 1328640,
       "faceSizes": {
@@ -21081,9 +21076,9 @@
       "viewport": "desktop",
       "route": "courses",
       "chromeFillFraction": 0.006129638671875,
-      "artFillFraction": 0.0005823185673019806,
-      "totalFillFraction": 0.0067119572391769805,
-      "firstScreenFraction": 0.0067119572391769805,
+      "artFillFraction": 0.0005814344370781631,
+      "totalFillFraction": 0.006711073108953163,
+      "firstScreenFraction": 0.006711073108953163,
       "saturatedBorderElements": 47,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21101,9 +21096,9 @@
       "viewport": "desktop",
       "route": "search",
       "chromeFillFraction": 0.006129638671875,
-      "artFillFraction": 0.000342632836301214,
-      "totalFillFraction": 0.006472271508176214,
-      "firstScreenFraction": 0.006472271508176214,
+      "artFillFraction": 0.00034211080585408937,
+      "totalFillFraction": 0.0064717494777290895,
+      "firstScreenFraction": 0.0064717494777290895,
       "saturatedBorderElements": 36,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21118,9 +21113,9 @@
       "viewport": "desktop",
       "route": "leaderboards",
       "chromeFillFraction": 0.012550482855902777,
-      "artFillFraction": 0.00034260931383743,
-      "totalFillFraction": 0.012893092169740208,
-      "firstScreenFraction": 0.012893092169740208,
+      "artFillFraction": 0.0003424369922817176,
+      "totalFillFraction": 0.012892919848184496,
+      "firstScreenFraction": 0.012892919848184496,
       "saturatedBorderElements": 36,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21136,9 +21131,9 @@
       "viewport": "desktop",
       "route": "periodic",
       "chromeFillFraction": 0.178554443359375,
-      "artFillFraction": 0.00034204295760714053,
-      "totalFillFraction": 0.17889648631698213,
-      "firstScreenFraction": 0.17889648631698213,
+      "artFillFraction": 0.00034251997652887036,
+      "totalFillFraction": 0.17889696333590388,
+      "firstScreenFraction": 0.17889696333590388,
       "saturatedBorderElements": 276,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21155,9 +21150,9 @@
       "viewport": "desktop",
       "route": "chat",
       "chromeFillFraction": 0.012550482855902777,
-      "artFillFraction": 0.0003425903323861045,
-      "totalFillFraction": 0.012893073188288882,
-      "firstScreenFraction": 0.012893073188288882,
+      "artFillFraction": 0.0003425386321674624,
+      "totalFillFraction": 0.01289302148807024,
+      "firstScreenFraction": 0.01289302148807024,
       "saturatedBorderElements": 36,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21173,9 +21168,9 @@
       "viewport": "desktop",
       "route": "messages",
       "chromeFillFraction": 0.012550482855902777,
-      "artFillFraction": 0.00034261785061885853,
-      "totalFillFraction": 0.012893100706521636,
-      "firstScreenFraction": 0.012893100706521636,
+      "artFillFraction": 0.0003425251445635493,
+      "totalFillFraction": 0.012893008000466328,
+      "firstScreenFraction": 0.012893008000466328,
       "saturatedBorderElements": 36,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21191,9 +21186,9 @@
       "viewport": "desktop",
       "route": "onboarding",
       "chromeFillFraction": 0.015277777777777777,
-      "artFillFraction": 0.0018792972067167284,
-      "totalFillFraction": 0.017157074984494505,
-      "firstScreenFraction": 0.017157074984494505,
+      "artFillFraction": 0.001999046572602108,
+      "totalFillFraction": 0.017276824350379884,
+      "firstScreenFraction": 0.017276824350379884,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21208,9 +21203,9 @@
       "viewport": "desktop",
       "route": "feedback-correct",
       "chromeFillFraction": 0.19623562282986112,
-      "artFillFraction": 0.0016828729069974441,
-      "totalFillFraction": 0.19791849573685855,
-      "firstScreenFraction": 0.19791849573685855,
+      "artFillFraction": 0.001680598454712405,
+      "totalFillFraction": 0.1979162212845735,
+      "firstScreenFraction": 0.1979162212845735,
       "saturatedBorderElements": 11,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21221,9 +21216,9 @@
       "viewport": "desktop",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.02507763671875,
-      "artFillFraction": 0.00040267938598117326,
-      "totalFillFraction": 0.025480316104731175,
-      "firstScreenFraction": 0.025480316104731175,
+      "artFillFraction": 0.00040177079355635216,
+      "totalFillFraction": 0.025479407512306353,
+      "firstScreenFraction": 0.025479407512306353,
       "saturatedBorderElements": 12,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21234,9 +21229,9 @@
       "viewport": "desktop",
       "route": "combo",
       "chromeFillFraction": 0.22464388020833334,
-      "artFillFraction": 0.009931298397927701,
-      "totalFillFraction": 0.23457517860626104,
-      "firstScreenFraction": 0.23457517860626104,
+      "artFillFraction": 0.009935973684868562,
+      "totalFillFraction": 0.2345798538932019,
+      "firstScreenFraction": 0.2345798538932019,
       "saturatedBorderElements": 35,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21251,9 +21246,9 @@
       "viewport": "desktop",
       "route": "reward-first",
       "chromeFillFraction": 0.02626616753472222,
-      "artFillFraction": 0.00874887456672554,
-      "totalFillFraction": 0.03501504210144776,
-      "firstScreenFraction": 0.03501504210144776,
+      "artFillFraction": 0.00866855421364542,
+      "totalFillFraction": 0.03493472174836764,
+      "firstScreenFraction": 0.03493472174836764,
       "saturatedBorderElements": 32,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21269,9 +21264,9 @@
       "viewport": "desktop",
       "route": "reward-streak",
       "chromeFillFraction": 0.03168815104166667,
-      "artFillFraction": 0.009040929385567628,
-      "totalFillFraction": 0.04072908042723429,
-      "firstScreenFraction": 0.04072908042723429,
+      "artFillFraction": 0.009036590576793969,
+      "totalFillFraction": 0.04072474161846064,
+      "firstScreenFraction": 0.04072474161846064,
       "saturatedBorderElements": 42,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21286,12 +21281,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-rest",
-      "chromeFillFraction": 0.029824625821507123,
-      "artFillFraction": 0.7095630857375276,
-      "totalFillFraction": 0.7393877115590347,
-      "firstScreenFraction": 0.659101309150772,
-      "saturatedBorderElements": 399,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.029478833058359213,
+      "artFillFraction": 0.7209411688163849,
+      "totalFillFraction": 0.7504200018747442,
+      "firstScreenFraction": 0.6701564374557207,
+      "saturatedBorderElements": 401,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21304,12 +21299,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-lit",
-      "chromeFillFraction": 0.02990557475223869,
-      "artFillFraction": 0.7095822508502156,
-      "totalFillFraction": 0.7394878256024544,
-      "firstScreenFraction": 0.6606944572950578,
-      "saturatedBorderElements": 400,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.02955884345076346,
+      "artFillFraction": 0.72096022269342,
+      "totalFillFraction": 0.7505190661441834,
+      "firstScreenFraction": 0.6717513721936911,
+      "saturatedBorderElements": 402,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21322,12 +21317,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-charge",
-      "chromeFillFraction": 0.03069643960188049,
-      "artFillFraction": 0.709590783751843,
-      "totalFillFraction": 0.7402872233537234,
-      "firstScreenFraction": 0.6734155401769202,
-      "saturatedBorderElements": 430,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.03034059100121702,
+      "artFillFraction": 0.7209684812477647,
+      "totalFillFraction": 0.7513090722489817,
+      "firstScreenFraction": 0.6844704704809438,
+      "saturatedBorderElements": 433,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21340,12 +21335,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-streak",
-      "chromeFillFraction": 0.03070351071005476,
-      "artFillFraction": 0.7095630204846088,
-      "totalFillFraction": 0.7402665311946636,
-      "firstScreenFraction": 0.6730862589524139,
-      "saturatedBorderElements": 424,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.030347526595047872,
+      "artFillFraction": 0.7209411712588514,
+      "totalFillFraction": 0.7512886978538993,
+      "firstScreenFraction": 0.6841424427201181,
+      "saturatedBorderElements": 426,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21359,9 +21354,9 @@
       "viewport": "desktop",
       "route": "streak-rest",
       "chromeFillFraction": 0.02447222222222222,
-      "artFillFraction": 0.01443210812521607,
-      "totalFillFraction": 0.038904330347438294,
-      "firstScreenFraction": 0.038904330347438294,
+      "artFillFraction": 0.014450139983350204,
+      "totalFillFraction": 0.03892236220557243,
+      "firstScreenFraction": 0.03892236220557243,
       "saturatedBorderElements": 36,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21372,9 +21367,9 @@
       "viewport": "desktop",
       "route": "streak-milestone",
       "chromeFillFraction": 0.027687981499565972,
-      "artFillFraction": 0.014390036864941875,
-      "totalFillFraction": 0.04207801836450785,
-      "firstScreenFraction": 0.04207801836450785,
+      "artFillFraction": 0.014424935510200966,
+      "totalFillFraction": 0.04211291700976694,
+      "firstScreenFraction": 0.04211291700976694,
       "saturatedBorderElements": 31,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21385,9 +21380,9 @@
       "viewport": "desktop",
       "route": "streak-exam",
       "chromeFillFraction": 0.038070746527777775,
-      "artFillFraction": 0.014323900737935522,
-      "totalFillFraction": 0.0523946472657133,
-      "firstScreenFraction": 0.0523946472657133,
+      "artFillFraction": 0.014286890586449266,
+      "totalFillFraction": 0.05235763711422704,
+      "firstScreenFraction": 0.05235763711422704,
       "saturatedBorderElements": 27,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21397,12 +21392,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-cost",
-      "chromeFillFraction": 0.03203906584112292,
-      "artFillFraction": 0.7095721362572849,
-      "totalFillFraction": 0.7416112020984078,
-      "firstScreenFraction": 0.6944844552673313,
-      "saturatedBorderElements": 416,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.03166759841108092,
+      "artFillFraction": 0.7209501999033836,
+      "totalFillFraction": 0.7526177983144645,
+      "firstScreenFraction": 0.7055409601352175,
+      "saturatedBorderElements": 418,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21415,12 +21410,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-empty",
-      "chromeFillFraction": 0.03191417773464775,
-      "artFillFraction": 0.7095876432701428,
-      "totalFillFraction": 0.7415018210047905,
-      "firstScreenFraction": 0.692743837464234,
-      "saturatedBorderElements": 407,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.03154415828265183,
+      "artFillFraction": 0.7209654558069077,
+      "totalFillFraction": 0.7525096140895596,
+      "firstScreenFraction": 0.7037991941142487,
+      "saturatedBorderElements": 409,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21433,12 +21428,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-exam",
-      "chromeFillFraction": 0.03125124859768267,
-      "artFillFraction": 0.7094600137197898,
-      "totalFillFraction": 0.7407112623174725,
-      "firstScreenFraction": 0.6826324510944394,
-      "saturatedBorderElements": 407,
-      "pageArea": 18336000,
+      "chromeFillFraction": 0.03088899028232969,
+      "artFillFraction": 0.7208370710442483,
+      "totalFillFraction": 0.7517260613265779,
+      "firstScreenFraction": 0.6936897481680003,
+      "saturatedBorderElements": 409,
+      "pageArea": 18551040,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21451,12 +21446,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "shell-bar",
-      "chromeFillFraction": 0.029824625821507123,
-      "artFillFraction": 0.7095629976978653,
-      "totalFillFraction": 0.7393876235193725,
-      "firstScreenFraction": 0.6590999081462818,
-      "saturatedBorderElements": 399,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.029478833058359213,
+      "artFillFraction": 0.7209412798919609,
+      "totalFillFraction": 0.7504201129503201,
+      "firstScreenFraction": 0.6701582257724913,
+      "saturatedBorderElements": 401,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21469,12 +21464,12 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "shell-tool",
-      "chromeFillFraction": 0.04065986700421554,
-      "artFillFraction": 0.709562960661611,
-      "totalFillFraction": 0.7502228276658265,
-      "firstScreenFraction": 0.8315241234635186,
-      "saturatedBorderElements": 646,
-      "pageArea": 18332160,
+      "chromeFillFraction": 0.04018844825634058,
+      "artFillFraction": 0.7209411267886952,
+      "totalFillFraction": 0.7611295750450358,
+      "firstScreenFraction": 0.842580565497415,
+      "saturatedBorderElements": 648,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 2,
@@ -21489,9 +21484,9 @@
       "viewport": "desktop",
       "route": "shell-courses",
       "chromeFillFraction": 0.008253526475694445,
-      "artFillFraction": 0.0005811182250521496,
-      "totalFillFraction": 0.008834644700746594,
-      "firstScreenFraction": 0.008834644700746594,
+      "artFillFraction": 0.0005810787467940928,
+      "totalFillFraction": 0.008834605222488537,
+      "firstScreenFraction": 0.008834605222488537,
       "saturatedBorderElements": 49,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21509,9 +21504,9 @@
       "viewport": "desktop",
       "route": "trainer",
       "chromeFillFraction": 0.0005977376302083333,
-      "artFillFraction": 0.0012240591683368822,
-      "totalFillFraction": 0.0018217967985452155,
-      "firstScreenFraction": 0.0018217967985452155,
+      "artFillFraction": 0.0012242146726338331,
+      "totalFillFraction": 0.0018219523028421664,
+      "firstScreenFraction": 0.0018219523028421664,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21527,9 +21522,9 @@
       "viewport": "desktop",
       "route": "pathway",
       "chromeFillFraction": 0.008832817925347222,
-      "artFillFraction": 0.0008480518577355522,
-      "totalFillFraction": 0.009680869783082774,
-      "firstScreenFraction": 0.009680869783082774,
+      "artFillFraction": 0.0008596629955465384,
+      "totalFillFraction": 0.00969248092089376,
+      "firstScreenFraction": 0.00969248092089376,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21545,9 +21540,9 @@
       "viewport": "desktop",
       "route": "cards",
       "chromeFillFraction": 0.04868801540798611,
-      "artFillFraction": 0.00047435033926351226,
-      "totalFillFraction": 0.04916236574724962,
-      "firstScreenFraction": 0.04916236574724962,
+      "artFillFraction": 0.0004740234909224152,
+      "totalFillFraction": 0.04916203889890853,
+      "firstScreenFraction": 0.04916203889890853,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21563,9 +21558,9 @@
       "viewport": "desktop",
       "route": "me",
       "chromeFillFraction": 0.0005182696215679191,
-      "artFillFraction": 0.00029671757576526245,
-      "totalFillFraction": 0.0008149871973331816,
-      "firstScreenFraction": 0.0009399519009242694,
+      "artFillFraction": 0.0002965735579703826,
+      "totalFillFraction": 0.0008148431795383016,
+      "firstScreenFraction": 0.0009397858004008413,
       "saturatedBorderElements": 12,
       "pageArea": 1328640,
       "faceSizes": {
@@ -21581,9 +21576,9 @@
       "viewport": "desktop",
       "route": "courses",
       "chromeFillFraction": 0.0005977376302083333,
-      "artFillFraction": 0.0005821443427518918,
-      "totalFillFraction": 0.0011798819729602252,
-      "firstScreenFraction": 0.0011798819729602252,
+      "artFillFraction": 0.0005816967613350244,
+      "totalFillFraction": 0.0011794343915433577,
+      "firstScreenFraction": 0.0011794343915433577,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21601,9 +21596,9 @@
       "viewport": "desktop",
       "route": "search",
       "chromeFillFraction": 0.0005977376302083333,
-      "artFillFraction": 0.00034252008428115407,
-      "totalFillFraction": 0.0009402577144894874,
-      "firstScreenFraction": 0.0009402577144894874,
+      "artFillFraction": 0.00034235568723422853,
+      "totalFillFraction": 0.0009400933174425618,
+      "firstScreenFraction": 0.0009400933174425618,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21618,9 +21613,9 @@
       "viewport": "desktop",
       "route": "leaderboards",
       "chromeFillFraction": 0.007018581814236111,
-      "artFillFraction": 0.00034213684935795955,
-      "totalFillFraction": 0.007360718663594071,
-      "firstScreenFraction": 0.007360718663594071,
+      "artFillFraction": 0.00034256673525583716,
+      "totalFillFraction": 0.007361148549491948,
+      "firstScreenFraction": 0.007361148549491948,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21636,9 +21631,9 @@
       "viewport": "desktop",
       "route": "periodic",
       "chromeFillFraction": 0.17302254231770833,
-      "artFillFraction": 0.0003421024339383823,
-      "totalFillFraction": 0.17336464475164673,
-      "firstScreenFraction": 0.17336464475164673,
+      "artFillFraction": 0.0003422559653697337,
+      "totalFillFraction": 0.17336479828307808,
+      "firstScreenFraction": 0.17336479828307808,
       "saturatedBorderElements": 244,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21655,9 +21650,9 @@
       "viewport": "desktop",
       "route": "chat",
       "chromeFillFraction": 0.007018581814236111,
-      "artFillFraction": 0.00034220610503926863,
-      "totalFillFraction": 0.0073607879192753795,
-      "firstScreenFraction": 0.0073607879192753795,
+      "artFillFraction": 0.0003424607061298654,
+      "totalFillFraction": 0.007361042520365977,
+      "firstScreenFraction": 0.007361042520365977,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21673,9 +21668,9 @@
       "viewport": "desktop",
       "route": "messages",
       "chromeFillFraction": 0.007018581814236111,
-      "artFillFraction": 0.00034241870196491516,
-      "totalFillFraction": 0.007361000516201026,
-      "firstScreenFraction": 0.007361000516201026,
+      "artFillFraction": 0.0003426044478024879,
+      "totalFillFraction": 0.007361186262038599,
+      "firstScreenFraction": 0.007361186262038599,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21691,9 +21686,9 @@
       "viewport": "desktop",
       "route": "onboarding",
       "chromeFillFraction": 0.015277777777777777,
-      "artFillFraction": 0.0022243164349428197,
-      "totalFillFraction": 0.017502094212720597,
-      "firstScreenFraction": 0.017502094212720597,
+      "artFillFraction": 0.0019788328693127067,
+      "totalFillFraction": 0.017256610647090484,
+      "firstScreenFraction": 0.017256610647090484,
       "saturatedBorderElements": 0,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21708,9 +21703,9 @@
       "viewport": "desktop",
       "route": "feedback-correct",
       "chromeFillFraction": 0.02507763671875,
-      "artFillFraction": 0.001609597700027128,
-      "totalFillFraction": 0.026687234418777128,
-      "firstScreenFraction": 0.026687234418777128,
+      "artFillFraction": 0.001609753069343343,
+      "totalFillFraction": 0.026687389788093343,
+      "firstScreenFraction": 0.026687389788093343,
       "saturatedBorderElements": 2,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21721,9 +21716,9 @@
       "viewport": "desktop",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.02507763671875,
-      "artFillFraction": 0.00040169201135641845,
-      "totalFillFraction": 0.02547932873010642,
-      "firstScreenFraction": 0.02547932873010642,
+      "artFillFraction": 0.0004009328191896202,
+      "totalFillFraction": 0.02547856953793962,
+      "firstScreenFraction": 0.02547856953793962,
       "saturatedBorderElements": 1,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21734,9 +21729,9 @@
       "viewport": "desktop",
       "route": "combo",
       "chromeFillFraction": 0.042147352430555556,
-      "artFillFraction": 0.008971453755149721,
-      "totalFillFraction": 0.05111880618570528,
-      "firstScreenFraction": 0.05111880618570528,
+      "artFillFraction": 0.009860202738820387,
+      "totalFillFraction": 0.05200755516937594,
+      "firstScreenFraction": 0.05200755516937594,
       "saturatedBorderElements": 4,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21751,9 +21746,9 @@
       "viewport": "desktop",
       "route": "reward-first",
       "chromeFillFraction": 0.023833333333333335,
-      "artFillFraction": 0.008678793895720446,
-      "totalFillFraction": 0.03251212722905378,
-      "firstScreenFraction": 0.03251212722905378,
+      "artFillFraction": 0.008693445807443318,
+      "totalFillFraction": 0.03252677914077665,
+      "firstScreenFraction": 0.03252677914077665,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21769,9 +21764,9 @@
       "viewport": "desktop",
       "route": "reward-streak",
       "chromeFillFraction": 0.029255316840277778,
-      "artFillFraction": 0.009012864014656872,
-      "totalFillFraction": 0.03826818085493465,
-      "firstScreenFraction": 0.03826818085493465,
+      "artFillFraction": 0.009005650054892208,
+      "totalFillFraction": 0.03826096689516999,
+      "firstScreenFraction": 0.03826096689516999,
       "saturatedBorderElements": 11,
       "pageArea": 1152000,
       "faceSizes": {
@@ -21786,12 +21781,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-rest",
-      "chromeFillFraction": 0.029485508663463552,
-      "artFillFraction": 0.7095628860725938,
-      "totalFillFraction": 0.7390483947360573,
-      "firstScreenFraction": 0.6537016474411262,
+      "chromeFillFraction": 0.02914364769345238,
+      "artFillFraction": 0.7209411216386438,
+      "totalFillFraction": 0.7500847693320961,
+      "firstScreenFraction": 0.6647591935190865,
       "saturatedBorderElements": 17,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21804,12 +21799,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-lit",
-      "chromeFillFraction": 0.029557947958669353,
-      "artFillFraction": 0.7095821113940851,
-      "totalFillFraction": 0.7391400593527545,
-      "firstScreenFraction": 0.6551603370415002,
+      "chromeFillFraction": 0.02921524711277174,
+      "artFillFraction": 0.720960074582382,
+      "totalFillFraction": 0.7501753216951537,
+      "firstScreenFraction": 0.6662170865643136,
       "saturatedBorderElements": 18,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21822,12 +21817,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-charge",
-      "chromeFillFraction": 0.03035732209690268,
-      "artFillFraction": 0.7095906455347677,
-      "totalFillFraction": 0.7399479676316704,
-      "firstScreenFraction": 0.6680168507866491,
+      "chromeFillFraction": 0.03000546409970238,
+      "artFillFraction": 0.7209687980773143,
+      "totalFillFraction": 0.7509742621770167,
+      "firstScreenFraction": 0.6790800283223076,
       "saturatedBorderElements": 17,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21840,28 +21835,28 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-streak",
-      "chromeFillFraction": 0.03036439944505525,
-      "artFillFraction": 0.7095628470411262,
-      "totalFillFraction": 0.7399272464861814,
-      "firstScreenFraction": 0.6676871082914335,
+      "chromeFillFraction": 0.030012350246937543,
+      "artFillFraction": 0.720941047037048,
+      "totalFillFraction": 0.7509533972839855,
+      "firstScreenFraction": 0.6787441035445043,
       "saturatedBorderElements": 17,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
           "22": 1
         }
       },
-      "chrome": 219
+      "chrome": 220
     },
     {
       "theme": "dark",
       "viewport": "desktop",
       "route": "streak-rest",
       "chromeFillFraction": 0.02447222222222222,
-      "artFillFraction": 0.014451351473487901,
-      "totalFillFraction": 0.038923573695710124,
-      "firstScreenFraction": 0.038923573695710124,
+      "artFillFraction": 0.014450426651924822,
+      "totalFillFraction": 0.038922648874147044,
+      "firstScreenFraction": 0.038922648874147044,
       "saturatedBorderElements": 10,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21872,9 +21867,9 @@
       "viewport": "desktop",
       "route": "streak-milestone",
       "chromeFillFraction": 0.027687981499565972,
-      "artFillFraction": 0.014424885958594839,
-      "totalFillFraction": 0.04211286745816081,
-      "firstScreenFraction": 0.04211286745816081,
+      "artFillFraction": 0.014406571156836839,
+      "totalFillFraction": 0.042094552656402814,
+      "firstScreenFraction": 0.042094552656402814,
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21885,9 +21880,9 @@
       "viewport": "desktop",
       "route": "streak-exam",
       "chromeFillFraction": 0.025597222222222223,
-      "artFillFraction": 0.014304360857141244,
-      "totalFillFraction": 0.039901583079363465,
-      "firstScreenFraction": 0.039901583079363465,
+      "artFillFraction": 0.01430437929590375,
+      "totalFillFraction": 0.039901601518125974,
+      "firstScreenFraction": 0.039901601518125974,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -21897,12 +21892,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "charge-cost",
-      "chromeFillFraction": 0.030394043514239456,
-      "artFillFraction": 0.7095721168693127,
-      "totalFillFraction": 0.7399661603835521,
-      "firstScreenFraction": 0.6683063581115936,
+      "chromeFillFraction": 0.030041648806827984,
+      "artFillFraction": 0.7209500494226737,
+      "totalFillFraction": 0.7509916982295017,
+      "firstScreenFraction": 0.6793607487673163,
       "saturatedBorderElements": 26,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21915,12 +21910,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "charge-empty",
-      "chromeFillFraction": 0.030306180504643208,
-      "artFillFraction": 0.7095876348994999,
-      "totalFillFraction": 0.7398938154041432,
-      "firstScreenFraction": 0.6671551083392671,
+      "chromeFillFraction": 0.02995480449879227,
+      "artFillFraction": 0.7209654218201174,
+      "totalFillFraction": 0.7509202263189096,
+      "firstScreenFraction": 0.678210051006784,
       "saturatedBorderElements": 18,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21933,12 +21928,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "charge-exam",
-      "chromeFillFraction": 0.030991313195353403,
-      "artFillFraction": 0.7094601310561142,
-      "totalFillFraction": 0.7404514442514676,
-      "firstScreenFraction": 0.6784970135438604,
+      "chromeFillFraction": 0.03063206799996119,
+      "artFillFraction": 0.720836832967633,
+      "totalFillFraction": 0.7514689009675941,
+      "firstScreenFraction": 0.689548609187164,
       "saturatedBorderElements": 19,
-      "pageArea": 18336000,
+      "pageArea": 18551040,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21951,12 +21946,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "shell-bar",
-      "chromeFillFraction": 0.029485508663463552,
-      "artFillFraction": 0.7095630589257983,
-      "totalFillFraction": 0.7390485675892619,
-      "firstScreenFraction": 0.653704398111787,
+      "chromeFillFraction": 0.02914364769345238,
+      "artFillFraction": 0.7209411163642273,
+      "totalFillFraction": 0.7500847640576797,
+      "firstScreenFraction": 0.6647591086009805,
       "saturatedBorderElements": 17,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 1,
@@ -21969,12 +21964,12 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "shell-tool",
-      "chromeFillFraction": 0.040320749846171976,
-      "artFillFraction": 0.7095629668111723,
-      "totalFillFraction": 0.7498837166573442,
-      "firstScreenFraction": 0.8261277369485385,
+      "chromeFillFraction": 0.03985326289143375,
+      "artFillFraction": 0.720941063167927,
+      "totalFillFraction": 0.7607943260593608,
+      "firstScreenFraction": 0.8371830568280487,
       "saturatedBorderElements": 255,
-      "pageArea": 18332160,
+      "pageArea": 18547200,
       "faceSizes": {
         "Fraunces": {
           "18": 2,
@@ -21989,9 +21984,9 @@
       "viewport": "desktop",
       "route": "shell-courses",
       "chromeFillFraction": 0.0028570421006944443,
-      "artFillFraction": 0.0005809448574400954,
-      "totalFillFraction": 0.0034379869581345397,
-      "firstScreenFraction": 0.0034379869581345397,
+      "artFillFraction": 0.0005812273614441337,
+      "totalFillFraction": 0.003438269462138578,
+      "firstScreenFraction": 0.003438269462138578,
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {

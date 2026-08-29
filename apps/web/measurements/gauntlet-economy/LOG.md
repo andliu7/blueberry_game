@@ -467,3 +467,47 @@ as a child would pass today. Queued as a validator fix, not a design one.
 
 Gap for round 2: the label clipping first, then the tan bars, the static mascot, and the
 ambiguous locked glyph.
+
+### Round 2: OURS WON BLIND, confidence 0.72. Exit met.
+
+Audit clean. The judge picked ours for the reason the piece exists: "B is the only one of
+the two that actually answers the question this screen exists to answer: every node
+carries a lesson title, completed nodes are green checkmarks, the next node wears START
+with a partial progress ring, and the header states 2 of 86 lessons done. A is prettier
+per pixel but semantically empty: five identical grey star discs with no titles, so a
+student at 11pm can tell where they are in the run and nothing about what the run
+contains."
+
+It also faulted the bar for a contrast failure of its own: locked nodes at roughly 1.3:1,
+"effectively invisible", reading as an unfinished render rather than as locked.
+
+**Sticker: zero rows gained and zero lost against round 1's 1055, every rule identical.**
+Contrast 0 failing over 7938 pairs. 990 web tests, up from 974. Payload 188.9 to 191.1 KB
+for the terrain arithmetic and the label module. Suite 30 of 30.
+
+Three pieces of engineering worth keeping in view:
+
+- **The label clipping had a root cause, not a symptom.** `translateX` sat on the whole
+  `<li>`, so the label column slid off the track with the node and was hard-clipped by
+  `overflow: hidden`, while the space the node vacated on the other side went to nothing.
+  The wind transform is on the slab only now, and the label reclaims the vacated gutter
+  with a negative margin equal to the same offset, so a label opposite a node that swung
+  66px away is 66px wider.
+- **Chrome does not break at a solidus**, so "Allylic/resonance" was one 115px word in a
+  105px column. `withBreakHints` inserts a zero width space after every solidus.
+- **The tan bars were straight because the profile put three control points on a unit**,
+  and a unit is 1200 to 2500px tall, so the boundary moved about 25px sideways over a
+  screen height. Raising amplitude was blocked by the floor rule that the channel may
+  never be narrower than the label column, so the wavelength shrank instead: a crest at
+  each row's top and a trough at its centre, which is the real reaction coordinate of a
+  multistep reaction, one step per lesson.
+
+**Rule 4 did not come back to 172, and the builder reported why rather than forcing it.**
+The pathway route contributes three rows to that rule and none is a pathway element: they
+are `a.tabbar-brand`, `span.hud-goal` and the shared `Press` button, which appear on every
+route and belong to S1 and the P pieces. Touching `Press` mid-gauntlet would move four
+other pieces' surfaces. Left, and reported.
+
+Carried as the next gap, for S3 rather than another S2 round: the torn-paper scroll edges
+read as an unfinished background asset, muddy and asymmetric, and they cost horizontal
+room the labels want.

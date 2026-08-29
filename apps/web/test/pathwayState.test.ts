@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import type { EconomyEvent } from "@blueberry/economy";
 import { PATHWAY_UNITS } from "../src/demo/pathwayMap";
 import { deriveMapPathway, statusOf } from "../src/tabs/pathway/pathwayState";
+import { trackWind, withBreakHints } from "../src/tabs/pathway/pathwayLayout";
 
 const TZ = "UTC";
 
@@ -122,5 +123,43 @@ describe("deriveMapPathway", () => {
     if (after === undefined) return;
     const reachable = after.nodes.some((node) => statusOf(status, node.id).state !== "locked");
     expect(reachable).toBe(true);
+  });
+});
+
+/**
+ * The two presentation rules the label geometry depends on. They live in
+ * PathwayTab because they are about drawing, and they are pure, so they are
+ * tested here rather than through a render.
+ */
+describe("the label geometry", () => {
+  it("never parks a node on the centreline, because a centred node gives its label no extra room", () => {
+    const winds = [0, 1, 2, 3, 4, 5, 6, 7].map(trackWind);
+    for (const wind of winds) expect(Math.abs(wind)).toBeGreaterThan(0.5);
+  });
+
+  it("still averages to zero over a cycle, so the track does not list to one side", () => {
+    const cycle = [0, 1, 2, 3].map(trackWind);
+    expect(cycle.reduce((sum, wind) => sum + wind, 0)).toBeCloseTo(0, 9);
+  });
+
+  it("repeats on period four, so every screen contains a turn", () => {
+    for (let index = 0; index < 12; index += 1) expect(trackWind(index + 4)).toBe(trackWind(index));
+  });
+
+  it("puts the label on the side the node swung away from", () => {
+    // The rendering reads `wind > 0` as "label on the left". Every step is
+    // non-zero, so every label is opposite its node and none is a coin toss.
+    for (let index = 0; index < 8; index += 1) expect(trackWind(index)).not.toBe(0);
+  });
+
+  it("offers a break after a solidus and changes nothing else", () => {
+    const zwsp = String.fromCharCode(0x200b);
+    expect(withBreakHints("Allylic/resonance delocalization")).toBe(`Allylic/${zwsp}resonance delocalization`);
+    expect(withBreakHints("cis/trans/either")).toBe(`cis/${zwsp}trans/${zwsp}either`);
+    expect(withBreakHints("Kinetic vs thermodynamic control")).toBe("Kinetic vs thermodynamic control");
+    // Nothing but the hints is added: strip them and the label is untouched.
+    for (const label of PATHWAY_UNITS.flatMap((unit) => unit.nodes.map((node) => node.title))) {
+      expect(withBreakHints(label).split(zwsp).join("")).toBe(label);
+    }
   });
 });

@@ -125,6 +125,16 @@ export interface TerrainGeometry {
 export const CHANNEL_HALF = 1.16;
 export const CHANNEL_SWING = 0.16;
 /**
+ * The highest total energy the channel may ever carry.
+ *
+ * It is the floor rule solved for energy rather than a second number to keep in
+ * step: at this value `channelHalfWidth` returns exactly the basis, which is
+ * half the track column, so a label is still inside the channel. Anything the
+ * profile adds on top of a unit's own crest is capped against this, and that is
+ * why the ripple below cannot walk a hillside under a label.
+ */
+export const ENERGY_CEILING = (CHANNEL_HALF - 1) / CHANNEL_SWING;
+/**
  * How far the terrain runs past the first and last unit.
  *
  * Without it the ground has a hard horizontal top edge exactly where the first
@@ -176,9 +186,141 @@ export function energyProfile(
   return samples;
 }
 
-/** Energy to a distance from the centreline, in pixels, against a half width basis. */
+/* -------------------------------------------------------------------------- */
+/* The per lesson ripple, and the defect it exists to fix.                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A blind judge read the landscape on a phone as "two solid tan vertical bars
+ * with no rounding, label or content", and that reading was correct arithmetic
+ * rather than a matter of taste. The unit profile above puts three control
+ * points on a unit, and a unit is 1200 to 2500 pixels tall, so the boundary
+ * moves about 25 pixels sideways over a whole screen height. A line that
+ * deviates 25px over 850px is a straight vertical line to an eye.
+ *
+ * The fix is not a bigger swing, because the floor rule caps that: the channel
+ * may never be narrower than the track column or a label ends up composed on
+ * the ground, where the contrast audit cannot see the pair. The fix is a
+ * shorter WAVELENGTH, and the data already has one.
+ *
+ * A multi step reaction coordinate does not run from one well to the next in a
+ * single arc. Every step has its own barrier and its own intermediate, and on
+ * this track every step is a lesson. So each spine row contributes a small
+ * crest at its top edge and a small trough at its centre: the hillside now
+ * scallops once per lesson, at the track's own pitch of roughly 110px, which is
+ * six or seven turns per screen instead of none. The bars stop reading as bars
+ * because they stop being straight, and what makes them bend is the lesson
+ * list, which is the same rule the rest of this file follows.
+ */
+export const STEP_RIPPLE = 0.34;
+
+/**
+ * How much of a step's ripple survives, per row.
+ *
+ * A ripple of one constant size at one constant pitch is not a landform, it is
+ * a milled edge, and the first build of this read exactly that way on a desktop:
+ * a 300px hillside with a perfectly repeating scallop down both sides, mirrored,
+ * looks like clip art of a canyon rather than a canyon. Real steps are not the
+ * same size as each other.
+ *
+ * The multiplier is the golden ratio sequence, which is the standard way to get
+ * a spread with no visible period: successive values never repeat and never
+ * clump, and index i always gives the same value, so a capture of the third
+ * unit is the same picture every run. Nothing here is random.
+ */
+const GOLDEN = 0.6180339887498949;
+export function rippleScale(index: number): number {
+  const fraction = (index * GOLDEN) % 1;
+  return 0.55 + 0.45 * fraction;
+}
+
+/** One track row's box in scene coordinates. */
+export interface RowSpan {
+  readonly top: number;
+  readonly bottom: number;
+}
+
+/**
+ * The base profile read at an arbitrary y, by linear interpolation.
+ *
+ * Linear and not the drawn cubic on purpose: this is the ENVELOPE the ripple is
+ * hung off, and a straight chord between two control points is close enough to
+ * the drawn curve at the scale a 110px ripple cares about, while being cheap
+ * and having no turning points of its own to fight.
+ */
+export function envelopeAt(samples: readonly TerrainSample[], y: number): number {
+  if (samples.length === 0) return 0;
+  const first = samples[0]!;
+  const last = samples[samples.length - 1]!;
+  if (y <= first.y) return first.energy;
+  if (y >= last.y) return last.energy;
+  for (let i = 1; i < samples.length; i += 1) {
+    const to = samples[i]!;
+    if (to.y < y) continue;
+    const from = samples[i - 1]!;
+    const span = to.y - from.y;
+    if (span <= 0) return to.energy;
+    const t = (y - from.y) / span;
+    return from.energy + (to.energy - from.energy) * t;
+  }
+  return last.energy;
+}
+
+/**
+ * The unit envelope with one step's worth of ripple added per track row.
+ *
+ * Pure and total: no rows, or fewer than two base samples, returns the base
+ * unchanged, so a page that has not measured yet draws exactly what it drew
+ * before. The result stays sorted by y and never exceeds ENERGY_CEILING, which
+ * is what keeps the floor rule true of the rippled profile and not only of the
+ * envelope.
+ */
+export function stepProfile(
+  base: readonly TerrainSample[],
+  rows: readonly RowSpan[],
+  amplitude: number = STEP_RIPPLE,
+): readonly TerrainSample[] {
+  if (base.length < 2 || rows.length === 0 || amplitude <= 0) return base;
+  const added: TerrainSample[] = [];
+  rows.forEach((row, index) => {
+    const size = amplitude * rippleScale(index);
+    const centre = (row.top + row.bottom) / 2;
+    const crestBase = envelopeAt(base, row.top);
+    // The upward half is scaled to whatever headroom the envelope leaves, so a
+    // ripple on top of a checkpoint crest cannot push the channel under a label.
+    const up = Math.min(size, Math.max(0, ENERGY_CEILING - crestBase));
+    added.push({ y: row.top, energy: crestBase + up });
+    added.push({ y: centre, energy: envelopeAt(base, centre) - size });
+  });
+  // One merge of two sorted lists. Samples sharing a y would draw a horizontal
+  // step in the boundary, so the ripple wins the tie and the envelope's own
+  // point is dropped.
+  const merged = [...base, ...added].sort((a, b) => a.y - b.y);
+  const out: TerrainSample[] = [];
+  for (const sample of merged) {
+    const previous = out[out.length - 1];
+    if (previous !== undefined && Math.abs(previous.y - sample.y) < 0.5) {
+      out[out.length - 1] = { y: previous.y, energy: Math.max(previous.energy, sample.energy) };
+      continue;
+    }
+    out.push(sample);
+  }
+  return out;
+}
+
+/**
+ * Energy to a distance from the centreline, in pixels, against a half width
+ * basis.
+ *
+ * The floor is enforced HERE rather than left to the arithmetic of the two
+ * constants. It was already true that CHANNEL_HALF minus CHANNEL_SWING is
+ * exactly 1, so no unit energy in 0..1 could close the channel past the column;
+ * once the profile gained a ripple, "no energy exceeds 1" stopped being
+ * something a reader could check by looking at two constants. A clamp says it
+ * once, at the only place a channel width is ever produced.
+ */
 export function channelHalfWidth(energy: number, basis: number): number {
-  return basis * (CHANNEL_HALF - energy * CHANNEL_SWING);
+  return Math.max(basis, basis * (CHANNEL_HALF - energy * CHANNEL_SWING));
 }
 
 /**

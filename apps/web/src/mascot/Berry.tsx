@@ -135,6 +135,48 @@ function jitterAt(now: number): { x: number; y: number } {
 /** Sparks and smoke are a fixed handful of CSS animated dots, never a particle engine. */
 const PARTICLES = [0, 1, 2, 3];
 
+/* ------------------------------------------------------------------ blink -- */
+
+/**
+ * The blink, which berryBehaviour has always described and nothing has ever
+ * drawn.
+ *
+ * `MODIFIERS.blink` carries closeMs, an irregular gap and a double chance, and
+ * it sat unread while the mark held its eyes open forever. A blind judge read
+ * the pathway's Bloom as "sitting in the corner as a static logo", which is
+ * exactly what a face with no eyelids is. The lid itself is CSS (see the blink
+ * block in mascot.css); this is only the clock, and it runs inside the rAF loop
+ * that is already there rather than adding a timer of its own.
+ *
+ * DETERMINISTIC ON PURPOSE. A capture has to be reproducible, and Math.random
+ * would make every frame burst a different face. A tiny linear congruential
+ * generator gives the irregularity the modifier asks for and gives the same
+ * sequence every run, which is the same reason jitterAt is two sines rather
+ * than noise.
+ */
+const BLINK_SEED = 0x9e3779b9;
+/**
+ * How long after the berry appears the first blink lands.
+ *
+ * Inside the first second, and deliberately shorter than the modifier's own
+ * minimum gap: arriving on a screen and holding a dead stare for three seconds
+ * is the thing being fixed, and a person entering a room blinks sooner than
+ * their resting rate. Every gap after this one is the modifier's.
+ */
+const FIRST_BLINK_MS = 820;
+/** The pause inside a double blink. People blink twice in a row surprisingly often. */
+const DOUBLE_GAP_MS = 190;
+
+interface BlinkClock {
+  seed: number;
+  /** When the lid next closes, and when it opens again. Absolute rAF times. */
+  closeAt: number;
+  openAt: number;
+  closed: boolean;
+  /** True while the second half of a double is still owed. */
+  owed: boolean;
+}
+
 export interface BerryProps {
   /** An explicit mood wins over the behaviour's own. Omit it to let the behaviour decide. */
   readonly mood?: BerryMood | undefined;
@@ -226,6 +268,7 @@ export function Berry({
   // deep we are (the escalation index). Refs for the same reason as above.
   const queueRef = useRef<BerryBehaviour[]>([]);
   const gainIndexRef = useRef(0);
+  const blinkRef = useRef<BlinkClock>({ seed: BLINK_SEED, closeAt: 0, openAt: 0, closed: false, owed: false });
   const chainRef = useRef(chain);
   chainRef.current = chain;
 
@@ -255,6 +298,9 @@ export function Berry({
       // still applies, so a protonated berry still floats fractionally higher.
       if (nodeRef.current) {
         nodeRef.current.style.transform = transformFor(REST, 0, sizePx, shapeRef.current, 0, 0);
+        // Eyes open, and no blink attribute at all, so the lid CSS never
+        // applies: a settled frame is a face holding one expression.
+        delete nodeRef.current.dataset.blink;
       }
       return;
     }
@@ -295,6 +341,34 @@ export function Berry({
         noise.y * amplitude,
       );
 
+      // The lid, on its own clock. One attribute write per transition, never
+      // per frame, so nothing here touches style on a frame that does not blink.
+      const lid = blinkRef.current;
+      if (lid.closeAt === 0) {
+        lid.closeAt = now + FIRST_BLINK_MS;
+        lid.openAt = lid.closeAt + MODIFIERS.blink.closeMs;
+        node.dataset.blink = "open";
+      }
+      if (!lid.closed && now >= lid.closeAt) {
+        lid.closed = true;
+        node.dataset.blink = "closed";
+      } else if (lid.closed && now >= lid.openAt) {
+        lid.closed = false;
+        node.dataset.blink = "open";
+        lid.seed = (Math.imul(lid.seed, 1664525) + 1013904223) >>> 0;
+        const roll = lid.seed / 4294967296;
+        if (lid.owed) {
+          lid.owed = false;
+          lid.closeAt = now + MODIFIERS.blink.minGapMs + roll * (MODIFIERS.blink.maxGapMs - MODIFIERS.blink.minGapMs);
+        } else if (roll < MODIFIERS.blink.doubleChance) {
+          lid.owed = true;
+          lid.closeAt = now + DOUBLE_GAP_MS;
+        } else {
+          lid.closeAt = now + MODIFIERS.blink.minGapMs + roll * (MODIFIERS.blink.maxGapMs - MODIFIERS.blink.minGapMs);
+        }
+        lid.openAt = lid.closeAt + MODIFIERS.blink.closeMs;
+      }
+
       // A finished reactive or event behaviour returns where its config says.
       if (config.family !== "ambient" && progress >= 1 && config.returnTo !== undefined) {
         fromPoseRef.current = pose;
@@ -313,6 +387,10 @@ export function Berry({
     frameRef.current = requestAnimationFrame(tick);
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      // The lid clock is rebuilt by whoever restarts the loop, so a berry that
+      // comes back from reduced motion opens on a fresh first blink rather than
+      // on a deadline that expired while it was still.
+      blinkRef.current = { seed: BLINK_SEED, closeAt: 0, openAt: 0, closed: false, owed: false };
     };
   }, [reducedMotion, sizePx]);
 

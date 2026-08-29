@@ -19,7 +19,7 @@
  *   energy curve   0.04   THE MEANING LAYER. Drawn from the unit's own data
  *   props          0.14   an Erlenmeyer on the far shelf at each checkpoint
  *   (the track)    1.00   real DOM, not in here
- *   vapour         -0.12  passes over the path and holds the lens
+ *   vapour         0.04   holds the lens. Pinned to the ground; see RATES
  *
  * Every one of those is a transform on a <g>, written in ONE requestAnimationFrame
  * from ONE cached scroll value, per layered-motion's rule. Nothing here animates
@@ -44,7 +44,9 @@ import {
   energyProfile,
   groundPath,
   isCheckpointUnit,
+  stepProfile,
   unitEnergies,
+  type RowSpan,
   type TerrainSample,
   type UnitSpan,
 } from "./terrain";
@@ -61,6 +63,8 @@ interface SceneMetrics {
   /** Half the track column, capped, so the landscape keeps its shape on a monitor. */
   readonly basis: number;
   readonly spans: readonly UnitSpan[];
+  /** Every track row's box, which is where the per lesson ripple hangs. */
+  readonly rows: readonly RowSpan[];
   /** Scene y of each checkpoint unit's centre, for the hump band and the prop. */
   readonly checkpoints: readonly { readonly unitId: string; readonly y: number }[];
   /** Where the START node sits, so the lens has somewhere to be on touch. */
@@ -74,6 +78,7 @@ const EMPTY: SceneMetrics = {
   centreX: 0,
   basis: 0,
   spans: [],
+  rows: [],
   checkpoints: [],
   focus: null,
 };
@@ -97,10 +102,36 @@ const MAX_BASIS_PX = 300;
  * floor for a graphical object. The honest fix was not an exemption for artwork,
  * it was to stop drawing two soft bands and draw one ground that clears the
  * floor, which the section below explains.
+ *
+ * THE VAPOUR MOVES AT THE GROUND'S RATE, and that is a fix rather than a
+ * simplification.
+ *
+ * The fog is drawn as the SAME SHAPE as the ground, so the only thing moving it
+ * RELATIVE TO THE GROUND does is uncover ground along the boundary. That was
+ * harmless while the boundary was a smooth near vertical line: sliding a
+ * vertical edge vertically exposes nothing. Once the profile gained its per
+ * lesson ripple the boundary became a scalloped edge, and the 16px of relative
+ * travel between -0.12 and 0.04 left a dark olive fringe down one flank of
+ * every scallop, which reads exactly like a misregistered second plate in a
+ * print. Both fringes were confirmed in this round's light desktop capture, the
+ * second one after the first fix set the rate to zero and left the GROUND's own
+ * 0.04 as the mismatch.
+ *
+ * No independent rate fixes it, because any offset of a shape against itself
+ * uncovers something, and clipping does not either: a clip stops the fog
+ * painting where it should not, and this is the opposite problem, fog ABSENT
+ * where it should be. So the fog is pinned to its own ground, and the
+ * foreground motion this layer was for is carried by the lens, which moves over
+ * the path in earnest and is the thing a reader actually watches.
  */
-const RATES = { ground: 0.04, props: 0.14, vapour: -0.12 } as const;
+const RATES = { ground: 0.04, props: 0.14, vapour: 0.04 } as const;
 /** No layer ever slides further than this, so no layer can expose its own edge. */
 const MAX_SHIFT_PX = 110;
+/** How long the pointer lens stays open after the pointer stops moving. */
+const LENS_IDLE_MS = 900;
+/** How far the crest clears the checkpoint panel's top edge, and how far its ends fall. */
+const HUMP_LIFT = 8;
+const HUMP_DROP = 110;
 
 function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
   // FULL BLEED, measured rather than assumed. `margin-left: calc(50% - 50vw)`
@@ -129,17 +160,52 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     const span = { unitId: section.dataset.unitId ?? "", top: rect.top - box.top, bottom: rect.bottom - box.top };
     spans.push(span);
     if (section.dataset.checkpoint === "true") {
-      checkpoints.push({ unitId: span.unitId, y: (span.top + span.bottom) / 2 });
+      // THE CREST IS ANCHORED ON THE CHECKPOINT PANEL'S TOP EDGE, not on the
+      // unit's centre. Drawn from the centre, the arc rose through the middle of
+      // the panel, and an arc that climbs from lower left to a top centre apex
+      // crosses ANY horizontal band of text that spans the panel: the capture
+      // had the dashed curve struck through the word CHECKPOINT. There is no
+      // amplitude that avoids it and no alignment of the heading that survives a
+      // narrower phone. Anchored on the panel's top edge the arc passes OVER the
+      // panel, which is the reading the design wanted in the first place: the
+      // chips are what sits under the barrier.
+      const gate = section.querySelector<HTMLElement>(".path-gate");
+      const gateBox = gate === null ? null : gate.getBoundingClientRect();
+      checkpoints.push({
+        unitId: span.unitId,
+        y: gateBox === null ? (span.top + span.bottom) / 2 : gateBox.top - box.top,
+      });
     }
   }
-  const current = stage.querySelector<HTMLElement>("[data-node-state='current']");
+  // The ROW carries the state attribute and the NODE carries the wind offset,
+  // and since round two the offset is a transform on the node rather than on
+  // the row. A row's own rect does not move with its child's transform, so
+  // asking the row where the node is would park the lens on the centreline
+  // whatever the node did. Ask the node.
+  const current = stage.querySelector<HTMLElement>("[data-node-state='current'] .path-node");
   const focus =
     current === null
       ? null
       : (() => {
           const rect = current.getBoundingClientRect();
-          return { x: rect.left - box.left + rect.width / 2, y: rect.top - box.top + rect.height / 2 };
+          // X IS SCENE RELATIVE AND Y IS STAGE RELATIVE, and that is not a
+          // typo. The scene is full bleed and starts at the viewport's left
+          // edge, so an x measured against the STAGE is short by the stage's
+          // own offset, which on a desktop is the 240px rail plus the centring
+          // margin, about 500px. The first build measured both against the
+          // stage and the anchored lens landed 500px left of the node it is
+          // supposed to be pointing at: a soft dark disc sitting in the middle
+          // of the hillside with nothing under it, visible in every desktop
+          // capture of round one and round two. Y stays stage relative because
+          // the world group is translated by the stage's own top, which is what
+          // puts the world's origin there.
+          return { x: rect.left - scene.left + rect.width / 2, y: rect.top - box.top + rect.height / 2 };
         })();
+  const rows: RowSpan[] = [];
+  for (const row of stage.querySelectorAll<HTMLElement>("[data-unit-id] .path-row")) {
+    const rect = row.getBoundingClientRect();
+    rows.push({ top: rect.top - box.top, bottom: rect.bottom - box.top });
+  }
   return {
     width: scene.width,
     height: scene.height,
@@ -149,6 +215,7 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     centreX: columnBox.left - scene.left + columnBox.width / 2,
     basis: Math.min(MAX_BASIS_PX, columnBox.width / 2),
     spans,
+    rows,
     checkpoints,
     focus,
   };
@@ -236,6 +303,22 @@ export default function PathScene({
     }
     let frame = 0;
     let pointer: { x: number; y: number } | null = null;
+    /**
+     * The pointer lens CLOSES when the pointer stops.
+     *
+     * Left open it is a soft dark disc parked wherever the cursor last was, and
+     * on the hillside that is what it looks like: a smudge on the artwork with
+     * nothing under it to explain itself. A lens is a thing you are holding, so
+     * it belongs where the hand is and nowhere when the hand has gone. The
+     * anchored lens on the current node is the one that stays, because that one
+     * is pointing at something.
+     */
+    let idle = 0;
+    const close = () => {
+      idle = 0;
+      pointer = null;
+      svg.style.setProperty("--lens-r", "0");
+    };
     const write = () => {
       frame = 0;
       const box = stage.getBoundingClientRect();
@@ -266,23 +349,31 @@ export default function PathScene({
       // at, so a hole under it reveals nothing and costs a repaint.
       if (event.pointerType === "touch") return;
       pointer = { x: event.clientX, y: event.clientY };
+      if (idle !== 0) window.clearTimeout(idle);
+      idle = window.setTimeout(close, LENS_IDLE_MS);
       schedule();
     };
     write();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
     window.addEventListener("pointermove", onPointer, { passive: true });
+    window.addEventListener("blur", close);
     return () => {
       if (frame !== 0) cancelAnimationFrame(frame);
+      if (idle !== 0) window.clearTimeout(idle);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("blur", close);
     };
   }, [reducedMotion, metrics.height]);
 
   const { width, height } = metrics;
   const energies = unitEnergies(units);
-  const samples = width < 2 || metrics.worldHeight < 2 ? [] : energyProfile(energies, metrics.spans);
+  const samples =
+    width < 2 || metrics.worldHeight < 2
+      ? []
+      : stepProfile(energyProfile(energies, metrics.spans), metrics.rows);
   const geometry = { width, height: metrics.worldHeight, centreX: metrics.centreX, basis: metrics.basis };
 
   const focus = metrics.focus ?? { x: metrics.centreX, y: metrics.worldHeight * 0.2 };
@@ -349,12 +440,19 @@ export default function PathScene({
         {metrics.checkpoints.map((checkpoint) => {
           const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
           const half = channelHalfWidth(-(energy?.barrier ?? 0.5), metrics.basis) * 1.35;
-          const rise = 74 + (energy?.barrier ?? 0.5) * 60;
+          // The apex clears the panel's top edge by HUMP_LIFT and the ends fall
+          // HUMP_DROP below it, so the arc is above the panel across the panel's
+          // own width and only comes down beside it. A quadratic's apex is
+          // halfway between its endpoints and its control point, so the control
+          // is placed twice as far up as the apex is wanted.
+          const drop = HUMP_DROP + (energy?.barrier ?? 0.5) * 50;
+          const ends = checkpoint.y + drop;
+          const control = checkpoint.y - 2 * HUMP_LIFT - drop;
           return (
             <path
               key={checkpoint.unitId}
               className="path-hump"
-              d={`M ${(metrics.centreX - half).toFixed(1)} ${checkpoint.y.toFixed(1)} Q ${metrics.centreX.toFixed(1)} ${(checkpoint.y - rise * 2).toFixed(1)}, ${(metrics.centreX + half).toFixed(1)} ${checkpoint.y.toFixed(1)}`}
+              d={`M ${(metrics.centreX - half).toFixed(1)} ${ends.toFixed(1)} Q ${metrics.centreX.toFixed(1)} ${control.toFixed(1)}, ${(metrics.centreX + half).toFixed(1)} ${ends.toFixed(1)}`}
             />
           );
         })}
@@ -369,7 +467,9 @@ export default function PathScene({
             <Flask
               key={checkpoint.unitId}
               x={metrics.centreX + side * (half + 26)}
-              y={checkpoint.y - 90}
+              // Beside the panel, not above it: the anchor is the panel's top
+              // edge now, and 90px above that is over the unit banner.
+              y={checkpoint.y + 120}
               scale={0.9}
             />
           );

@@ -35,7 +35,11 @@
  *   done     a darker green fill and a check. Finished, and visibly behind you
  *   review   amber, the same size as open
  *   open     a desaturated stone-purple, about a third of the saturation of
- *            current, carrying its number
+ *            current, carrying a HOLLOW star. Round two swapped the numeral out:
+ *            a bare "4" beside a tick and a lock reads as a quantity, and a
+ *            blind judge could not tell whether it meant lesson 4, 4 problems
+ *            or 4 to unlock. An unfilled star is the same glyph as the live
+ *            node, not yet earned
  *   locked   the same stone one step cooler, carrying a lock
  *
  * The desaturation is authored as REAL token values rather than a CSS filter,
@@ -279,21 +283,49 @@
 .path-row {
   --wind: 0;
   --wind-step: min(58px, 10vw);
+  /* The clear air between the node and the first glyph of its label. The judge
+     asked for 12pt and named it as the reason the current node's label read as
+     touching its own progress ring. */
+  --label-gap: 12px;
   padding: 9px 0;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  column-gap: 0.875rem;
+  column-gap: var(--label-gap);
+}
+/*
+ * THE WIND MOVES THE NODE, NOT THE ROW, and that is round two's fix rather than
+ * a tidy-up.
+ *
+ * Translating the whole row slid its label column off the side of the track
+ * with it, and the label was clipped by `overflow: hidden` mid glyph:
+ * "Allylic/resonance" lost its final letter with no ellipsis, on a phone, on
+ * the first node of the first unit. Worse, the space the node VACATED on the
+ * other side went to nothing, so the layout threw away up to 66px of room on
+ * exactly the row that needed it.
+ *
+ * So the node carries the offset itself, the label keeps its column, and the
+ * label is then allowed to grow BACK into the gap the node opened by the same
+ * distance. A label opposite a node that swung 66px away is 66px wider than one
+ * beside a node sitting on the centreline. Both margins below are negative in
+ * the only case each is applied, because the label always sits on the side the
+ * node swung away from.
+ */
+.path-row__slab {
+  grid-column: 2;
   transform: translateX(calc(var(--wind) * var(--wind-step)));
 }
 /* The START tag floats above the current node, so that row alone gets the
-   headroom for it; every other row stays on the tight pitch. */
+   headroom for it; every other row stays on the tight pitch.
+
+   It also carries a wider gap: the progress ring is drawn about 9px proud of
+   the node on every side, so a 12px gap measured from the node itself would put
+   the ring most of the way into the text. 22px is the ring's overhang plus the
+   12px, measured against ProgressRing's own radius. */
 .path-row--current {
+  --label-gap: 22px;
   padding-top: 52px;
   padding-bottom: 18px;
-}
-.path-row__slab {
-  grid-column: 2;
 }
 .path-row__label {
   grid-column: 3;
@@ -303,22 +335,38 @@
      that swung right keeps its name on screen; only the text alignment is
      pinned. */
   text-align: left;
+  margin-left: calc(var(--wind) * var(--wind-step));
 }
 .path-row__label--left {
   grid-column: 1;
   grid-row: 1;
+  margin-left: 0;
+  margin-right: calc(-1 * var(--wind) * var(--wind-step));
 }
-/* One title, two lines at most, and no blurb. The judge's words were that a
-   returning student "has to read four multi-line descriptions to work out where
-   they stopped"; the bar's own path carries no text beside a node at all. The
-   blurb still exists in the data, in the accessible name and on the entry sheet,
-   which is where a student asks for it. */
+/*
+ * One title, and it now wraps to three lines and clamps with a real ellipsis.
+ *
+ * Two lines with no break rule was a hard clip: a word wider than the column
+ * cannot wrap, so `overflow: hidden` cut it through the glyph and the reader
+ * got no signal that anything was missing. `overflow-wrap: break-word` gives
+ * the long word somewhere to go, `hyphens: auto` (the document is lang="en")
+ * puts a real hyphen at the break rather than a bare seam, and the clamp's own
+ * ellipsis is what says "there is more" when three lines still are not enough.
+ *
+ * Still no blurb, on any node. The judge's words about the old track were that
+ * a returning student "has to read four multi-line descriptions to work out
+ * where they stopped", and the bar's own path carries no text beside a node at
+ * all. The blurb lives in the accessible name and on the entry sheet.
+ */
 .path-row__title {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: pretty;
 }
 
 /* Unit banners: the coloured header that divides the track into acts. */
@@ -355,12 +403,6 @@
   border: 2px solid var(--path-gate-line);
   background: transparent;
 }
-.path-gate__chip {
-  border-radius: 999px;
-  border: 2px solid var(--path-gate-line);
-  background: var(--card);
-  color: var(--foreground);
-}
 
 /*
  * Side quests. The judge found this row "clipped mid-chip under the tab bar with
@@ -383,9 +425,21 @@
   background: var(--background);
   color: var(--foreground);
 }
+/*
+ * A quest that is authored but not yet built.
+ *
+ * The label is FOREGROUND, not muted. The judge read this row twice as "light
+ * grey labels", and it was: a muted foreground on a transparent container,
+ * inside a dashed outline, is three softenings stacked on one chip and the
+ * result is a word you have to lean in to read. The dashed border is the whole
+ * signal now, which is the sticker language's own answer anyway (the state
+ * lives in the cut edge, not in the ink), and it is a shape rather than a
+ * colour so it survives being printed in grey.
+ */
 .path-quests__chip--queued {
-  color: var(--muted-foreground);
+  color: var(--foreground);
   border-style: dashed;
+  border-color: var(--muted-foreground);
 }
 
 /* ------------------------------------------------------------------------- */

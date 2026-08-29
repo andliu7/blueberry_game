@@ -16,9 +16,13 @@ import {
   CHANNEL_HALF,
   CHANNEL_SWING,
   energyProfile,
+  envelopeAt,
   groundPath,
   isCheckpointUnit,
+  rippleScale,
+  stepProfile,
   unitEnergies,
+  type RowSpan,
   type UnitSpan,
 } from "../src/tabs/pathway/terrain";
 
@@ -167,5 +171,115 @@ describe("the drawn paths", () => {
   it("is an empty string with no samples, so the scene renders nothing rather than a broken path", () => {
     expect(boundaryPath([], geometry, -1)).toBe("");
     expect(groundPath([], geometry, -1)).toBe("");
+  });
+});
+
+/**
+ * The per lesson ripple. The unit envelope moves about 25px sideways over a
+ * whole screen height, which is a straight vertical line to an eye, and a blind
+ * judge read the hillsides as "two solid tan vertical bars". These are the
+ * properties that have to hold once the profile scallops once per lesson.
+ */
+describe("stepProfile", () => {
+  const base = energyProfile(unitEnergies(PATHWAY_UNITS), spans());
+
+  /** Rows at the track's own pitch inside each unit's span. */
+  function rows(step = 600, pitch = 110): readonly RowSpan[] {
+    const out: RowSpan[] = [];
+    for (let unit = 0; unit < PATHWAY_UNITS.length; unit += 1) {
+      for (let y = unit * step + 40; y + pitch < unit * step + step; y += pitch) {
+        out.push({ top: y, bottom: y + pitch });
+      }
+    }
+    return out;
+  }
+
+  it("leaves the base alone when nothing has been measured yet", () => {
+    expect(stepProfile(base, [])).toBe(base);
+    expect(stepProfile([], rows())).toEqual([]);
+    expect(stepProfile(base, rows(), 0)).toBe(base);
+  });
+
+  it("only ever moves down the page", () => {
+    const profile = stepProfile(base, rows());
+    for (let i = 1; i < profile.length; i += 1) {
+      expect(profile[i]!.y).toBeGreaterThanOrEqual(profile[i - 1]!.y);
+    }
+  });
+
+  it("never closes the channel past the column the labels live in", () => {
+    const basis = WIDTH / 2;
+    for (const sample of stepProfile(base, rows())) {
+      expect(channelHalfWidth(sample.energy, basis) / basis).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("turns at least once per lesson, which is what stops the hillside reading as a bar", () => {
+    const profile = stepProfile(base, rows());
+    let turns = 0;
+    for (let i = 1; i < profile.length - 1; i += 1) {
+      const before = profile[i]!.energy - profile[i - 1]!.energy;
+      const after = profile[i + 1]!.energy - profile[i]!.energy;
+      if (before !== 0 && after !== 0 && Math.sign(before) !== Math.sign(after)) turns += 1;
+    }
+    expect(turns).toBeGreaterThanOrEqual(rows().length);
+  });
+
+  it("gives no two neighbouring steps the same size, so the edge is not milled", () => {
+    const sizes = [0, 1, 2, 3, 4, 5, 6, 7].map(rippleScale);
+    for (let i = 1; i < sizes.length; i += 1) expect(sizes[i]).not.toBeCloseTo(sizes[i - 1]!, 3);
+    for (const size of sizes) {
+      expect(size).toBeGreaterThanOrEqual(0.55);
+      expect(size).toBeLessThanOrEqual(1);
+    }
+    // Deterministic: the same index is the same picture on every capture run.
+    expect(rippleScale(9)).toBe(rippleScale(9));
+  });
+
+  it("puts the widest channel of a lesson at the row centre, where the label is", () => {
+    const measured = rows();
+    const profile = stepProfile(base, measured);
+    for (const row of measured.slice(0, 12)) {
+      const centre = profile.find((sample) => Math.abs(sample.y - (row.top + row.bottom) / 2) < 0.5);
+      const crest = profile.find((sample) => Math.abs(sample.y - row.top) < 0.5);
+      expect(centre).toBeDefined();
+      expect(crest).toBeDefined();
+      expect(centre!.energy).toBeLessThan(crest!.energy);
+    }
+  });
+});
+
+describe("envelopeAt", () => {
+  // GAPPED spans on purpose. The contiguous ones every other test uses put a
+  // unit's bottom and the next unit's top on the same y with two different
+  // energies, and no single valued function can return both. A gap makes every
+  // control point's y unique, which is the case this function's contract is
+  // actually about.
+  const gapped: readonly UnitSpan[] = PATHWAY_UNITS.map((unit, index) => ({
+    unitId: unit.id,
+    top: index * 800,
+    bottom: index * 800 + 600,
+  }));
+  const base = energyProfile(unitEnergies(PATHWAY_UNITS), gapped);
+
+  it("holds the end values outside the profile rather than extrapolating", () => {
+    expect(envelopeAt(base, base[0]!.y - 5000)).toBe(base[0]!.energy);
+    expect(envelopeAt(base, base[base.length - 1]!.y + 5000)).toBe(base[base.length - 1]!.energy);
+  });
+
+  it("returns a control point exactly at its own y", () => {
+    expect(new Set(base.map((sample) => sample.y)).size).toBe(base.length);
+    for (const sample of base) expect(envelopeAt(base, sample.y)).toBeCloseTo(sample.energy, 9);
+  });
+
+  it("interpolates between two control points", () => {
+    const a = base[1]!;
+    const b = base[2]!;
+    const mid = envelopeAt(base, (a.y + b.y) / 2);
+    expect(mid).toBeCloseTo((a.energy + b.energy) / 2, 6);
+  });
+
+  it("is 0 for an empty profile rather than throwing", () => {
+    expect(envelopeAt([], 100)).toBe(0);
   });
 });
