@@ -638,3 +638,31 @@ the argument for two panels rather than a growing hole is a browser support one,
 Loader.tsx. The 1250 ms floor is time taken from every student on every cold open. And the
 120 ms reduced motion fade is shorter than one PNG encode, so it is evidenced by a number in
 the drive rather than by a frame.
+
+## The operational finding that cost the most: the loop was killing its own builders
+
+Every stalled or retried round in this run ends the same way. The transcript's last line
+is `[Request interrupted by user]`, not an error and not a session limit.
+
+Interrupts propagate from the orchestrating session to the workflow agents it spawned. So
+every time the loop woke up to CHECK on a round, it had a chance of killing the builder
+working on that round, and the workflow then restarted the piece from nothing.
+
+The bill:
+
+| round | cost |
+|---|---|
+| P5 charge | two builder attempts, about ten hours, never reported. Killed and split |
+| S1 shell | one full builder attempt discarded |
+| S3 look and feel | one builder attempt discarded at roughly three hours |
+
+Lengthening the interval to an hour did not fix it, it only made the collisions rarer:
+S3's builder was interrupted by the 11:39 wakeup after running cleanly since 09:40.
+
+**The wakeups were also redundant.** A workflow posts a completion notification on its own,
+including when it fails, so the scheduled check bought nothing that the notification did
+not already provide, and it cost a builder every time it landed on one.
+
+The dynamic loop is stopped. Rounds now wake this session only when they finish. The
+watchdog rule stays for a genuinely hung workflow, but checking is now event driven rather
+than polled, which is what it should have been from the first round.
