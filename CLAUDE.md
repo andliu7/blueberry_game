@@ -193,11 +193,9 @@ sibling repo is the proof this constraint is holdable, by the same author, on a 
 
 ## Environment
 
-- Windows, PowerShell 5.1
-- `&&` is a parse error. Use separate commands or `;`
-- `curl` is aliased to `Invoke-WebRequest`. Real curl is `curl.exe`
-- `rm -rf` is `Remove-Item -Recurse -Force`. `cp -r` is `Copy-Item -Recurse`
-- Package manager: npm
+The shell, its PowerShell gotchas, and the package manager are stated once in `../CLAUDE.md`,
+which loads alongside this file. That is their only home. Two facts are Blueberry's own:
+
 - Python 3 with RDKit is required for the validator suite. Verify before Phase 0 and report if absent
 - `dist/` is in `.gitignore` from the first commit. Never commit build output
 
@@ -305,9 +303,9 @@ Four win axes. Each has a measured half the loop runs on and a judged half that 
 
 ## Non-negotiables
 
-**Never weaken a check to make it pass.** If a validator fails repeatedly, report the blocker.
-Editing the assertion, loosening a tolerance, narrowing a fixture set, or adding a skip is a
-failure, not a fix. This applies to validators written in the same session.
+**Never weaken a check to make it pass.** Stated in full in `../CLAUDE.md`. Blueberry adds one
+clause: it applies to validators written in the same session, and a validator that fails repeatedly
+is reported as a blocker rather than adjusted.
 
 **Never put secrets in `VITE_` variables.** Anything prefixed `VITE_` is inlined into the public
 bundle at build time. `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and
@@ -344,55 +342,20 @@ This exists because protonation and deprotonation are the most common steps in t
 do not conserve charge on the substrate alone. Without this, the suite is red from the first fixture
 and the loop burns five iterations on a modelling error.
 
-### Three engines, three jobs
+### The reference detail
 
-See `docs/INHERITED-DECISIONS.md` D3 for the full table. Summary:
+The engine split, the CIP decision, and the five graded chemistry fixtures (neopentyl, E2
+periplanarity, SN1 stereorandomness, SN2 inversion, anti addition) are in
+`docs/CHEMISTRY-CORRECTNESS.md`. **Read it before writing or changing any code in `chem-core`
+or `packages/curriculum`.** It is reference rather than always-loaded rule, and it does not
+override anything in this file.
 
-- `chem-core`, pure TypeScript, runs in the browser on every interaction. Valence, mass, charge,
-  electron bookkeeping, arrow legality. Must answer inside 100 ms
-- Indigo, already loaded via `ketcher-standalone` on editor routes, does canonical SMILES for
-  structure equivalence. The sibling repo's `checkAnswer.ts` already does this
-- RDKit, CI only, Python sidecar, is the oracle that grades chem-core against a reference
-  implementation. CIP descriptors, meso detection. It never ships
+Two of its rulings are load bearing often enough to restate here, and only these two:
 
-Do not add `@rdkit/rdkit` WASM to the client. Where RDKit and chem-core disagree, RDKit is presumed
-correct and chem-core presumed buggy, with one exception: RDKit's aromaticity perception is a model,
-not ground truth, and legitimate reactive intermediates can fail its sanitization. Aromaticity
-disagreements go to human adjudication rather than auto-failing.
-
-### CIP stereodescriptors
-
-`chem-core` does not implement CIP. Correct CIP needs the hierarchical digraph with duplicate atoms,
-ring handling, and like/unlike auxiliary descriptors, and shipped implementations have carried bugs
-in this for years. chem-core computes geometry. RDKit assigns descriptors in validators. Labels
-needed at runtime are precomputed at authoring time and stored on the problem, never derived on
-device.
-
-### Graded chemistry, not boolean chemistry
-
-The named fixtures below are engine test fixtures first. Mining the owner's real Organic
-Chemistry 2 course showed none of them appears standalone on any of six exams across three
-semesters, and the course's centre of mass is aromaticity, EAS directing effects, the acyl
-reactivity ladder, and enolates, so `docs/COURSE-OUTLINE-ORGO2.md` is the authoritative seed for
-exam facing content and its weighting. Owner ruling, recorded 2026-08-21: the exams are NOT
-exhaustive, so this material is still authored as content too, placed as side and enrichment
-material rather than on the exam weighted spine. More coverage beats less; weighting, not
-exclusion, is how the exam signal is honoured.
-
-- Neopentyl systems are strongly disfavored for SN2, roughly 10^-5 relative to ethyl. **Not blocked.**
-  The engine says "strongly disfavored, competing pathway likely" and names the competing pathway,
-  because the methyl shift to a tertiary cation is the actual lesson. A boolean reject deletes it
-- E2 requires periplanarity, dihedral near 0 or 180 degrees. Anti is strongly preferred. Syn
-  periplanar E2 is real in conformationally locked systems and is flagged as requiring an authored
-  conformational justification, not rejected
-- SN1 is stereorandom at the reaction center, meaning both configurations appear in the product set.
-  **It is not asserted as 50:50.** Ion pairing gives net inversion excess, commonly 50 to 80 percent
-  racemization depending on substrate, solvent, and leaving group. Ratio is an authoring annotation,
-  never a computed assertion
-- SN2 inverts. This one is a hard assertion
-- Anti addition outcomes are verified per substrate geometry. Reference fixtures: Br2 addition to
-  cis-2-butene gives the racemic 2,3-dibromobutane pair; to trans-2-butene it gives the meso
-  compound. If an implementation swaps these, it has a sign error in the addition geometry
+- A student attempt is never a boolean, and a disfavoured route is never a boolean reject.
+  The engine names the competing pathway, because that is the lesson
+- Where RDKit and chem-core disagree, RDKit is presumed correct, except on aromaticity, which
+  is a model rather than ground truth and goes to human adjudication
 
 ### Result types
 
@@ -563,15 +526,8 @@ push. The orchestrator rejects any adversary run whose diff touches a path outsi
 
 ## Communication
 
-The author is strong in Python and Java and weak in React and TypeScript, can read code and follow
-along but does not yet reliably tell normal React patterns from exotic ones, and wants to understand
-this codebase rather than accumulate diffs. So:
+How to work with the author, including the React pattern rule and the no em dashes rule, is stated
+once in `../CLAUDE.md`. Two additions belong to this repository:
 
-- Explain the why of a structural decision before writing the code for it
-- Name any non-obvious React pattern in one line and say what it is for. Refs, context, portals,
-  `useSyncExternalStore`, custom hooks, render props
-- If a request is a bad idea, say so and why, then say what you would do instead. Do not just build it
-- Prefer boring and well maintained over clever. This has to be debuggable alone at 1am before an exam
 - Report problems noticed in adjacent code rather than silently fixing them
 - State assumptions explicitly rather than picking silently
-- No em dashes in code, comments, commit messages, or output
