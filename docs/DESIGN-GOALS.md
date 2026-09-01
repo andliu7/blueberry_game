@@ -34,6 +34,9 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   soft glow), locked (flat, grey), current (halo plus START pill)
 - The glow is the completed-state language: static soft glow on finished path segments, a
   pulsing halo ONLY on the current node, and no pulse under reduced motion
+- Lone-pair and bond handles in the trainer carry an EXPANDED invisible hit area beyond
+  their drawn size (owner direction 2026-09-01): the drawn dot stays small, the touch
+  target does not. The mis-tap-rate measurement at tightest lone-pair spacing is the gate
 
 ## The pathway
 
