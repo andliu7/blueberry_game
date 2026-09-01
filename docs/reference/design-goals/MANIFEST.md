@@ -29,3 +29,9 @@ full decision list; this manifest maps decisions to files.
 | `blueberry_r9-onboard-question_1788289477.png` | Onboarding question step: the shared frame (mascot asks, option chips, picked state, gated CONTINUE) |
 | `blueberry_r9-onboard-welcome_1788289471.png` | Onboarding welcome: mascot greeting, one-line promise, GET STARTED, returning-student link, progress bar from screen one |
 | `blueberry_r9-train-landing_1788289486.png` | Train tab landing: Puzzle Sprint hero framed as a score to beat, four practice modes with mastery rings, Daily mechanism banner with share |
+| `blueberry_spec-branch-vocab_1788291085.png` | Branch vocabulary as diagrams: diamond, hub, side loop, plus the merge-review node (2 questions from each branch) at rejoins |
+| `blueberry_spec-button-types_1788291091.png` | Button taxonomy: start, review, check, continue (with disabled state), skip, the four SRS grades with intervals, challenge, claim, toast, guidebook hamburger |
+| `blueberry_spec-card-states_1788291097.png` | Flashcard scheduler states: new, learning, due, mastered, suspended, plus the three deck kinds (authored, auto, mistakes) |
+| `blueberry_spec-meter-states_1788291102.png` | Charge and streak states: full, spending, empty (refills over time, mistakes never cost charge), exam pause, lit, rest day, freeze |
+| `blueberry_spec-node-types_1788291072.png` | Node type vocabulary: lesson, concept, challenge, unit gate, application, hub, video hook. Shape and badge say what a node is before you tap it |
+| `blueberry_spec-question-badges_1788291079.png` | Question type badges and the lesson recipe strip: a lesson shows its beat composition up front in its progress bar |
