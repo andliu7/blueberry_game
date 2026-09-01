@@ -97,12 +97,28 @@
   white-space: nowrap;
   color: var(--muted-foreground);
 }
+/*
+ * THE TALLY. Ten ticks, not one bar, and the reason is in Hud.tsx: a labelled
+ * 70 percent bar four pixels above a "0 of 86 lessons done" is still two
+ * progress statements of the same kind, and a reader resolves kind before a
+ * 10px caption. Ten countable units is a ration of a day and cannot be read as
+ * a fraction of a course.
+ *
+ * The container carries no border and no fill of its own. Each tick is the
+ * outlined pill, which is where the sticker language wants the cut edge anyway,
+ * and it means the strip has no second box around it.
+ */
 .hud-goal {
   flex: 1 1 auto;
-  display: block;
+  display: flex;
+  align-items: stretch;
+  gap: 0.1875rem;
   height: 0.5rem;
-  /* An OUTLINED PILL, not a bare rectangle. Sticker rule 3 and 5: a 4px block
-     with no cut edge was reading as a divider somebody had coloured in. */
+}
+.hud-goal-tick {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--muted);
@@ -171,6 +187,14 @@
   display: flex;
   align-items: center;
   gap: 0.3125rem;
+}
+/* The charge cell. 26px, the size Bloom used to be here, so the chip's box and
+   the three geometry assertions on it do not move. */
+.hud-charge-mark {
+  display: block;
+  width: 1.625rem;
+  height: 1.625rem;
+  flex: none;
 }
 .hud-charge-value {
   font-size: var(--text-scale-2xl);

@@ -48,7 +48,6 @@ import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
 import { Hud } from "./ui/Hud";
 import { NotOpenYet } from "./ui/NotOpenYet";
 import { ToolRail } from "./ui/ToolRail";
-import { BlueberryMark } from "../mascot/BlueberryMark";
 import { TrainerTab } from "../tabs/trainer/TrainerTab";
 import { TabIcon } from "./ui/TabIcon";
 import "./ui/tabs.css";
@@ -181,9 +180,27 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
             the number is to stop it being a control. A wordmark is a wordmark.
             It is `aria-hidden` because the app's name is already the document
             title, and a screen reader hearing "Blueberry" before every tab list
-            gains nothing. */}
+            gains nothing.
+
+            THE S3 DESIGN PASS TOOK THE FACE OFF IT, and left the word. The
+            32px glyph here was `BlueberryMark`, which is not a logo that
+            resembles the mascot: it is the exact component `Berry` renders, so
+            every desktop screen in the app drew the same character twice, once
+            at 32px in the rail and once at 59 to 92px on the page. That is
+            sticker rule 10, it stood at 66 rows across four rounds, and P3's
+            own round two judge had already written it in words: "the same
+            blueberry face appears four times on one screen, so the number that
+            matters fights five other glyphs."
+
+            We are stricter than the bar here on purpose, and it is worth
+            saying so rather than letting a number decide it. Duolingo's own
+            desktop rail carries the owl above its nav while the owl is also on
+            the page. The reason we do not is that our rail is a WORD and its
+            rail is a mark: "Blueberry" in the display face identifies the app
+            without spending the character, and the character is then worth
+            something when it appears. Same argument as rule 3, where the bar's
+            nodes are fake extrusions and ours are outlines. */}
         <span className="tabbar-brand" aria-hidden>
-          <BlueberryMark className="h-8 w-8" />
           <span className="title-face text-scale-lg font-semibold">Blueberry</span>
         </span>
         {NAV_TABS.map((tab) => (

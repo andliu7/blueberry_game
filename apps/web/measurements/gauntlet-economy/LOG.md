@@ -639,6 +639,190 @@ Loader.tsx. The 1250 ms floor is time taken from every student on every cold ope
 120 ms reduced motion fade is shorter than one PNG encode, so it is evidenced by a number in
 the drive rather than by a frame.
 
+## S3 The design pass
+
+### Round 1 and round 2: both builders were interrupted. Round 3 finished the piece.
+
+The two earlier attempts left a working tree rather than a report, and this round adopted it
+instead of restarting. That is recorded plainly because the diff is theirs as much as mine:
+the tally, the charge cell, the rule 7 ink sweep, the hit target script and the pathway
+channel rework came out of rounds one and two, and round three's own additions are the tab
+rail wordmark, the flank wash, the channel amplitude and every number below.
+
+Three defects were carried in. All three are addressed and none of the three is finished.
+
+### D1, the unlabelled goal meter, and why a label was not the fix
+
+The judge's sentence was about what the EYE does: "a full width purple bar sits about 70
+percent filled while the line immediately below it reads 0 of 86 lessons done". Round one of
+this pass put a 10px "TODAY'S GOAL" caption at the left of the bar, and that answers a
+different complaint. A labelled 70 percent bar four pixels above a 0 percent sentence is
+still two progress statements of the same KIND, and a reader resolves kind before a 10px
+caption.
+
+So the KIND changed and the adjacency was broken, which are two fixes for one defect.
+
+- **The strip is a tally.** Ten discrete ticks, inked from the left, the tick the student is
+  inside filled to its own fraction rather than snapped. A row of countable units is a ration
+  of a day and cannot be read as a percentage of a course, because a course does not come in
+  ten parts. It is the move the charge coach mark already makes with its thirty pips.
+- **The sentence moved onto an object.** The pathway's course header is a bordered cream card
+  now, so "0 of 86 lessons done" is text inside a thing on the page rather than a caption
+  hanging under the header's bottom edge. Two statements on two planes are two statements.
+- **P3's win survives intact.** The fraction is still only DRAWN, there is no written
+  "14 / 20" anywhere, the strip is still the header's bottom edge and still the divider
+  Shell.tsx dropped its `border-b` for, and it still costs the readout row zero horizontal
+  space. `hudGeometryHolds` reached all four HUD routes with `driveRetries` empty.
+- **The second meter is still there.** The charge chip's own 112 by 6 meter sits in the same
+  header. It is a different genus now, a continuous fill inside a control against a row of
+  countable units on the header's edge, but a critic who counts meters still counts two.
+
+The bar does not solve this because it never creates it: on its path screen Duolingo draws no
+progress meter at all, and where it does draw one, in p21 and p16, there is exactly one per
+screen and a control beside it naming its scope. Ours is a global header, so it cannot be one
+per screen, and separation by kind is the move that was available.
+
+### D2, the torn paper scroll edges, and the seam that replaced them
+
+The muddy asymmetric hillside is gone: the `#9c7f4e` fill went in an earlier round and the
+channel is the card's own cream with a 2px `--path-edge` hairline. Two things this round
+found on top of that, both by sampling the capture rather than by looking at it.
+
+- **The basis went back to the label column.** The scene had been passing 0.36 of the column
+  where terrain.ts's own header states the invariant as half of it, and the consequence was
+  measurable: on a desktop the channel was 357px against a 496px label column, so node titles
+  were struck through by the boundary stroke and their first third sat on the bare lavender
+  at 4.73:1, the thinnest margin in the app. The floor is the column plus a 12px gutter now,
+  and the SWING absorbs the viewport instead.
+- **The flank wash was a seam and it is gone.** Sampled at 2x off the round two capture, the
+  flanks stepped from rgb(163,174,226) to rgb(157,167,218) on one dead straight full width
+  line at y 205, because the scene is a sticky viewport sized surface whose flow position is
+  the top of the TRACK, so the strip of page above it cannot be washed by anything the terrain
+  draws. Two and a half percent of lightness is not worth a straight seam across a landscape,
+  which is the "unfinished background asset" reading arriving in a new place. `--path-shade`
+  is `transparent` in both themes: the flank is the page's own ground. Re-sampled after, the
+  only colour change down that column is the header's own bottom edge.
+- **The amplitude came down, 24px to 16px.** Against a wash the boundary was a soft change of
+  surface; against the page's own lavender it is a hard colour edge, and a hard edge wandering
+  24px over a 170px row pitch reads as a deckle. The recorded S2 constraint is that the
+  WAVELENGTH carries the reaction coordinate and the amplitude does not, so this costs the
+  meaning layer nothing.
+
+### D3, the design debt, 194 rows to 32
+
+Per rule, at 8c5cda6 and now. The audit script was not touched: `git log` shows
+sticker-audit.mjs unchanged since 7c5f2b3, so this is design work and not a moved gate.
+
+| rule | before | after |
+|---|---|---|
+| 1-paper-canvas | 0 | 0 |
+| 2-no-gradients | 0 | 0 |
+| 3-no-shadows | 0 | 0 |
+| 3-fake-extrusion | 0 | 0 |
+| 4-outlines-structural | 52 | 4 |
+| 5-radius-floor | 8 | 4 |
+| 6-colour-as-surface | 4 | 4 |
+| 7-body-recedes | 64 | 0 |
+| 8-display-floor | 0 | 0 |
+| 9-palette-containment | 0 | 0 |
+| 10-reachability | 66 | 20 |
+| **total** | **194** | **32** |
+
+What moved, and each one is a design sentence rather than a suppression:
+
+- **Rule 7 to zero.** Every small coloured word went to the page's own ink and the colour
+  stayed on the shape under it. That is not a concession to the audit, it is
+  docs/DESIGN-TOKENS.md's own sentence about the glyph inside a `--tab-active` disc, applied
+  everywhere it was true.
+- **Rule 4, 52 to 4.** Filled primary controls carry `--primary-edge`, the courses card's
+  outline moved onto the pressable rather than a box inside it, and the goal fill stopped
+  being one 630 by 8 bare block.
+- **Rule 10, 66 to 20, and it had not moved in four rounds.** Two mascot instances left one
+  screen each. Bloom came out of the header charge chip, where his halo drew the charge
+  fraction a second time at 26px beside a meter that draws it legibly, and a drawn charge cell
+  took his place. And the desktop rail's wordmark lost its face: that 32px glyph was
+  `BlueberryMark`, the exact component `Berry` renders, so every desktop screen drew the same
+  character twice. **We are stricter than the bar on this, deliberately.** Duolingo's rail
+  carries the owl above its nav while the owl is also on the page. Ours is a word where its is
+  a mark, and the character is then worth something when it appears. It is the same shape of
+  argument as rule 3, where the bar's own nodes are fake extrusions and ours are outlines.
+
+### A budget violation no gate was reading, now gated
+
+CLAUDE.md's Budgets table carries a 44 by 44 minimum hit target and nothing measured it: the
+sticker audit scores colour and shape and never area, and `hudGeometryHolds` walks three
+header readouts. The pathway's side quest chip had measured 154 by 34 since the S2 round, on a
+live pressable link, on the tab a student opens first. `measurements/hit-targets.mjs` is the
+gate, wired as `npm run hit:targets`, and it reads `offsetWidth` and `offsetHeight` rather than
+`getBoundingClientRect` for the reason the S4 round found the hard way with `.press`'s
+`scale(0.96)`. 838 controls over 11 routes and 2 viewports: one under the floor before, zero
+after.
+
+### Measured at the exit of round 3
+
+| gate | before, 8c5cda6 | after |
+|---|---|---|
+| contrast, failing pairs | 0 of 8086 composed | 0 of 7855 composed |
+| sticker audit total | 194 | 32 |
+| game route payload, gzipped | 191.7 KB | 191.9 KB, ceiling 400 |
+| web tests | 999 in 36 files | 999 in 36 files |
+| typecheck | clean | clean |
+| hit targets under 44 by 44 | 1 of 838 | 0 of 838 |
+| validator suite | 30 of 30, integrity unmodified, 101 fixtures | identical |
+
+The contrast pair count fell by 231 and the unresolved marks by 254, and that is one cause:
+two mascot instances left the walk, and mascot internals are most of both buckets. Zero
+failing on both sides is the number that matters; the denominator moving is reported so it is
+not mistaken for coverage lost elsewhere.
+
+`S3-r3/self-check` holds 96 frames, six moments, both themes, both viewports, all 24 reached.
+
+### What a critic will still legitimately have
+
+- **Two meters are still in one header.** The goal tally and the charge chip's fill are
+  different genera now and both are still horizontal progress readings 13px apart. A judge
+  who counts rather than reads will count two.
+- **Rule 10 is 20, not 0, and every remaining row is a sheet over a page.** The charge sheet
+  and the combo interstitial draw the character over a screen that already has one behind the
+  scrim. The right fix is that a page under a full screen sheet should not also be drawing
+  Bloom, and I did not take it: the pathway header's Bloom is there because a blind judge
+  asked for a face with an opinion about the count beside it, and removing it to move a number
+  would undo a judged win.
+- **Rule 4 and rule 5 are both the same element, four rows each.** `div.backdrop__plate--drift`
+  is the trainer's photographic wallpaper. The audit classifies it as a card because
+  `paintsOwnSurface` returns true for any background-image, and rules 4 and 5 then ask a
+  wallpaper for a border and a 12px radius, which are not things a wallpaper has. I did not
+  add an exemption. Adding one in the same round that banks the number is exactly the pattern
+  CLAUDE.md forbids, and a border on a full bleed tint would be a worse design than the eight
+  rows. It is an audit limitation, it is named here, and it is somebody's to rule on when the
+  round is not also the one reporting the total.
+- **Rule 6 is 4 and I did not touch it.** Desktop dark feedback-correct at 0.49 percent,
+  feedback-wrong at 0.34, onboarding at 1.67 light and dark, against a 2 percent floor. The
+  diagnosis is real: in dark mode this app spends colour as alpha washes, `--good-soft` is
+  `rgba(52,211,153,0.16)`, and an alpha wash is an accent rather than a surface, which is
+  precisely what rule 6 exists to say. The fix is a flat token, which is also what
+  DESIGN-TOKENS.md already ruled for `--tab-active`. I did not make it: `--good-soft` has
+  about eighteen consumers, several of them composing `text-good-ink` on it, and re-deriving
+  that many pairs against a 0-failing contrast gate is a risk out of proportion to four rows
+  at the end of a round. hud.css also records the translucency as deliberate, so it is a
+  decision to make with that piece rather than around it.
+- **The channel edge still kinks.** At 16px of swing the boundary reads as a drawn curve for
+  most of its length and still shows small sharp steps where two samples meet, most visible on
+  the desktop frame around the third and fourth rows. That is the curve construction, not the
+  amplitude, and it is the next thing I would fix.
+- **The lavender palette's provenance is still unverifiable, and it is what most of the
+  sticker fall rests on.** `theme.css` cites five approved concept images that are not in the
+  repository, and CLAUDE.md's bar rule says a critic who cannot open its reference reports
+  that and stops. docs/DESIGN-TOKENS.md now records the divergence and names the two ways to
+  close it, which is the half a builder can do. Nothing was reverted on my judgement, and
+  until the images are committed or the direction is recorded without them, a blind judge
+  cannot check the ground colour against the thing it claims to come from.
+- **Round 3 judged its own inherited work.** Rounds one and two wrote most of this diff and
+  were interrupted before reporting. I re-ran every gate from a clean build rather than
+  trusting their JSON, and the sticker total I inherited, 46 on their last run, differed from
+  mine by the fourteen rows my own change removed. But no fresh critic has looked at the
+  frames, and a builder reading his predecessors' comments is not a blind comparison.
+
 ## The operational finding that cost the most: the loop was killing its own builders
 
 Every stalled or retried round in this run ends the same way. The transcript's last line

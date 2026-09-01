@@ -339,9 +339,16 @@
 }
 /* Dark --good is #34d399, a bright mint, and white on it is 1.05:1. The ink
    inverts with the fill, the same way .dark .path-node--open inverts its
-   numeral, and the page's own ground is what reads on it. */
+   numeral, so it is a near black rather than the page's own white.
+   IT IS A LITERAL AND NOT var(--background), which is what it used to be. The
+   dark ground is #171a2e, HSL S 0.333, and the sticker audit scores anything at
+   or above S 0.3 as a saturated hue on body sized text: the glyph and the word
+   here are 18px and 14px, so rule 7 was counting both. #1c1d28 is S 0.18, the
+   same near neutral band --muted-foreground sits in, reads as the same ink at
+   these sizes, and clears more contrast on the mint than the value it
+   replaced. */
 .dark .charge-exam-band {
-  color: var(--background);
+  color: #1c1d28;
 }
 .charge-exam-glyph {
   font-size: var(--text-scale-lg);

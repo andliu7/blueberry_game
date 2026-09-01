@@ -13,6 +13,7 @@
     "measure:headless": "node measurements/measure-headless.mjs",
     "measure:device": "node measurements/measure-device.mjs",
     "sticker:audit": "node measurements/sticker-audit.mjs",
+    "hit:targets": "node measurements/hit-targets.mjs",
     "preview:single": "node scripts/build-single.mjs"
   },
   "dependencies": {

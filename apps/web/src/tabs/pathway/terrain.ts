@@ -94,6 +94,25 @@ export interface TerrainGeometry {
    * phone and on a desktop and only the amount of open ground either side grows.
    */
   readonly basis: number;
+  /**
+   * How far past the basis the channel may swell at zero energy, in pixels.
+   *
+   * It is a PIXEL budget rather than a fraction of the basis because the two
+   * numbers answer to different things. The basis answers to the label column:
+   * it is half of it, and the channel is never narrower, or body copy ends up on
+   * the ground this file's header says it must never sit on. The swing answers
+   * to the viewport: it is whatever room is left between the paper and the
+   * screen edge, so the widest crest still has ground beside it. On a desktop
+   * that room is plentiful and the swing is the old 16 percent of the basis; on
+   * a 390pt phone it is a few pixels, and a few pixels is the honest answer
+   * there, because a phone has no room for both a full width reading column and
+   * a landscape beside it.
+   *
+   * Optional so a caller that only cares about the shape, including this
+   * package's own tests, gets the 16 percent by default and nothing about their
+   * arithmetic moves.
+   */
+  readonly swingPx?: number;
 }
 
 /**
@@ -319,8 +338,18 @@ export function stepProfile(
  * something a reader could check by looking at two constants. A clamp says it
  * once, at the only place a channel width is ever produced.
  */
-export function channelHalfWidth(energy: number, basis: number): number {
-  return Math.max(basis, basis * (CHANNEL_HALF - energy * CHANNEL_SWING));
+export function channelHalfWidth(
+  energy: number,
+  basis: number,
+  swingPx: number = basis * CHANNEL_SWING,
+): number {
+  // Identical to `basis * (CHANNEL_HALF - energy * CHANNEL_SWING)` at the default
+  // swing, which is why no existing number moved when the swing became a
+  // parameter: CHANNEL_HALF is 1 + CHANNEL_SWING by construction, so
+  // basis + (1 - energy) * basis * CHANNEL_SWING is the same expression
+  // rearranged. What the pixel form buys is a caller that can shrink the swell
+  // without shrinking the floor, which the fraction form could not express.
+  return Math.max(basis, basis + (1 - energy) * swingPx);
 }
 
 /**
@@ -336,7 +365,7 @@ export function boundaryPath(
   side: -1 | 1,
 ): string {
   if (samples.length === 0) return "";
-  const x = (sample: TerrainSample) => geometry.centreX + side * channelHalfWidth(sample.energy, geometry.basis);
+  const x = (sample: TerrainSample) => geometry.centreX + side * channelHalfWidth(sample.energy, geometry.basis, geometry.swingPx);
   let d = `M ${x(samples[0]!).toFixed(2)} ${samples[0]!.y.toFixed(2)}`;
   for (let i = 1; i < samples.length; i += 1) {
     const from = samples[i - 1]!;
@@ -368,7 +397,7 @@ export function channelPath(
 ): string {
   if (samples.length === 0) return "";
   const x = (sample: TerrainSample, side: -1 | 1) =>
-    geometry.centreX + side * channelHalfWidth(sample.energy, geometry.basis);
+    geometry.centreX + side * channelHalfWidth(sample.energy, geometry.basis, geometry.swingPx);
   const first = samples[0]!;
   const last = samples[samples.length - 1]!;
   let d = `M ${x(first, -1).toFixed(2)} ${first.y.toFixed(2)}`;

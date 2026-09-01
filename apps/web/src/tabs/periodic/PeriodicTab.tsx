@@ -22,6 +22,22 @@ import { CATEGORY_LABEL, ELEMENTS, elementBySymbol, gridPosition, type Category,
 
 type Colouring = "category" | "electronegativity" | "block" | "phase";
 
+/**
+ * The ink on an element tile, and it is a literal because the tile's ground is
+ * one.
+ *
+ * The nine category colours below are fixed pale washes that do not move with
+ * the theme, so the ink on them cannot be a theme token either. It used to be
+ * #1e293b, slate-800. That value measures HSL S 0.326, which the sticker audit
+ * scores as a saturated hue on body sized text, and rule 7 of that language is
+ * that body copy recedes so the colour can lead. theme.css already settled the
+ * same question for --foreground and reached #2a2a42, S 0.222, which reads as
+ * the same deep navy and is a near neutral by measurement rather than by
+ * assertion. This is that value, for that reason, and the contrast audit reads
+ * it where it is actually composed on all nine washes.
+ */
+const PERIODIC_INK = "#2a2a42";
+
 const CATEGORY_COLOUR: Record<Category, string> = {
   alkali: "#fecaca",
   alkaline: "#fed7aa",
@@ -75,7 +91,7 @@ function Detail({ element }: { readonly element: Element }) {
       <div className="flex items-center gap-4">
         <div
           className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl border border-border text-foreground"
-          style={{ background: CATEGORY_COLOUR[element.category], color: "#1e293b" }}
+          style={{ background: CATEGORY_COLOUR[element.category], color: PERIODIC_INK }}
         >
           <span className="text-scale-xs">{element.number}</span>
           <span className="title-face text-scale-2xl font-semibold leading-none">{element.symbol}</span>
@@ -127,7 +143,9 @@ export default function PeriodicTab({ selected }: { readonly selected: string | 
             aria-selected={colouring === option.id}
             onPointerDown={() => setColouring(option.id)}
             className={`press min-h-11 rounded-full px-4 text-scale-sm font-semibold ${
-              colouring === option.id ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
+              colouring === option.id
+                ? "border border-[color:var(--primary-edge)] bg-primary text-primary-foreground"
+                : "border border-border bg-card text-foreground"
             }`}
           >
             {option.label}
@@ -157,7 +175,7 @@ export default function PeriodicTab({ selected }: { readonly selected: string | 
                   onPointerLeave={() => setHover(null)}
                   onFocus={() => setHover(element)}
                   onBlur={() => setHover(null)}
-                  className={`press flex min-h-11 min-w-11 flex-col items-center justify-center rounded-xl border text-[#1e293b] ${
+                  className={`press flex min-h-11 min-w-11 flex-col items-center justify-center rounded-xl border text-[#2a2a42] ${
                     isChosen ? "border-primary ring-2 ring-primary/40" : "border-black/10"
                   }`}
                   style={{

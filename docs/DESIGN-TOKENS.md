@@ -9,6 +9,53 @@ changed products.
 
 ## Color
 
+**THE LAVENDER TURN, recorded here 2026-09-01 by the S3 design pass, and it supersedes the
+divergence paragraph below.** The paragraph below says cream ground, purple led, roughly the
+`#7c3aed` to `#8b5cf6` range as the working centre. That is not what `apps/web/src/theme.css`
+has shipped since 2026-08-29. This file is named as authoritative for what Blueberry may look
+like, so the two disagreeing about the app's ground colour is a defect in the record, and
+CLAUDE.md's own rule is that the record moves in the same turn as the change. It did not. It
+does now.
+
+What actually ships, measured in `theme.css` and re-measured by
+`apps/web/measurements/contrast-audit.mjs` on the built app:
+
+| Token | Was, in the table below | Ships |
+|---|---|---|
+| `--background` light | `#f6f4ef` cream | `#a3aee2` lavender |
+| `--card` light | `#ffffff` | `#fbf3e6` warm cream |
+| `--foreground` light | `#1e293b` | `#2a2a42` |
+| `--primary` light | `#0f172a`, then `#7c3aed` per the divergence | `#3f4286` deep navy |
+| `--background` dark | `#0c0a09` stone-950 | `#171a2e` indigo night |
+| `--card` dark | `#1c1917` stone-900 | `#232741`, which LIFTS off the ground |
+
+Three consequences worth carrying, because they are structural rather than cosmetic:
+
+- **A cream card on the lavender ground is 1.96:1, so every card carries a border.** That is
+  sticker rule 3 arriving by arithmetic. `--border` `#55597f` is derived to clear 3:1 against
+  both surfaces it separates: 6.11:1 on the card, 3.11:1 on the ground.
+- **`--muted-foreground` is `#394153`, not slate-600.** Slate-600 measures 3.50:1 on the
+  lavender ground, under the 4.5:1 body floor. `#394153` is 4.73:1 on the ground and 9.28:1 on
+  the card. That 4.73 is the thinnest margin in the app and it is the whole reason body copy
+  belongs on a card rather than on the bare ground wherever there is a choice.
+- **`--primary` left `#7c3aed` because that hex was also the mascot's cape** in
+  `MASCOT_PALETTE`, and the sticker audit's rule 9 was failing 247 rows on that one collision.
+  It is 0 now without anyone having to rule on which palette owns the hex.
+
+**THE PROVENANCE CANNOT BE VERIFIED IN THIS REPOSITORY, and that is an owner item, not a
+builder's.** `theme.css` cites "five approved concept images (blueberry_reaction-deck-swipe,
+-card-faces, blueberry_pathway-hand, -lesson-hand, -reward-hand)" and samples modal pixels
+from them. Those files are not in `docs/reference/`, which holds only `alchemie/` and
+`competitors/`, and a repository wide search for those names returns nothing. CLAUDE.md's bar
+rule is explicit that a critic which cannot open its reference reports that and stops rather
+than reconstructing it from a description, so no critic can check the sampled values against
+the source they claim. Two ways to close it, and both are the owner's call: commit the five
+images to `docs/reference/` so the sampling is checkable, or record that the palette is an
+owner direction taken without a committed reference. The S3 pass did not revert anything on
+its own judgement, because a builder reverting a recorded owner direction on a missing file is
+the worse of the two errors.
+
+
 **OWNER DIVERGENCE, recorded 2026-08-20, and it wins over everything below.** The app is LIGHT MODE
 FIRST. The inherited Blueberry default of dark-unless-stored-light is reversed: default light, dark
 available as a choice. The palette moves toward Duolingo's brightness and saturation but purple led

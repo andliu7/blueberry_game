@@ -1054,9 +1054,12 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+/* FLAWLESS. The pill is the colour and the word on it is the page's ink; see
+   the rule 7 note in streak.css for why every small coloured word in this app
+   moved the same way. */
 .reward-badge {
   background: var(--good-soft);
-  color: var(--good-ink);
+  color: var(--foreground);
   border: 1.5px solid color-mix(in srgb, var(--good) 45%, transparent);
 }
 

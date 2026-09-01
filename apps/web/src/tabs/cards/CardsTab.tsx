@@ -65,7 +65,7 @@ export default function CardsTab({ onImmersiveChange }: CardsTabProps) {
           in docs/ECONOMY.md for a review drill is 0, and "never gate what
           repairs decay" is the sentence this badge is standing in for. */}
       <div className="flex justify-end px-4 pt-4">
-        <span className="rounded-full border-2 border-[color:color-mix(in_srgb,var(--good)_40%,transparent)] bg-good-soft px-3 py-1 text-scale-xs font-bold text-good-ink">
+        <span className="rounded-full border-2 border-[color:color-mix(in_srgb,var(--good)_40%,transparent)] bg-good-soft px-3 py-1 text-scale-xs font-bold text-foreground">
           Always free
         </span>
       </div>

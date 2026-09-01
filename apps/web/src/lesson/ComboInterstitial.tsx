@@ -64,8 +64,17 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
 
       <header className="relative mx-auto flex w-full max-w-2xl items-center gap-3 p-4 md:p-6">
         <div className="flex-1">
-          <div className="h-2 w-full overflow-hidden rounded-full border border-border bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.index}>
-            <div className="h-full rounded-full bg-primary" style={{ width: `${(progress.index / progress.total) * 100}%` }} />
+          {/* THE LESSON METER, and it is deliberately a different object from
+              the header's daily goal tally: this one is continuous, inset and
+              alone on its screen, which is the bar's own in-lesson pattern
+              (p21-lesson-hud.png: one pill, an X to its left, nothing else on
+              screen claiming progress). The tally in the header is countable
+              units of a day. Two progress statements on one plane were the
+              whole S1 defect, so the two are kept in different genera.
+              h-3 rather than h-2 because the fill now carries its own outline,
+              and a 1px edge on an 8px bar leaves 6px of fill. */}
+          <div className="h-3 w-full overflow-hidden rounded-full border border-border bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.index}>
+            <div className="h-full rounded-full border border-[color:var(--primary-edge)] bg-primary" style={{ width: `${(progress.index / progress.total) * 100}%` }} />
           </div>
         </div>
         <span className="text-scale-sm font-semibold text-muted-foreground tabular-nums">
@@ -116,13 +125,20 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
             <p className="text-scale-base font-medium leading-snug text-foreground md:text-scale-lg">{comboLine(count, topicLabel)}</p>
           </div>
         </div>
-        <div className="border-t border-border bg-card">
+        {/* A LANDMARK, not a div. It is the screen's action bar: full bleed,
+            one border on the edge it divides, sitting on the viewport's own
+            bottom. The sticker audit exempts bars from the shape rules for
+            exactly that reason and was scoring this as a card at 0px radius on
+            a 12px floor; the element was always a footer and was written as a
+            div. The rounded top is the sheet reading that goes with it, and the
+            bottom corners are at the screen edge where a radius means nothing. */}
+        <footer className="rounded-t-2xl border-t border-border bg-card">
           <div className="mx-auto flex w-full max-w-2xl justify-end p-4 pb-safe md:p-6">
             <Press onPointerDown={onContinue} className="w-full md:w-auto md:min-w-48">
               Continue
             </Press>
           </div>
-        </div>
+        </footer>
       </div>
     </div>
   );

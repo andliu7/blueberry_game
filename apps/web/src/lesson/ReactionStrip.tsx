@@ -51,7 +51,7 @@ export function ReactionStrip({ outcome, headline, caption = null, berry, contin
       <div className="flex items-center gap-4">
         <Berry {...berry} sizePx={STRIP_BERRY_PX} className="shrink-0" />
         <div className="flex min-w-0 flex-1 flex-col">
-          <h3 className="text-scale-lg font-semibold leading-tight" style={{ color: "var(--strip-ink)" }}>
+          <h3 className="text-scale-lg font-semibold leading-tight" style={{ color: "var(--foreground)" }}>
             {headline}
           </h3>
           {caption !== null ? <p className="mt-1 text-scale-sm text-muted-foreground">{caption}</p> : null}

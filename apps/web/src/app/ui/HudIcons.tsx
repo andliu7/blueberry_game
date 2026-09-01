@@ -1,7 +1,8 @@
 /**
- * The three drawn marks in the header HUD: the XP ring, the diamond, and the
- * streak flame. Bloom is the fourth and is the imported mascot, never redrawn
- * (CLAUDE.md, and docs/INHERITED-DECISIONS.md D4).
+ * The four drawn marks in the header HUD: the XP ring, the diamond, the streak
+ * flame, and the charge cell. Bloom is the imported mascot, never redrawn
+ * (CLAUDE.md, and docs/INHERITED-DECISIONS.md D4), and since the S3 design pass
+ * he is no longer one of the header's marks: see ChargeMark below.
  *
  * Every one is inline SVG with token fills. No sprite sheet, no icon font, no
  * emoji: an emoji flame is a different drawing on every platform and a font is
@@ -105,6 +106,40 @@ export function FlameMark({ lit, className = "" }: { readonly lit: boolean; read
         fill={lit ? "var(--streak-core)" : "#ffffff"}
         fillOpacity={lit ? 1 : 0.42}
       />
+    </svg>
+  );
+}
+
+/**
+ * The charge cell, and it is here because Bloom used to be.
+ *
+ * WHAT IT REPLACED AND WHY. The charge chip drew Bloom at 26px with his halo
+ * set to the charge fraction. That was a nice idea and it cost more than it
+ * paid, on two counts a measurement caught and a judge had already said in
+ * words. The sticker audit's rule 10 counts mascot instances on one screen and
+ * was reporting two on ten routes, three on seven and four on the charge ones,
+ * unchanged across four rounds; P3's own round two judge wrote "the same
+ * blueberry face appears four times on one screen, so the number that matters
+ * fights five other glyphs". And inside the chip itself the fraction was drawn
+ * TWICE, once as the halo's thickness at 26px where it is barely legible and
+ * once as the meter under the word, where it is legible.
+ *
+ * So the chip keeps the meter, which is the reading, and takes a mark, which is
+ * the identity. Bloom keeps the coach mark at 76px, where the halo really does
+ * read as a meter gaining and losing weight, and keeps every full screen moment
+ * he already owned. He appears once per screen now instead of two to four
+ * times, which is what makes him a character rather than clip art.
+ *
+ * Drawn the same way as the diamond and the flame: a filled silhouette in the
+ * family's own token, one lighter facet for volume, and the bolt cut out in the
+ * card's colour so the shape is one component in both themes.
+ */
+export function ChargeMark({ className = "" }: { readonly className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden focusable="false">
+      <rect x="2.5" y="1.5" width="19" height="21" rx="6.5" fill="var(--good)" />
+      <path d="M9 1.5h6a6.5 6.5 0 0 1 6.5 6.5v2.5h-19V8A6.5 6.5 0 0 1 9 1.5z" fill="#ffffff" fillOpacity="0.24" />
+      <path d="M13.6 4.2 7.3 13h3.4l-.7 6.8 6.5-9.1h-3.6z" fill="var(--card)" />
     </svg>
   );
 }

@@ -64,7 +64,13 @@ export function NotOpenYet({ surface }: { readonly surface: FlagId }) {
       <p className="text-scale-sm text-muted-foreground">{notice.kept}</p>
       <a
         href={hrefForTab("pathway")}
-        className="press mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-scale-base font-semibold text-primary-foreground"
+        /* THE CUT EDGE. A filled primary control still carries an outline in
+           this language, and --primary-edge is the token derived for exactly
+           that: one step down the primary's own family so the shape reads from
+           either side of itself. Without it this was a bare filled block, which
+           the sticker audit was counting as 12 rows of rule 4 across the three
+           flagged surfaces. */
+        className="press mt-2 inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-[color:var(--primary-edge)] bg-primary px-5 text-scale-base font-semibold text-primary-foreground"
       >
         Back to your path
       </a>

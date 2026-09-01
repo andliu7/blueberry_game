@@ -490,7 +490,11 @@ export function RewardMoment({
                 className={`${revealClass(beats.lineFirst + i * beats.lineStep)} reward-line inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-scale-xs`}
               >
                 <span className="font-medium">{line.label}</span>
-                <span className="font-bold text-warn-ink tabular-nums">+{line.amount}</span>
+                {/* The amount is the page's ink, not the warn ramp: the chip
+                    it sits in is already tinted and 12px text in a saturated
+                    hue is what rule 7 exists to catch. Weight carries the
+                    emphasis instead. */}
+                <span className="font-bold text-foreground tabular-nums">+{line.amount}</span>
               </li>
             ))}
           </ul>

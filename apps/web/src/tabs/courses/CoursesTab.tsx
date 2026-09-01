@@ -151,11 +151,19 @@ function CourseList() {
         const topics = probeTopicIdsForCourse(course);
         const done = topics.filter((topic) => snapshot.lessons[topic] !== undefined).length;
         return (
-          <a key={course} href={hrefForTab("courses", course)} className="press block rounded-2xl">
-            {/* The primary border, and it is the only one on the screen. A card
-                that is the single thing you can press should say so with the
-                colour the rest of the app uses for "you are here". */}
-            <div className="flex flex-col gap-3 rounded-2xl border-2 border-[color:var(--primary-ink)] bg-card p-5">
+          /* THE OUTLINE IS ON THE PRESSABLE, not on a box inside it.
+             It used to be on the inner div, so the thing a student actually
+             presses had no cut edge of its own and the audit counted 8 rows of
+             rule 4 on it. Moving it up is also one box instead of two, which is
+             the note Hud.tsx already carries: a pill inside a pill is two
+             boxes. The primary border is still the only one on the screen, and
+             it still says "this is the one thing you can press". */
+          <a
+            key={course}
+            href={hrefForTab("courses", course)}
+            className="press block rounded-2xl border-2 border-[color:var(--primary-ink)] bg-card"
+          >
+            <div className="flex flex-col gap-3 p-5">
               {/* THE EMBLEM SITS BESIDE THE NAME AND NOTHING ELSE SHARES THAT
                   ROW. At 390px the mark takes 56 of the card's width and the
                   status pill took another 90, which left "Organic Chemistry II"
@@ -260,7 +268,7 @@ function CourseComingSoon({ course }: { readonly course: CourseId }) {
       <p className="text-scale-sm font-medium text-muted-foreground">{COURSE_COMING[course]}</p>
       <a
         href={hrefForTab("courses", "orgo_2")}
-        className="press mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-scale-base font-semibold text-primary-foreground"
+        className="press mt-2 inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-[color:var(--primary-edge)] bg-primary px-5 text-scale-base font-semibold text-primary-foreground"
       >
         Open Organic Chemistry II
       </a>

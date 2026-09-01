@@ -50,7 +50,7 @@ import { deriveEconomy, type EconomySnapshot } from "@blueberry/economy";
 import { economyOptions } from "../progress";
 import { useProgress, useReducedMotion } from "../hooks";
 import { Berry } from "../../mascot/Berry";
-import { DiamondMark, FlameMark, XpRing } from "./HudIcons";
+import { ChargeMark, DiamondMark, FlameMark, XpRing } from "./HudIcons";
 import {
   hudModel,
   HUD_BUTTON_IDS,
@@ -155,32 +155,50 @@ function HudButton({ id, label, onOpen, className = "", children }: ItemProps) {
 }
 
 /**
- * The daily goal, drawn along the bottom of the header, AND NOW NAMED.
+ * The daily goal, drawn along the bottom of the header, AS A TALLY OF TODAY.
  *
- * IT IS THE ONE DEFECT TWO BLIND JUDGES BOTH CAUGHT, and it was worse than a
- * cosmetic one because it misled rather than merely looked wrong. An unlabelled
- * bar sat directly under the header at roughly 70 percent, and the very next
- * line on the pathway reads "2 of 86 lessons done". Two different progress
- * measures, adjacent, one of them named. A screen reader got the truth from
- * `role="progressbar"` and `aria-label`; the eye did not, and read it as course
- * progress. Rendering your own data correctly is not the same as being read
- * correctly.
+ * IT IS THE ONE DEFECT TWO BLIND JUDGES BOTH CAUGHT, and round one of this pass
+ * only half answered it. The judge's sentence was about what the EYE does: "a
+ * full width purple bar sits about 70 percent filled while the line immediately
+ * below it reads 0 of 86 lessons done". Round one put a 10px "TODAY'S GOAL"
+ * label at the left, which tells a reader what the bar is and does nothing at
+ * all about the reading. A labelled 70 percent bar above a 0 percent sentence is
+ * still two progress statements of the same KIND, four pixels apart, and the eye
+ * resolves kind before it reads a 10px caption.
  *
- * WHAT THE FIX MUST NOT UNDO. The P3 round won two things here and both survive:
- * the readouts are DRAWN fractions rather than written ones, and the goal meter
- * costs the readout row zero horizontal space by being the header's bottom edge.
- * So the fix is not a "14 / 20 XP" readout and it is not a chip in the row. It
- * is a name on the edge that already exists: a 10px label at the left, the track
- * running from it to the right edge. The fraction is still only drawn, the row
- * above is untouched, and the strip is still the header's bottom edge and still
- * the divider Shell.tsx dropped its `border-b` for.
+ * SO THE KIND CHANGED. It is ten discrete ticks now, one per tenth of today,
+ * inked from the left. A row of countable units is a tally, and a tally is a
+ * ration of a day: it cannot be read as a percentage of a course, because a
+ * course does not come in ten parts. That is the same move the coach mark
+ * already makes for Charge, which draws thirty pips rather than a bar, and it is
+ * the bar's own answer to scope read at header scale (its meters are one per
+ * screen and bracketed by a control that names what they measure; ours cannot be
+ * one per screen, because the header is global, so it is separated by kind
+ * instead).
  *
- * The track also gains a 1px outline and a pill radius. Sticker rules 3 and 5:
- * a bare 4px rectangle with no edge was reading as a divider that had been
- * coloured in, which is most of how it got mistaken for something else.
+ * THE FRACTION IS STILL EXACT AND STILL ONLY DRAWN. The tick the student is
+ * inside is filled to its own fraction rather than snapped, so 14 of 20 XP is
+ * seven whole ticks and nothing rounded; `aria-valuenow` carries the XP itself
+ * for a screen reader. There is no written "14 / 20" anywhere, which is what P3
+ * won on.
+ *
+ * WHAT THE FIX DID NOT UNDO. The strip is still the header's bottom edge, still
+ * the divider Shell.tsx dropped its `border-b` for, and still costs the readout
+ * row zero horizontal space. The row above is untouched.
+ *
+ * One measured side effect worth naming: the old single fill was 630 by 8 on a
+ * desktop, which is over the sticker audit's 2500 square pixel card threshold,
+ * so a bare filled block with no cut edge inside an outlined track was raising
+ * 14 rows of rule 4. Ten ticks are ~88 by 8 each, which is a chip rather than a
+ * card, and each one carries its own outline anyway.
  */
+const GOAL_TICKS = 10;
+
 function HudGoalBar({ model }: { readonly model: HudModel }) {
   const { xp } = model;
+  // How many ticks are inked, as a real number: the whole part is full ticks and
+  // the remainder is how far into the current one today has got.
+  const inked = xp.fraction * GOAL_TICKS;
   return (
     <div className="hud-goal-edge">
       <span className="hud-goal-name" aria-hidden>
@@ -195,7 +213,14 @@ function HudGoalBar({ model }: { readonly model: HudModel }) {
         aria-label={xp.label}
         data-met={xp.met ? "true" : "false"}
       >
-        <span className="hud-goal-fill" style={{ width: `${(xp.fraction * 100).toFixed(1)}%` }} />
+        {Array.from({ length: GOAL_TICKS }, (_, index) => (
+          <span key={index} className="hud-goal-tick" aria-hidden>
+            <span
+              className="hud-goal-fill"
+              style={{ width: `${(Math.min(1, Math.max(0, inked - index)) * 100).toFixed(1)}%` }}
+            />
+          </span>
+        ))}
       </span>
     </div>
   );
@@ -204,23 +229,22 @@ function HudGoalBar({ model }: { readonly model: HudModel }) {
 /**
  * The dominant chip.
  *
- * Bloom, the number at twice the neighbours' size, and a column holding the one
- * word in the row over the meter. The word is what the critic asked for ("a
- * visible label or unit") and it is a LABEL rather than a "/ 30", because the
- * denominator stays drawn: the meter beside it is the 30 cap and writing it
- * twice would undo the thing this header is built on.
+ * The charge cell, the number at twice the neighbours' size, and a column
+ * holding the one word in the row over the meter. The word is what the critic
+ * asked for ("a visible label or unit") and it is a LABEL rather than a "/ 30",
+ * because the denominator stays drawn: the meter under it is the 30 cap and
+ * writing it twice would undo the thing this header is built on.
+ *
+ * BLOOM USED TO BE THE MARK HERE AND IS NOT ANY MORE. HudIcons.tsx carries the
+ * reasoning; the short version is that the fraction was drawn twice in one chip
+ * and the mascot was appearing two to four times on one screen. The meter is
+ * the reading that survived, because at 26px a halo's thickness is not one.
  */
-function ChargeChip({ charge, reducedMotion }: { readonly charge: ChargeReadout; readonly reducedMotion: boolean }) {
+function ChargeChip({ charge }: { readonly charge: ChargeReadout }) {
   return (
     <span className="hud-charge">
       <span className="hud-charge-row">
-        <Berry
-          state="charged"
-          chargeLevel={charge.fraction}
-          mood={charge.examWindow ? "excited" : "focused"}
-          reducedMotion={reducedMotion}
-          sizePx={26}
-        />
+        <ChargeMark className="hud-charge-mark" />
         <span className={`hud-charge-value ${charge.examWindow ? "is-exam" : ""}`}>{charge.value}</span>
         <span className="hud-charge-word">{charge.examWindow ? charge.daysLabel : "Charge"}</span>
       </span>
@@ -272,7 +296,7 @@ export function Hud() {
         </HudButton>
 
         <HudButton id="charge" label={charge.label} onOpen={openItem}>
-          <ChargeChip charge={charge} reducedMotion={reducedMotion} />
+          <ChargeChip charge={charge} />
         </HudButton>
       </div>
 

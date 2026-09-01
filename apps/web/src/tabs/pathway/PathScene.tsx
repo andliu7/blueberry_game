@@ -42,6 +42,7 @@ import type { PathwayUnit } from "../../demo/pathwayMap";
 import {
   boundaryPath,
   channelHalfWidth,
+  CHANNEL_SWING,
   channelPath,
   energyProfile,
   groundPath,
@@ -64,6 +65,8 @@ interface SceneMetrics {
   readonly centreX: number;
   /** Half the track column, capped, so the landscape keeps its shape on a monitor. */
   readonly basis: number;
+  /** Pixels of swell the channel may add at zero energy. See terrain.ts. */
+  readonly swingPx: number;
   readonly spans: readonly UnitSpan[];
   /** Every track row's box, which is where the per lesson ripple hangs. */
   readonly rows: readonly RowSpan[];
@@ -79,6 +82,7 @@ const EMPTY: SceneMetrics = {
   worldHeight: 0,
   centreX: 0,
   basis: 0,
+  swingPx: 0,
   spans: [],
   rows: [],
   checkpoints: [],
@@ -93,7 +97,54 @@ const EMPTY: SceneMetrics = {
  * width, and a wide screen simply shows more open ground either side, which is
  * what a landscape does.
  */
-const MAX_BASIS_PX = 300;
+const MAX_BASIS_PX = 360;
+
+/**
+ * How far the paper reaches past the label column, each side.
+ *
+ * The channel is the surface the node titles are printed on, so it has to clear
+ * them rather than meet them: a boundary stroke landing on the first glyph of
+ * "Kinetic vs thermodynamic control" is what the S3 grounding pass measured in
+ * the desktop capture.
+ */
+const LABEL_GUTTER_PX = 12;
+
+/**
+ * How much lavender is kept beside the paper at the widest crest.
+ *
+ * Small, because on a phone this is competing with the reading column and the
+ * reading column wins. It exists so the paper never runs flush to the screen
+ * edge, which would read as a bleed rather than as a sheet.
+ */
+const SCENE_EDGE_PX = 10;
+
+/**
+ * The most the paper's edge may swell, in pixels, whatever the basis allows.
+ *
+ * The S2 defect was "torn paper scroll edges", and amplitude is what produced
+ * that reading: at 16 percent of a 305px basis the edge moved 49px sideways
+ * between rows about 170px apart, which is a 16 degree slope and reads as a rip
+ * rather than as a curve. The constraint that came out of S2 is explicit that
+ * the WAVELENGTH carries the reaction coordinate and the amplitude does not, so
+ * this ceiling costs the meaning layer nothing and buys a deckle that reads as
+ * a drawn edge. 24px over the same 170px pitch is about 8 degrees.
+ */
+const MAX_SWING_PX = 16;
+
+/*
+ * 24 IN ROUND TWO OF THIS PASS, 16 NOW, and the difference is what the desktop
+ * capture showed once the flank wash came off. With a 2.5 percent wash beside
+ * it the boundary was a soft change of surface; against the page's own lavender
+ * it is a hard colour edge, and a hard edge wandering 24px each way over a
+ * 170px row pitch is read as a deckle rather than as a curve. 16 over the same
+ * pitch is about five degrees.
+ *
+ * It costs the meaning layer nothing, and that is the recorded S2 constraint
+ * rather than my judgement: the WAVELENGTH carries the reaction coordinate and
+ * the amplitude does not. terrain.ts's own header says the ribbon's width is
+ * the energy profile, and both are true at once: the width still rises and
+ * falls with the barrier, it simply does so over five degrees instead of eight.
+ */
 
 /**
  * Parallax rates, one per layer. See the header for what each layer is.
@@ -208,25 +259,51 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     const rect = row.getBoundingClientRect();
     rows.push({ top: rect.top - box.top, bottom: rect.bottom - box.top });
   }
+  const centreX = columnBox.left - scene.left + columnBox.width / 2;
+  const channelBasis = Math.min(MAX_BASIS_PX, columnBox.width / 2 + LABEL_GUTTER_PX);
+  // The nearer side is what limits the swell, because the channel is symmetric
+  // about the centreline and a desktop centreline is not the viewport's.
+  const roomHalf = Math.min(centreX, scene.width - centreX) - SCENE_EDGE_PX;
+  const channelSwing = Math.max(0, Math.min(channelBasis * CHANNEL_SWING, MAX_SWING_PX, roomHalf - channelBasis));
+
   return {
     width: scene.width,
     height: scene.height,
     worldHeight: box.height,
     // The scene is full bleed and the track column is not, so the centreline is
     // where the column actually is inside the scene, never simply the middle.
-    centreX: columnBox.left - scene.left + columnBox.width / 2,
-    // 0.36 of the column, not half of it.
+    centreX,
+    // HALF THE COLUMN PLUS A GUTTER, which is what terrain.ts always said this
+    // was and what the code stopped doing.
     //
-    // At half, the channel's own half width (1.16 to 1.32 times the basis) came
-    // out at 198 to 226 on a 390pt phone, so the ribbon was 400 to 452 wide on a
-    // 390 wide screen: wider than the viewport at every energy, which is why the
-    // old hillsides only appeared in patches and read as a torn edge. A ribbon
-    // that always fills the screen also has no shape, and its width IS the
-    // energy profile, so the meaning layer was invisible on the device this is
-    // mostly used on. At 0.36 the ribbon is 306 to 348 wide there, which leaves
-    // 21 to 42 points of ground down each side and gives the curve something to
-    // move against. On a monitor MAX_BASIS_PX still caps it first.
-    basis: Math.min(MAX_BASIS_PX, columnBox.width * 0.36),
+    // The history matters because both halves of it were right. terrain.ts's
+    // header states the invariant and the reason: "text simply must not sit on
+    // the ground", because the ground has to clear 3:1 as a graphic, which caps
+    // its lightness, and body copy has to clear 4.5:1, which needs more, and no
+    // single value does both. It then says the basis is half the track column so
+    // the channel is never narrower than the column. The scene passed 0.36 of
+    // the column instead, for a real reason: at half, the ribbon at its widest
+    // was 400 to 452px on a 390pt phone, wider than the screen, so the landscape
+    // was invisible on the device this is mostly used on.
+    //
+    // What 0.36 actually bought was 21 to 42 points of visible ground and a
+    // broken invariant. Measured on the built app at S3: the channel was 357px
+    // wide against a 496px label column on a desktop, so "Kinetic vs
+    // thermodynamic control" was struck through by the right boundary stroke and
+    // the first third of every left label sat on the lavender ground at 4.73:1,
+    // which is the thinnest contrast margin in the app and is exactly the pair
+    // terrain.ts warns the audit cannot see.
+    //
+    // So the floor goes back to the column and the SWING absorbs the viewport
+    // instead. The channel is never narrower than the labels; the swell either
+    // side is whatever room is actually left. On a desktop that is the old 16
+    // percent and the energy profile is unchanged. On a phone it is a few
+    // pixels, and a phone genuinely does not have room for a full width reading
+    // column and a landscape beside it: the honest shape there is a sheet of
+    // paper with a hairline edge, which is also what the bar draws (its path
+    // canvas is plain white edge to edge with no flank at all).
+    basis: channelBasis,
+    swingPx: channelSwing,
     spans,
     rows,
     checkpoints,
@@ -385,7 +462,7 @@ export default function PathScene({
     width < 2 || metrics.worldHeight < 2
       ? []
       : stepProfile(energyProfile(energies, metrics.spans), metrics.rows);
-  const geometry = { width, height: metrics.worldHeight, centreX: metrics.centreX, basis: metrics.basis };
+  const geometry = { width, height: metrics.worldHeight, centreX: metrics.centreX, basis: metrics.basis, swingPx: metrics.swingPx };
 
   const focus = metrics.focus ?? { x: metrics.centreX, y: metrics.worldHeight * 0.2 };
 
@@ -475,7 +552,7 @@ export default function PathScene({
         */}
         {metrics.checkpoints.map((checkpoint) => {
           const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
-          const half = channelHalfWidth(-(energy?.barrier ?? 0.5), metrics.basis) * 1.35;
+          const half = channelHalfWidth(-(energy?.barrier ?? 0.5), metrics.basis, metrics.swingPx) * 1.35;
           // The apex clears the panel's top edge by HUMP_LIFT and the ends fall
           // HUMP_DROP below it, so the arc is above the panel across the panel's
           // own width and only comes down beside it. A quadratic's apex is
@@ -498,7 +575,7 @@ export default function PathScene({
         {metrics.checkpoints.map((checkpoint, index) => {
           const side = index % 2 === 0 ? -1 : 1;
           const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
-          const half = channelHalfWidth(-(energy?.wellDepth ?? 0.5), metrics.basis);
+          const half = channelHalfWidth(-(energy?.wellDepth ?? 0.5), metrics.basis, metrics.swingPx);
           return (
             <Flask
               key={checkpoint.unitId}

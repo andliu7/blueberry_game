@@ -657,7 +657,7 @@ function OrgoMapTrack({
                           key={node.id}
                           href={hrefForPlayable(node.playable)}
                           aria-haspopup="dialog"
-                          className="press path-quests__chip px-3 py-1.5 text-scale-xs font-semibold"
+                          className="press path-quests__chip px-3 text-scale-xs font-semibold"
                           title={node.blurb}
                           {...enterHandlers(onEnter, {
                             id: node.id,
@@ -671,7 +671,7 @@ function OrgoMapTrack({
                       ) : (
                         <span
                           key={node.id}
-                          className="path-quests__chip path-quests__chip--queued px-3 py-1.5 text-scale-xs font-semibold"
+                          className="path-quests__chip path-quests__chip--queued px-3 text-scale-xs font-semibold"
                           title={`${node.blurb} (authoring queued)`}
                         >
                           {node.title}
@@ -724,10 +724,26 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
       md:pb-6 puts it back to the page padding on a desktop, where the bar is a
       rail down the side and there is nothing underneath to clear.
     */
-    <div className="mx-auto flex max-w-xl flex-col gap-4 p-4 pb-16 md:p-6 md:pb-6">
-      <header className="flex items-center justify-between gap-3">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-4 pb-16 md:p-6 md:pb-6">
+      {/*
+        THE COURSE HEADER IS A CARD NOW, and that is half the answer to the goal
+        meter defect rather than a decoration.
+
+        Two blind judges read the header's goal strip as course progress, and the
+        sentence they read it against is the one directly below: "0 of 86 lessons
+        done". The strip changed kind (Hud.tsx, the tally) and this is the other
+        side of the same fix: the sentence stops being a caption hanging four
+        pixels under the header strip and becomes text inside an object on the
+        page. Two statements on two planes are two statements; two statements
+        stacked on one plane are one.
+
+        It is also paper where there was bare ground, which is what the bar does
+        with its unit banner: the only saturated surface on its path screen is an
+        OBJECT you can read, never a field behind the content.
+      */}
+      <header className="flex items-center justify-between gap-3 rounded-2xl border-2 border-border bg-card px-4 py-3.5 md:px-5 md:py-4">
         <div>
-          <h2 className="title-face text-scale-xl font-semibold">{COURSE_LABEL[course]}</h2>
+          <h2 className="title-face text-scale-lg font-semibold md:text-scale-xl">{COURSE_LABEL[course]}</h2>
           <p className="text-scale-sm text-muted-foreground">
             {doneCount} of {totalCount} lessons done
           </p>
@@ -748,7 +764,7 @@ export default function PathwayTab({ reducedMotion }: { readonly reducedMotion: 
         <Berry
           mood={totalCount > 0 && doneCount === totalCount ? "proud" : doneCount > 0 ? "happy" : "curious"}
           reducedMotion={reducedMotion}
-          sizePx={64}
+          sizePx={56}
         />
       </header>
 

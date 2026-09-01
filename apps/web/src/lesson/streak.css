@@ -166,8 +166,23 @@
   letter-spacing: 0.06em;
   color: var(--muted-foreground);
 }
+/*
+ * RULE 7, AND THE APP'S OWN TOKEN DOC ALREADY SETTLED IT.
+ *
+ * The sticker language's seventh rule is that body sized text recedes so colour
+ * can lead, and docs/DESIGN-TOKENS.md says the same thing in its own words: "The
+ * glyph INSIDE a --tab-active disc is --muted-foreground, not the primary. The
+ * fill is where the colour goes; the line work recedes." Every swap below is
+ * that sentence applied: the coloured surface keeps its colour, the small text
+ * ON it goes to the page's own ink. Nothing loses a hue; the hue moves to the
+ * shape that can carry it at any size.
+ *
+ * The header's own numbers are NOT changed and are not affected: they sit
+ * inside controls, which the rule exempts, and hud.css's -ink split was
+ * measured for them.
+ */
 .streak-day[data-today="true"] .streak-day-letter {
-  color: var(--streak-ink);
+  color: var(--foreground);
 }
 /* The square. One size for all five states, so the row is a row and not a
    ranking; only the fill and the glyph change. */
@@ -288,7 +303,7 @@
 }
 .streak-note-strong {
   font-weight: 600;
-  color: var(--streak-ink);
+  color: var(--foreground);
 }
 
 /* ----------------------------------------------------------- the milestone */
@@ -339,7 +354,8 @@
   gap: 0.25rem;
   font-size: var(--text-scale-base);
   font-weight: 700;
-  color: var(--diamond-ink);
+  /* The diamond mark beside this number is where the sky hue lives. */
+  color: var(--foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -435,7 +451,8 @@
   font-size: var(--text-scale-xs);
   font-weight: 600;
   line-height: 1.35;
-  color: var(--good-ink);
+  /* The band is the colour. The sentence on it is the page's ink. */
+  color: var(--foreground);
   text-align: center;
 }
 .streak-exam svg {

@@ -431,7 +431,27 @@
   border-radius: 1rem;
   background: transparent;
 }
+/*
+ * 44 BY 44, and it was 154 by 34 from the S2 round until the S3 pass measured
+ * it. CLAUDE.md's Budgets table sets a 44 point minimum hit target and no gate
+ * read it: the sticker audit scores colour and shape and never area, and
+ * hudGeometryHolds walks the three header readouts and nothing else. This chip
+ * was the only control in the app under the floor, on a live pressable link, on
+ * the tab a student opens first. measurements/hit-targets.mjs is the gate that
+ * now catches it, and it is written to measure offsetHeight rather than
+ * getBoundingClientRect for the reason the S4 round found the hard way.
+ *
+ * The height is on the chip rather than on its padding so the queued span and
+ * the pressable anchor are the same object at the same size; only one of the two
+ * is a target, but a row where half the chips are shorter reads as broken.
+ * PathwayTab's pb-16 is untouched, so the row still clears the fixed tab bar by
+ * the margin the S2 judge asked for: the row grew downward into padding that was
+ * already there.
+ */
 .path-quests__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   border-radius: 999px;
   border: 2px solid var(--border);
   background: var(--card);
@@ -536,13 +556,30 @@
    * rule 6, which measures saturated fill at between 0.09 and 0.64 percent of
    * the painted page across this app: colour is supposed to be a surface here.
    */
-  /* THE SHADE BESIDE THE PAPER, not a body of land. It is translucent on
-     purpose and it is decoration on purpose: the meaning is carried by the
-     ribbon's WIDTH, which is the energy profile, and by the ink on its edge.
-     At this alpha the contrast audit does not measure it, which is that audit's
-     own stated calibration for a mark too faint to carry information rather
-     than an exemption written for this one. */
-  --path-shade: rgba(38, 41, 86, 0.1);
+  /*
+   * THE FLANK IS THE PAGE'S OWN GROUND. There is no wash on it any more, and
+   * the token is kept at `transparent` so the layer that used to paint it is
+   * one value away from coming back.
+   *
+   * WHY IT WENT, measured rather than judged. The wash was a body of land,
+   * then a 0.1 alpha, then a 0.05 alpha, and at every value it had the same
+   * defect: the scene is a STICKY, viewport sized surface whose flow position
+   * is the top of the TRACK, so at scroll zero the page above it, the strip the
+   * course header card sits on, is unwashed and everything below it is washed.
+   * Sampled off the S3 round two capture at 2x, the flanks stepped from
+   * rgb(163,174,226) to rgb(157,167,218) on one hard horizontal line across the
+   * entire width, at y 205. Two and a half percent of lightness is nothing; a
+   * dead straight full width edge is not, and a straight seam across a
+   * landscape is exactly the "unfinished background asset" the S2 judge named.
+   *
+   * The choice was between a wash that recedes by 2.5 percent and a page with
+   * no seam in it. The seam loses. This is also what the bar does on the screen
+   * we are judged against: in t01-path-tabbar-0000ms.png the path canvas is
+   * plain edge to edge with no flank treatment at all, and the only saturated
+   * surface on it is the unit banner, which is an object you can read. Ours is
+   * now the same shape: page, one sheet of paper on it, objects on the paper.
+   */
+  --path-shade: transparent;
   /* THE RIBBON'S PERMANENT EDGE. 6.11:1 on the cream it outlines and 3.11:1 on
      the lavender ground it sits against, so the shape is identifiable from
      either side. This is the same value --border is, and for the same reason. */
@@ -558,7 +595,8 @@
   --path-gate-line: #55597f;
 }
 .dark {
-  --path-shade: rgba(230, 232, 255, 0.07);
+  /* See the light half: the flank is the page, not a wash on it. */
+  --path-shade: transparent;
   --path-edge: #6f74a3;
   --path-line: #b3b6f2;
   --path-hump: #b3b6f2;
@@ -577,7 +615,10 @@
   transform: translate3d(0, var(--shift-ground, 0px), 0);
 }
 
-/* The shade either side of the paper. See --path-shade for why it is a wash. */
+/* The flank either side of the paper. It paints nothing today: see --path-shade
+   for the seam that took the wash off it. The layer, the geometry in
+   terrain.ts's groundPath and its tests all stay, because the shape is right
+   and it is the fill that was wrong. */
 .path-ground {
   fill: var(--path-shade);
 }
