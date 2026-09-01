@@ -190,26 +190,38 @@ function NumericInput({
         onSubmit({ kind: "numeric", text: text.trim(), unit: unit.trim() === "" ? null : unit.trim() });
       }}
     >
+      {/* A PLACEHOLDER IS NOT A LABEL, and the S3 capture is why this changed.
+          "Value, with the right number of sig figs" and "unit, e.g. atm" were
+          both wider than the boxes that held them, so the two fields shipped
+          reading "Value, with the ri" and "unit, e.g." on a phone: a hint the
+          student cannot finish reading teaches nothing and looks unfinished.
+          The hints are one caption under the row now, where they have the full
+          width, and the placeholders are short enough to fit at 390px. */}
       <div className="flex gap-2">
         <input
           inputMode="decimal"
           value={text}
           disabled={locked}
           onChange={(event) => setText(event.currentTarget.value)}
-          placeholder="Value, with the right number of sig figs"
+          placeholder="Value"
           aria-label="Numeric answer"
-          className="min-h-12 flex-1 rounded-xl border border-input bg-card px-4 text-scale-base font-mono"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border-2 border-input bg-card px-4 text-scale-base font-mono"
         />
         <input
           value={unit}
           disabled={locked}
           onChange={(event) => setUnit(event.currentTarget.value)}
-          placeholder={unitHint === null ? "unit" : `unit, e.g. ${unitHint}`}
+          placeholder={unitHint === null ? "Unit" : unitHint}
           aria-label="Unit"
-          className="min-h-12 w-32 rounded-xl border border-input bg-card px-3 text-scale-base font-mono"
+          className="min-h-12 w-24 shrink-0 rounded-xl border-2 border-input bg-card px-3 text-scale-base font-mono"
         />
       </div>
-      <button type="submit" disabled={locked || text.trim() === ""} className="press min-h-11 rounded-[9px] bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-60">
+      <p className="text-scale-xs text-muted-foreground">
+        {unitHint === null
+          ? "Sig figs count here, so keep the ones the question gives you."
+          : `Sig figs count here, so keep the ones the question gives you. The unit goes in the second box, ${unitHint} for this one.`}
+      </p>
+      <button type="submit" disabled={locked || text.trim() === ""} className="press min-h-11 rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary px-5 font-semibold text-primary-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100">
         Check
       </button>
     </form>
@@ -266,7 +278,7 @@ function ReagentsInput({
           />
         </label>
       ))}
-      <button type="submit" disabled={locked || !complete} className="press min-h-11 rounded-[9px] bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-60">
+      <button type="submit" disabled={locked || !complete} className="press min-h-11 rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary px-5 font-semibold text-primary-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100">
         Check
       </button>
     </form>

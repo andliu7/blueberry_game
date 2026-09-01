@@ -565,15 +565,18 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
 
       <section
         // The canvas gets its own GROUND, not the card colour: a modelled atom
-        // needs a surface to sit on, and the darkest atom loses its lower edge
-        // against a flat one. Lighter at the top, matching the light on the
-        // spheres.
+        // needs a surface to sit on.
+        //
+        // IT IS A FLAT FILL NOW. The two-stop ramp was there because a blind
+        // critic said the darkest atom lost its lower edge on a flat ground,
+        // and sticker rule 2 forbids gradients on chrome outright. Both are
+        // answered by the plate being a CREAM step darker than the card rather
+        // than a near-white one: the edge the critic wanted comes from the 2px
+        // border and from the plate reading as a different surface, not from a
+        // ramp inside it.
         ref={canvasRef}
-        className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border border-border shadow-sm"
-        style={{
-          minHeight: "20rem",
-          background: "linear-gradient(180deg, var(--scene-ground-top), var(--scene-ground-bottom))",
-        }}
+        className="relative min-h-72 flex-1 overflow-hidden rounded-2xl border-2 border-border"
+        style={{ minHeight: "20rem", background: "var(--scene-ground-bottom)" }}
       >
         {/* Behind everything, and pointer-events: none throughout, so it can
             never take a pointer the arrow machine wanted. */}
@@ -591,7 +594,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
         {mode === "play" ? (
           <button
             type="button"
-            className="press absolute right-4 top-4 min-h-11 min-w-11 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-sm"
+            className="press absolute right-4 top-4 min-h-11 min-w-11 rounded-full border-2 border-border bg-card px-4 text-scale-sm font-semibold text-foreground"
             onPointerDown={() => setRenderer((r) => (r === "2d" ? "3d" : "2d"))}
             aria-label={renderer === "2d" ? "Switch to the 3D view" : "Switch to the 2D view"}
             title={renderer === "2d" ? "Switch to the 3D view" : "Switch to the 2D view"}
@@ -729,7 +732,7 @@ function plainLine(verdict: DrawVerdict, successLine: string): string {
 function ShowMore({ children }: { readonly children: ReactNode }) {
   return (
     <details className="mt-2 group">
-      <summary className="press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-scale-sm font-semibold text-primary">
+      <summary className="press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-2xl border-2 border-border px-3 text-scale-sm font-semibold text-primary-ink">
         <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M9 6l6 6-6 6" />
         </svg>
@@ -786,7 +789,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
     case "correct": {
       const copy = causeCopyEntry(verdict.cause);
       return (
-        <section className="fade-in relative rounded-2xl border border-good/40 bg-good-soft p-4 pr-9 shadow-md" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border-2 border-[color:var(--good)] bg-good-soft p-4 pr-9" aria-live="polite">
           <CardClose onClose={onClose} />
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-good px-2.5 py-0.5 text-scale-xs font-bold text-white">{resonance ? "✦ Resonance!" : "Correct"}</span>
@@ -804,7 +807,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
     case "invalid": {
       const copy = causeCopyEntry(verdict.cause);
       return (
-        <section className="fade-in relative rounded-2xl border border-primary/30 bg-primary/5 p-4 pr-9 shadow-md" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border-2 border-[color:var(--primary-ink)] bg-primary/5 p-4 pr-9" aria-live="polite">
           <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
           <ShowMore>
@@ -828,7 +831,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
         // collapsed behind Show more "at the exact moment of confusion".
         // Only the where-to-look-next stays behind the fold.
         return (
-          <section className="fade-in relative rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4 pr-9 shadow-md" aria-live="polite">
+          <section className="fade-in relative rounded-2xl border-2 border-not-requested bg-not-requested-soft p-4 pr-9" aria-live="polite">
           <CardClose onClose={onClose} />
             <p className="text-scale-lg font-semibold leading-snug text-not-requested">{distractor.what}</p>
             <p className="mt-1.5 text-scale-sm text-foreground">{distractor.why}</p>
@@ -840,7 +843,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
         );
       }
       return (
-        <section className="fade-in relative rounded-2xl border border-not-requested/40 bg-not-requested-soft p-4 pr-9 shadow-md" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border-2 border-not-requested bg-not-requested-soft p-4 pr-9" aria-live="polite">
           <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-not-requested">{line}</p>
           <ShowMore>
@@ -869,7 +872,7 @@ function VerdictCard({ verdict, distractor = null, successLine, footer = null, r
       );
     case "incomplete":
       return (
-        <section className="fade-in relative rounded-2xl border border-border bg-muted p-4 pr-9 shadow-md" aria-live="polite">
+        <section className="fade-in relative rounded-2xl border-2 border-border bg-muted p-4 pr-9" aria-live="polite">
           <CardClose onClose={onClose} />
           <p className="text-scale-lg font-semibold leading-snug text-foreground">{line}</p>
           <ShowMore>

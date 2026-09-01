@@ -27,19 +27,23 @@
          path, uncompressed and unminified, so they stay short on purpose and
          the prose lives in the module that gets minified. */
       :root {
-        /* The product's purple. White ink clears AA on it, 7.1:1 light and
-           12.8:1 dark, and it is far enough from the cream page that the reveal
-           is a change of world rather than a change of shade. */
-        --boot-field: #6d28d9;
-        --boot-ink: #f5f3ff;
-        --boot-rule-track: rgba(255, 255, 255, 0.32);
-        --boot-rule-fill: #f5f3ff;
+        /* The lavender turn made the page lavender and the card cream, so the
+           field is the app's own deep navy: the reveal is a change of world
+           rather than a change of shade. Cream ink on it is 8.14:1. */
+        --boot-field: #3f4286;
+        --boot-ink: #fbf3e6;
+        --boot-veil: rgba(251, 243, 230, 0.07);
+        --boot-rule-track: rgba(251, 243, 230, 0.28);
+        --boot-rule-fill: #fbf3e6;
+        --boot-orbit: #a8a4c1;
       }
       .dark {
-        --boot-field: #2e1065;
-        --boot-ink: #ede9fe;
-        --boot-rule-track: rgba(237, 233, 254, 0.26);
-        --boot-rule-fill: #ddd2fb;
+        --boot-field: #171a2e;
+        --boot-ink: #e8e6f2;
+        --boot-veil: rgba(232, 230, 242, 0.06);
+        --boot-rule-track: rgba(232, 230, 242, 0.24);
+        --boot-rule-fill: #e8e6f2;
+        --boot-orbit: #8a89ac;
       }
 
       /* The field is on #boot AND on the panels. Loader.tsx, "the backdrop
@@ -48,6 +52,7 @@
         position: fixed;
         inset: 0;
         z-index: 120;
+        overflow: hidden;
         background: var(--boot-field);
         transition: opacity 120ms linear;
       }
@@ -68,6 +73,7 @@
         background: var(--boot-field);
         transform: translate3d(0, 0, 0);
         transition: transform 820ms cubic-bezier(0.5, 0.02, 0.2, 1);
+        overflow: hidden;
       }
       .boot-panel--top {
         top: 0;
@@ -84,16 +90,87 @@
         transform: translate3d(0, 101%, 0) scale(1.06);
       }
 
+      /* THE FIELD IS NOT EMPTY ANY MORE. A blind judge measured roughly 60
+         percent of this screen as flat colour with nothing in it, so two large
+         flat discs sit inside the panels and drift. Flat fills, transform only,
+         and timed in seconds because they are ambient rather than on the
+         reveal's path. */
+      .boot-blob {
+        position: absolute;
+        border-radius: 999px;
+        background: var(--boot-veil);
+      }
+      .boot-blob--a {
+        width: 78vmin;
+        height: 78vmin;
+        left: -26vmin;
+        top: -30vmin;
+        animation: boot-drift-a 11s ease-in-out infinite alternate;
+      }
+      .boot-blob--b {
+        width: 54vmin;
+        height: 54vmin;
+        right: -14vmin;
+        bottom: -22vmin;
+        animation: boot-drift-b 13s ease-in-out infinite alternate;
+      }
+      @keyframes boot-drift-a {
+        from {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        to {
+          transform: translate3d(4vmin, 3vmin, 0) scale(1.07);
+        }
+      }
+      @keyframes boot-drift-b {
+        from {
+          transform: translate3d(0, 0, 0) scale(1.05);
+        }
+        to {
+          transform: translate3d(-5vmin, -2vmin, 0) scale(1);
+        }
+      }
+
       .boot-centre {
         position: absolute;
         inset: 0;
         display: grid;
         place-items: center;
       }
-      /* Only the mark is in the centred stack, so the parting line runs through
-         the mark and not between it and the words under it. */
+      /* Only the mark and its orbit are in the centred stack, so the parting
+         line runs through the mark and not between it and the words under it.
+         The stack is lifted, because the word hangs below it and the judge read
+         the composition as sitting under the centre of the screen. */
       .boot-stack {
         position: relative;
+        display: grid;
+        place-items: center;
+        width: 176px;
+        height: 176px;
+        transform: translateY(-4vh);
+      }
+      /* The orbit: three flat dots on a dashed ring, turning slowly, so no two
+         frames of the hold are the same picture. Rotation is a transform. */
+      .boot-orbit {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        animation: boot-turn 18s linear infinite;
+        transition:
+          transform 700ms cubic-bezier(0.34, 1.2, 0.64, 1),
+          opacity 380ms linear;
+      }
+      #boot[data-boot="reveal"] .boot-orbit {
+        opacity: 0;
+      }
+      @keyframes boot-turn {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
       /* Sized in step with MARK_PX in Loader.tsx, at the same breakpoint: a
          berry wider than its box would eat the gap under it. The fade leads the
@@ -116,7 +193,7 @@
       }
       .boot-meta {
         position: absolute;
-        top: calc(100% + 34px);
+        top: calc(100% + 18px);
         left: 50%;
         transform: translateX(-50%);
         display: flex;
@@ -129,8 +206,8 @@
         opacity: 0;
       }
       .boot-rule {
-        width: 132px;
-        height: 2px;
+        width: 168px;
+        height: 3px;
         border-radius: 999px;
         background: var(--boot-rule-track);
         overflow: hidden;
@@ -154,6 +231,17 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--boot-ink);
+        animation: boot-word-in 420ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+      }
+      @keyframes boot-word-in {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       @media (min-width: 768px) {
@@ -161,20 +249,31 @@
           width: 112px;
           height: 112px;
         }
+        .boot-stack {
+          width: 208px;
+          height: 208px;
+        }
         .boot-rule {
-          width: 156px;
+          width: 196px;
         }
       }
 
       /* Reduced motion: the first three beats hold exactly as they are and the
          reveal becomes a 120ms cross fade. The rule still reports the same
-         milestones, it just stops gliding between them. */
+         milestones, it just stops gliding between them, and nothing ambient
+         moves at all. */
       @media (prefers-reduced-motion: reduce) {
         .boot-panel,
         .boot-mark,
         .boot-meta,
+        .boot-orbit,
         .boot-rule__fill {
           transition: none;
+        }
+        .boot-blob,
+        .boot-orbit,
+        .boot-word {
+          animation: none;
         }
         #boot[data-boot="reveal"] {
           opacity: 0;
@@ -195,10 +294,20 @@
     <div id="root"></div>
     <!-- The loader. Markup, not a component: see src/app/Loader.tsx. -->
     <div id="boot" data-boot="load" style="--boot-progress: 0.16">
-      <div class="boot-panel boot-panel--top" aria-hidden="true"></div>
-      <div class="boot-panel boot-panel--bottom" aria-hidden="true"></div>
+      <div class="boot-panel boot-panel--top" aria-hidden="true">
+        <i class="boot-blob boot-blob--a"></i>
+      </div>
+      <div class="boot-panel boot-panel--bottom" aria-hidden="true">
+        <i class="boot-blob boot-blob--b"></i>
+      </div>
       <div class="boot-centre">
         <div class="boot-stack">
+          <svg class="boot-orbit" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+            <circle cx="100" cy="100" r="86" fill="none" stroke="var(--boot-orbit)" stroke-width="1.5" stroke-dasharray="3 9" />
+            <circle cx="100" cy="14" r="4.5" fill="var(--boot-orbit)" />
+            <circle cx="174.5" cy="143" r="3" fill="var(--boot-orbit)" />
+            <circle cx="25.5" cy="143" r="3" fill="var(--boot-orbit)" />
+          </svg>
           <!-- Loader.tsx portals the live Bloom in here. -->
           <div class="boot-mark" id="boot-mark" aria-hidden="true"></div>
           <div class="boot-meta">

@@ -15,19 +15,20 @@
  * THE LAYERS, back to front, with the rate each moves at relative to the page.
  * layered-motion's stack, trimmed to what "simple and plain" leaves standing:
  *
- *   ground         0.04   the warm low energy region. Nearly anchored
- *   energy curve   0.04   THE MEANING LAYER. Drawn from the unit's own data
+ *   shade          0.04   the wash either side of the paper. Holds the lens
+ *   paper          0.04   THE MEANING LAYER. The ribbon's width IS the energy
+ *                         profile, and its edge is drawn from the unit's data
  *   props          0.14   an Erlenmeyer on the far shelf at each checkpoint
  *   (the track)    1.00   real DOM, not in here
- *   vapour         0.04   holds the lens. Pinned to the ground; see RATES
  *
  * Every one of those is a transform on a <g>, written in ONE requestAnimationFrame
  * from ONE cached scroll value, per layered-motion's rule. Nothing here animates
  * a layout property and nothing here takes a pointer event.
  *
- * THE LENS. The foreground vapour is masked, and the mask carries two holes: one
- * that follows the pointer, and one anchored on the node the student is meant to
- * tap next. The second is not a nicety. Touch has no hover, so a lens bound only
+ * THE LENS. The shade layer is masked, and the mask carries two holes: one that
+ * follows the pointer, and one anchored on the node the student is meant to tap
+ * next. It used to mask a fog layer of its own; the fog is gone with the
+ * hillsides it sat on, and the same effect now costs one layer instead of two. The second is not a nicety. Touch has no hover, so a lens bound only
  * to a pointer is invisible on the device most of this product is used on, and
  * layered-motion is explicit that a hover revealed thing needs a non hover path.
  *
@@ -41,6 +42,7 @@ import type { PathwayUnit } from "../../demo/pathwayMap";
 import {
   boundaryPath,
   channelHalfWidth,
+  channelPath,
   energyProfile,
   groundPath,
   isCheckpointUnit,
@@ -124,7 +126,7 @@ const MAX_BASIS_PX = 300;
  * foreground motion this layer was for is carried by the lens, which moves over
  * the path in earnest and is the thing a reader actually watches.
  */
-const RATES = { ground: 0.04, props: 0.14, vapour: 0.04 } as const;
+const RATES = { ground: 0.04, props: 0.14 } as const;
 /** No layer ever slides further than this, so no layer can expose its own edge. */
 const MAX_SHIFT_PX = 110;
 /** How long the pointer lens stays open after the pointer stops moving. */
@@ -213,7 +215,18 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     // The scene is full bleed and the track column is not, so the centreline is
     // where the column actually is inside the scene, never simply the middle.
     centreX: columnBox.left - scene.left + columnBox.width / 2,
-    basis: Math.min(MAX_BASIS_PX, columnBox.width / 2),
+    // 0.36 of the column, not half of it.
+    //
+    // At half, the channel's own half width (1.16 to 1.32 times the basis) came
+    // out at 198 to 226 on a 390pt phone, so the ribbon was 400 to 452 wide on a
+    // 390 wide screen: wider than the viewport at every energy, which is why the
+    // old hillsides only appeared in patches and read as a torn edge. A ribbon
+    // that always fills the screen also has no shape, and its width IS the
+    // energy profile, so the meaning layer was invisible on the device this is
+    // mostly used on. At 0.36 the ribbon is 306 to 348 wide there, which leaves
+    // 21 to 42 points of ground down each side and gives the curve something to
+    // move against. On a monitor MAX_BASIS_PX still caps it first.
+    basis: Math.min(MAX_BASIS_PX, columnBox.width * 0.36),
     spans,
     rows,
     checkpoints,
@@ -293,7 +306,6 @@ export default function PathScene({
       svg.style.setProperty("--path-progress", "1");
       svg.style.setProperty("--shift-ground", "0px");
       svg.style.setProperty("--shift-props", "0px");
-      svg.style.setProperty("--shift-vapour", "0px");
       window.addEventListener("scroll", world, { passive: true });
       window.addEventListener("resize", world, { passive: true });
       return () => {
@@ -330,7 +342,6 @@ export default function PathScene({
       const swing = (rate: number) => `${(Math.max(-1, Math.min(1, travel * 2 - 1)) * rate * MAX_SHIFT_PX).toFixed(1)}px`;
       svg.style.setProperty("--shift-ground", swing(RATES.ground));
       svg.style.setProperty("--shift-props", swing(RATES.props));
-      svg.style.setProperty("--shift-vapour", swing(RATES.vapour));
       // The curve draws itself as the page is travelled. Never fully undrawn:
       // a backdrop that is blank on arrival is the empty box the brief forbids.
       svg.style.setProperty("--path-progress", (0.35 + travel * 0.65).toFixed(3));
@@ -397,7 +408,7 @@ export default function PathScene({
           the fog stop dead partway down the page and left its lens hole sitting
           in open ground like a smudge.
         */}
-        <mask id="path-vapour-lens" maskUnits="userSpaceOnUse" x={-width} y={-2000} width={width * 3} height={metrics.worldHeight + 4000}>
+        <mask id="path-lens-mask" maskUnits="userSpaceOnUse" x={-width} y={-2000} width={width * 3} height={metrics.worldHeight + 4000}>
           <rect x={-width} y={-2000} width={width * 3} height={metrics.worldHeight + 4000} fill="#ffffff" />
           <circle className="path-lens path-lens--anchor" cx="0" cy="0" r={Math.min(150, width * 0.34)} fill="url(#path-lens-falloff)" />
           <circle className="path-lens path-lens--pointer" cx="0" cy="0" r={Math.min(170, width * 0.38)} fill="url(#path-lens-falloff)" />
@@ -421,10 +432,35 @@ export default function PathScene({
         a parallax backdrop should have been doing in the first place.
       */}
       <g className="path-world">
-      <g className="path-layer path-layer--ground">
+      {/*
+        THE PAPER RIBBON, and it is what replaced the torn-paper flanks.
+
+        Two blind judges called the old hillsides "an unfinished background
+        asset": a muddy olive #9c7f4e either side of the track with a scalloped
+        edge that read as a misregistered plate, and they cost the node labels
+        horizontal room they wanted. That colour was not a taste failure, it was
+        forced: the flanks were a FILL on a cream page, so they had to clear the
+        3:1 graphics floor on their own, and the only fills that do on cream are
+        dark and warm.
+
+        The lavender turn removes the constraint by removing the fill. The ground
+        IS the page now, the channel is a strip of the card's own cream running
+        down it, and the shape that used to be a hillside is a soft shade beside
+        the paper rather than a body of land. The ribbon carries a permanent
+        hairline edge for the same arithmetic every card in the app now carries
+        one: cream on lavender is 1.96:1 and a boundary needs 3:1, so the edge is
+        what identifies the shape and the fill rides on it (the contrast audit
+        collapses a fill and its stroke to the better of the two, and says so).
+      */}
+      <g className="path-layer path-layer--ground" mask="url(#path-lens-mask)">
         <path className="path-ground" d={groundPath(samples, geometry, -1)} />
         <path className="path-ground" d={groundPath(samples, geometry, 1)} />
-        {/* The meaning layer: the energy curve itself, drawn as the page is read. */}
+      </g>
+      <g className="path-layer path-layer--paper">
+        <path className="path-channel" d={channelPath(samples, geometry)} />
+        {/* The meaning layer: the energy curve itself, drawn as the page is read.
+            It inks in over the ribbon's own hairline as the page is travelled,
+            so the edge is never absent and the draw is still a real reveal. */}
         <path className="path-curve" d={boundaryPath(samples, geometry, -1)} pathLength={1} />
         <path className="path-curve" d={boundaryPath(samples, geometry, 1)} pathLength={1} />
         {/*
@@ -477,16 +513,16 @@ export default function PathScene({
       </g>
 
       {/*
-        The vapour sits on the GROUND and never over the channel. That is a
-        contrast rule rather than a composition one: every node label lives in
-        the channel, and a foreground wash over text is how a moving layer
-        quietly breaks a pair the audit measured as passing. So the fog is the
-        hillsides only, and the lens parts it where the student is looking.
+        THE VAPOUR LAYER IS GONE AND ITS LENS MOVED DOWN ONE.
+
+        The fog existed to sit on the hillsides and be parted where the student
+        was looking. There are no hillsides any more, only a shade beside the
+        paper, so a second copy of that shape with a wash on it would be a layer
+        with no host. The lens now masks the shade itself, which is the same
+        effect with one layer instead of two: the ground lightens around the
+        pointer and around the node the student is meant to tap next, and touch
+        still gets the anchored hole because touch has no hover.
       */}
-      <g className="path-layer path-layer--vapour" mask="url(#path-vapour-lens)">
-        <path className="path-vapour" d={groundPath(samples, geometry, -1)} />
-        <path className="path-vapour" d={groundPath(samples, geometry, 1)} />
-      </g>
       </g>
       </>
       )}

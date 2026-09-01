@@ -50,7 +50,9 @@
   border: 2px solid var(--border);
   border-bottom: 0;
   border-radius: 1.5rem 1.5rem 0 0;
-  background: var(--background);
+  /* --card, not --background. After the lavender turn the page is a GROUND and
+     a sheet that borrows it reads as a hole cut in the screen. */
+  background: var(--card);
 }
 
 /* The grabber. A phone affordance and nothing else, so it is hidden on the

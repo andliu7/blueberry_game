@@ -66,6 +66,7 @@
  *   node measurements/capture-economy.mjs --piece P5 --out measurements/gauntlet-economy/P5-r1/self-check
  *   node measurements/capture-economy.mjs --piece S1 --out measurements/gauntlet-economy/S1-r1/self-check
  *   node measurements/capture-economy.mjs --piece S2 --out measurements/gauntlet-economy/S2-r1/self-check
+ *   node measurements/capture-economy.mjs --piece S3 --out measurements/gauntlet-economy/S3-r1/self-check
  *   node measurements/capture-economy.mjs --piece S4 --out measurements/gauntlet-economy/S4-r1/self-check
  *
  * P5, THE CHARGE SURFACES, SEEDS THE JOURNAL for the same reason P3 and P4 do:
@@ -140,6 +141,11 @@ import {
   P5_SEED_BUILDERS,
   P5_STORED,
   PATHWAY_HASH,
+  CARDS_HASH,
+  ME_HASH,
+  TRAINER_HASH,
+  S3_SEED,
+  S3_STORED,
   BOOT_HASH,
   S2_SEED,
   S2_STORED,
@@ -164,6 +170,8 @@ import {
   driveShellCourses,
   driveShellTool,
   driveStreak,
+  driveSurface,
+  driveLessonRest,
   installBootProbe,
   installSeed,
   openSeeded,
@@ -727,7 +735,82 @@ async function captureS4(browser, viewportName, theme, dir) {
   ];
 }
 
-const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1, S2: captureS2, S4: captureS4 };
+
+/**
+ * S3, the look and feel pass and the lavender turn.
+ *
+ * SIX SURFACES, NOT SIX EVENTS. Every other piece in this file photographs
+ * something happening; this one photographs a palette, so the subject is what a
+ * student is looking at when nothing is. The four tabs in the bar, a lesson with
+ * a question on it, and the reward moment, which is the one screen where the
+ * ground stops being a working surface and becomes a celebration.
+ *
+ * The four tabs and the lesson run their burst from the settle rather than from
+ * a press, for the reason S1's bar gives: what a critic judges about a surface
+ * is what is on screen when it opens. The reward moment keeps its own press,
+ * because a receipt landing IS the thing being judged there, and it is captured
+ * on the `streak` seed so the streak card and the milestone are both on screen.
+ *
+ * NO HOOK. Every one of the six is a hash a student can open or a real click
+ * path from one. The four tabs borrow P3's account, unchanged, for the reason
+ * S1 gives: these screens are drawn under a header full of numbers.
+ *
+ * Each drive asserts the TURN rather than the render: a saturated
+ * mid-lightness ground, a card that is a different surface from it, a card
+ * border wide enough to see, and a daily goal edge that is named. See
+ * driveSurface in economy-moments.mjs for why each of those four is the check.
+ */
+async function captureS3(browser, viewportName, theme, dir) {
+  const viewport = VIEWPORTS[viewportName];
+  const tag = `${viewportName}-${theme}`;
+  const results = [];
+  const surfaces = [
+    { name: "pathway", hash: PATHWAY_HASH, waitFor: ".path-node--current" },
+    { name: "trainer", hash: TRAINER_HASH, waitFor: "nav.tabbar" },
+    { name: "cards", hash: CARDS_HASH, waitFor: "nav.tabbar" },
+    { name: "me", hash: ME_HASH, waitFor: "nav.tabbar" },
+  ];
+  for (const entry of surfaces) {
+    const page = await open(browser, viewport, theme, entry.hash, S3_SEED, S3_STORED);
+    // The same two throwaway frames P5, S1 and S2 take, and for the same
+    // measured reason: the first screenshot a page ever takes pays for the
+    // capture pipeline's warm up, and on the first page of a run that cost
+    // lands INSIDE the burst.
+    await page.waitForSelector(entry.waitFor, { timeout: 10_000 });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    const { moment, reached, trigger, state } = await driveSurface(page, entry.name, {
+      waitFor: entry.waitFor,
+      onTrigger: (at) => burst(page, dir, `${tag}-surface-${entry.name}`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  {
+    const page = await open(browser, viewport, theme, LESSON_HASH, null);
+    await page.waitForSelector("button", { timeout: 10_000 });
+    await page.screenshot({ type: "png", optimizeForSpeed: true });
+    const { moment, reached, trigger, state } = await driveLessonRest(page, {
+      onTrigger: (at) => burst(page, dir, `${tag}-surface-lesson`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  {
+    const page = await open(browser, viewport, theme, LESSON_HASH, P2_SEEDS.streak);
+    const { moment, reached, trigger, state } = await driveReward(page, "streak", {
+      onTrigger: (at) => burst(page, dir, `${tag}-surface-reward`, at),
+    });
+    results.push({ moment, reached, frames: trigger, state });
+    await page.close();
+  }
+
+  return results;
+}
+
+const PIECES = { P1: captureP1, P2: captureP2, P3: captureP3, P4: captureP4, P5: captureP5, S1: captureS1, S2: captureS2, S3: captureS3, S4: captureS4 };
 const capture = PIECES[PIECE];
 if (capture === undefined) throw new Error(`unknown piece ${PIECE}; known: ${Object.keys(PIECES).join(", ")}`);
 

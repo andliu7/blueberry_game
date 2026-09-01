@@ -34,7 +34,7 @@ export function ProblemBrowser({ currentTitle, onPick }: { readonly currentTitle
     <>
       <button
         type="button"
-        className="press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-sm"
+        className="press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-border bg-card px-4 text-scale-sm font-semibold text-foreground"
         onPointerDown={() => setOpen(true)}
         title="Browse every problem on the pathway map"
       >
@@ -45,7 +45,7 @@ export function ProblemBrowser({ currentTitle, onPick }: { readonly currentTitle
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-label="Choose a problem" onPointerDown={() => setOpen(false)}>
-          <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-lg" onPointerDown={(event) => event.stopPropagation()}>
+          <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border-2 border-border bg-card" onPointerDown={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border p-4">
               <div>
                 <h3 className="text-scale-lg font-semibold text-foreground">The pathway map</h3>

@@ -117,7 +117,7 @@ export function CardFace({ card, revealed, onReveal }: CardFaceProps) {
     </>
   );
 
-  const shell = "flex min-h-[22rem] w-full flex-col gap-4 rounded-2xl border border-border bg-card p-5 text-left shadow-sm";
+  const shell = "flex min-h-[22rem] w-full flex-col gap-4 rounded-2xl border-2 border-border bg-card p-5 text-left";
 
   if (revealed) {
     return <div className={shell}>{body}</div>;

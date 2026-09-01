@@ -155,8 +155,8 @@ export function Scene3D({ scene, progress, reducedMotion }: MechanismRenderProps
               <mesh position={[0.32, 0.32, 0]}>
                 <sphereGeometry args={[0.07, 12, 12]} />
                 <meshStandardMaterial
-                  color={charge > 0 ? "#7c3aed" : "#e11d48"}
-                  emissive={charge > 0 ? "#7c3aed" : "#e11d48"}
+                  color={charge > 0 ? "#3f4286" : "#a4123c"}
+                  emissive={charge > 0 ? "#3f4286" : "#a4123c"}
                   emissiveIntensity={0.6}
                 />
               </mesh>

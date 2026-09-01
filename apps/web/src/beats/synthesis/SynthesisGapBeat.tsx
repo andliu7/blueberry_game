@@ -150,7 +150,7 @@ function Chip({
       className={`press inline-flex min-h-11 items-center rounded-xl border px-4 py-2 text-scale-sm font-medium ${
         used
           ? "border-border bg-muted text-muted-foreground"
-          : "border-border bg-card text-card-foreground shadow-sm"
+          : "border-border bg-card text-card-foreground"
       }`}
     >
       {option.text}

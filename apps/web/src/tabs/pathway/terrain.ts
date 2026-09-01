@@ -348,6 +348,46 @@ export function boundaryPath(
 }
 
 /** The boundary closed out to the page edge, so the ground is a filled shape. */
+/**
+ * THE PAPER RIBBON: the channel itself, as one closed shape.
+ *
+ * The lavender turn made the page a ground and the card a warm cream, and the
+ * pathway's channel is the same relationship at landscape scale: a strip of
+ * paper the track is printed on, running down a lavender ground. So the channel
+ * needs a FILL, which it never had: it used to be the gap between two hillsides.
+ *
+ * It is the left boundary walked down, a step across the bottom, and the right
+ * boundary walked back up. Reversing a cubic segment is exact rather than
+ * approximate: a segment P0 C1 C2 P3 run backwards is P3 C2 C1 P0, so the shape
+ * closes on the same curve the boundary stroke draws and no seam can open
+ * between the fill and its own edge.
+ */
+export function channelPath(
+  samples: readonly TerrainSample[],
+  geometry: TerrainGeometry,
+): string {
+  if (samples.length === 0) return "";
+  const x = (sample: TerrainSample, side: -1 | 1) =>
+    geometry.centreX + side * channelHalfWidth(sample.energy, geometry.basis);
+  const first = samples[0]!;
+  const last = samples[samples.length - 1]!;
+  let d = `M ${x(first, -1).toFixed(2)} ${first.y.toFixed(2)}`;
+  for (let i = 1; i < samples.length; i += 1) {
+    const from = samples[i - 1]!;
+    const to = samples[i]!;
+    const grip = (to.y - from.y) / 2;
+    d += ` C ${x(from, -1).toFixed(2)} ${(from.y + grip).toFixed(2)}, ${x(to, -1).toFixed(2)} ${(to.y - grip).toFixed(2)}, ${x(to, -1).toFixed(2)} ${to.y.toFixed(2)}`;
+  }
+  d += ` L ${x(last, 1).toFixed(2)} ${last.y.toFixed(2)}`;
+  for (let i = samples.length - 1; i > 0; i -= 1) {
+    const to = samples[i]!;
+    const from = samples[i - 1]!;
+    const grip = (to.y - from.y) / 2;
+    d += ` C ${x(to, 1).toFixed(2)} ${(to.y - grip).toFixed(2)}, ${x(from, 1).toFixed(2)} ${(from.y + grip).toFixed(2)}, ${x(from, 1).toFixed(2)} ${from.y.toFixed(2)}`;
+  }
+  return `${d} Z`;
+}
+
 export function groundPath(
   samples: readonly TerrainSample[],
   geometry: TerrainGeometry,

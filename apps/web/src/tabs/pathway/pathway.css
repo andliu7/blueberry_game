@@ -123,15 +123,20 @@
   --node-line: #064e3b;
   --node-ink: #ffffff;
 }
-/* The one target. Bigger, fully saturated, and the only brand purple on the
-   track, so the eye has exactly one place to land. */
+/* The one target. Bigger, fully saturated, and the only brand navy on the
+   track, so the eye has exactly one place to land.
+
+   IT LEFT #7c3aed WITH --primary. That hex was this app's chrome AND the
+   mascot's costume cape in MASCOT_PALETTE, and sticker rule 8 keeps the two
+   palettes disjoint; the node was 31 of the 247 rows. White on #3f4286 is
+   8.99:1 and the well below it is the same family two steps down. */
 .path-node--current {
   --node-size: 5.5rem;
   --node-rim: 5px;
   --node-lip: 11px;
-  --node-face: #7c3aed;
-  --node-edge: #4c1d95;
-  --node-line: #3b0764;
+  --node-face: #3f4286;
+  --node-edge: #262a5c;
+  --node-line: #1b1d3f;
   --node-ink: #ffffff;
 }
 .path-node--review {
@@ -160,12 +165,11 @@
   --node-line: #1c8479;
   --node-ink: #ffffff;
 }
-/* #8250f0 is this theme's own --primary and carries white at 4.82:1. theme.css
-   records the finding: #8b5cf6 gave white only 4.23:1. */
+/* #5b60c8 is this theme's own --primary and carries white at 5.31:1. */
 .dark .path-node--current {
-  --node-face: #8250f0;
-  --node-edge: #5b21b6;
-  --node-line: #6d28d9;
+  --node-face: #5b60c8;
+  --node-edge: #383c8e;
+  --node-line: #7d82d8;
   --node-ink: #ffffff;
 }
 .dark .path-node--review {
@@ -238,9 +242,14 @@
   transform: translateX(-50%);
   padding: 0.45rem 1rem;
   border-radius: 0.875rem;
-  background: var(--card);
-  color: var(--primary-ink);
-  border: 2px solid var(--primary);
+  /* A FILLED tag, not an outlined one. It was cream with primary ink, which is
+     a coloured 12px word, and sticker rule 7 wants body-sized text to recede so
+     colour can lead from a SURFACE. It is the surface now: navy fill, cream
+     word, its own darker cut edge, which is also what the concept images draw.
+     Cream on #3f4286 is 8.14:1. */
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 2px solid var(--primary-edge);
   font-weight: 800;
   font-size: var(--text-scale-xs);
   letter-spacing: 0.12em;
@@ -257,9 +266,9 @@
   height: 12px;
   margin-left: -6px;
   margin-top: -7px;
-  background: var(--card);
-  border-right: 2px solid var(--primary);
-  border-bottom: 2px solid var(--primary);
+  background: var(--primary);
+  border-right: 2px solid var(--primary-edge);
+  border-bottom: 2px solid var(--primary-edge);
   transform: rotate(45deg);
 }
 @keyframes path-start-bob {
@@ -382,7 +391,10 @@
 }
 .path-banner__guide {
   border-left: 2px solid rgba(255, 255, 255, 0.35);
-  border-radius: 0 0.875rem 0.875rem 0;
+  /* The audit reads the SMALLEST corner, and two of these were 0. The banner
+     clips its children, so a full radius here is the same picture with a shape
+     the language can see. */
+  border-radius: 0.875rem;
 }
 .path-banner__guide:active {
   background: rgba(0, 0, 0, 0.2);
@@ -422,7 +434,7 @@
 .path-quests__chip {
   border-radius: 999px;
   border: 2px solid var(--border);
-  background: var(--background);
+  background: var(--card);
   color: var(--foreground);
 }
 /*
@@ -459,10 +471,15 @@
  * which is exactly what the first pass shipped. 88 percent costs a phone about
  * 43px of track width and buys the landscape back.
  */
+/* 94 percent, up from 88. The old flanks were a painted body of land either
+   side of the column and the column had to leave room for them; the shade that
+   replaced them is a wash the labels can sit over the edge of. The 6 percent is
+   43px of label width on a 390pt phone, which is where the node titles were
+   wrapping. */
 .path-stage__content {
   position: relative;
   z-index: 1;
-  max-width: 88%;
+  max-width: 94%;
   margin-inline: auto;
 }
 /*
@@ -519,24 +536,35 @@
    * rule 6, which measures saturated fill at between 0.09 and 0.64 percent of
    * the painted page across this app: colour is supposed to be a surface here.
    */
-  --path-ground: #9c7f4e;
-  --path-line: #6b5c38;
-  --path-hump: #4f4425;
-  --path-vapour: rgba(255, 255, 255, 0.3);
-  --path-prop: rgba(110, 92, 62, 0.18);
+  /* THE SHADE BESIDE THE PAPER, not a body of land. It is translucent on
+     purpose and it is decoration on purpose: the meaning is carried by the
+     ribbon's WIDTH, which is the energy profile, and by the ink on its edge.
+     At this alpha the contrast audit does not measure it, which is that audit's
+     own stated calibration for a mark too faint to carry information rather
+     than an exemption written for this one. */
+  --path-shade: rgba(38, 41, 86, 0.1);
+  /* THE RIBBON'S PERMANENT EDGE. 6.11:1 on the cream it outlines and 3.11:1 on
+     the lavender ground it sits against, so the shape is identifiable from
+     either side. This is the same value --border is, and for the same reason. */
+  --path-edge: #55597f;
+  /* The energy curve, inking in over that hairline as the page is travelled.
+     8.17:1 on the cream, 4.16:1 on the ground. */
+  --path-line: #3f4286;
+  --path-hump: #2a2c5e;
+  --path-prop: #55597f;
   /* Part of a control, so it is held to the same 3:1 as any other interface
-     component: #ded6ec measured 1.22:1 on the page and the audit failed it. */
-  --path-ring-track: #7d7392;
-  --path-gate-line: #a98d5c;
+     component. */
+  --path-ring-track: #55597f;
+  --path-gate-line: #55597f;
 }
 .dark {
-  --path-ground: #8a7040;
-  --path-line: #cbb68a;
-  --path-hump: #e0cda4;
-  --path-vapour: rgba(12, 10, 9, 0.28);
-  --path-prop: rgba(214, 194, 155, 0.1);
-  --path-ring-track: #6b6188;
-  --path-gate-line: #6b5734;
+  --path-shade: rgba(230, 232, 255, 0.07);
+  --path-edge: #6f74a3;
+  --path-line: #b3b6f2;
+  --path-hump: #b3b6f2;
+  --path-prop: #6f74a3;
+  --path-ring-track: #6f74a3;
+  --path-gate-line: #6f74a3;
 }
 
 .path-layer--ground {
@@ -545,19 +573,29 @@
 .path-layer--props {
   transform: translate3d(0, var(--shift-props, 0px), 0);
 }
-.path-layer--vapour {
-  transform: translate3d(0, var(--shift-vapour, 0px), 0);
+.path-layer--paper {
+  transform: translate3d(0, var(--shift-ground, 0px), 0);
 }
 
+/* The shade either side of the paper. See --path-shade for why it is a wash. */
 .path-ground {
-  fill: var(--path-ground);
+  fill: var(--path-shade);
 }
-.path-vapour {
-  fill: var(--path-vapour);
+/* THE PAPER. A strip of the card's own cream, with the hairline that makes it
+   a shape rather than a coincidence of colour. */
+.path-channel {
+  fill: var(--card);
+  stroke: var(--path-edge);
+  stroke-width: 2;
 }
+/* An OUTLINED prop, not a filled silhouette. Sticker rule 3, and it is also
+   what lets it clear the 3:1 an interface graphic is held to on the ground it
+   is drawn on: a 0.18 alpha fill could not. */
 .path-prop {
-  fill: var(--path-prop);
+  fill: none;
   stroke: var(--path-prop);
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 /* The energy curve draws itself as the page is travelled. pathLength is 1 on
    the element, so the dash arithmetic is a fraction and never a measured
@@ -566,7 +604,7 @@
 .path-curve {
   fill: none;
   stroke: var(--path-line);
-  stroke-width: 2.5;
+  stroke-width: 3;
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: calc(1 - var(--path-progress, 1));
@@ -581,7 +619,7 @@
   stroke-dasharray: 9 10;
 }
 
-/* The lens. Two holes in the vapour: one following a pointer, one anchored on
+/* The lens. Two holes in the shade: one following a pointer, one anchored on
    the node the student is meant to tap next, because touch has no hover and a
    hover-only reveal is invisible on the device this is mostly used on. */
 .path-lens {
@@ -607,7 +645,7 @@
      parked on the current node. A real frame of the design, not an empty box. */
   .path-layer--ground,
   .path-layer--props,
-  .path-layer--vapour {
+  .path-layer--paper {
     transform: none;
   }
   .path-curve {

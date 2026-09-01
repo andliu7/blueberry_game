@@ -102,7 +102,7 @@ export function MyDeck({ source = defaultDecks, onStartReview, onChooseDecks }: 
         <button
           type="button"
           disabled={ready.length === 0}
-          className="press min-h-14 w-full rounded-2xl bg-primary text-scale-lg font-bold text-primary-foreground shadow-sm disabled:opacity-40"
+          className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
           onClick={() => onStartReview(ready)}
         >
           {ready.length === 0 ? "Nothing to review right now" : `Start review, +${diamonds} diamonds`}
@@ -176,7 +176,7 @@ function ReviewBadge({ count }: { readonly count: number }) {
   return (
     <span
       aria-hidden="true"
-      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[color:var(--warn-soft-solid)]"
+      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-[color:var(--warn-ink-strong)] bg-[color:var(--warn-soft-solid)]"
     >
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="var(--warn-ink-strong)" strokeWidth="2">
         <path d="M4 9a8 8 0 0 1 13.7-5.6L20 6" strokeLinecap="round" strokeLinejoin="round" />

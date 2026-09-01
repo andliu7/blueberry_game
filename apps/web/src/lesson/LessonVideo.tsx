@@ -41,7 +41,7 @@ export function LessonVideo({ title, src, transcript, onSkip }: LessonVideoProps
         <button
           type="button"
           onPointerDown={onSkip}
-          className="press absolute right-3 top-3 min-h-11 rounded-full bg-background/90 px-4 text-scale-sm font-semibold text-foreground"
+          className="press absolute right-3 top-3 min-h-11 rounded-full border-2 border-border bg-card px-4 text-scale-sm font-semibold text-foreground"
         >
           Skip video
         </button>

@@ -1861,6 +1861,141 @@ export async function driveBootHold(page, { onTrigger = null } = {}) {
   return { moment: "boot-hold", reached, at, trigger, state };
 }
 
+/* ------------------------------------------------------------------ S3 --- */
+/**
+ * S3, THE LOOK AND FEEL PASS, AND WHY ITS MOMENTS ARE WHOLE SURFACES.
+ *
+ * Every other piece here photographs an EVENT: a press, a receipt, a reveal.
+ * This one photographs a PALETTE, so its subject is whatever a student is
+ * looking at when nothing is happening. Six surfaces: the four tabs in the bar,
+ * a lesson with a question on it, and the reward moment, which is the one place
+ * the ground stops being a working surface and becomes a celebration.
+ *
+ * NO HOOK, AND ONE SEED. Every surface here is a hash a student can open. The
+ * seed is P3's account, unchanged, for the reason S1 gives: these screens are
+ * drawn under a header full of numbers, and a header of zeroes is a photograph
+ * of a fresh install rather than of the product. The lesson and the reward
+ * moment keep their own seeds and their own real click paths.
+ *
+ * THE ASSERTION IS THE PIECE'S OWN CLAIM. A surface drive that only checked
+ * "the page rendered" would pass on the palette this piece exists to replace,
+ * which is exactly the failure mode the S2 drive was rewritten to avoid. So it
+ * reads the COMPOSED colours off the built page and asserts the three things
+ * the lavender turn is:
+ *
+ *   the ground is a saturated mid-lightness hue, not a near-white paper
+ *   the card is a DIFFERENT surface from the ground
+ *   the card carries a border wide enough to see, because cream on lavender
+ *   measures 1.96:1 and a boundary needs 3:1
+ *
+ * It also asserts the daily goal edge is NAMED, which is the inherited defect
+ * this piece was handed: an unlabelled meter under the header read as course
+ * progress to two blind judges and correctly to a screen reader.
+ */
+function readSurface() {
+  const hex = (value) => {
+    const match = /rgba?\(([^)]+)\)/.exec(value || "");
+    if (match === null) return "";
+    const parts = match[1].split(",").map((n) => Number.parseFloat(n));
+    if (parts.length < 3 || parts.some((n) => !Number.isFinite(n))) return "";
+    return `#${parts.slice(0, 3).map((n) => Math.round(n).toString(16).padStart(2, "0")).join("")}`;
+  };
+  const saturation = (value) => {
+    const match = /rgba?\(([^)]+)\)/.exec(value || "");
+    if (match === null) return { s: 0, l: 0 };
+    const [r, g, b] = match[1].split(",").map((n) => Number.parseFloat(n) / 255);
+    const mx = Math.max(r, g, b);
+    const mn = Math.min(r, g, b);
+    const l = (mx + mn) / 2;
+    const d = mx - mn;
+    if (d === 0) return { s: 0, l };
+    return { s: l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn), l };
+  };
+  const root = document.documentElement;
+  const ground = getComputedStyle(root).getPropertyValue("--background").trim();
+  const probe = document.createElement("span");
+  probe.style.cssText = "position:absolute;left:-9999px;color:var(--background)";
+  document.body.appendChild(probe);
+  const groundRgb = getComputedStyle(probe).color;
+  probe.style.color = "var(--card)";
+  const cardRgb = getComputedStyle(probe).color;
+  probe.remove();
+  const shellGround = document.querySelector("div.bg-background");
+  const goalEdge = document.querySelector(".hud-goal-edge");
+  const goalName = document.querySelector(".hud-goal-name");
+  const card = document.querySelector(".hud-panel, [class*='border-border']");
+  const cardBorder = card === null ? 0 : Number.parseFloat(getComputedStyle(card).borderTopWidth) || 0;
+  return {
+    groundToken: ground,
+    groundHex: hex(groundRgb),
+    cardHex: hex(cardRgb),
+    groundSaturation: Math.round(saturation(groundRgb).s * 1000) / 1000,
+    groundLightness: Math.round(saturation(groundRgb).l * 1000) / 1000,
+    groundPainted: shellGround !== null,
+    bodyGround: hex(getComputedStyle(document.body).backgroundColor),
+    goalEdge: goalEdge !== null,
+    goalNamed: goalName === null ? "" : (goalName.textContent ?? "").trim(),
+    cardBorderPx: cardBorder,
+    bar: document.querySelectorAll("nav.tabbar a.tabbar-item").length,
+  };
+}
+
+function turnHolds(state, { shell = true } = {}) {
+  if (state.groundHex === "" || state.cardHex === "") return false;
+  // The ground is a hue, not a near-white sheet. The sticker audit's own band.
+  if (state.groundSaturation < 0.3) return false;
+  if (state.groundLightness < 0.12 || state.groundLightness > 0.9) return false;
+  // The card is a different surface from the ground, and it is outlined,
+  // because at 1.96:1 nothing else makes its edge visible.
+  if (state.cardHex === state.groundHex) return false;
+  if (state.cardBorderPx < 1) return false;
+  // SHELL SURFACES ONLY. The lesson player and the reward moment replace the
+  // shell rather than sitting inside it: no tab bar, no header, and therefore
+  // no `div.bg-background` painting the ground. Requiring one there would fail
+  // a screen for being correctly immersive, which is a bug in the check and not
+  // in the screen. body still carries the ground on those routes and the
+  // assertion above still reads the composed tokens.
+  if (shell && !state.groundPainted) return false;
+  if (!shell && state.bodyGround !== state.groundHex) return false;
+  return true;
+}
+
+/**
+ * One tab surface at rest.
+ *
+ * The burst runs from the settle rather than from a press, for the reason S1's
+ * bar gives: what a critic judges about a surface is what is on screen when it
+ * opens. `expectGoal` is false for the reward moment and the lesson runner,
+ * which are full screen and legitimately have no app header.
+ */
+export async function driveSurface(page, name, { onTrigger = null, waitFor = null, expectGoal = true } = {}) {
+  if (waitFor !== null) await page.waitForSelector(waitFor, { timeout: 10_000 });
+  await sleep(500);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await page.evaluate(readSurface);
+  const reached = turnHolds(state) && (!expectGoal || (state.goalEdge && state.goalNamed !== "" && state.bar === 4));
+  return { moment: `surface-${name}`, reached, at, trigger, state };
+}
+
+/** The lesson, with a question on screen and nothing answered yet. */
+export async function driveLessonRest(page, { onTrigger = null } = {}) {
+  await page.waitForSelector("input, button", { timeout: 10_000 });
+  await sleep(600);
+  const at = Date.now();
+  const trigger = onTrigger === null ? null : await onTrigger(at);
+  const state = await page.evaluate(readSurface);
+  const answered = await page.$('[data-reaction]');
+  const reached = turnHolds(state, { shell: false }) && answered === null;
+  return { moment: "surface-lesson", reached, at, trigger, state };
+}
+
+export const S3_SEED = P3_SEED;
+export const S3_STORED = P3_STORED;
+export const TRAINER_HASH = "#/trainer";
+export const CARDS_HASH = "#/cards";
+export const ME_HASH = "#/me";
+
 /**
  * Every moment by name: the seed it needs and the drive that reaches it. A
  * caller opens the moment's `hash` (LESSON_HASH unless the entry names another)
@@ -1897,6 +2032,15 @@ export const MOMENTS = {
   "path-rest": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathRest(page, options) },
   "path-scroll": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathScroll(page, options) },
   "path-gate": { seed: S2_SEED, stored: S2_STORED, hash: PATHWAY_HASH, drive: (page, options) => drivePathGate(page, options) },
+  // S3, the look and feel pass. Six surfaces at rest: the four tabs, a lesson
+  // with a question on it, and the reward moment. The block above driveSurface
+  // says why a palette piece photographs surfaces rather than events, and what
+  // each drive asserts about the turn itself.
+  "surface-pathway": { seed: S3_SEED, stored: S3_STORED, hash: PATHWAY_HASH, drive: (page, options) => driveSurface(page, "pathway", { ...options, waitFor: ".path-node--current" }) },
+  "surface-trainer": { seed: S3_SEED, stored: S3_STORED, hash: TRAINER_HASH, drive: (page, options) => driveSurface(page, "trainer", { ...options, waitFor: "nav.tabbar" }) },
+  "surface-cards": { seed: S3_SEED, stored: S3_STORED, hash: CARDS_HASH, drive: (page, options) => driveSurface(page, "cards", { ...options, waitFor: "nav.tabbar" }) },
+  "surface-me": { seed: S3_SEED, stored: S3_STORED, hash: ME_HASH, drive: (page, options) => driveSurface(page, "me", { ...options, waitFor: "nav.tabbar" }) },
+  "surface-lesson": { seed: null, drive: (page, options) => driveLessonRest(page, options) },
   // S4, the front door. "boot" is the HELD loader, which is the only way a
   // script that navigates and then measures can stand in front of a surface
   // that removes itself; "boot-open" is the real cold open with no hook at

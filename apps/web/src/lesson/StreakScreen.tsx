@@ -353,7 +353,6 @@ export function StreakScreen({ receipt, reducedMotion, onContinue, continueLabel
         if (!done) setSkipped(true);
       }}
     >
-      <div className="streak-glow pointer-events-none absolute inset-x-0 top-0 h-[60vh]" aria-hidden />
 
       <div className="relative mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto px-4 py-4 md:max-w-lg md:gap-5 md:px-6">
         {/* The exam window, at the top, because it changes what everything under

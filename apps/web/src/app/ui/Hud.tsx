@@ -117,6 +117,16 @@ interface ItemProps {
 /**
  * One readout. 44px minimum in both directions, pressed on pointer down.
  *
+ * EVERY ONE OF THE THREE IS AN OUTLINED OBJECT NOW, and the round two verdict
+ * survives it. That verdict was that Charge has to be DOMINANT, and it read the
+ * dominance off four things: a number at twice the neighbours' size, a tinted
+ * fill, a word, and a meter. Only one of the four was "it is the only one in a
+ * box", and the sticker language is explicit that a control without a cut edge
+ * is not in the language at all (rule 3, and the audit was counting 80 rows).
+ * So all three get a cut edge and Charge keeps a 2px coloured one over a tint
+ * where the other two get a hairline. The chip's own border moved onto the
+ * button rather than being added to it: a pill inside a pill is two boxes.
+ *
  * It measures itself on the way into the sheet rather than letting the sheet go
  * looking for it, because the button is the only thing that knows for certain
  * which element was pressed, and the spotlight has to be cut around exactly
@@ -137,7 +147,7 @@ function HudButton({ id, label, onOpen, className = "", children }: ItemProps) {
       }}
       aria-label={label}
       aria-haspopup="dialog"
-      className={`press relative flex min-h-11 min-w-11 items-center justify-center rounded-xl ${className}`}
+      className={`press hud-item relative flex min-h-11 min-w-11 items-center justify-center ${className}`}
     >
       {children}
     </button>
@@ -145,32 +155,49 @@ function HudButton({ id, label, onOpen, className = "", children }: ItemProps) {
 }
 
 /**
- * The daily goal, drawn along the bottom of the header.
+ * The daily goal, drawn along the bottom of the header, AND NOW NAMED.
  *
- * It is `absolute` against the header, which is `sticky` and therefore a
- * containing block, so it spans the full header width whatever the row inside
- * it is doing. The track IS the divider: Shell.tsx dropped its `border-b` when
- * this arrived, because two horizontal lines a pixel apart is a seam, not a
- * design.
+ * IT IS THE ONE DEFECT TWO BLIND JUDGES BOTH CAUGHT, and it was worse than a
+ * cosmetic one because it misled rather than merely looked wrong. An unlabelled
+ * bar sat directly under the header at roughly 70 percent, and the very next
+ * line on the pathway reads "2 of 86 lessons done". Two different progress
+ * measures, adjacent, one of them named. A screen reader got the truth from
+ * `role="progressbar"` and `aria-label`; the eye did not, and read it as course
+ * progress. Rendering your own data correctly is not the same as being read
+ * correctly.
  *
- * `role="progressbar"` with the readout's own sentence as its name is what
- * makes a four pixel line self describing to a screen reader. Sighted students
- * get the same sentence from the streak coach mark.
+ * WHAT THE FIX MUST NOT UNDO. The P3 round won two things here and both survive:
+ * the readouts are DRAWN fractions rather than written ones, and the goal meter
+ * costs the readout row zero horizontal space by being the header's bottom edge.
+ * So the fix is not a "14 / 20 XP" readout and it is not a chip in the row. It
+ * is a name on the edge that already exists: a 10px label at the left, the track
+ * running from it to the right edge. The fraction is still only drawn, the row
+ * above is untouched, and the strip is still the header's bottom edge and still
+ * the divider Shell.tsx dropped its `border-b` for.
+ *
+ * The track also gains a 1px outline and a pill radius. Sticker rules 3 and 5:
+ * a bare 4px rectangle with no edge was reading as a divider that had been
+ * coloured in, which is most of how it got mistaken for something else.
  */
 function HudGoalBar({ model }: { readonly model: HudModel }) {
   const { xp } = model;
   return (
-    <span
-      className="hud-goal"
-      role="progressbar"
-      aria-valuemin={0}
-      aria-valuemax={xp.goalXp}
-      aria-valuenow={xp.today}
-      aria-label={xp.label}
-      data-met={xp.met ? "true" : "false"}
-    >
-      <span className="hud-goal-fill" style={{ width: `${(xp.fraction * 100).toFixed(1)}%` }} />
-    </span>
+    <div className="hud-goal-edge">
+      <span className="hud-goal-name" aria-hidden>
+        Today&rsquo;s goal
+      </span>
+      <span
+        className="hud-goal"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={xp.goalXp}
+        aria-valuenow={xp.today}
+        aria-label={xp.label}
+        data-met={xp.met ? "true" : "false"}
+      >
+        <span className="hud-goal-fill" style={{ width: `${(xp.fraction * 100).toFixed(1)}%` }} />
+      </span>
+    </div>
   );
 }
 
@@ -227,7 +254,7 @@ export function Hud() {
 
   return (
     <>
-      <div className="flex items-center gap-1 sm:gap-2" role="group" aria-label="Today's progress">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2" role="group" aria-label="Today's progress">
         <HudButton id="diamonds" label={diamonds.label} onOpen={openItem} className="gap-1 px-1">
           <DiamondMark className="h-5 w-5 shrink-0" />
           <span className="text-scale-sm font-bold leading-none tabular-nums text-diamond-ink">{diamonds.value}</span>

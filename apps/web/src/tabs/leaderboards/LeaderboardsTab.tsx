@@ -79,7 +79,7 @@ export default function LeaderboardsTab() {
               tabIndex={selected ? 0 : -1}
               onPointerDown={() => setWindow(w.id)}
               className={`press min-h-11 rounded-full px-3 text-scale-sm font-bold ${
-                selected ? "bg-primary text-primary-foreground shadow-sm" : "bg-transparent text-muted-foreground"
+                selected ? "border-2 border-[color:var(--primary-edge)] bg-primary text-primary-foreground" : "border-2 border-border bg-card text-muted-foreground"
               }`}
             >
               {w.label}
@@ -92,7 +92,7 @@ export default function LeaderboardsTab() {
         <div className="flex items-center gap-3">
           {/* The tier badge the capture leads with: the league you are in, as a
               shape, before any row of names. */}
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-b from-accent-from to-accent-to text-white shadow-sm" aria-hidden>
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-[color:var(--primary-edge)] bg-[color:var(--accent-from)] text-white" aria-hidden>
             <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 4h12v4a6 6 0 0 1-12 0zM6 6H3v1a4 4 0 0 0 3 3.9M18 6h3v1a4 4 0 0 1-3 3.9M9 20h6M12 14v6" />
             </svg>
@@ -161,9 +161,9 @@ export default function LeaderboardsTab() {
             maxLength={24}
             placeholder="e.g. carbocation_kid"
             aria-label="Display name"
-            className="min-h-11 flex-1 rounded-[9px] border border-input bg-card px-3 text-scale-base"
+            className="min-h-11 flex-1 rounded-2xl border-2 border-input bg-card px-3 text-scale-base"
           />
-          <button type="submit" className="press min-h-11 rounded-[9px] bg-primary px-4 font-semibold text-primary-foreground">
+          <button type="submit" className="press min-h-11 rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary px-4 font-semibold text-primary-foreground">
             Save
           </button>
         </form>

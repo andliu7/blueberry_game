@@ -47,7 +47,7 @@ export function LanguageList({ onPick }: { readonly onPick?: (code: string) => v
                   selected ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-foreground"
                 }`}
               >
-                <span className="flex min-w-11 justify-center rounded-md bg-muted px-2 py-1 text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <span className="flex min-w-11 justify-center rounded-lg border border-border bg-muted px-2 py-1 text-scale-xs font-bold uppercase tracking-wide text-muted-foreground">
                   {language.code}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
@@ -89,7 +89,7 @@ export function LanguageSheet({ open, onClose }: { readonly open: boolean; reado
     >
       <div className="flex items-center justify-between gap-3 pb-3">
         <h2 className="text-scale-lg font-semibold">{translate(current, "language.title")}</h2>
-        <button type="button" onPointerDown={onClose} aria-label="Close" className="press flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border text-scale-lg">
+        <button type="button" onPointerDown={onClose} aria-label="Close" className="press flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-border text-scale-lg">
           ×
         </button>
       </div>
@@ -115,7 +115,7 @@ export function LanguageButton({ onOpen }: { readonly onOpen: () => void }) {
       onPointerDown={onOpen}
       aria-label={`Language: ${language.english}. Change it.`}
       title={`Language: ${language.english}`}
-      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-2 text-scale-sm font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+      className="press inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-2 border-border bg-card px-2 text-scale-sm font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
     >
       {language.code}
     </button>

@@ -143,7 +143,7 @@ export function DeckPicker({ source = defaultDecks, onStart, onBack }: DeckPicke
               type="button"
               aria-pressed={on}
               className={`press min-h-11 rounded-full px-3 text-scale-sm font-bold ${
-                on ? "bg-primary text-primary-foreground shadow-sm" : "bg-transparent text-muted-foreground"
+                on ? "border-2 border-[color:var(--primary-edge)] bg-primary text-primary-foreground" : "border-2 border-border bg-card text-muted-foreground"
               }`}
               onClick={() => setScope(option)}
             >
@@ -163,7 +163,7 @@ export function DeckPicker({ source = defaultDecks, onStart, onBack }: DeckPicke
                 role="checkbox"
                 aria-checked={on}
                 className={`press flex w-full items-center gap-3 rounded-2xl border bg-card p-4 text-left ${
-                  on ? "border-[color:var(--good)] shadow-sm" : "border-border"
+                  on ? "border-[color:var(--good)]" : "border-border"
                 }`}
                 onClick={() => setSelected((current) => toggleDeck(current, row.deckId))}
               >
@@ -189,12 +189,12 @@ export function DeckPicker({ source = defaultDecks, onStart, onBack }: DeckPicke
           have to know the rail's width and would be wrong the day it changes.
           A sticky element sits inside the layout box it was already given.
           bottom-16 on narrow clears the bottom tab bar, which IS fixed. */}
-      <div className="sticky bottom-16 z-10 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:-mx-6 md:bottom-2 md:px-6">
+      <div className="sticky bottom-16 z-10 -mx-4 border-t border-border bg-card px-4 py-3 md:-mx-6 md:bottom-2 md:px-6">
         <div className="mx-auto max-w-2xl">
           <button
             type="button"
             disabled={session.length === 0}
-            className="press min-h-14 w-full rounded-2xl bg-primary text-scale-lg font-bold text-primary-foreground shadow-sm disabled:opacity-40"
+            className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
             onClick={() => onStart(session)}
           >
             {startLabel(session.length)}

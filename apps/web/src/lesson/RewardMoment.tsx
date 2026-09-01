@@ -396,7 +396,6 @@ export function RewardMoment({
         if (!done) setSkipped(true);
       }}
     >
-      <div className="reward-glow pointer-events-none absolute inset-x-0 top-0 h-[58vh]" aria-hidden />
 
       {/* min-h-0 lets this column shrink inside the flex parent so Continue
           never leaves the screen; overflow-y-auto is the safety net. Bloom
@@ -434,7 +433,7 @@ export function RewardMoment({
             sizePx={bloomPx}
           />
           {firstDiamond && hasDiamonds && (catchStage === "held" || catchStage === "flying") ? (
-            <p className="reward-reveal absolute -bottom-1 whitespace-nowrap rounded-full bg-card px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.18em] text-diamond-ink shadow-sm">
+            <p className="reward-reveal absolute -bottom-1 whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.18em] text-diamond-ink">
               Your first diamond
             </p>
           ) : null}
@@ -477,8 +476,8 @@ export function RewardMoment({
               pops it when the count lands. */}
           <div className={show(beats.xpCountStart) ? "reward-fade-in" : "reward-fade-out"}>
             <div className="reward-xp-row flex items-end justify-center gap-2" data-landed={xpLanded ? "true" : "false"}>
-              <span className="reward-xp title-face font-semibold leading-none text-warn-ink tabular-nums">{xpShown}</span>
-              <span className="reward-xp-unit font-bold uppercase text-warn-ink">XP</span>
+              <span className="reward-xp title-face font-semibold leading-none text-primary-ink tabular-nums">{xpShown}</span>
+              <span className="reward-xp-unit font-bold uppercase text-primary-ink">XP</span>
             </div>
           </div>
           {/* The chips are the receipt lines, not a second scoreboard: no

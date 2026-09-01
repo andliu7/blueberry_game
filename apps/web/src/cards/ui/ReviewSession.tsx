@@ -62,8 +62,12 @@ export interface ReviewSessionProps {
 const RATING_TONE: Readonly<Record<Rating, string>> = {
   again: "border-border bg-muted text-foreground",
   hard: "border-border bg-card text-foreground",
-  good: "border-transparent bg-primary text-primary-foreground",
-  easy: "border-transparent bg-[color:var(--good)] text-[color:var(--good-ink)]",
+  good: "border-[color:var(--primary-edge)] bg-primary text-primary-foreground",
+  // WHITE, not --good-ink. --good-ink is the darker step of the same hue and it
+  // is for TEXT ON A CARD; on the --good fill itself the two are 1.26:1. White
+  // on #065f46 is 7.68:1. The lavender turn darkened --good (Bloom's charged
+  // halo needs 3:1 on the new ground) which is what made this visible.
+  easy: "border-[color:var(--good-ink)] bg-[color:var(--good)] text-white",
 };
 
 export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewSessionProps) {
@@ -84,7 +88,7 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
         </p>
         <button
           type="button"
-          className="press min-h-14 w-full rounded-2xl bg-primary text-scale-lg font-bold text-primary-foreground shadow-sm"
+          className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground"
           onClick={() => {
             onDone?.(summary.diamonds);
             onExit();
@@ -162,7 +166,7 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
       ) : (
         <button
           type="button"
-          className="press min-h-14 w-full rounded-2xl bg-primary text-scale-lg font-bold text-primary-foreground shadow-sm"
+          className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground"
           onClick={() => setState(reveal(state))}
         >
           Show the answer

@@ -60,7 +60,7 @@ export function ToolButtons({
   readonly className?: string;
 }) {
   return (
-    <div className={`flex items-center gap-1.5 ${className}`} role="group" aria-label="Tools">
+    <div className={`flex shrink-0 items-center gap-1.5 ${className}`} role="group" aria-label="Tools">
       {TOOL_TABS.map((tool) => (
         <button
           key={tool.id}

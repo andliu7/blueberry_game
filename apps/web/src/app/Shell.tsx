@@ -169,7 +169,7 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
   const litTab = activeTab === null ? null : tabDefinition(activeTab).parent;
 
   return (
-    <div className="flex min-h-dvh flex-col md:flex-row">
+    <div className="flex min-h-dvh flex-col bg-background md:flex-row">
       <nav aria-label="Tabs" className={`tabbar order-last md:order-first ${immersive ? "tabbar--away" : ""}`}>
         {/* THE WORDMARK IS IDENTITY, NOT NAVIGATION, and round two demoted it
             from a link to a label. It used to be an anchor to #/pathway, which
@@ -195,7 +195,16 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
         {/* No `border-b`. The header's bottom edge is the daily goal meter the
             HUD draws, and a border a pixel above a track is a seam rather than
             a design. See hud.css, "the daily goal edge". */}
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-background/85 px-2 pb-2.5 pt-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
+        {/* THE HEADER IS A CREAM SHEET, not a translucent blur of the page.
+            Two reasons, and neither is taste. Sticker rule 2 and 3 forbid glass
+            outright, and the eight-tab bar already dropped its blur for that.
+            And every readout in this row is a coloured number: on the lavender
+            ground the streak orange measures 1.97:1 and the diamond sky 1.89:1,
+            both far under the floors they are held to, while on the cream card
+            they are 3.87 and 3.72 as graphics with their ink variants over 4.5
+            as text. Coloured ink lives on a card in this palette; the page is a
+            ground, not a surface to write on. */}
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-card px-2 pb-5 pt-2 sm:gap-3 sm:px-4 md:px-6">
           {/* TOOLS ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
               on the P3 round was that the header's left half held chrome at the
               same size and weight as the readouts, so the row had seven equal
@@ -204,9 +213,28 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
               so it carries an outline per sticker rule 3; the readouts opposite
               are flat because they are readings, not controls. Two different
               kinds of thing, drawn as two different kinds of thing. */}
+          {/* SIX 44px CONTROLS DO NOT FIT IN 390px, and the S3 capture proved
+              it: the tool rail ran to x=152 while the HUD started at x=140, so
+              the search button was painted under the diamond pill. Twelve
+              pixels of overlap, and shrinking six controls to close it would
+              break the 44pt hit target mobile-ui states as a hard floor.
+
+              So one control leaves the PHONE header, and it is language. It is
+              a setting chosen once, not a tool reached for mid problem, and
+              CLAUDE.md's placement table lists only the periodic table and the
+              reaction search as header tools for exactly that reason. It
+              already has a full row under SETTINGS on the Me tab, opening the
+              same sheet, so nothing became unreachable. It stays in the header
+              from `sm` up, where the wordmark also fits and the row has room.
+
+              `shrink-0` on the rail and on the HUD is the structural half: a
+              flex row whose children may shrink below their content is a row
+              that overlaps, and this one has to be unable to. */}
           <div className="flex min-w-0 items-center gap-1.5">
             <h1 className="hidden truncate pr-1 text-scale-lg font-semibold text-foreground md:block">{label}</h1>
-            <LanguageButton onOpen={() => setLanguageOpen(true)} />
+            <div className="hidden shrink-0 sm:block">
+              <LanguageButton onOpen={() => setLanguageOpen(true)} />
+            </div>
             <ToolRail />
           </div>
           <Hud />

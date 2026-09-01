@@ -54,7 +54,7 @@ export function TrainerTools({ step, scene, progress, reducedMotion, history, on
       <div className="absolute bottom-4 right-4 flex flex-col-reverse items-end gap-2">
         <button
           type="button"
-          className="press flex min-h-12 min-w-12 items-center justify-center rounded-full border border-border bg-card text-scale-xl shadow-md"
+          className="press flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-border bg-card text-scale-xl"
           aria-expanded={open}
           aria-label={open ? "Close tools" : "Open tools"}
           title={open ? "Close tools" : "Tools: scratchpaper, periodic table, 3D, history"}
@@ -172,7 +172,7 @@ function ZoomPan({ children }: { readonly children: ReactNode }) {
 
 function ToolButton({ label, onPick, icon }: { readonly label: string; readonly onPick: () => void; readonly icon?: string }) {
   return (
-    <button type="button" className="press flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-scale-sm font-semibold text-foreground shadow-md" onPointerDown={onPick}>
+    <button type="button" className="press flex min-h-11 items-center gap-2 rounded-full border-2 border-border bg-card px-4 text-scale-sm font-semibold text-foreground" onPointerDown={onPick}>
       {/* Generated icon set (fal.ai Nano Banana Lite, owner-specified motifs);
           sized to the adjacent text per the design rules, alt empty because
           the label beside it IS the name. */}
@@ -186,7 +186,7 @@ function ToolButton({ label, onPick, icon }: { readonly label: string; readonly 
 function ToolCard({ title, onClose, children }: { readonly title: string; readonly onClose: () => void; readonly children: ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-label={title} onPointerDown={onClose}>
-      <div className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl border border-border bg-background p-4 shadow-lg" onPointerDown={(event) => event.stopPropagation()}>
+      <div className="max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl border-2 border-border bg-card p-4" onPointerDown={(event) => event.stopPropagation()}>
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-scale-lg font-semibold text-foreground">{title}</h3>
           <button type="button" className="press min-h-11 min-w-11 rounded-full border border-border bg-card font-semibold" aria-label="Close" title="Close" onPointerDown={onClose}>

@@ -38,13 +38,13 @@ export default function ChatTab() {
           onChange={(event) => setDraft(event.currentTarget.value)}
           placeholder="Ask about the step you are on"
           aria-label="Message"
-          className="min-h-11 flex-1 rounded-[9px] border border-input bg-card px-3 text-scale-base"
+          className="min-h-11 flex-1 rounded-2xl border-2 border-input bg-card px-3 text-scale-base"
         />
         <button
           type="submit"
           disabled
           title="Sending needs the Phase 7 server, which meters the budget"
-          className="press min-h-11 rounded-[9px] bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-50"
+          className="press min-h-11 rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-50"
         >
           Send
         </button>

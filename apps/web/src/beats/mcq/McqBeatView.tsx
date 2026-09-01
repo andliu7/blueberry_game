@@ -141,7 +141,7 @@ export function McqBeatView({
           onPointerDown={onExit}
           aria-label="Leave this lesson"
           title="Leave this lesson"
-          className="press flex min-h-11 min-w-11 items-center justify-center rounded-full text-scale-lg font-semibold text-muted-foreground"
+          className="press flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-border text-scale-lg font-semibold text-muted-foreground"
         >
           &#10005;
         </button>
@@ -284,7 +284,7 @@ export function McqBeatView({
       {/* The one slot the way forward always lives in. Sticky as well as last
           in a flex column, so it stays put whether this sheet has a bounded
           height of its own or scrolls with the page around it. */}
-      <div className="pb-safe sticky bottom-0 shrink-0 border-t border-border bg-background px-4 pt-3 pb-3 md:px-6">
+      <div className="pb-safe sticky bottom-0 shrink-0 border-t border-border bg-card px-4 pt-3 pb-3 md:px-6">
         <Press className="w-full" disabled={!primaryEnabled} onClick={onPrimary}>
           {primaryLabel}
         </Press>

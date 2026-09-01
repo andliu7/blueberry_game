@@ -38,7 +38,12 @@ export const STRIP_BERRY_PX = 80;
 export function ReactionStrip({ outcome, headline, caption = null, berry, continueLabel, onContinue, children }: ReactionStripProps) {
   return (
     <section
-      className="reaction-strip -mx-5 -mb-5 mt-1 flex flex-col gap-3 rounded-b-2xl border-t p-4 md:p-5"
+      /* A DRAWER, not a band welded to the card's bottom edge. It was square at
+         the top and outlined on one side, which the sticker audit reads as a
+         card with no cut edge and no radius (rules 3, 4 and 5). Rounded on all
+         four and outlined on all four, it reads as the object it is: a panel
+         that rises out of the card when an answer lands. */
+      className="reaction-strip -mx-5 -mb-5 mt-1 flex flex-col gap-3 rounded-2xl border-2 p-4 md:p-5"
       style={{ background: "var(--strip-bg)", borderColor: "var(--strip-rule)" }}
       data-reaction={outcome}
       aria-live="polite"

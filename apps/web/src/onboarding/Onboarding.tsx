@@ -61,7 +61,7 @@ function Welcome({ reducedMotion }: { readonly reducedMotion: boolean }) {
       <Press className="w-full" onPointerDown={() => navigate(hrefForOnboarding("quiz"))}>
         Find my starting point
       </Press>
-      <button type="button" className="press min-h-11 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => navigate(hrefForOnboarding("tutorial"))}>
+      <button type="button" className="press min-h-11 rounded-2xl border-2 border-border px-4 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => navigate(hrefForOnboarding("tutorial"))}>
         Skip, take me to a mechanism
       </button>
     </div>
@@ -165,10 +165,10 @@ function Tutorial({ reducedMotion }: { readonly reducedMotion: boolean }) {
     <div className="flex min-h-dvh flex-col">
       <TrainerTab reducedMotion={reducedMotion} tutorial onSolved={() => navigate(hrefForOnboarding("lesson"))} />
       <div className="mx-auto flex w-full max-w-4xl justify-between p-4">
-        <button type="button" className="press min-h-11 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => navigate(hrefForOnboarding("lesson"))}>
+        <button type="button" className="press min-h-11 rounded-2xl border-2 border-border px-4 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => navigate(hrefForOnboarding("lesson"))}>
           Skip to a lesson
         </button>
-        <button type="button" className="press min-h-11 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => finishOnboarding(hrefForTab("trainer"))}>
+        <button type="button" className="press min-h-11 rounded-2xl border-2 border-border px-4 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => finishOnboarding(hrefForTab("trainer"))}>
           Skip onboarding
         </button>
       </div>
@@ -193,7 +193,14 @@ function IntroLesson({ reducedMotion }: { readonly reducedMotion: boolean }) {
     finishOnboarding(hrefForTab("trainer"));
     return null;
   }
+  // The frame the lesson's own `min-h-full` resolves against. Inside the shell
+  // that frame is `main`, which is a flex child with a definite height; here
+  // there is no shell, so the step supplies one. Without it the intro lesson is
+  // the one mount where the card would not grow, which is the worst place for
+  // it: the intro lesson is free, it is what sells the rest, and it is the
+  // first screen a student ever answers a question on.
   return (
+    <div className="flex min-h-dvh flex-col">
     <LessonPlayer
       topic={topic}
       problems={problemsForTopic(topic).slice(0, 4)}
@@ -202,6 +209,7 @@ function IntroLesson({ reducedMotion }: { readonly reducedMotion: boolean }) {
       onExit={() => finishOnboarding(hrefForTab("pathway"))}
       onFinished={() => navigate(hrefForOnboarding("paywall"))}
     />
+    </div>
   );
 }
 
@@ -225,7 +233,7 @@ function Paywall({ reducedMotion }: { readonly reducedMotion: boolean }) {
       <Press variant="reward" onPointerDown={() => finishOnboarding(hrefForTab("pathway"))}>
         See my pathway
       </Press>
-      <button type="button" className="press min-h-11 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => finishOnboarding(hrefForTab("trainer"))}>
+      <button type="button" className="press min-h-11 rounded-2xl border-2 border-border px-4 text-scale-sm font-semibold text-muted-foreground" onPointerDown={() => finishOnboarding(hrefForTab("trainer"))}>
         Keep going free
       </button>
     </div>

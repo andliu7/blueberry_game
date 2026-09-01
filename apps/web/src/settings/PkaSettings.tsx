@@ -229,7 +229,7 @@ export default function PkaSettings() {
           disabled={changed === 0}
           onPointerDown={() => pkaSettings.clearAllOverrides()}
           onClick={() => pkaSettings.clearAllOverrides()}
-          className="press mt-3 min-h-11 rounded-[9px] border border-input bg-card px-4 font-semibold disabled:opacity-50"
+          className="press mt-3 min-h-11 rounded-2xl border-2 border-input bg-card px-4 font-semibold disabled:opacity-50"
         >
           Clear my changes
         </button>
@@ -429,7 +429,7 @@ function LadderRow({
              in one press. The pressed state still lands on pointer down,
              because .press does it in CSS with :active and never waits on JS. */
           onClick={() => (open ? setOpen(false) : startEditing())}
-          className="press min-h-11 rounded-[9px] border border-input px-3 text-scale-sm font-semibold"
+          className="press min-h-11 rounded-2xl border-2 border-input px-3 text-scale-sm font-semibold"
         >
           {open ? "Close" : "Change"}
         </button>
@@ -462,11 +462,11 @@ function LadderRow({
               setDraft(event.currentTarget.value);
               setRejection(null);
             }}
-            className="min-h-11 w-28 rounded-[9px] border border-input bg-card px-3 text-scale-base tabular-nums"
+            className="min-h-11 w-28 rounded-2xl border-2 border-input bg-card px-3 text-scale-base tabular-nums"
           />
           <button
             type="submit"
-            className="press min-h-11 rounded-[9px] bg-primary px-4 font-semibold text-primary-foreground"
+            className="press min-h-11 rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary px-4 font-semibold text-primary-foreground"
           >
             Save
           </button>
@@ -481,7 +481,7 @@ function LadderRow({
                 pkaSettings.clearOverride(rung.id);
                 setOpen(false);
               }}
-              className="press min-h-11 rounded-[9px] border border-input px-3 text-scale-sm font-semibold"
+              className="press min-h-11 rounded-2xl border-2 border-input px-3 text-scale-sm font-semibold"
             >
               Use the table value
             </button>

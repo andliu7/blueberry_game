@@ -63,20 +63,55 @@
  * 4px, because 2px reads as a loading indicator and 6px reads as a second
  * toolbar.
  */
-.hud-goal {
+/* THE NAMED EDGE. Hud.tsx carries the reasoning: an unlabelled meter under the
+   header was being read as course progress by the line directly beneath it. The
+   strip is still the header's bottom edge and still costs the readout row no
+   horizontal space; what changed is that it says what it is. */
+.hud-goal-edge {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0 0.5rem 0.3125rem;
+}
+@media (min-width: 40rem) {
+  .hud-goal-edge {
+    padding-inline: 1rem;
+  }
+}
+@media (min-width: 48rem) {
+  .hud-goal-edge {
+    padding-inline: 1.5rem;
+  }
+}
+.hud-goal-name {
+  flex: none;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+.hud-goal {
+  flex: 1 1 auto;
   display: block;
-  height: 4px;
-  background: var(--border);
+  height: 0.5rem;
+  /* An OUTLINED PILL, not a bare rectangle. Sticker rule 3 and 5: a 4px block
+     with no cut edge was reading as a divider somebody had coloured in. */
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
   overflow: hidden;
 }
 .hud-goal-fill {
   display: block;
   height: 100%;
-  border-radius: 0 999px 999px 0;
+  border-radius: 999px;
   background: var(--primary);
   transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -106,15 +141,26 @@
  * it: the 8px sliver that collided with the header's divider is gone, and so
  * is the divider it collided with.
  */
+/* THE OUTLINED READOUT. Hud.tsx says why all three carry one now. The charge
+   item's is 2px and coloured over a tint; the other two are a hairline on the
+   card, which is what an object sitting on a sheet looks like in this language
+   without shouting. */
+.hud-item {
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  background: var(--card);
+}
+.hud-item[data-hud="charge"] {
+  border-width: 2px;
+  border-color: color-mix(in srgb, var(--good) 44%, transparent);
+  background: var(--good-soft);
+}
 .hud-charge {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0.1875rem;
   padding: 0.25rem 0.5rem 0.3125rem;
-  border-radius: 0.875rem;
-  border: 1px solid color-mix(in srgb, var(--good) 34%, transparent);
-  background: var(--good-soft);
 }
 /*
  * The meter spans the whole pill rather than sitting under the word. A short
@@ -278,10 +324,13 @@
   padding: 1.25rem;
   text-align: center;
   border-radius: 1.25rem;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--card);
   color: var(--foreground);
-  box-shadow: 0 18px 48px -12px rgb(0 0 0 / 0.45);
+  /* NO DROP SHADOW. Sticker rule 3 allows one only where stacking is the
+     meaning, and this panel's stacking is already carried by the spotlight
+     layer dimming everything behind it. The 2px outline is what separates it,
+     the same rule every other object in this app now follows. */
 }
 @media (min-width: 768px) {
   .hud-panel {
@@ -334,7 +383,10 @@
   color: var(--primary-foreground);
   font-size: var(--text-scale-base);
   font-weight: 700;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 62%, #000);
+  /* This was `0 3px 0` in a darker primary, which is the fake extrusion the
+     sticker audit's own refinement names: a solid block offset only on Y is a
+     shadow drawn with the shadow property. It is a real 2px outline now. */
+  border: 2px solid var(--primary-edge);
 }
 .hud-panel-mark {
   display: flex;

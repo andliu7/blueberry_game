@@ -61,11 +61,10 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
       data-combo={count}
     >
       {/* A soft primary glow behind the count. Painted on the opaque ground, so it never reveals the lesson. */}
-      <div className="combo-glow pointer-events-none absolute inset-x-0 top-0 h-[62vh]" aria-hidden />
 
       <header className="relative mx-auto flex w-full max-w-2xl items-center gap-3 p-4 md:p-6">
         <div className="flex-1">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.index}>
+          <div className="h-2 w-full overflow-hidden rounded-full border border-border bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.index}>
             <div className="h-full rounded-full bg-primary" style={{ width: `${(progress.index / progress.total) * 100}%` }} />
           </div>
         </div>
@@ -76,8 +75,10 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
 
       {/* The count. flex-1 here and on the character block splits the vertical space between them. */}
       <div className="relative flex flex-1 flex-col items-center justify-center gap-2 px-6 pt-2 text-center">
-        {/* primary-ink: --primary as ink measured 4.10:1 in dark against the 4.5 body floor. */}
-        <p className="text-scale-sm font-bold uppercase tracking-[0.2em] text-primary-ink">In a row</p>
+        {/* The eyebrow is NEUTRAL and the number below it is not. Sticker rule
+            7: body-sized text recedes so the colour leads, and the colour here
+            is the 110px count, which is display size and owns the screen. */}
+        <p className="text-scale-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">In a row</p>
         <p className="combo-count title-face font-semibold leading-none text-primary-ink tabular-nums" aria-hidden>
           {count}
         </p>
@@ -111,7 +112,7 @@ export function ComboInterstitial({ count, topicLabel, reaction, reactionKey, co
               sizePx={184}
             />
           </div>
-          <div className="combo-bubble mb-10 min-w-0 max-w-md flex-1 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm md:flex-none md:px-5 md:py-4">
+          <div className="combo-bubble mb-10 min-w-0 max-w-md flex-1 rounded-2xl border-2 border-border bg-card px-4 py-3 md:flex-none md:px-5 md:py-4">
             <p className="text-scale-base font-medium leading-snug text-foreground md:text-scale-lg">{comboLine(count, topicLabel)}</p>
           </div>
         </div>

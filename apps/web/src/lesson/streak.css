@@ -24,16 +24,8 @@
   touch-action: manipulation;
 }
 
-/* The heat behind the flame. Wide, high, and soft, so the top third of the
-   screen is warm without any edge a reader could mistake for a container. */
-.streak-glow {
-  background: radial-gradient(
-    ellipse 78% 48% at 50% 22%,
-    color-mix(in srgb, var(--streak) 22%, transparent) 0%,
-    color-mix(in srgb, var(--streak) 8%, transparent) 48%,
-    transparent 100%
-  );
-}
+/* The heat behind the flame is the STAGE's own flat ground now, not a radial
+   over it. See theme.css beside .combo-glow for the rule and the count. */
 
 /* ---------------------------------------------------------------- the hero */
 
@@ -229,9 +221,12 @@
 .streak-day[data-kind="pending"] .streak-day-slot {
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--streak) 55%, transparent);
 }
-/* Today's square, once it counted, gets the one halo on the row. */
+/* Today's square, once it counted, gets the one ring on the row. An `outline`
+   rather than a spread box-shadow: a 0-blur 0-offset spread IS an outline drawn
+   with the shadow property, and sticker rule 3 wants outlines to be outlines. */
 .streak-day[data-today="true"][data-kind="counted"] .streak-day-slot {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--streak) 28%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--streak) 44%, transparent);
+  outline-offset: 0;
 }
 .streak-day[data-today="true"][data-kind="counted"] .streak-day-slot[data-in="true"] {
   animation: streak-day-land 520ms var(--ease-spring) both;
@@ -310,7 +305,9 @@
   border: 2px solid var(--streak);
   background: color-mix(in srgb, var(--streak) 12%, var(--card));
   padding: 0.6rem 0.75rem;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--streak) 16%, transparent);
+  /* Same swap as the day slot: an outline, because that is what it is. */
+  outline: 4px solid color-mix(in srgb, var(--streak) 22%, transparent);
+  outline-offset: 0;
 }
 /* Its own pair rather than --streak / --streak-on, and the contrast audit is
    why: this label is 12px uppercase TEXT and carries the 4.5:1 floor, which
@@ -404,7 +401,8 @@
   min-height: 2.75rem;
   min-width: 2.75rem;
   padding: 0 0.8rem;
-  border-radius: 0.7rem;
+  /* 14px, over the sticker language's 12px floor. 0.7rem was 11.2. */
+  border-radius: 0.875rem;
   border: 1.5px solid var(--diamond);
   background: color-mix(in srgb, var(--diamond) 12%, var(--card));
   color: var(--diamond-ink);

@@ -151,7 +151,7 @@ function CourseList() {
         const topics = probeTopicIdsForCourse(course);
         const done = topics.filter((topic) => snapshot.lessons[topic] !== undefined).length;
         return (
-          <a key={course} href={hrefForTab("courses", course)} className="press block">
+          <a key={course} href={hrefForTab("courses", course)} className="press block rounded-2xl">
             {/* The primary border, and it is the only one on the screen. A card
                 that is the single thing you can press should say so with the
                 colour the rest of the app uses for "you are here". */}

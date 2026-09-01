@@ -31,7 +31,7 @@
  * Every raised edge below is therefore written as
  * `var(--primary-edge, <fallback>)`: it uses the v2 token the moment tokens.css
  * is wired in, and until then it falls back to a hand picked step of theme.css's
- * own purple, chosen the same way pathway.css chose its #5b21b6. That wiring is
+ * own navy, chosen the same way pathway.css chose its own edge. That wiring is
  * an integration edit in a file this module does not own.
  */
 
@@ -328,7 +328,7 @@ div.sort-card {
 /* Selected by a tap or by the keyboard: picked up and waiting for a rung. */
 .sort-card.is-selected {
   --card-face: color-mix(in srgb, var(--primary) 16%, var(--card));
-  --card-edge: var(--primary-edge, #5b21b6);
+  --card-edge: var(--primary-edge, #2a2c5e);
 }
 
 .sort-card.is-selected .sort-card__face {
@@ -339,7 +339,7 @@ div.sort-card {
 /* On the track. The purple identity, so a filling ladder is visible at a glance. */
 .sort-card.is-ranked {
   --card-face: color-mix(in srgb, var(--primary) 12%, var(--card));
-  --card-edge: var(--primary-edge, #5b21b6);
+  --card-edge: var(--primary-edge, #2a2c5e);
   --card-ink: var(--foreground);
 }
 
@@ -469,7 +469,7 @@ div.sort-card {
 
 .dark .sort-card.is-selected,
 .dark .sort-card.is-ranked {
-  --card-edge: var(--primary-edge, #3b2168);
+  --card-edge: var(--primary-edge, #9195e4);
 }
 
 .dark .sort-card:active .sort-card__face,

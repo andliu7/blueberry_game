@@ -330,13 +330,33 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
   const nextLabel = index + 1 < total ? "Next" : "Finish lesson";
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
+    // THE LESSON FILLS THE SCREEN. The S3 capture had a short numeric question
+    // occupying the top third and roughly 65 percent of the phone left as bare
+    // lavender, which is the same "empty flat colour" finding the splash
+    // carried. The lavender is a GROUND you see around cards, and a screen
+    // whose one job is a question should not be mostly ground.
+    //
+    // So the column is full height and the card is the flex child that grows,
+    // with the answer block pushed to the bottom of it. That is the reference
+    // bar's own lesson shape (prompt at the top, the action under the thumb at
+    // the bottom edge), it is mobile-ui's "one screen, one job", and it is what
+    // the approved lesson concept shows: a cream field edge to edge with the
+    // controls low, not a small card floating in a field of ground.
+    //
+    // TWO GROWTH CLAUSES BECAUSE THERE ARE TWO MOUNTS, and each one answers a
+    // different parent. Inside the shell the parent is `main`, a block whose
+    // height flexbox already resolved, so `min-h-full` is the clause that
+    // fires. In onboarding the parent is a flex column with a min height and no
+    // definite one, where a percentage min-height resolves to auto and does
+    // nothing, so `flex-1` is the clause that fires. Neither is redundant and
+    // dropping either leaves one of the two mounts short.
+    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col gap-4 p-4 md:p-6">
       <header className="flex items-center justify-between gap-3">
-        <button type="button" onPointerDown={onExit} className="press min-h-11 rounded-full px-3 text-scale-sm font-semibold text-muted-foreground">
+        <button type="button" onPointerDown={onExit} className="press min-h-11 rounded-full border-2 border-border px-3 text-scale-sm font-semibold text-muted-foreground">
           ← Leave
         </button>
         <div className="flex-1">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
+          <div className="h-2 w-full overflow-hidden rounded-full border border-border bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
             <div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${(index / total) * 100}%` }} />
           </div>
         </div>
@@ -349,19 +369,29 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
         <LessonVideo title={definition.label} onSkip={() => setVideoDone(true)} />
       ) : null}
 
-      <Card className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <div className="flex gap-2">
-              <Pill tone="primary">{KIND_LABEL[problem.answer.kind]}</Pill>
-              <Pill>{definition.label}</Pill>
-            </div>
-            <p className="mt-2 text-scale-lg font-medium leading-relaxed text-foreground">{problem.prompt}</p>
+      <Card className="flex flex-1 flex-col gap-4">
+        {/* THE PROMPT GETS THE FULL WIDTH. Bloom used to sit in this row and
+            cost it 72px plus a gap, which on a phone turned a four line
+            question into six. It has moved down to sit above the answer, which
+            is where the approved lesson concept puts it and where it does
+            something: the card is full height now, and a coach standing over
+            the answer is a better use of that room than a hole. */}
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-2">
+            <Pill tone="primary">{KIND_LABEL[problem.answer.kind]}</Pill>
+            <Pill>{definition.label}</Pill>
           </div>
-          {!berryReacting ? <Berry {...berry} sizePx={72} className="shrink-0" /> : null}
+          <p className="mt-2 text-scale-lg font-medium leading-relaxed text-foreground">{problem.prompt}</p>
         </div>
 
-        <ProblemView key={problem.id} problem={problem} locked={result !== null} onSubmit={submit} onSkip={skip} />
+        {/* `mt-auto` is the whole mechanism: it collapses to nothing when the
+            options fill the card and pushes the answer block to the bottom
+            edge when they do not, so Check is under the thumb either way and
+            the card never has a hole in the middle of it. */}
+        <div className="mt-auto flex flex-col gap-2">
+          {!berryReacting ? <Berry {...berry} sizePx={84} className="self-end" /> : null}
+          <ProblemView key={problem.id} problem={problem} locked={result !== null} onSubmit={submit} onSkip={skip} />
+        </div>
 
         {result !== null && outcome !== null && berryReacting ? (
           <ReactionStrip
@@ -375,7 +405,7 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
             <FeedbackBody result={result} />
             {result.kind !== "correct" ? (
               <details className="rounded-xl bg-card/70 p-3 text-scale-sm">
-                <summary className="cursor-pointer font-semibold text-foreground">Show the worked answer</summary>
+                <summary className="cursor-pointer rounded-2xl border-2 border-border px-3 py-2 font-semibold text-foreground">Show the worked answer</summary>
                 <p className="mt-2 text-muted-foreground">{problem.solution.whatHappened}</p>
                 <p className="mt-1 text-muted-foreground">{problem.solution.why}</p>
               </details>

@@ -157,7 +157,7 @@ export default function PeriodicTab({ selected }: { readonly selected: string | 
                   onPointerLeave={() => setHover(null)}
                   onFocus={() => setHover(element)}
                   onBlur={() => setHover(null)}
-                  className={`press flex min-h-11 min-w-11 flex-col items-center justify-center rounded-md border text-[#1e293b] ${
+                  className={`press flex min-h-11 min-w-11 flex-col items-center justify-center rounded-xl border text-[#1e293b] ${
                     isChosen ? "border-primary ring-2 ring-primary/40" : "border-black/10"
                   }`}
                   style={{

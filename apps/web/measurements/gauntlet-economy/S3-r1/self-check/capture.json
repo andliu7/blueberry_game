@@ -1,0 +1,875 @@
+{
+  "piece": "S3",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "deviceScaleFactor": 2
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 3
+    }
+  },
+  "frames": [
+    0,
+    400,
+    900,
+    2500
+  ],
+  "report": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "surface-pathway",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 408
+            },
+            {
+              "wanted": 900,
+              "at": 902
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-trainer",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 415
+            },
+            {
+              "wanted": 900,
+              "at": 911
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-cards",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 401
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-me",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 902
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-lesson",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 411
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": false,
+            "bodyGround": "#a3aee2",
+            "goalEdge": false,
+            "goalNamed": "",
+            "cardBorderPx": 2,
+            "bar": 0
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 55
+            },
+            {
+              "wanted": 400,
+              "at": 408
+            },
+            {
+              "wanted": 900,
+              "at": 908
+            },
+            {
+              "wanted": 2500,
+              "at": 2510
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "surface-pathway",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 412
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-trainer",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 400
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-cards",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 400
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2500
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-me",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 901
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-lesson",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 905
+            },
+            {
+              "wanted": 2500,
+              "at": 2504
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": false,
+            "bodyGround": "#171a2e",
+            "goalEdge": false,
+            "goalNamed": "",
+            "cardBorderPx": 2,
+            "bar": 0
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 61
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 909
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "light",
+      "results": [
+        {
+          "moment": "surface-pathway",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 413
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-trainer",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 403
+            },
+            {
+              "wanted": 900,
+              "at": 902
+            },
+            {
+              "wanted": 2500,
+              "at": 2509
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-cards",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 412
+            },
+            {
+              "wanted": 900,
+              "at": 912
+            },
+            {
+              "wanted": 2500,
+              "at": 2507
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-me",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2503
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": true,
+            "bodyGround": "#a3aee2",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-lesson",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 417
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2511
+            }
+          ],
+          "state": {
+            "groundToken": "#a3aee2",
+            "groundHex": "#a3aee2",
+            "cardHex": "#fbf3e6",
+            "groundSaturation": 0.521,
+            "groundLightness": 0.763,
+            "groundPainted": false,
+            "bodyGround": "#a3aee2",
+            "goalEdge": false,
+            "goalNamed": "",
+            "cardBorderPx": 2,
+            "bar": 0
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 60
+            },
+            {
+              "wanted": 400,
+              "at": 412
+            },
+            {
+              "wanted": 900,
+              "at": 910
+            },
+            {
+              "wanted": 2500,
+              "at": 2504
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    },
+    {
+      "viewport": "phone",
+      "theme": "dark",
+      "results": [
+        {
+          "moment": "surface-pathway",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 404
+            },
+            {
+              "wanted": 900,
+              "at": 914
+            },
+            {
+              "wanted": 2500,
+              "at": 2513
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-trainer",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 411
+            },
+            {
+              "wanted": 900,
+              "at": 911
+            },
+            {
+              "wanted": 2500,
+              "at": 2516
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-cards",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 406
+            },
+            {
+              "wanted": 900,
+              "at": 904
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-me",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 402
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2512
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": true,
+            "bodyGround": "#171a2e",
+            "goalEdge": true,
+            "goalNamed": "Today’s goal",
+            "cardBorderPx": 2,
+            "bar": 4
+          }
+        },
+        {
+          "moment": "surface-lesson",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 0
+            },
+            {
+              "wanted": 400,
+              "at": 405
+            },
+            {
+              "wanted": 900,
+              "at": 921
+            },
+            {
+              "wanted": 2500,
+              "at": 2502
+            }
+          ],
+          "state": {
+            "groundToken": "#171a2e",
+            "groundHex": "#171a2e",
+            "cardHex": "#232741",
+            "groundSaturation": 0.333,
+            "groundLightness": 0.135,
+            "groundPainted": false,
+            "bodyGround": "#171a2e",
+            "goalEdge": false,
+            "goalNamed": "",
+            "cardBorderPx": 2,
+            "bar": 0
+          }
+        },
+        {
+          "moment": "reward-streak",
+          "reached": true,
+          "frames": [
+            {
+              "wanted": 0,
+              "at": 47
+            },
+            {
+              "wanted": 400,
+              "at": 413
+            },
+            {
+              "wanted": 900,
+              "at": 913
+            },
+            {
+              "wanted": 2500,
+              "at": 2506
+            }
+          ],
+          "state": {
+            "first": "false",
+            "streak": true,
+            "milestone": 7,
+            "xp": "25XPFirst clear+10Flawless+5Daily goal+10",
+            "diamonds": 95,
+            "rankUp": "",
+            "done": "done",
+            "continueOnScreen": true
+          }
+        }
+      ]
+    }
+  ]
+}
