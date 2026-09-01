@@ -51,6 +51,15 @@ strengthened by this, not weakened.** As a tab it was not reachable from inside 
 as a header tool it is reachable from every screen in the product, which is what that phrase was
 always asking for.
 
+**Amended 2026-09-01, owner ruling at the calibration gate: the bar is FIVE tabs.** Feed
+(daily quests, lab-mates activity) joins the bar: Path, Train, Cards, Feed, Me, in that
+order. This deliberately supersedes the four-tab count above after the concern was raised
+twice and reaffirmed; five is mobile-ui's hard limit and this sits exactly on it, so no
+sixth ever joins without removing one. Feed's server-backed sections (friends activity)
+render an honest not-open state until their servers exist, per the flagged-surface rule
+below; its client-derivable sections (daily quests over the local journal) may ship live.
+The placement table and `routes.ts` change land in the R rebuild, not before.
+
 Three rules travel with the amendment and are not a later round's to negotiate away:
 
 - **Every route resolves.** A hash in a student's history lands on a page. A flagged surface

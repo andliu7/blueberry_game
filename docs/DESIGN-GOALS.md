@@ -17,6 +17,12 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 - Light green (around `#7ed957`) is the PROGRESS semantic everywhere: completed nodes, filled
   bars, correct states, checkmarks. Violet stays identity: brand, primary buttons, current
   items. Green says "you moved", violet says "this is Blueberry"
+- FILL-ONLY RULE for the goal green, decided 2026-09-01 on measured contrast: #7ed957 is
+  1.60:1 on cream, failing every floor as text or thin outline, and 9.66:1 with dark ink on
+  it. So the green appears ONLY as a fill carrying dark ink or a white check on a large
+  shape, never as text, never as a hairline. The contrast gate stays the arbiter; white
+  checkmarks on green count as large graphics against the 3.0 floor and get measured, not
+  assumed
 - The tab bar background is cream or white, never purple
 
 ## The buttons
@@ -66,10 +72,10 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   diamond with gems. The realistic comet fireball is eliminated
 - Tab icons: Path is the winding green trail, Train is the FLASK AND DUMBBELL, Cards is the
   purple card fan, Feed is the blue NEWSPAPER, Me is the avatar
-- OPEN OWNER DECISION: five tabs (Path, Train, Cards, Feed, Me) versus the recorded four-tab
-  amendment of 2026-08-28. Five sits at mobile-ui's hard limit. Alternatives on the table:
-  quests inside Me, or Feed behind the existing flag until its servers exist. Amending
-  `routes.ts` placements is the owner's call and is not made here
+- DECIDED 2026-09-01 at the calibration gate: FIVE tabs (Path, Train, Cards, Feed, Me).
+  The owner amended the 2026-08-28 four-tab ruling deliberately; the supersession is
+  recorded in CLAUDE.md's tab section. Feed's server-backed sections render honestly
+  not-open until their servers exist. The five-tab goal images are now binding on tab count
 
 ## The node sheet and the guidebook
 
@@ -113,7 +119,10 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 
 ## Typography
 
-- Neutral grotesque (Helvetica Neue with the system stack) for CONTENT: question stems,
-  answer options, flashcard faces, guidebook body, chemical labels
+- Neutral grotesque for CONTENT: question stems, answer options, flashcard faces,
+  guidebook body, chemical labels. DECIDED 2026-09-01: the SYSTEM STACK is the spec
+  (SF on iOS, Roboto on Android, Segoe on Windows); Helvetica Neue is not licensed and
+  appears only where a platform ships it natively. Goal images drawn in a Helvetica-like
+  face are binding on hierarchy and size, not on the exact glyphs
 - The rounded display face for CHROME: buttons, celebration numbers, streak counts, mascot
   speech. Personality lives at the celebration, not between the student and the chemistry
