@@ -88,6 +88,11 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 - Deck browser: fanned named reaction cards with mastery dots over the violet tray
 - Save-to-deck motion follows the committed storyboard in `reference images/onboarding/`:
   tap, card scales to 0.92, arcs to the deck icon, +1 badge
+- The Cards tab OPENS on the review decision, not on browsing: a Due-today hero with one big
+  number and a REVIEW button, My-decks grid beneath (structure doodle, count, thin mastery
+  bar per deck), then auto-collected decks from lessons
+- "My mistakes" is a first-class deck fed by the Tier 2 distractor log, and auto-collected
+  decks carry a lightning marker so authored and auto decks read differently at a glance
 
 ## Celebration
 

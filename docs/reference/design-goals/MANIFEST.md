@@ -20,3 +20,4 @@ full decision list; this manifest maps decisions to files.
 | `blueberry_r5-f1-scrollbar_1788286099.png` | The track-map scrollbar on its energy axis (pre-berry-marker version; compiled-v2 adds the marker) |
 | `blueberry_branch-sidequests_1788284301.png` | THE MASCOT RENDERING LEVEL: this image's mascot shading is the adopted balance of realistic and cartoon. Also the dimmed optional side-loop treatment |
 | `blueberry_branch-diamond_1788284291.png` | Diamond fork geometry: concept node above the fork, branches rejoin at the unit gate |
+| `blueberry_cards-landing_1788288831.png` | The Cards tab landing: Due-today hero with one number and REVIEW, My-decks grid with mastery bars, + New deck, auto-collected decks marked with a lightning bolt, My mistakes as a first-class deck |
