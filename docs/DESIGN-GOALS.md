@@ -87,6 +87,13 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 - Owner direction 2026-09-02: Train's tab is TRANSITIONAL; the bar trends toward Path,
   Cards, Feed, Me once Train's surfaces have a re-homing design. The committed icon set
   above stays the vocabulary either way
+- ICONS ARE SVG, NEVER RASTER, NEVER EMOJI, owner finding 2026-09-02: the trainer's tool
+  icons are AI-generated PNG tiles with baked backgrounds that stopped matching when the
+  ground changed and blur on Retina at 3x. Every in-product icon is a traced SVG that
+  inherits currentColor (emoji vary per platform and are banned from product chrome; PNGs
+  cannot theme or scale). The trainer tool icons (public/icons/*.png and their img tags in
+  TrainerTools.tsx) are the named migration, a follow-up after R, judged against the
+  committed icon vocabulary
 - DECIDED 2026-09-01 at the calibration gate: FIVE tabs (Path, Train, Cards, Feed, Me).
   The owner amended the 2026-08-28 four-tab ruling deliberately; the supersession is
   recorded in CLAUDE.md's tab section. Feed's server-backed sections render honestly
