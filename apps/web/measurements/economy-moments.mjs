@@ -54,6 +54,33 @@ export function noonDaysAgo(daysAgo) {
 }
 
 /**
+ * The same calendar day as `noonDaysAgo`, but a FIXED AGE rather than a fixed
+ * clock time. Use this wherever a seed pins a derived number that decays.
+ *
+ * WHY BOTH EXIST, because the difference cost a whole gate before it was found.
+ * A seed built with `noonDaysAgo` mixes two anchors: its history sits at local
+ * noon, and its "today" events sit at `minutesAgo(n)` from the wall clock. The
+ * gap between the two therefore GROWS as the day runs on, so the history ages
+ * relative to now by up to twelve hours between a morning run and an evening
+ * one. Anything derived from a decaying quantity moves with it, and mastery
+ * decays. hudSeed's mastery measured 17.0 at 21:52 local and 15.7 twenty four
+ * hours later, and MASTERY_RANKS puts Arrow Pusher at exactly 16.0 with a 125
+ * diamond award on it, so the seed's diamond balance flipped 137 to 12 partway
+ * through the afternoon and every HUD moment stopped being reachable.
+ *
+ * Subtracting whole 24 hour periods lands on the same local calendar day that
+ * noon anchoring lands on, so a streak still counts the same number of distinct
+ * days, while every event keeps a constant age and nothing derived can drift.
+ *
+ * `noonDaysAgo` stays, and stays the default, because a seed that asserts only
+ * day membership reads better anchored to the middle of its day. This one is
+ * for the seeds that pin an arithmetic result.
+ */
+export function exactDaysAgo(daysAgo) {
+  return new Date(Date.now() - daysAgo * 86_400_000).toISOString();
+}
+
+/**
  * Six counted days behind today. A casual goal is 10 XP, and a concept node's
  * first clear pays exactly that, so one clear a day meets it (rules.ts).
  */
@@ -388,11 +415,11 @@ const P3_STREAK_NODES = [
 ];
 
 export function hudSeed() {
-  const journal = [{ kind: "settings", at: noonDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }];
+  const journal = [{ kind: "settings", at: exactDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }];
   for (let i = 0; i < P3_STREAK_NODES.length; i += 1) {
     journal.push({
       kind: "node_cleared",
-      at: noonDaysAgo(5 - i),
+      at: exactDaysAgo(5 - i),
       tz: LOCAL_TZ,
       nodeId: P3_STREAK_NODES[i],
       nodeKind: "reaction",
@@ -403,12 +430,12 @@ export function hudSeed() {
     });
   }
   // A week's worth of side work: three resonance finds and one review drill.
-  journal.push({ kind: "resonance_found", at: noonDaysAgo(5), tz: LOCAL_TZ, nodeId: "lesson:conjugation_and_mo" });
-  journal.push({ kind: "resonance_found", at: noonDaysAgo(4), tz: LOCAL_TZ, nodeId: "lesson:diene_addition" });
-  journal.push({ kind: "resonance_found", at: noonDaysAgo(2), tz: LOCAL_TZ, nodeId: "lesson:phenols" });
+  journal.push({ kind: "resonance_found", at: exactDaysAgo(5), tz: LOCAL_TZ, nodeId: "lesson:conjugation_and_mo" });
+  journal.push({ kind: "resonance_found", at: exactDaysAgo(4), tz: LOCAL_TZ, nodeId: "lesson:diene_addition" });
+  journal.push({ kind: "resonance_found", at: exactDaysAgo(2), tz: LOCAL_TZ, nodeId: "lesson:phenols" });
   journal.push({
     kind: "node_cleared",
-    at: noonDaysAgo(3),
+    at: exactDaysAgo(3),
     tz: LOCAL_TZ,
     nodeId: "review:week-1",
     nodeKind: "review",

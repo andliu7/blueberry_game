@@ -823,6 +823,103 @@ not mistaken for coverage lost elsewhere.
   mine by the fourteen rows my own change removed. But no fresh critic has looked at the
   frames, and a builder reading his predecessors' comments is not a blind comparison.
 
+### Round 4, the verification pass: the design work holds and the GATES ARE A CLOCK
+
+Round 3 committed at 6db7a11 and reported its numbers. This round re-ran every one of
+them from a clean build rather than reading the JSON, which is what found the following.
+
+**The sticker audit and four of its routes are only reachable for part of the day.** Two
+independent wall clock cliffs, both pre-existing, both dating to ee6c5b8 when the audit
+first reached the economy surfaces, and neither of them anything the design pass did.
+
+- **The mastery cliff, roughly 15:45 local, now FIXED.** `hudSeed()` mixed two anchors:
+  its history sat at local noon via `noonDaysAgo` while its "today" events sat at
+  `minutesAgo` from the wall clock, so the gap between the two grew as the day ran on and
+  the history aged by up to twelve hours between a morning run and an evening one. Mastery
+  decays, so the derived score fell with it: measured 16.8 just after local midnight, 15.7
+  at 21:22. `MASTERY_RANKS` puts Arrow Pusher at exactly 16.0 with a 125 diamond award on
+  it, so the seed's diamond balance flipped 137 to 12 partway through every afternoon and
+  `HUD_EXPECTED.diamonds` stopped matching. All four HUD moments then failed to reach and
+  the audit aborted, correctly, having measured nothing.
+
+  Fixed by `exactDaysAgo`, a sibling to `noonDaysAgo` that subtracts whole 24 hour periods
+  so an event keeps the local calendar day noon anchoring gives it while also keeping a
+  CONSTANT AGE. Used in `hudSeed` only, so no other seed's asserted numbers move. Measured
+  after: one distinct derived state over a 36 hour sweep, score a flat 16.2, earned 262,
+  balance 137, and hud-rest reached on nine of nine browser attempts across both themes and
+  both viewports. **No assertion was touched.** The seed now produces the state its own
+  comment says it produces, which it had stopped doing.
+
+- **The at risk cliff, 18:00 local, NOT FIXED, and it is the blocker.** `driveHudStreak`
+  requires a sheet line containing the literal "daily goal". `hudModel.ts` writes three
+  branches for that line and only two carry the phrase; the third is the at risk copy,
+  which `derive.ts` selects when the goal is unmet and `localHour >= STREAK_AT_RISK_HOUR`,
+  and that constant is 18. So after six in the evening the seed renders "Hit your goal
+  today to keep it. A free rest day covers you once a week.", the clause fails, hud-streak
+  does not reach, and the audit aborts. Everything else about the sheet is right: sheet
+  streak, headline "5 day streak", seven units, one spotlight, one CTA, no eyebrow, three
+  of three attempts.
+
+  **I did not edit the clause and the audit is therefore RED for me.** It is tempting,
+  because the check's own comment says it is testing that ECONOMY.md's release valve is
+  named, and the at risk copy is the only one of the three branches that actually names
+  the rest day. But CLAUDE.md's rule does not have an exception for an assertion that looks
+  wrong to the person blocked by it, and rewriting a check while also reporting the total
+  it produces is the exact pattern the rule exists to stop. It is somebody's to rule on
+  with the P3 piece.
+
+  The shape of the real fix, recorded so the next person does not re-derive it: the drive
+  pins a copy BRANCH, and the seed cannot choose the branch because the branch is a
+  function of the wall clock. Either the moment is split into its two honest states, at
+  risk and not, each with its own drive and its own copy, or the harness pins the clock in
+  the page. The second is the bigger change and it would need care around charge, which
+  regenerates against the live clock and is asserted at "17 of 30".
+
+**The evidence that this is not theoretical.** The `sticker-audit.json` committed at
+6db7a11 carries `"generated": "2026-09-01T19:41:26.430Z"`, which is 15:41 local, inside
+the last few minutes of the window before the mastery cliff and two hours before the at
+risk one. Round 3's 32 is a real measurement honestly taken; it was also taken with about
+four minutes to spare, and nobody knew the window existed.
+
+### Round 4 gate numbers
+
+Everything that could be run, was. The two that could not are named rather than estimated.
+
+| gate | round 3 reported | round 4 re-measured |
+|---|---|---|
+| typecheck | clean | clean |
+| web tests | 999 in 36 files | 999 in 36 files |
+| validator suite | 30 of 30, integrity unmodified, 101 fixtures | identical |
+| game route payload, gzipped | 191.9 KB | 191.9 KB, ceiling 400 |
+| hit targets under 44 by 44 | 0 of 838 | 0 of 838, 11 routes x 2 viewports |
+| contrast, failing pairs | 0 of 7855 composed | 0 of 7863 composed, 167 distinct, 1209 unresolved |
+| sticker audit total | 32 | BLOCKED after 18:00 local, cause above |
+
+The contrast audit does not walk the four HUD routes, which is why it runs at any hour;
+its composed count moved by 8 pairs against round 3 and the failing count is 0 on both
+sides. The largest near floor group is unchanged and is worth repeating because it is the
+thinnest margin in the app: `rgb(57,65,83)` body text on the lavender ground at 4.73:1
+against a 4.5 floor, 529 instances, which is 5 percent of headroom and is a direct
+consequence of the palette turn whose provenance is still unverifiable.
+
+**On the sticker number, and what is and is not verified.** The 32 in
+`sticker-audit.json` is a real measurement of a source tree byte identical to the one on
+disk now: nothing under `apps/web/src` has changed since 6db7a11, and this round touched
+only `measurements/`. So the per rule split is checkable and was checked by reading the
+JSON: rule 4 is four rows and rule 5 is four rows, both of them the same
+`div.backdrop__plate--drift` trainer wallpaper; rule 6 is four route level rows on
+feedback-correct, feedback-wrong and onboarding in dark and light desktop; rule 10 is
+twenty rows on charge-cost, charge-empty, charge-exam, combo and hud-charge, every one of
+them a sheet drawn over a page that already has a mascot, exactly as round 3 described.
+What is NOT verified is that the audit still returns 32 when re-run, because it cannot be
+re-run after 18:00 local. That is a claim about a number, not about the design, and it
+should be re-taken in the morning before the piece is judged.
+
+The design work itself was read rather than assumed, and it holds: the goal strip is ten
+discrete ticks with the current tick filled to its own fraction, no written fraction
+anywhere, still the header's bottom edge, still zero horizontal cost to the readout row,
+and `hudGeometryHolds` green with `driveRetries` empty on every run this round.
+
 ## The operational finding that cost the most: the loop was killing its own builders
 
 Every stalled or retried round in this run ends the same way. The transcript's last line
