@@ -56,6 +56,30 @@ Two additions to the trainer's answer shapes, extending the Phase 2 four-mode co
 - Home: packages/interaction (mode), packages/curriculum (grading shape), Cards surface
   (series). Trainer rounds judged against the Alchemie captures as always
 
+## 4b. Every mistake is a card candidate, and the owner's scheduler
+
+Owner direction and OWNER-AUTHORED CODE, 2026-09-01 (late): three files delivered by the
+owner and pending arrival in the tree as of this writing: spacedRepetition.ts (SM-2 update,
+urgency scoring, generateDailySet, fully commented), card_progress_migration.sql (Supabase
+table plus per-user RLS policy), spacedRepetition.demo.ts. When they land they are REVIEWED
+then integrated, never pasted blind, and the scheduler becomes the engine behind Cards
+review with card_progress as its server-side store (RLS before any client read, per the
+non-negotiables; the owner wrote the policy in, which is the right instinct).
+
+The ruling that travels with it: the My-mistakes deck is fed by EVERY mistake the student
+makes, wherever it happens: wrong answers in lessons (any beat type), wrong GRADING
+decisions inside the Cards section itself (a card graded Easy then failed next time is a
+mistake signal), and, when the AI chat ships, mistakes surfaced in chat may also mint card
+candidates. One pipeline, many sources, each card recording its provenance (which lesson,
+which beat, which cause id from the registry) so the card's back can point at the exact
+Tier 1/Tier 2 explanation that already exists for that mistake.
+
+Sequencing: the R cards builder is mid-flight and owns src/cards; this integration does
+NOT interrupt it. It lands as a follow-up piece after R integrates, judged like everything
+else, with the demo file as its first fixture. The SQL migration is Phase 6 territory
+(server, RLS attack test per CLAUDE.md) and waits there; until then the scheduler runs
+against the local journal the way every other balance does.
+
 ## 5. Feedback specificity, reaffirmed and sharpened
 
 Owner: feedback must be tailored, specific, detailed to the situation, so users know
