@@ -59,6 +59,11 @@ sixth ever joins without removing one. Feed's server-backed sections (friends ac
 render an honest not-open state until their servers exist, per the flagged-surface rule
 below; its client-derivable sections (daily quests over the local journal) may ship live.
 The placement table and `routes.ts` change land in the R rebuild, not before.
+Further owner direction, 2026-09-02: TRAIN eventually leaves the bar, trending back toward
+four tabs (Path, Cards, Feed, Me). Not this round: R ships five with Train, and Train's
+surfaces (Puzzle Sprint, practice modes, the Daily Mechanism) must have a named home
+before its tab is removed, because a surface without a destination is a deleted surface
+and nothing here gets deleted. The re-homing design is a future round's brief.
 
 Three rules travel with the amendment and are not a later round's to negotiate away:
 

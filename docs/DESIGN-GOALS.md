@@ -84,6 +84,9 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   diamond with gems. The realistic comet fireball is eliminated
 - Tab icons: Path is the winding green trail, Train is the FLASK AND DUMBBELL, Cards is the
   purple card fan, Feed is the blue NEWSPAPER, Me is the avatar
+- Owner direction 2026-09-02: Train's tab is TRANSITIONAL; the bar trends toward Path,
+  Cards, Feed, Me once Train's surfaces have a re-homing design. The committed icon set
+  above stays the vocabulary either way
 - DECIDED 2026-09-01 at the calibration gate: FIVE tabs (Path, Train, Cards, Feed, Me).
   The owner amended the 2026-08-28 four-tab ruling deliberately; the supersession is
   recorded in CLAUDE.md's tab section. Feed's server-backed sections render honestly
