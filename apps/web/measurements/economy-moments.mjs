@@ -748,7 +748,26 @@ export async function driveHudStreak(page, { onTrigger = null } = {}) {
     state.sheetEyebrows === 0 &&
     // ECONOMY.md's release valve, named before a student needs it rather than
     // after they have lost something.
-    state.sheetLines.some((line) => line.includes("daily goal"));
+    //
+    // THE CLOCK IS PART OF THE SURFACE, so it must be part of the assertion.
+    // The sheet line is a function of the wall clock, not the seed: derive.ts
+    // marks an unmet goal at risk from localHour >= STREAK_AT_RISK_HOUR
+    // (rules.ts:171, value 18), and hudModel.ts then swaps the authored line.
+    // The old probe here was includes("daily goal"), a phrase only the
+    // before-six branch contains, so the drive failed every run after 18:00
+    // local and the sticker audit aborted having measured nothing: a broken
+    // instrument for a third of every day, found by the S3 round 3 builder,
+    // which reported it rather than editing this clause mid-round. The
+    // assertion is now EXACT per branch, which is stronger where the old one
+    // passed (the full authored sentence, not a substring) and runnable at
+    // any hour. It also finally checks what the comment above always claimed:
+    // the at-risk branch is the only one naming the rest-day release valve,
+    // and after 18:00 that naming is now asserted verbatim.
+    state.sheetLines.some((line) =>
+      line ===
+      (new Date().getHours() >= 18
+        ? "Hit your goal today to keep it. A free rest day covers you once a week."
+        : "Today is not counted yet. Hitting your daily goal is what lights it."));
   return { moment: "hud-streak", reached, at, trigger, state };
 }
 
@@ -842,8 +861,25 @@ export function p4MilestoneSeed() {
  * the whole run; the window itself is the last 14 days before the exam, which
  * is where the seed's later days and today sit.
  */
+/**
+ * A date-only string N days ahead, in LOCAL calendar days. toISOString() is
+ * UTC, and the app counts exam days in the profile's local timezone, so the
+ * old UTC slice drifted one day ahead every evening once local time crossed
+ * the UTC rollover (20:00 EDT): the seeded exam read "in 10 days", the drive
+ * asserted "in 9", and charge-exam stopped reaching. Found by the same S3
+ * re-run that exposed the streak drive's 18:00 branch. setDate is DST-proof
+ * where adding 86400000 ms nine times is not.
+ */
+function localDateInDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 export function p4ExamSeed() {
-  const examDate = new Date(Date.now() + 9 * 86_400_000).toISOString().slice(0, 10);
+  const examDate = localDateInDays(9);
   return [
     ...unlockSeed(),
     ...streakHistory(12),
@@ -1070,7 +1106,7 @@ export function p5EmptySeed() {
  * says no limits, which is only true because the meter is gone.
  */
 export function p5ExamSeed() {
-  const examDate = new Date(Date.now() + 9 * 86_400_000).toISOString().slice(0, 10);
+  const examDate = localDateInDays(9);
   return [
     { kind: "settings", at: noonDaysAgo(20), tz: LOCAL_TZ, dailyGoal: "regular", examDate },
     ...entries(4, 12),

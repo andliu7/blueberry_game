@@ -947,3 +947,29 @@ not already provide, and it cost a builder every time it landed on one.
 The dynamic loop is stopped. Rounds now wake this session only when they finish. The
 watchdog rule stays for a genuinely hung workflow, but checking is now event driven rather
 than polled, which is what it should have been from the first round.
+
+## The instruments that only worked before dark
+
+The S3 round 3 builder reported the blocker rather than editing the clause, and the fix
+landed separately, as the discipline asks. Two wall-clock bugs, one root lesson.
+
+driveHudStreak asserted a sheet line containing "daily goal", a phrase only the before-six
+copy branch contains: derive.ts flips atRisk at STREAK_AT_RISK_HOUR (18) and hudModel swaps
+the authored sentence, so the drive failed every evening and the sticker audit aborted
+having measured nothing. The assertion is now exact per branch, full authored sentence
+rather than substring, stronger where it used to pass, and after 18:00 it finally checks
+what its own comment always claimed: that the rest-day release valve is named.
+
+p4ExamSeed and p5ExamSeed built their exam date with toISOString(), which is UTC, while
+the app counts exam days in local time. After 20:00 EDT the UTC calendar has rolled, the
+seeded exam read "in 10 days", the drive asserted "in 9", and charge-exam stopped
+reaching. Both seeds now use local calendar days via setDate, which is also DST-proof.
+
+Proof both fixes hold: the full audit ran at 22:37 local, all 29 routes reached with
+driveRetries empty, and reported 32, the same figure the round 3 builder inherited from
+the 19:41Z JSON and could not reproduce that night. The number nobody could re-take after
+dark is now a number anyone can.
+
+The lesson, recorded for the next drive an author writes: THE CLOCK IS PART OF THE
+SURFACE. A seed pins history; it cannot pin the hour. Any assertion downstream of copy or
+counts that branch on wall time must either assert per branch or seed the clock itself.

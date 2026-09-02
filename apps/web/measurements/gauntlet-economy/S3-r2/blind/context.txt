@@ -1,0 +1,22 @@
+Three pairs from two study apps. In each pair the two frames are the same moment, at the same
+viewport and in the same colour scheme, so the comparison is of how the screen looks and feels
+rather than of what it is doing.
+
+Pair 1, A.png and B.png. The course laid out as a run of lessons: the screen a student opens to
+see where they are and to work out which single lesson to do next. Phone shape 390x844 at 3x,
+light scheme, nothing pressed, the screen settled.
+
+Pair 2, A-2.png and B-2.png. One question inside a lesson, on screen, with nothing answered yet
+and no feedback shown. Phone shape 390x844 at 3x, dark scheme, nothing pressed.
+
+Pair 3, A-3.png and B-3.png. The end of a lesson: the screen that reports what the student just
+earned. Phone shape 390x844 at 3x, dark scheme, 2500 ms after the screen opened, so both frames
+are settled rather than mid animation.
+
+The two schemes are not a choice: the committed captures hold the course screen in light and the
+lesson and reward screens in dark, so each pair matches the scheme it was available in. Compare
+within a pair, not across pairs.
+
+Both sides are unmodified captures. Nothing was painted out of either frame: no text was removed,
+no wordmark or logo was found on any of the six frames, and no character, mascot or illustration
+was touched on either side.
