@@ -246,3 +246,26 @@ wrong tool for that audience. What answers it is the mitigation set in that file
 purposes the consequence is narrow: a streak, charge or mastery surface never uses the critical
 or error ramp, never counts down, and never animates a number falling. Loss states in this
 product are rendered in the calm ramp, not the alarm one.
+
+## Amendment, 2026-09-01, from the design-goals adoption
+
+Recorded at the calibration gate, values still land here only through the contrast gate.
+
+- GREEN IS THE PROGRESS SEMANTIC: light green (working centre `#7ed957`) means forward
+  motion everywhere: completed nodes, filled bars, correct states, checkmarks. Violet stays
+  identity. FILL-ONLY, on measured contrast: 1.60:1 as text on cream, 9.66:1 as a fill
+  under dark ink, so the green never appears as text or hairline, only as a fill carrying
+  dark ink or a white mark on a large shape, each pairing measured not assumed
+- LESSON NODES are periwinkle (working centre `#9BA8F5`), 3D pressable chips with a darker
+  bottom edge and a real pressed-down state inside the 100 ms budget; five states per the
+  committed states sheet in `docs/reference/design-goals/`
+- TYPOGRAPHY splits by role: the SYSTEM STACK (SF / Roboto / Segoe) for content (question
+  stems, options, flashcard faces, guidebook body, chemical labels), the rounded display
+  face for chrome and celebration. No Helvetica licence. Sticker rule 8's needles must be
+  re-pointed when the faces change, or it audits ghosts
+- REPORTED CONFLICT, owner's to settle, not resolved here: the lavender turn of 2026-08-29
+  (this file's own regime above, ground `#a3aee2`, card cream) against the warm cream
+  ground of `docs/DESIGN-GOALS.md` (2026-09-01). Two owner directions point at different
+  grounds. The S3 verdict review is the natural place to pick; whichever loses gets a
+  dated supersession here, and the near-floor 4.73:1 body-text-on-lavender group (x534,
+  the thinnest margin in the app) is evidence in that decision, not a verdict on it

@@ -560,7 +560,17 @@ must not undo that.
 
 ## S4 The loader and the first reveal
 
-### Round 1: built. Not yet judged.
+### Round 1: OURS WON BLIND, confidence 0.93. Exit met. Highest of the run.
+
+Backfilled 2026-09-01 from the judge transcript in the workflow journal (session a42b2ba9,
+wf_b742570f-e44), which the LOG missed when the round closed; until this entry the verdict
+lived only in commit 7c5f2b3's subject line, which the calibration flagged as a record
+defect. The assignment file (S4-r1/blind/assignment.json) seals ours as A; the judge picked
+A at 0.93. In the judge's words: A puts something on screen at 0 ms, a branded field, the
+mascot, a determinate progress bar that visibly advances across the 0/400/900 frames, and
+one line of copy telling the student what the wait is buying, where B is a pure white void
+for the first three frames and only snaps into its path at 2500 ms. On a phone at 1am that
+difference is "the app is working on it" versus "did this crash or is my wifi dead".
 
 Bar: the landonorris.com preloader captured 28 August, a full bleed colour field with one
 small mark and a load word that WIPES away to reveal a page already at rest; and Duolingo's
