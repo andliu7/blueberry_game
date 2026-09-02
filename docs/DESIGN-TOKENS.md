@@ -9,6 +9,10 @@ changed products.
 
 ## Color
 
+**THE LAVENDER TURN IS ITSELF SUPERSEDED, 2026-09-01, by the warm cream regime; see the
+Supersession entry at the end of this file. The block below stands as the record of what it
+was and why it moved.**
+
 **THE LAVENDER TURN, recorded here 2026-09-01 by the S3 design pass, and it supersedes the
 divergence paragraph below.** The paragraph below says cream ground, purple led, roughly the
 `#7c3aed` to `#8b5cf6` range as the working centre. That is not what `apps/web/src/theme.css`
@@ -159,12 +163,22 @@ deleting saved work, not for a student learning.
 
 ## Typography
 
-- Body and UI: `"Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif`
-- Display, class `.title-face`: `"Fraunces Variable", "Iowan Old Style", Palatino, Georgia, serif`,
-  `letter-spacing: 0.02em`
-- Handwritten accent, class `.playful-face`: `"Caveat Variable"` and fallbacks. Short labels only,
-  never body copy
-- `.playful-body` keeps Inter at `letter-spacing: 0.01em; line-height: 1.7` for warm long copy
+Re-pointed 2026-09-01 by the design-goals adoption (see the Supersession entry). The split is
+by ROLE, per `docs/DESIGN-GOALS.md`: content is neutral, chrome carries the personality.
+
+- Content (question stems, answer options, flashcard faces, guidebook body, chemical labels),
+  token `--font-sans`: the SYSTEM STACK,
+  `ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`.
+  SF on iOS, Roboto on Android, Segoe on Windows; Helvetica Neue is not licensed and appears
+  only where a platform ships it natively
+- Chrome (buttons, celebration numbers, streak counts, mascot speech), token `--font-display`,
+  class `.title-face`: the ROUNDED display stack,
+  `ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Baloo 2", Quicksand, "Varela Round", ui-sans-serif, system-ui, sans-serif`.
+  No webfont ships in this phase, so the stack reaches the platform's own rounded face and
+  falls back to the content stack
+- The earlier faces are out: Inter and Fraunces are gone from the live stacks, and the Caveat
+  handwritten accent (`.playful-face`) left the source tree. Sticker rule 8's needles point at
+  the rounded stack (needle "rounded") with the floor armed at 16px
 
 **This app defines one**, in `theme.css` under `@theme inline`: seven steps, roughly a 1.25 ratio,
 snapped to whole pixels, used as `text-scale-xs` through `text-scale-display`.
@@ -268,4 +282,48 @@ Recorded at the calibration gate, values still land here only through the contra
   ground of `docs/DESIGN-GOALS.md` (2026-09-01). Two owner directions point at different
   grounds. The S3 verdict review is the natural place to pick; whichever loses gets a
   dated supersession here, and the near-floor 4.73:1 body-text-on-lavender group (x534,
-  the thinnest margin in the app) is evidence in that decision, not a verdict on it
+  the thinnest margin in the app) is evidence in that decision, not a verdict on it.
+  SETTLED: see the Supersession entry below
+
+## Supersession, 2026-09-01: the warm cream regime replaces the lavender turn
+
+The conflict reported above is settled for the warm cream ground, and this entry is the
+dated supersession the amendment promised. What decided it: `docs/DESIGN-GOALS.md` is the
+owner's newer word and gives the ground twice ("warm tech ground: cream paper" under
+Palette and surfaces, and the cream-or-white tab bar rule), against the lavender turn of
+2026-08-29 whose five source images were never committed and whose provenance this file
+already flagged as unverifiable. The design-goals reference set IS committed, in
+`docs/reference/design-goals/`. The team runthrough gate can overrule.
+
+What it replaces: the lavender turn's shipped values at the top of this file, namely
+ground `#a3aee2` lavender with card `#fbf3e6` cream and primary `#3f4286` deep navy.
+What ships now, in `apps/web/src/theme.css`, every pairing re-run through
+`measurements/contrast-audit.mjs`:
+
+| Token | Lavender turn | Warm cream regime |
+|---|---|---|
+| `--background` light | `#a3aee2` lavender | `#fbf3e6` warm cream, the goals' cream paper |
+| `--card` light | `#fbf3e6` warm cream | `#ffffff`, lifting off the cream |
+| `--primary` light | `#3f4286` deep navy | `#6d3fd4` identity violet (not the mascot's `#7c3aed`) |
+| `--primary-ink` light | `#33367a` | `#5b2fc0`, 7.30:1 on the ground |
+| dark theme | unchanged | unchanged; it was derived, not inverted, and never depended on which light surface was which |
+
+Structural notes that travel with it:
+
+- The cream that was the card is now the ground, so every ink derived to clear the cream
+  card still clears its surface, and everything that had to clear the darker lavender
+  ground now clears an easier one. The near-floor 4.73:1 body-on-lavender group (x534,
+  the thinnest margin in the app) is gone with the ground that caused it
+- White card on cream ground is 1.10:1, so EVERY CARD STILL CARRIES A BORDER; the
+  structural-border rule survives the regime change with the same `--border #55597f`
+- New token families, per the goals: `--chip-*` (the periwinkle `#9ba8f5` 3D pressable
+  chip, thick darker bottom edge, pressed state), and `--progress-*` (the goal green
+  `#7ed957`, FILL ONLY). Measured, not assumed: white on `#7ed957` is 1.76:1, UNDER the
+  3.0 graphics floor, so even a white checkmark may not sit on the goal green itself;
+  `--progress-deep #43a047` (white at 3.30:1) is the only green a white mark may sit on,
+  and dark ink `--progress-ink #163a26` (7.17:1) is the default mark on the fill
+- Typography splits per the goals: `--font-sans` is the system stack (content),
+  `--font-display` is the rounded display stack (chrome). Fraunces and Caveat leave the
+  app; sticker rule 8's needles were re-pointed in the same turn and its floor armed at
+  16px, derived from this file's own type scale (the steps below scale-base are body and
+  caption sizes, which belong to the content face)

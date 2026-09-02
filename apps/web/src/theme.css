@@ -1,64 +1,80 @@
 /*
  * Blueberry Mechanisms design tokens.
  *
- * THE LAVENDER TURN, owner direction 2026-08-29.
+ * THE WARM CREAM REGIME, owner direction 2026-09-01, from docs/DESIGN-GOALS.md.
+ * It supersedes the lavender turn of 2026-08-29 (ground #a3aee2, card cream),
+ * whose header stood here until this edit; the dated supersession is recorded
+ * in docs/DESIGN-TOKENS.md. The goals file is the owner's newer word, given
+ * twice: "warm tech ground: cream paper" and the calibration-gate amendment.
+ * The lavender turn's provenance (five concept images never committed to
+ * docs/reference/) was already flagged as unverifiable; DESIGN-GOALS has a
+ * committed reference set in docs/reference/design-goals/.
  *
- * Five approved concept images (blueberry_reaction-deck-swipe, -card-faces,
- * blueberry_pathway-hand, -lesson-hand, -reward-hand) carry the same three
- * values on every frame: a lavender ground, a warm cream card, and a deep navy
- * ink. Sampled, the modal pixels are #9babde to #a9aae0 for the ground and
- * #f9f1e4 to #fbf3e6 for the card. This file used to have those two INVERTED,
- * a cream page carrying white cards, and that inversion is why the sticker
- * audit measured saturated fill at 0.09 to 0.64 percent of the painted page on
- * every route: the palette appeared only on borders and text, which is exactly
- * what rule 6 of that language exists to catch.
+ * The regime: WARM CREAM PAPER is the ground, cards are white and lift off it,
+ * ink stays the near-neutral deep navy. Violet returns as the identity hue
+ * (brand, primary buttons, current items), periwinkle carries the lesson-node
+ * and button chips, and light green #7ed957 is the progress semantic, FILL
+ * ONLY. Re-measured here rather than inherited:
  *
- * So --background is the lavender family and --card is the warm cream. The
- * three numbers that follow are re-measured here rather than inherited:
+ *   ink #2a2a42 on the cream ground #fbf3e6   12.6:1   passes AA
+ *   white card on the cream ground             1.10:1  FAILS the 3:1 a boundary needs
+ *   border #55597f                             6.11:1 on the ground, 6.73:1 on the card
  *
- *   ink #1e293b on the lavender ground   6.76:1   passes AA
- *   cream card on the lavender ground    1.96:1   FAILS the 3:1 a boundary needs
- *   ink #2a2a42 on the lavender ground   6.44:1   the value actually shipped
+ * THE SECOND LINE IS STILL THE LOAD BEARING ONE. A white card on cream is
+ * 1.10:1, so the card edge is not visible on its own and EVERY CARD CARRIES A
+ * BORDER, the same sticker-rule-3-by-arithmetic the lavender regime had.
+ * --border #55597f survives unchanged because it was derived to clear both
+ * surfaces it separates and it clears these two by more.
  *
- * THE SECOND LINE IS THE LOAD BEARING ONE. A cream card on a lavender ground is
- * 1.96:1, so the card edge is not visible on its own and EVERY CARD CARRIES A
- * BORDER. That is sticker rule 3 arriving by arithmetic rather than by taste,
- * and --border is derived to clear 3:1 against BOTH surfaces it separates:
- * #55597f is 6.11:1 on the cream card and 3.11:1 on the lavender ground.
+ * WHY THE GROUND IS #fbf3e6. It is the warm cream this file already shipped as
+ * the CARD, the one surface of the lavender regime the goals keep ("cream
+ * paper"). Promoting it to the ground and lifting the card to white preserves
+ * every ink-on-cream measurement in this file: everything that was derived to
+ * clear the cream card now also has to clear the cream ground, and does, while
+ * everything that had to clear the darker lavender ground (the worse surface)
+ * now clears an easier one. No dark-ink token got worse in this turn.
  *
- * WHY THE INK IS #2a2a42 AND NOT #1e293b. Both read as deep navy at text sizes
- * and both clear AA. #1e293b measures HSL S 0.326, which the sticker audit
- * scores as a saturated hue on body-sized text (rule 7, "body recedes so colour
- * leads"), and it was raising 88 rows for the default ink alone. #2a2a42 is
- * S 0.222, the same band the audit's own comment names as acceptable for a
- * slate (--muted-foreground at S 0.20), so it is a near-neutral by measurement
- * rather than by assertion. Nothing in the check moved.
+ * WHY THE PRIMARY IS #6d3fd4 AND NOT #7c3aed. DESIGN-GOALS returns violet to
+ * identity ("violet says this is Blueberry"), but #7c3aed is the mascot's
+ * costume cape in MASCOT_PALETTE and #5b21b6 its fold, and sticker rule 9
+ * (character palette stays out of chrome) failed 247 rows on that collision
+ * once already. #6d3fd4 is the same violet family, is in neither palette,
+ * carries white at 6.34:1, and clears 5.76:1 as a shape on the cream ground.
  *
- * WHY THE PRIMARY LEFT #7c3aed. That hex was --primary in light AND the mascot's
- * costume cape in MASCOT_PALETTE, so rule 9 (character palette stays out of
- * chrome) was failing 247 rows on one collision. The concept images do not use
- * violet for a button at all: the primary surface in all five is the deep navy,
- * around #404179. --primary is #3f4286, which carries white at 8.99:1, and the
- * collision is gone without needing a ruling on which palette owns the hex.
+ * THE INK STAYS #2a2a42. Near-neutral by the sticker audit's own measure
+ * (HSL S 0.222); the reasoning from the lavender turn holds unchanged.
  *
- * THE DARK THEME IS DERIVED, NOT INVERTED. Cream at night is glare, so dark
- * does not swap the two values back: the ground becomes a deep indigo night
- * #171a2e and the card LIFTS to #232741, which is the same figure-ground
- * relationship (ground darker, card the surface content sits on) reached from
- * the other end. Card on ground is 1.18:1 there, so the border rule holds in
- * both themes for the same reason, and --border #6f74a3 clears 3.27:1 on the
- * card and 3.84:1 on the ground.
+ * THE DARK THEME IS UNCHANGED. It was derived, not inverted, so it never
+ * depended on which light surface was which: deep indigo night ground
+ * #171a2e, card lifts to #232741, border #6f74a3 clears both. Every dark
+ * value below carries its original measurement.
  *
- * Superseded: the purple-led palette recorded in docs/DESIGN-TOKENS.md and the
- * cream-page note that used to head this file. The divergences that survive:
+ * NEW IN THIS TURN, per DESIGN-GOALS:
  *
- *   --muted-foreground is #394153, not slate-600 #475569. Slate-600 measures
- *   3.50:1 on the lavender ground, under the 4.5:1 body floor. One token
- *   serving two grounds has to clear the worse one: #394153 is 4.73:1 on the
- *   ground and 9.28:1 on the card.
+ *   --chip-* : the periwinkle 3D pressable chip (working centre #9ba8f5),
+ *     thick darker bottom edge, pressed-state values. The fill is 2.05:1 on
+ *     cream, so the EDGE is what identifies the shape (4.57:1 on the ground);
+ *     the audit's shape rule (fill and boundary collapse to the better) is
+ *     what makes that compliant, and the ink on the face is 6.43:1.
+ *   --progress-* : the goal green #7ed957, FILL ONLY. 1.60:1 as text on
+ *     cream, so it is never text and never a hairline; --progress-ink
+ *     #163a26 sits on it at 7.17:1. WHITE ON #7ed957 MEASURES 1.76:1, UNDER
+ *     THE 3.0 GRAPHICS FLOOR, so a white mark may not sit on the goal green
+ *     either: --progress-deep #43a047 (white at 3.30:1) is the only green a
+ *     white mark may sit on, and that adjustment toward compliance is
+ *     recorded here rather than assumed away.
+ *   The typography split: --font-sans is the SYSTEM STACK (content face:
+ *     stems, options, card faces, guidebook body, chemical labels), and
+ *     --font-display is the ROUNDED display stack (chrome: buttons,
+ *     celebration numbers, streak counts, mascot speech). No webfont files
+ *     ship; Helvetica Neue appears only as a platform-native fallback, per
+ *     the licence note in DESIGN-GOALS.
  *
- *   Fonts are declared as stacks with system fallbacks and no webfont files are
- *   shipped in this phase.
+ * The divergences that survive from earlier regimes:
+ *
+ *   --muted-foreground is #394153, not slate-600 #475569: derived once to
+ *   clear the worst ground it composes on, it is 9.28:1 on the cream ground
+ *   and 10.22:1 on the white card here.
  */
 @import "tailwindcss";
 @import "./mascot/mascot.css";
@@ -70,51 +86,112 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* THE GROUND. Lavender, sampled from the five approved images. */
-  --background: #a3aee2;
-  /* Deep navy, near-neutral by measurement (S 0.222). 6.44:1 on the ground,
-     12.64:1 on the card. See the file header for why not #1e293b. */
+  /* THE GROUND. Warm cream paper, per DESIGN-GOALS. This hex was the lavender
+     regime's CARD, the one light surface the goals keep. */
+  --background: #fbf3e6;
+  /* Deep navy, near-neutral by measurement (S 0.222). 12.6:1 on the ground,
+     13.9:1 on the card. See the file header. */
   --foreground: #2a2a42;
-  /* THE CARD. Warm cream. 1.96:1 against the ground, so it always carries a
-     border; --border below is derived for exactly that. */
-  --card: #fbf3e6;
+  /* THE CARD. White, lifting off the cream. 1.10:1 against the ground, so it
+     always carries a border; --border below is derived for exactly that. */
+  --card: #ffffff;
   --card-foreground: #24243c;
-  /* The deep navy the concept images use for every primary surface. White on it
-     is 8.99:1, cream on it 8.14:1, and it clears 4.16:1 as a shape sitting on
-     the lavender ground, over the 3:1 WCAG 1.4.11 asks of an interface
+  /* THE IDENTITY VIOLET, per DESIGN-GOALS: "violet says this is Blueberry".
+     Not #7c3aed (the mascot's cape, sticker rule 9) and not #5b21b6 (the
+     fold). White on it is 6.34:1, and it clears 5.76:1 as a shape sitting on
+     the cream ground, over the 3:1 WCAG 1.4.11 asks of an interface
      component. */
-  --primary: #3f4286;
-  --primary-bright: #5a5eb4;
+  --primary: #6d3fd4;
+  --primary-bright: #8b5cf6;
   --primary-foreground: #ffffff;
-  /* The split survives the turn and for the same reason it existed: as INK on
-     the lavender ground --primary measures 4.16:1, under the 4.5 body floor.
-     --primary-ink is 4.98:1 on the ground and 9.78:1 on the card. */
-  --primary-ink: #33367a;
-  /* Warm, because they are steps of the CARD now rather than of a cool white. */
+  /* The ink/surface split survives the turn: violet as TEXT is held to the
+     4.5 body floor on the worst ground it composes on. --primary-ink is
+     7.30:1 on the cream ground and 8.04:1 on the white card. */
+  --primary-ink: #5b2fc0;
+  /* Warm steps of the cream family, so a muted surface reads as paper. */
   --secondary: #f1e8d7;
   --muted: #f1e8d7;
-  /* 4.73:1 on the lavender ground, 9.28:1 on the cream card. Slate-600 was
-     3.50:1 on the ground and had to go. */
+  /* Derived once to clear the worst ground it composes on: 9.28:1 on the
+     cream ground, 10.22:1 on the white card. */
   --muted-foreground: #394153;
   /* 5.24:1 on the card. Error copy lives on a card, never on the bare ground. */
   --destructive: #a4123c;
-  /* THE BORDER IS STRUCTURAL, and it is the whole reason this value is this
-     dark: 6.11:1 on the cream card and 3.11:1 on the lavender ground, so the
-     cut edge of a sticker reads from both sides of itself. */
+  /* THE BORDER IS STRUCTURAL: white card on cream ground is 1.10:1, so the
+     border is the card's edge. 6.73:1 on the white card and 6.11:1 on the
+     cream ground, so the cut edge of a sticker reads from both sides. */
   --border: #55597f;
   --input: #55597f;
-  --ring: #4b4fa0;
+  --ring: #6d3fd4;
   /* THE CUT EDGE OF A FILLED STICKER. A primary button is a saturated fill and
      its outline cannot be --border, which is derived against the card and the
-     ground rather than against a navy fill. This is one step down the same
-     family: 11.77:1 on the cream card and 5.99:1 on the lavender ground, so the
-     shape's outline reads from either side of it. */
-  --primary-edge: #2a2c5e;
+     ground rather than against a violet fill. One step down the same family,
+     not the mascot's #5b21b6: 8.82:1 on the cream ground, so the shape's
+     outline reads from either side of it. */
+  --primary-edge: #4c2ba0;
   /* Kept as tokens because two beats still name them. Neither is painted as a
      gradient on chrome any more; sticker rule 2 is a hard rule and the reward
      button is a flat fill. */
-  --accent-from: #4b4fa0;
-  --accent-to: #6f74c8;
+  --accent-from: #5b2fc0;
+  --accent-to: #8b5cf6;
+  /* -------------------------------------------------------------------
+     THE 3D PRESSABLE CHIP, per DESIGN-GOALS "The buttons": every node and
+     button is a chip with a thick darker bottom edge that visibly presses
+     down on pointer down, inside the 100 ms budget. Periwinkle working
+     centre #9ba8f5, between light blue and lavender.
+
+     THE EDGE IS WHAT IDENTIFIES THE SHAPE. The periwinkle fill is 2.05:1 on
+     the cream ground, under the 3:1 an interface component needs, and the
+     contrast audit's own shape rule (a fill and its boundary collapse to
+     the better of the two) is why the chip is compliant: --chip-edge is
+     4.57:1 on the ground and the edge is structural, not decorative, the
+     same argument --border carries for cards. A chip with its edge removed
+     is a chip the audit will fail, and it should.
+
+     Ink on the face is dark, never white: white on #9ba8f5 is 2.26:1.
+     --chip-ink #23264a is 6.43:1 on the face, over the 4.5 body floor.
+
+     The pressed state: face darkens one step and the button travels down by
+     --chip-press-travel while the edge compresses. Both are transforms plus
+     a one-step colour swap, no transitions through midpoints. */
+  --chip-face: #9ba8f5;
+  --chip-face-press: #8794ea;
+  --chip-edge: #5a67c4;
+  --chip-ink: #23264a;
+  --chip-edge-size: 4px;
+  --chip-press-travel: 3px;
+  /* -------------------------------------------------------------------
+     THE PROGRESS GREEN, per DESIGN-GOALS: #7ed957 means forward motion
+     everywhere (completed nodes, filled bars, correct states, checkmarks).
+     FILL ONLY, on measured contrast: 1.60:1 as text or hairline on cream,
+     failing every floor, and 7.17:1 with --progress-ink on top of it. So
+     the green appears only as a fill carrying dark ink or a dark mark.
+
+     WHITE ON #7ed957 MEASURES 1.76:1, UNDER THE 3.0 GRAPHICS FLOOR, so the
+     goals' "white check on a large shape" fails on the goal green itself;
+     measured, not assumed, exactly as the goals ask. The value adjusted
+     toward compliance rather than the check: --progress-deep #43a047 is
+     the ONLY green a white mark may sit on (white at 3.30:1, graphics
+     floor; still not white text, which needs 4.5).
+
+     --progress-edge is the completed chip's bottom edge and the only member
+     dark enough to identify the shape on the cream ground: 3.82:1. The
+     glow is the completed-state language (static soft glow, pulsing halo
+     only on the current node, no pulse under reduced motion); a glow
+     carries no floor because it is never the only thing identifying a
+     state. */
+  --progress: #7ed957;
+  --progress-ink: #163a26;
+  --progress-edge: #3f8c28;
+  --progress-deep: #43a047;
+  --progress-soft: #e6f7da;
+  --progress-glow: rgba(126, 217, 87, 0.45);
+  /* The spring every celebratory pop in this file names. It was defined only
+     in tokens.css, which nothing imports, so var(--ease-spring) resolved to
+     nothing and every animation shorthand naming it was invalid. Defined
+     where it is used. --ease-out is NOT defined here: Tailwind's default
+     theme already emits it and a second definition would silently repoint
+     every utility that names it. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   /* Mechanism canvas strokes. Slate-600-ish clears the 3:1 graphics contrast
      floor on the cream ground; the faint variant is for the hydrogen arc. */
   /* Lighter than every atom it joins, per the video-frame critic: the bar's
@@ -248,9 +325,10 @@
      Every accent hue in this palette is derived against a cream surface, which
      is where coloured ink lives here; mixing them onto a saturated ground is
      the same mistake the header made before it became a sheet.
-     It is still visibly a different world from the working state, and by the
-     stronger difference: the working state is cream cards ON lavender, and this
-     is cream EVERYWHERE, with no header, no bar and no cards. */
+     It is still a different world from the working state, though the warm
+     cream regime narrowed the gap: the working state is white cards on cream,
+     and this is one warm sheet with no header, no bar and no cards. What
+     separates the stages now is structure, not hue distance. */
   /* A LITERAL, NOT A color-mix, AND THAT IS A MEASUREMENT DECISION.
      Chrome computes color-mix() to `color(srgb ...)`, and contrast-audit.mjs's
      colour parser reads `rgb()` and `rgba()` only. A stage painted with a mix
@@ -327,8 +405,8 @@
      contrasts for one token. Sticker rule 2 wants flat fills anyway.
 
      Measured, because the label inside it is 12px and 12px is body text under
-     WCAG AA. --primary-ink #33367a on #e3e1f4 is 8.38:1, over the 4.5 floor,
-     and the 2px border of --primary #3f4286 on the bar's cream is 8.17:1, over
+     WCAG AA. --primary-ink #5b2fc0 on #e3e1f4 is 6.26:1, over the 4.5 floor,
+     and the 2px border of --primary #6d3fd4 on the bar's white is 6.34:1, over
      the 3:1 floor a WCAG 1.4.11 interface component needs. */
   --tab-active: #e3e1f4;
 
@@ -341,20 +419,22 @@
      still the chip and only the chip; colour here is identity, not selection.
 
      None of these is the reference's green, per sticker-ui's loudest rule. Path
-     is the app's own navy because the pathway is navy everywhere it is drawn;
-     the other three are the families already in this file, warm for the arrow
-     the trainer pushes, teal for the deck, blue for the person.
+     is the identity violet's ink because the pathway is where the brand lives
+     (DESIGN-GOALS: violet says "this is Blueberry"); the other three are the
+     families already in this file, warm for the arrow the trainer pushes, teal
+     for the deck, blue for the person.
 
-     PATH LEFT #7c3aed WITH --primary. That hex was the mascot's costume cape as
-     well as this app's chrome, and rule 9 of the sticker language counts every
-     place the two palettes touch. It was 80 of the 247 rows on its own.
+     PATH IS NOT #7c3aed. That hex is the mascot's costume cape, and rule 9 of
+     the sticker language counts every place the two palettes touch. It was 80
+     of the 247 rows on its own before the navy interlude; the violet that
+     returns here is the family, not that hex.
 
-     Measured on the bar's ground, which is --card #fbf3e6, against the 3:1 that
-     WCAG 1.4.11 asks of a graphical object: navy 8.17, orange 4.70, teal 4.97,
-     blue 6.08. The tint each sticker's body is filled with is the same hue at
-     22 percent over that ground, so the shape reads as a cut-out with a lighter
-     body inside it rather than as a blob. */
-  --tab-hue-path: #3f4286;
+     Measured on the bar's ground, which is --card #ffffff, against the 3:1 that
+     WCAG 1.4.11 asks of a graphical object: violet 8.04, orange 5.19, teal
+     5.48, blue 6.70. The tint each sticker's body is filled with is the same
+     hue at 22 percent over that ground, so the shape reads as a cut-out with a
+     lighter body inside it rather than as a blob. */
+  --tab-hue-path: #5b2fc0;
   --tab-hue-train: #c2410c;
   --tab-hue-cards: #0f766e;
   --tab-hue-me: #1d4ed8;
@@ -491,6 +571,26 @@
   --tab-hue-train: #fb923c;
   --tab-hue-cards: #5eead4;
   --tab-hue-me: #93c5fd;
+
+  /* The chip at night. The periwinkle face carries itself here: 7.5:1 as a
+     shape on the night ground, so the fill identifies the chip and the edge
+     is free to be the 3D bottom rather than the boundary. The ink on the
+     face is the same dark pair (6.43:1 on the face, theme-independent). */
+  --chip-face: #9ba8f5;
+  --chip-face-press: #8794ea;
+  --chip-edge: #4a54ab;
+  --chip-ink: #23264a;
+
+  /* The progress green at night. The fill reads on its own (7.6:1 as a shape
+     on the card), the ink pair is theme-independent, and the soft wash goes
+     translucent the way --good-soft does. --progress-deep is unchanged: the
+     white-mark rule is about what sits ON the green, not what is behind it. */
+  --progress: #7ed957;
+  --progress-ink: #163a26;
+  --progress-edge: #55a838;
+  --progress-deep: #43a047;
+  --progress-soft: rgba(126, 217, 87, 0.16);
+  --progress-glow: rgba(126, 217, 87, 0.35);
   --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 22%, var(--card));
   --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 22%, var(--card));
   --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 22%, var(--card));
@@ -536,6 +636,15 @@
   --color-streak-band-ink: var(--streak-band-ink);
   --color-hud-out: var(--hud-out);
   --color-hud-track: var(--hud-track);
+  --color-chip-face: var(--chip-face);
+  --color-chip-face-press: var(--chip-face-press);
+  --color-chip-edge: var(--chip-edge);
+  --color-chip-ink: var(--chip-ink);
+  --color-progress: var(--progress);
+  --color-progress-ink: var(--progress-ink);
+  --color-progress-edge: var(--progress-edge);
+  --color-progress-deep: var(--progress-deep);
+  --color-progress-soft: var(--progress-soft);
 
   /* Type scale, defined once per the note in docs/DESIGN-TOKENS.md that the
      sibling repo never defined one. Seven steps, 1.25 ratio-ish, snapped to
@@ -548,8 +657,24 @@
   --text-scale-2xl: 1.75rem;
   --text-scale-display: 2.5rem;
 
-  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces Variable", "Iowan Old Style", Palatino, Georgia, serif;
+  /* THE TYPOGRAPHY SPLIT, per DESIGN-GOALS (decided 2026-09-01).
+
+     CONTENT is the system stack: question stems, answer options, flashcard
+     faces, guidebook body, chemical labels. SF on iOS, Roboto on Android,
+     Segoe on Windows. Helvetica Neue is not licensed and appears only where
+     a platform ships it natively, which is exactly what a fallback stack is.
+
+     CHROME is the rounded display face: buttons, celebration numbers, streak
+     counts, mascot speech, reached through .title-face and font-display
+     utilities. No webfont ships in this phase, so the stack reaches for the
+     platform's own rounded face (ui-rounded resolves to SF Pro Rounded on
+     Apple platforms) and falls back to the content stack where none exists.
+     Personality lives at the celebration, not between the student and the
+     chemistry. Sticker rule 8's needles point at this stack; change the
+     faces here and re-point the needles in the same turn or the audit
+     audits ghosts. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Baloo 2", Quicksand, "Varela Round", ui-sans-serif, system-ui, sans-serif;
 }
 
 /*

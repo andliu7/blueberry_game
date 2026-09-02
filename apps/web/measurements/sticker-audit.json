@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-02T02:46:15.829Z",
+  "generated": "2026-09-02T03:37:55.318Z",
   "config": {
     "radiusFloorPx": 12,
     "saturationMin": 0.3,
@@ -7,16 +7,10 @@
     "stackingAllowSelector": "[data-stacking]",
     "displayFaces": [
       {
-        "name": "Fraunces",
-        "needle": "fraunces",
-        "floorPx": null,
-        "note": "the display face, class .title-face"
-      },
-      {
-        "name": "Caveat",
-        "needle": "caveat",
-        "floorPx": null,
-        "note": "the handwritten accent, class .playful-face, short labels only"
+        "name": "Rounded display",
+        "needle": "rounded",
+        "floorPx": 16,
+        "note": "the chrome face, theme.css --font-display, class .title-face"
       }
     ],
     "viewports": {
@@ -65,7 +59,7 @@
   ],
   "elementsInspected": 51728,
   "driveRetries": [],
-  "violations": 32,
+  "violations": 34,
   "byRule": {
     "1-paper-canvas": [],
     "2-no-gradients": [],
@@ -186,8 +180,8 @@
         "route": "feedback-correct",
         "rule": "6-colour-as-surface",
         "element": "the route",
-        "value": "0.48 percent saturated fill, floor 2 percent",
-        "detail": "chrome fills 0.30 percent, art fills 0.18 percent, first screen 0.48 percent, 2 element(s) carry a saturated border",
+        "value": "0.49 percent saturated fill, floor 2 percent",
+        "detail": "chrome fills 0.30 percent, art fills 0.19 percent, first screen 0.49 percent, 2 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -222,11 +216,37 @@
       {
         "theme": "light",
         "viewport": "desktop",
+        "route": "me",
+        "rule": "6-colour-as-surface",
+        "element": "the route",
+        "value": "1.17 percent saturated fill, floor 2 percent",
+        "detail": "chrome fills 1.07 percent, art fills 0.09 percent, first screen 1.36 percent, 12 element(s) carry a saturated border",
+        "count": 1,
+        "where": [
+          "the route"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "desktop",
         "route": "onboarding",
         "rule": "6-colour-as-surface",
         "element": "the route",
         "value": "1.68 percent saturated fill, floor 2 percent",
         "detail": "chrome fills 1.53 percent, art fills 0.15 percent, first screen 1.68 percent, 1 element(s) carry a saturated border",
+        "count": 1,
+        "where": [
+          "the route"
+        ]
+      },
+      {
+        "theme": "light",
+        "viewport": "desktop",
+        "route": "search",
+        "rule": "6-colour-as-surface",
+        "element": "the route",
+        "value": "1.36 percent saturated fill, floor 2 percent",
+        "detail": "chrome fills 1.25 percent, art fills 0.11 percent, first screen 1.36 percent, 6 element(s) carry a saturated border",
         "count": 1,
         "where": [
           "the route"
@@ -478,7 +498,7 @@
         "rule": "10-reachability",
         "element": "div.berry-origin.shrink-0 + div.berry-origin",
         "value": "2 mascot instances on one screen",
-        "detail": "berry 80px, berry 184px. More than one instance at different sizes reads as clip-art rather than as a character",
+        "detail": "berry 80px, berry 185px. More than one instance at different sizes reads as clip-art rather than as a character",
         "count": 1,
         "where": [
           "div.berry-origin.shrink-0 + div.berry-origin"
@@ -506,8 +526,8 @@
       "route": "trainer",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -545,8 +565,8 @@
       "route": "pathway",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -584,8 +604,8 @@
       "route": "cards",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -623,8 +643,8 @@
       "route": "me",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -662,8 +682,8 @@
       "route": "courses",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -701,8 +721,8 @@
       "route": "search",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -740,8 +760,8 @@
       "route": "leaderboards",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -779,8 +799,8 @@
       "route": "periodic",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -818,8 +838,8 @@
       "route": "chat",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -857,8 +877,8 @@
       "route": "messages",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -896,8 +916,8 @@
       "route": "onboarding",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -922,8 +942,8 @@
       "route": "feedback-correct",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -948,8 +968,8 @@
       "route": "feedback-wrong",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -974,8 +994,8 @@
       "route": "combo",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1000,8 +1020,8 @@
       "route": "reward-first",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1026,8 +1046,8 @@
       "route": "reward-streak",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1052,8 +1072,8 @@
       "route": "hud-rest",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1091,8 +1111,8 @@
       "route": "hud-lit",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1130,8 +1150,8 @@
       "route": "hud-charge",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1169,8 +1189,8 @@
       "route": "hud-streak",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1208,8 +1228,8 @@
       "route": "streak-rest",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1234,8 +1254,8 @@
       "route": "streak-milestone",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1260,8 +1280,8 @@
       "route": "streak-exam",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1286,8 +1306,8 @@
       "route": "charge-cost",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1325,8 +1345,8 @@
       "route": "charge-empty",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1364,8 +1384,8 @@
       "route": "charge-exam",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1403,8 +1423,8 @@
       "route": "shell-bar",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1442,8 +1462,8 @@
       "route": "shell-tool",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -1481,8 +1501,8 @@
       "route": "shell-courses",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2534,8 +2554,8 @@
       "route": "trainer",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2573,8 +2593,8 @@
       "route": "pathway",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2612,8 +2632,8 @@
       "route": "cards",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2651,8 +2671,8 @@
       "route": "me",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2690,8 +2710,8 @@
       "route": "courses",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2729,8 +2749,8 @@
       "route": "search",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2768,8 +2788,8 @@
       "route": "leaderboards",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2807,8 +2827,8 @@
       "route": "periodic",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2846,8 +2866,8 @@
       "route": "chat",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2885,8 +2905,8 @@
       "route": "messages",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2924,8 +2944,8 @@
       "route": "onboarding",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2950,8 +2970,8 @@
       "route": "feedback-correct",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -2976,8 +2996,8 @@
       "route": "feedback-wrong",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3002,8 +3022,8 @@
       "route": "combo",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3028,8 +3048,8 @@
       "route": "reward-first",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3054,8 +3074,8 @@
       "route": "reward-streak",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3080,8 +3100,8 @@
       "route": "hud-rest",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3119,8 +3139,8 @@
       "route": "hud-lit",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3158,8 +3178,8 @@
       "route": "hud-charge",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3197,8 +3217,8 @@
       "route": "hud-streak",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3236,8 +3256,8 @@
       "route": "streak-rest",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3262,8 +3282,8 @@
       "route": "streak-milestone",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3288,8 +3308,8 @@
       "route": "streak-exam",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3314,8 +3334,8 @@
       "route": "charge-cost",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3353,8 +3373,8 @@
       "route": "charge-empty",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3392,8 +3412,8 @@
       "route": "charge-exam",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3431,8 +3451,8 @@
       "route": "shell-bar",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3470,8 +3490,8 @@
       "route": "shell-tool",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -3509,8 +3529,8 @@
       "route": "shell-courses",
       "rule": "1-paper-canvas",
       "element": "body",
-      "value": "#a3aee2 lightness 76 percent",
-      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
       "count": 1,
       "where": [
         "body"
@@ -4562,14 +4582,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "trainer",
-      "chromeFillFraction": 1.3768854812249363,
-      "artFillFraction": 0.006458577147532395,
-      "totalFillFraction": 1.3833440583724685,
-      "firstScreenFraction": 1.3833440583724685,
+      "chromeFillFraction": 0.3768854812249362,
+      "artFillFraction": 0.006437601947991172,
+      "totalFillFraction": 0.38332308317292735,
+      "firstScreenFraction": 0.38332308317292735,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -4579,14 +4599,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "pathway",
-      "chromeFillFraction": 1.0582040269170008,
-      "artFillFraction": 0.0050058554519508604,
-      "totalFillFraction": 1.0632098823689518,
-      "firstScreenFraction": 1.0632098823689518,
+      "chromeFillFraction": 0.05820402691700085,
+      "artFillFraction": 0.00500925479177631,
+      "totalFillFraction": 0.06321328170877716,
+      "firstScreenFraction": 0.06321328170877716,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -4596,14 +4616,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "cards",
-      "chromeFillFraction": 1.1462105397882958,
+      "chromeFillFraction": 0.1462105397882957,
       "artFillFraction": 0.004041649928913683,
-      "totalFillFraction": 1.1502521897172093,
-      "firstScreenFraction": 1.1582632661831744,
+      "totalFillFraction": 0.15025218971720938,
+      "firstScreenFraction": 0.15826326618317432,
       "saturatedBorderElements": 8,
       "pageArea": 346710,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1
         }
       },
@@ -4613,14 +4633,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "me",
-      "chromeFillFraction": 1.0192472382689775,
+      "chromeFillFraction": 0.0192472382689774,
       "artFillFraction": 0.0028403373808729366,
-      "totalFillFraction": 1.0220875756498504,
-      "firstScreenFraction": 1.0331051933614464,
+      "totalFillFraction": 0.022087575649850335,
+      "firstScreenFraction": 0.033105193361446295,
       "saturatedBorderElements": 12,
       "pageArea": 493350,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 4
         }
       },
@@ -4630,14 +4650,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "courses",
-      "chromeFillFraction": 1.0480269322181086,
+      "chromeFillFraction": 0.048026932218108685,
       "artFillFraction": 0.0032023411647096834,
-      "totalFillFraction": 1.0512292733828184,
-      "firstScreenFraction": 1.058187220339208,
+      "totalFillFraction": 0.05122927338281837,
+      "firstScreenFraction": 0.058187220339207875,
       "saturatedBorderElements": 8,
       "pageArea": 437580,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "22": 1,
           "28": 1
@@ -4649,10 +4669,10 @@
       "theme": "light",
       "viewport": "phone",
       "route": "search",
-      "chromeFillFraction": 1.0288480526187873,
+      "chromeFillFraction": 0.028848052618787215,
       "artFillFraction": 0.004257140742659081,
-      "totalFillFraction": 1.0331051933614464,
-      "firstScreenFraction": 1.0331051933614464,
+      "totalFillFraction": 0.033105193361446295,
+      "firstScreenFraction": 0.033105193361446295,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {},
@@ -4662,14 +4682,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "leaderboards",
-      "chromeFillFraction": 1.0518545312310124,
+      "chromeFillFraction": 0.051854531231012274,
       "artFillFraction": 0.004257140742659081,
-      "totalFillFraction": 1.0561116719736714,
-      "firstScreenFraction": 1.0561116719736714,
+      "totalFillFraction": 0.056111671973671354,
+      "firstScreenFraction": 0.056111671973671354,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -4679,14 +4699,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "periodic",
-      "chromeFillFraction": 1.4611816384921155,
+      "chromeFillFraction": 0.4611816384921155,
       "artFillFraction": 0.00306049981840227,
-      "totalFillFraction": 1.464242138310518,
-      "firstScreenFraction": 1.302458433427068,
+      "totalFillFraction": 0.46424213831051775,
+      "firstScreenFraction": 0.30245843342706785,
       "saturatedBorderElements": 7,
       "pageArea": 457860,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1,
           "28": 1
         }
@@ -4697,14 +4717,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "chat",
-      "chromeFillFraction": 1.0518545312310124,
+      "chromeFillFraction": 0.051854531231012274,
       "artFillFraction": 0.004257140742659081,
-      "totalFillFraction": 1.0561116719736714,
-      "firstScreenFraction": 1.0561116719736714,
+      "totalFillFraction": 0.056111671973671354,
+      "firstScreenFraction": 0.056111671973671354,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -4714,14 +4734,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "messages",
-      "chromeFillFraction": 1.0518545312310124,
+      "chromeFillFraction": 0.051854531231012274,
       "artFillFraction": 0.004257140742659081,
-      "totalFillFraction": 1.0561116719736714,
-      "firstScreenFraction": 1.0561116719736714,
+      "totalFillFraction": 0.056111671973671354,
+      "firstScreenFraction": 0.056111671973671354,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -4732,13 +4752,13 @@
       "viewport": "phone",
       "route": "onboarding",
       "chromeFillFraction": 0.045716368939117756,
-      "artFillFraction": 0.005127313687006563,
-      "totalFillFraction": 0.05084368262612432,
-      "firstScreenFraction": 0.05084368262612432,
+      "artFillFraction": 0.0051595327498133005,
+      "totalFillFraction": 0.05087590168893105,
+      "firstScreenFraction": 0.05087590168893105,
       "saturatedBorderElements": 1,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1
         }
       },
@@ -4749,9 +4769,9 @@
       "viewport": "phone",
       "route": "feedback-correct",
       "chromeFillFraction": 0.5396966940283772,
-      "artFillFraction": 0.005892722098517401,
-      "totalFillFraction": 0.5455894161268946,
-      "firstScreenFraction": 0.509043941885847,
+      "artFillFraction": 0.005649172333683092,
+      "totalFillFraction": 0.5453458663620603,
+      "firstScreenFraction": 0.5087816353263276,
       "saturatedBorderElements": 2,
       "pageArea": 354510,
       "faceSizes": {},
@@ -4762,9 +4782,9 @@
       "viewport": "phone",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.08144763873719249,
-      "artFillFraction": 0.0011934541378969192,
-      "totalFillFraction": 0.0826410928750894,
-      "firstScreenFraction": 0.054036960305586586,
+      "artFillFraction": 0.0011937046986510024,
+      "totalFillFraction": 0.08264134343584349,
+      "firstScreenFraction": 0.05403725302229693,
       "saturatedBorderElements": 2,
       "pageArea": 384540,
       "faceSizes": {},
@@ -4774,14 +4794,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "combo",
-      "chromeFillFraction": 1.5462826330709993,
-      "artFillFraction": 0.0348812885927181,
-      "totalFillFraction": 1.5811639216637174,
-      "firstScreenFraction": 1.694477562185577,
+      "chromeFillFraction": 0.617789783786071,
+      "artFillFraction": 0.03485406356447379,
+      "totalFillFraction": 0.6526438473505447,
+      "firstScreenFraction": 0.6944482404430721,
       "saturatedBorderElements": 5,
       "pageArea": 354510,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "117": 1
         }
       },
@@ -4792,13 +4812,13 @@
       "viewport": "phone",
       "route": "reward-first",
       "chromeFillFraction": 0.056369622675902294,
-      "artFillFraction": 0.02470368904236776,
-      "totalFillFraction": 0.08107331171827006,
-      "firstScreenFraction": 0.08107331171827006,
+      "artFillFraction": 0.025316418468694236,
+      "totalFillFraction": 0.08168604114459653,
+      "firstScreenFraction": 0.08168604114459653,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1,
           "85.8": 1
         }
@@ -4810,13 +4830,13 @@
       "viewport": "phone",
       "route": "reward-streak",
       "chromeFillFraction": 0.07021528284117147,
-      "artFillFraction": 0.025964175692879787,
-      "totalFillFraction": 0.09617945853405126,
-      "firstScreenFraction": 0.09617945853405126,
+      "artFillFraction": 0.025960673105336722,
+      "totalFillFraction": 0.09617595594650818,
+      "firstScreenFraction": 0.09617595594650818,
       "saturatedBorderElements": 9,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1,
           "85.8": 1
         }
@@ -4827,14 +4847,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-rest",
-      "chromeFillFraction": 1.066942361023992,
-      "artFillFraction": 0.00023692495448040447,
-      "totalFillFraction": 1.0671792859784723,
-      "firstScreenFraction": 1.1783375485084375,
+      "chromeFillFraction": 0.06694236102399201,
+      "artFillFraction": 0.00023680705414708128,
+      "totalFillFraction": 0.06717916807813909,
+      "firstScreenFraction": 0.17833527864763643,
       "saturatedBorderElements": 15,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4844,14 +4864,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-lit",
-      "chromeFillFraction": 1.067048393190074,
-      "artFillFraction": 0.0002923257193232156,
-      "totalFillFraction": 1.0673407189093973,
-      "firstScreenFraction": 1.1814455149712308,
+      "chromeFillFraction": 0.06704839319007402,
+      "artFillFraction": 0.0002921598287669437,
+      "totalFillFraction": 0.06734055301884097,
+      "firstScreenFraction": 0.18144232118491702,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4861,14 +4881,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-charge",
-      "chromeFillFraction": 1.0694413777771576,
-      "artFillFraction": 0.00031715259881386136,
-      "totalFillFraction": 1.0697585303759716,
-      "firstScreenFraction": 1.2279941151138452,
+      "chromeFillFraction": 0.06944616774189463,
+      "artFillFraction": 0.00031705737625632355,
+      "totalFillFraction": 0.06976322511815096,
+      "firstScreenFraction": 0.22808450002577957,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4878,14 +4898,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "hud-streak",
-      "chromeFillFraction": 1.069469633579938,
-      "artFillFraction": 0.00023700675710963462,
-      "totalFillFraction": 1.0697066403370479,
-      "firstScreenFraction": 1.226995108902384,
+      "chromeFillFraction": 0.06946963307429033,
+      "artFillFraction": 0.0002369322076579178,
+      "totalFillFraction": 0.06970656528194825,
+      "firstScreenFraction": 0.2269936639138628,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4896,9 +4916,9 @@
       "viewport": "phone",
       "route": "streak-rest",
       "chromeFillFraction": 0.07147891602867906,
-      "artFillFraction": 0.03275767156186762,
-      "totalFillFraction": 0.10423658759054669,
-      "firstScreenFraction": 0.10423658759054669,
+      "artFillFraction": 0.03275768722571186,
+      "totalFillFraction": 0.10423660325439092,
+      "firstScreenFraction": 0.10423660325439092,
       "saturatedBorderElements": 9,
       "pageArea": 329160,
       "faceSizes": {},
@@ -4909,9 +4929,9 @@
       "viewport": "phone",
       "route": "streak-milestone",
       "chromeFillFraction": 0.0827334873237939,
-      "artFillFraction": 0.032687470560433515,
-      "totalFillFraction": 0.11542095788422742,
-      "firstScreenFraction": 0.11542095788422742,
+      "artFillFraction": 0.03268704251211369,
+      "totalFillFraction": 0.11542052983590759,
+      "firstScreenFraction": 0.11542052983590759,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {},
@@ -4922,9 +4942,9 @@
       "viewport": "phone",
       "route": "streak-exam",
       "chromeFillFraction": 0.10909834882731802,
-      "artFillFraction": 0.03206834224260857,
-      "totalFillFraction": 0.1411666910699266,
-      "firstScreenFraction": 0.1411666910699266,
+      "artFillFraction": 0.03202822153939175,
+      "totalFillFraction": 0.14112657036670978,
+      "firstScreenFraction": 0.14112657036670978,
       "saturatedBorderElements": 5,
       "pageArea": 329160,
       "faceSizes": {},
@@ -4934,14 +4954,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-cost",
-      "chromeFillFraction": 1.072745681662264,
-      "artFillFraction": 0.00026333920476009963,
-      "totalFillFraction": 1.0730090208670242,
-      "firstScreenFraction": 1.2905737596507088,
+      "chromeFillFraction": 0.07274568166226403,
+      "artFillFraction": 0.00026323665659466554,
+      "totalFillFraction": 0.0730089183188587,
+      "firstScreenFraction": 0.290571785355519,
       "saturatedBorderElements": 24,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4951,14 +4971,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-empty",
-      "chromeFillFraction": 1.0724115979868978,
-      "artFillFraction": 0.0003081043056536106,
-      "totalFillFraction": 1.0727197022925514,
-      "firstScreenFraction": 1.28500369150307,
+      "chromeFillFraction": 0.07241159798689781,
+      "artFillFraction": 0.00030817495209044097,
+      "totalFillFraction": 0.07271977293898825,
+      "firstScreenFraction": 0.2850050516143877,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4968,14 +4988,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "charge-exam",
-      "chromeFillFraction": 1.0707225136008285,
-      "artFillFraction": 0.00036423121459994975,
-      "totalFillFraction": 1.0710867448154284,
-      "firstScreenFraction": 1.25405873793515,
+      "chromeFillFraction": 0.07073501206255631,
+      "artFillFraction": 0.00036412283769985516,
+      "totalFillFraction": 0.07109913490025616,
+      "firstScreenFraction": 0.25405665103777986,
       "saturatedBorderElements": 17,
       "pageArea": 6338280,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -4985,14 +5005,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "shell-bar",
-      "chromeFillFraction": 1.066942361023992,
-      "artFillFraction": 0.00023692652317632874,
-      "totalFillFraction": 1.0671792875471684,
-      "firstScreenFraction": 1.1783375787095514,
+      "chromeFillFraction": 0.06694236102399201,
+      "artFillFraction": 0.00023679736309912823,
+      "totalFillFraction": 0.06717915838709114,
+      "firstScreenFraction": 0.17833509207199877,
       "saturatedBorderElements": 15,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5002,14 +5022,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "shell-tool",
-      "chromeFillFraction": 1.0987645954494636,
-      "artFillFraction": 0.00023700521534840847,
-      "totalFillFraction": 1.099001600664812,
-      "firstScreenFraction": 1.4355736073307406,
+      "chromeFillFraction": 0.09876459544946356,
+      "artFillFraction": 0.00023689865086434648,
+      "totalFillFraction": 0.09900149410032791,
+      "firstScreenFraction": 0.43557155571189987,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 2,
           "22": 1,
           "28": 1
@@ -5021,14 +5041,14 @@
       "theme": "light",
       "viewport": "phone",
       "route": "shell-courses",
-      "chromeFillFraction": 1.0489769446717585,
+      "chromeFillFraction": 0.048976944671758504,
       "artFillFraction": 0.003185307435110164,
-      "totalFillFraction": 1.0521622521068688,
-      "firstScreenFraction": 1.0589233744891653,
+      "totalFillFraction": 0.052162252106868666,
+      "firstScreenFraction": 0.05892337448916534,
       "saturatedBorderElements": 9,
       "pageArea": 439920,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "22": 1,
           "28": 1
@@ -5041,13 +5061,13 @@
       "viewport": "phone",
       "route": "trainer",
       "chromeFillFraction": 1.0020919727488151,
-      "artFillFraction": 0.007571226193668651,
-      "totalFillFraction": 1.0096631989424838,
-      "firstScreenFraction": 1.0096631989424838,
+      "artFillFraction": 0.007546597736787608,
+      "totalFillFraction": 1.0096385704856028,
+      "firstScreenFraction": 1.0096385704856028,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -5058,13 +5078,13 @@
       "viewport": "phone",
       "route": "pathway",
       "chromeFillFraction": 1.0314479470470288,
-      "artFillFraction": 0.005005787692190684,
-      "totalFillFraction": 1.0364537347392195,
-      "firstScreenFraction": 1.0364537347392195,
+      "artFillFraction": 0.005008721913738609,
+      "totalFillFraction": 1.0364566689607675,
+      "firstScreenFraction": 1.0364566689607675,
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -5081,7 +5101,7 @@
       "saturatedBorderElements": 8,
       "pageArea": 346710,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1
         }
       },
@@ -5098,7 +5118,7 @@
       "saturatedBorderElements": 12,
       "pageArea": 493350,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 4
         }
       },
@@ -5115,7 +5135,7 @@
       "saturatedBorderElements": 8,
       "pageArea": 437580,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "22": 1,
           "28": 1
@@ -5147,7 +5167,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -5164,7 +5184,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 457860,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1,
           "28": 1
         }
@@ -5182,7 +5202,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -5199,7 +5219,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "22": 1
         }
       },
@@ -5210,13 +5230,13 @@
       "viewport": "phone",
       "route": "onboarding",
       "chromeFillFraction": 0.045716368939117756,
-      "artFillFraction": 0.00514514405293763,
-      "totalFillFraction": 0.05086151299205539,
-      "firstScreenFraction": 0.05086151299205539,
+      "artFillFraction": 0.0051595327498133005,
+      "totalFillFraction": 0.05087590168893105,
+      "firstScreenFraction": 0.05087590168893105,
       "saturatedBorderElements": 1,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1
         }
       },
@@ -5227,9 +5247,9 @@
       "viewport": "phone",
       "route": "feedback-correct",
       "chromeFillFraction": 0.039468562240839465,
-      "artFillFraction": 0.006224781458191943,
-      "totalFillFraction": 0.04569334369903141,
-      "firstScreenFraction": 0.021195610872352735,
+      "artFillFraction": 0.0058896580051934376,
+      "totalFillFraction": 0.04535822024603291,
+      "firstScreenFraction": 0.02083467814868491,
       "saturatedBorderElements": 2,
       "pageArea": 354510,
       "faceSizes": {},
@@ -5240,9 +5260,9 @@
       "viewport": "phone",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.036386331721017316,
-      "artFillFraction": 0.0011933305145545707,
-      "totalFillFraction": 0.03757966223557189,
-      "firstScreenFraction": 0.0013941041319322353,
+      "artFillFraction": 0.0011933349413006166,
+      "totalFillFraction": 0.037579666662317934,
+      "firstScreenFraction": 0.0013941093034625686,
       "saturatedBorderElements": 2,
       "pageArea": 384540,
       "faceSizes": {},
@@ -5253,13 +5273,13 @@
       "viewport": "phone",
       "route": "combo",
       "chromeFillFraction": 1.0277540654706496,
-      "artFillFraction": 0.033534869942894695,
-      "totalFillFraction": 1.0612889354135444,
-      "firstScreenFraction": 1.1402201148178868,
+      "artFillFraction": 0.03353554746812606,
+      "totalFillFraction": 1.0612896129387757,
+      "firstScreenFraction": 1.140220844522194,
       "saturatedBorderElements": 5,
       "pageArea": 354510,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "117": 1
         }
       },
@@ -5270,13 +5290,13 @@
       "viewport": "phone",
       "route": "reward-first",
       "chromeFillFraction": 1.0478551464333454,
-      "artFillFraction": 0.024963225630165085,
-      "totalFillFraction": 1.0728183720635105,
-      "firstScreenFraction": 1.0728183720635105,
+      "artFillFraction": 0.02529784991133724,
+      "totalFillFraction": 1.0731529963446826,
+      "firstScreenFraction": 1.0731529963446826,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1,
           "85.8": 1
         }
@@ -5288,13 +5308,13 @@
       "viewport": "phone",
       "route": "reward-streak",
       "chromeFillFraction": 1.0617008065986147,
-      "artFillFraction": 0.025974029904149064,
-      "totalFillFraction": 1.0876748365027638,
-      "firstScreenFraction": 1.0876748365027638,
+      "artFillFraction": 0.02594884932276061,
+      "totalFillFraction": 1.0876496559213753,
+      "firstScreenFraction": 1.0876496559213753,
       "saturatedBorderElements": 9,
       "pageArea": 329160,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "28": 1,
           "85.8": 1
         }
@@ -5306,13 +5326,13 @@
       "viewport": "phone",
       "route": "hud-rest",
       "chromeFillFraction": 1.065578248478999,
-      "artFillFraction": 0.00023692652317632874,
-      "totalFillFraction": 1.0658151750021754,
-      "firstScreenFraction": 1.1520751797242554,
+      "artFillFraction": 0.00023687326154634095,
+      "totalFillFraction": 1.0658151217405454,
+      "firstScreenFraction": 1.152074154311666,
       "saturatedBorderElements": 15,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5323,13 +5343,13 @@
       "viewport": "phone",
       "route": "hud-lit",
       "chromeFillFraction": 1.0656586380414337,
-      "artFillFraction": 0.00029231452718998644,
-      "totalFillFraction": 1.0659509525686237,
-      "firstScreenFraction": 1.1546892196261724,
+      "artFillFraction": 0.0002922231884019036,
+      "totalFillFraction": 1.0659508612298356,
+      "firstScreenFraction": 1.1546874611380593,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5339,14 +5359,14 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-charge",
-      "chromeFillFraction": 1.068082050953975,
-      "artFillFraction": 0.00031714319869540495,
-      "totalFillFraction": 1.0683991941526705,
-      "firstScreenFraction": 1.201823671639412,
+      "chromeFillFraction": 1.0680820502218014,
+      "artFillFraction": 0.0003169841674259687,
+      "totalFillFraction": 1.0683990343892273,
+      "firstScreenFraction": 1.2018205958145491,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5356,14 +5376,14 @@
       "theme": "dark",
       "viewport": "phone",
       "route": "hud-streak",
-      "chromeFillFraction": 1.068105299320426,
-      "artFillFraction": 0.00023697152491780515,
-      "totalFillFraction": 1.0683422708453438,
-      "firstScreenFraction": 1.200727763084022,
+      "chromeFillFraction": 1.0681055216369069,
+      "artFillFraction": 0.0002369322076579178,
+      "totalFillFraction": 1.068342453844565,
+      "firstScreenFraction": 1.2007312862526736,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5374,9 +5394,9 @@
       "viewport": "phone",
       "route": "streak-rest",
       "chromeFillFraction": 0.07147891602867906,
-      "artFillFraction": 0.03279750615050854,
-      "totalFillFraction": 0.1042764221791876,
-      "firstScreenFraction": 0.1042764221791876,
+      "artFillFraction": 0.03279764765276564,
+      "totalFillFraction": 0.1042765636814447,
+      "firstScreenFraction": 0.1042765636814447,
       "saturatedBorderElements": 9,
       "pageArea": 329160,
       "faceSizes": {},
@@ -5387,9 +5407,9 @@
       "viewport": "phone",
       "route": "streak-milestone",
       "chromeFillFraction": 0.0827334873237939,
-      "artFillFraction": 0.032607558089893164,
-      "totalFillFraction": 0.11534104541368706,
-      "firstScreenFraction": 0.11534104541368706,
+      "artFillFraction": 0.03260726772916991,
+      "totalFillFraction": 0.1153407550529638,
+      "firstScreenFraction": 0.1153407550529638,
       "saturatedBorderElements": 6,
       "pageArea": 329160,
       "faceSizes": {},
@@ -5400,9 +5420,9 @@
       "viewport": "phone",
       "route": "streak-exam",
       "chromeFillFraction": 0.07541621096123466,
-      "artFillFraction": 0.03210748113594023,
-      "totalFillFraction": 0.10752369209717488,
-      "firstScreenFraction": 0.10752369209717488,
+      "artFillFraction": 0.03198834952612357,
+      "totalFillFraction": 0.10740456048735823,
+      "firstScreenFraction": 0.10740456048735823,
       "saturatedBorderElements": 5,
       "pageArea": 329160,
       "faceSizes": {},
@@ -5413,13 +5433,13 @@
       "viewport": "phone",
       "route": "charge-cost",
       "chromeFillFraction": 1.0680974863492585,
-      "artFillFraction": 0.0002633379766596975,
-      "totalFillFraction": 1.0683608243259184,
-      "firstScreenFraction": 1.2010849615506742,
+      "artFillFraction": 0.00026326242681262,
+      "totalFillFraction": 1.0683607487760711,
+      "firstScreenFraction": 1.20108350703709,
       "saturatedBorderElements": 24,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5430,13 +5450,13 @@
       "viewport": "phone",
       "route": "charge-empty",
       "chromeFillFraction": 1.0678749726561083,
-      "artFillFraction": 0.00030817331282355007,
-      "totalFillFraction": 1.0681831459689317,
-      "firstScreenFraction": 1.1976642321399236,
+      "artFillFraction": 0.0003081023016093424,
+      "totalFillFraction": 1.0681830749577177,
+      "firstScreenFraction": 1.197662865005777,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5447,13 +5467,13 @@
       "viewport": "phone",
       "route": "charge-exam",
       "chromeFillFraction": 1.0695978905899945,
-      "artFillFraction": 0.000364266220416934,
-      "totalFillFraction": 1.0699621568104114,
-      "firstScreenFraction": 1.2324037565873565,
+      "artFillFraction": 0.00036417967331785184,
+      "totalFillFraction": 1.0699620702633124,
+      "firstScreenFraction": 1.2324020900429793,
       "saturatedBorderElements": 17,
       "pageArea": 6338280,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5464,13 +5484,13 @@
       "viewport": "phone",
       "route": "shell-bar",
       "chromeFillFraction": 1.065578248478999,
-      "artFillFraction": 0.00023692652317632874,
-      "totalFillFraction": 1.0658151750021754,
-      "firstScreenFraction": 1.1520751797242554,
+      "artFillFraction": 0.0002367958747693477,
+      "totalFillFraction": 1.0658150443537684,
+      "firstScreenFraction": 1.1520726644328279,
       "saturatedBorderElements": 15,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5481,13 +5501,13 @@
       "viewport": "phone",
       "route": "shell-tool",
       "chromeFillFraction": 1.0969366082044891,
-      "artFillFraction": 0.00023699269861555386,
-      "totalFillFraction": 1.0971736009031048,
-      "firstScreenFraction": 1.4093109673686766,
+      "artFillFraction": 0.00023693080615908623,
+      "totalFillFraction": 1.0971735390106483,
+      "firstScreenFraction": 1.409309775792225,
       "saturatedBorderElements": 16,
       "pageArea": 6337110,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 2,
           "22": 1,
           "28": 1
@@ -5506,7 +5526,7 @@
       "saturatedBorderElements": 9,
       "pageArea": 439920,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "22": 1,
           "28": 1
@@ -5518,14 +5538,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "trainer",
-      "chromeFillFraction": 1.4652427300347222,
-      "artFillFraction": 0.001714585029913754,
-      "totalFillFraction": 1.466957315064636,
-      "firstScreenFraction": 1.466957315064636,
+      "chromeFillFraction": 0.4652427300347222,
+      "artFillFraction": 0.0017104096839102062,
+      "totalFillFraction": 0.4669531397186325,
+      "firstScreenFraction": 0.4669531397186324,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5536,14 +5556,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "pathway",
-      "chromeFillFraction": 1.0209222547743055,
-      "artFillFraction": 0.001301393304194739,
-      "totalFillFraction": 1.0222236480785003,
-      "firstScreenFraction": 1.0222236480785003,
+      "chromeFillFraction": 0.020922254774305555,
+      "artFillFraction": 0.0013019492535159367,
+      "totalFillFraction": 0.022224204027821493,
+      "firstScreenFraction": 0.022224204027821493,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5554,14 +5574,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "cards",
-      "chromeFillFraction": 1.0630526529947917,
+      "chromeFillFraction": 0.06305265299479167,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.064139830765658,
-      "firstScreenFraction": 1.064139830765658,
+      "totalFillFraction": 0.06413983076565793,
+      "firstScreenFraction": 0.06413983076565793,
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "28": 1
         }
@@ -5572,14 +5592,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "me",
-      "chromeFillFraction": 1.0107437686011904,
+      "chromeFillFraction": 0.010743768601190477,
       "artFillFraction": 0.0009318666607425171,
-      "totalFillFraction": 1.011675635261933,
-      "firstScreenFraction": 1.0136215744722552,
+      "totalFillFraction": 0.011675635261932993,
+      "firstScreenFraction": 0.01362157447225516,
       "saturatedBorderElements": 12,
       "pageArea": 1344000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "28": 4
         }
@@ -5590,14 +5610,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "courses",
-      "chromeFillFraction": 1.022534396701389,
+      "chromeFillFraction": 0.02253439670138889,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0236215744722552,
-      "firstScreenFraction": 1.0236215744722552,
+      "totalFillFraction": 0.023621574472255158,
+      "firstScreenFraction": 0.023621574472255158,
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "18": 1,
           "22": 1,
@@ -5610,14 +5630,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "search",
-      "chromeFillFraction": 1.012534396701389,
+      "chromeFillFraction": 0.01253439670138889,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0136215744722552,
-      "firstScreenFraction": 1.0136215744722552,
+      "totalFillFraction": 0.01362157447225516,
+      "firstScreenFraction": 0.01362157447225516,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -5627,14 +5647,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "leaderboards",
-      "chromeFillFraction": 1.0191080186631944,
+      "chromeFillFraction": 0.019108018663194445,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0201951964340608,
-      "firstScreenFraction": 1.0201951964340608,
+      "totalFillFraction": 0.020195196434060713,
+      "firstScreenFraction": 0.020195196434060713,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5645,14 +5665,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "periodic",
-      "chromeFillFraction": 1.1875873480902779,
+      "chromeFillFraction": 0.18758734809027777,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.1886745258611442,
-      "firstScreenFraction": 1.1886745258611442,
+      "totalFillFraction": 0.18867452586114405,
+      "firstScreenFraction": 0.18867452586114405,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1,
           "28": 1
@@ -5664,14 +5684,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "chat",
-      "chromeFillFraction": 1.0191080186631944,
+      "chromeFillFraction": 0.019108018663194445,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0201951964340608,
-      "firstScreenFraction": 1.0201951964340608,
+      "totalFillFraction": 0.020195196434060713,
+      "firstScreenFraction": 0.020195196434060713,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5682,14 +5702,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "messages",
-      "chromeFillFraction": 1.0191080186631944,
+      "chromeFillFraction": 0.019108018663194445,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0201951964340608,
-      "firstScreenFraction": 1.0201951964340608,
+      "totalFillFraction": 0.020195196434060713,
+      "firstScreenFraction": 0.020195196434060713,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5701,13 +5721,13 @@
       "viewport": "desktop",
       "route": "onboarding",
       "chromeFillFraction": 0.015277777777777777,
-      "artFillFraction": 0.0014742295181123255,
-      "totalFillFraction": 0.016752007295890103,
-      "firstScreenFraction": 0.016752007295890103,
+      "artFillFraction": 0.0014773100194369262,
+      "totalFillFraction": 0.016755087797214702,
+      "firstScreenFraction": 0.016755087797214702,
       "saturatedBorderElements": 1,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1
         }
       },
@@ -5718,9 +5738,9 @@
       "viewport": "desktop",
       "route": "feedback-correct",
       "chromeFillFraction": 0.20227197265625,
-      "artFillFraction": 0.0019199611501729426,
-      "totalFillFraction": 0.20419193380642295,
-      "firstScreenFraction": 0.20419193380642295,
+      "artFillFraction": 0.0019203632655909234,
+      "totalFillFraction": 0.2041923359218409,
+      "firstScreenFraction": 0.2041923359218409,
       "saturatedBorderElements": 2,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -5731,9 +5751,9 @@
       "viewport": "desktop",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.03004975043402778,
-      "artFillFraction": 0.0003983359878992714,
-      "totalFillFraction": 0.030448086421927048,
-      "firstScreenFraction": 0.030448086421927048,
+      "artFillFraction": 0.00039846059824210695,
+      "totalFillFraction": 0.030448211032269884,
+      "firstScreenFraction": 0.030448211032269884,
       "saturatedBorderElements": 2,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -5743,14 +5763,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "combo",
-      "chromeFillFraction": 1.2394516872829862,
-      "artFillFraction": 0.010323515641853898,
-      "totalFillFraction": 1.24977520292484,
-      "firstScreenFraction": 1.24977520292484,
+      "chromeFillFraction": 0.2394516872829861,
+      "artFillFraction": 0.010313768244597466,
+      "totalFillFraction": 0.24976545552758359,
+      "firstScreenFraction": 0.24976545552758359,
       "saturatedBorderElements": 5,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "176": 1
         }
       },
@@ -5761,13 +5781,13 @@
       "viewport": "desktop",
       "route": "reward-first",
       "chromeFillFraction": 0.02626616753472222,
-      "artFillFraction": 0.008903278922493983,
-      "totalFillFraction": 0.0351694464572162,
-      "firstScreenFraction": 0.0351694464572162,
+      "artFillFraction": 0.008907887405135423,
+      "totalFillFraction": 0.035174054939857646,
+      "firstScreenFraction": 0.035174054939857646,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1,
           "112": 1
         }
@@ -5779,13 +5799,13 @@
       "viewport": "desktop",
       "route": "reward-streak",
       "chromeFillFraction": 0.031352593315972226,
-      "artFillFraction": 0.009000311726439274,
-      "totalFillFraction": 0.0403529050424115,
-      "firstScreenFraction": 0.0403529050424115,
+      "artFillFraction": 0.00900106383502134,
+      "totalFillFraction": 0.040353657150993566,
+      "firstScreenFraction": 0.040353657150993566,
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1,
           "112": 1
         }
@@ -5796,14 +5816,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-rest",
-      "chromeFillFraction": 1.0360051684683942,
-      "artFillFraction": 0.00007026307628170787,
-      "totalFillFraction": 1.0360754315446759,
-      "firstScreenFraction": 1.0734329733097783,
+      "chromeFillFraction": 0.036005168468394175,
+      "artFillFraction": 0.00007022743615263615,
+      "totalFillFraction": 0.036075395904546816,
+      "firstScreenFraction": 0.07343237772362121,
       "saturatedBorderElements": 15,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5814,14 +5834,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-lit",
-      "chromeFillFraction": 1.0360978526257454,
-      "artFillFraction": 0.00008849511993072395,
-      "totalFillFraction": 1.036186347745676,
-      "firstScreenFraction": 1.0752865062687156,
+      "chromeFillFraction": 0.03609785262574541,
+      "artFillFraction": 0.00008845998339244854,
+      "totalFillFraction": 0.036186312609137856,
+      "firstScreenFraction": 0.07528591909812041,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5832,14 +5852,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-charge",
-      "chromeFillFraction": 1.0368288824994965,
-      "artFillFraction": 0.00009667655295133459,
-      "totalFillFraction": 1.0369255590524475,
-      "firstScreenFraction": 1.0876395485507657,
+      "chromeFillFraction": 0.036829370739770696,
+      "artFillFraction": 0.00009662210759057462,
+      "totalFillFraction": 0.036925992847361276,
+      "firstScreenFraction": 0.08764679774576502,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5850,14 +5870,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "hud-streak",
-      "chromeFillFraction": 1.0368370954914297,
-      "artFillFraction": 0.0000702876059951052,
-      "totalFillFraction": 1.0369073830974247,
-      "firstScreenFraction": 1.087335808146825,
+      "chromeFillFraction": 0.03683709597492472,
+      "artFillFraction": 0.00007025894718088981,
+      "totalFillFraction": 0.03690735492210561,
+      "firstScreenFraction": 0.08733533730593702,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5869,9 +5889,9 @@
       "viewport": "desktop",
       "route": "streak-rest",
       "chromeFillFraction": 0.02447222222222222,
-      "artFillFraction": 0.014432386424866207,
-      "totalFillFraction": 0.03890460864708843,
-      "firstScreenFraction": 0.03890460864708843,
+      "artFillFraction": 0.014431662990119852,
+      "totalFillFraction": 0.038903885212342074,
+      "firstScreenFraction": 0.038903885212342074,
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -5882,9 +5902,9 @@
       "viewport": "desktop",
       "route": "streak-milestone",
       "chromeFillFraction": 0.027687981499565972,
-      "artFillFraction": 0.014406954127625795,
-      "totalFillFraction": 0.04209493562719177,
-      "firstScreenFraction": 0.04209493562719177,
+      "artFillFraction": 0.014407065850952576,
+      "totalFillFraction": 0.04209504735051855,
+      "firstScreenFraction": 0.04209504735051855,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -5895,9 +5915,9 @@
       "viewport": "desktop",
       "route": "streak-exam",
       "chromeFillFraction": 0.038070746527777775,
-      "artFillFraction": 0.014259544626796721,
-      "totalFillFraction": 0.0523302911545745,
-      "firstScreenFraction": 0.0523302911545745,
+      "artFillFraction": 0.014241519503369798,
+      "totalFillFraction": 0.052312266031147574,
+      "firstScreenFraction": 0.052312266031147574,
       "saturatedBorderElements": 5,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -5907,14 +5927,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-cost",
-      "chromeFillFraction": 1.038078334686604,
-      "artFillFraction": 0.00007894766834502683,
-      "totalFillFraction": 1.038157282354949,
-      "firstScreenFraction": 1.1082230135170084,
+      "chromeFillFraction": 0.03807833468660395,
+      "artFillFraction": 0.00007892330561500187,
+      "totalFillFraction": 0.03815725799221895,
+      "firstScreenFraction": 0.10822260638872007,
       "saturatedBorderElements": 24,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5925,14 +5945,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-empty",
-      "chromeFillFraction": 1.03795793959435,
-      "artFillFraction": 0.00009369221576090552,
-      "totalFillFraction": 1.038051631810111,
-      "firstScreenFraction": 1.1064574755232695,
+      "chromeFillFraction": 0.03795793959434996,
+      "artFillFraction": 0.00009368843371441261,
+      "totalFillFraction": 0.038051628028064374,
+      "firstScreenFraction": 0.10645741232107023,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5943,14 +5963,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "charge-exam",
-      "chromeFillFraction": 1.0373099328672317,
-      "artFillFraction": 0.00011216699319568959,
-      "totalFillFraction": 1.037422099860427,
-      "firstScreenFraction": 1.0962877319414255,
+      "chromeFillFraction": 0.037323435825418146,
+      "artFillFraction": 0.00011211660907511753,
+      "totalFillFraction": 0.03743555243449326,
+      "firstScreenFraction": 0.09628688979884126,
       "saturatedBorderElements": 17,
       "pageArea": 19255040,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5961,14 +5981,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "shell-bar",
-      "chromeFillFraction": 1.0360051684683942,
-      "artFillFraction": 0.00007025887085919059,
-      "totalFillFraction": 1.0360754273392534,
-      "firstScreenFraction": 1.0734329030324952,
+      "chromeFillFraction": 0.036005168468394175,
+      "artFillFraction": 0.00007022561371711848,
+      "totalFillFraction": 0.0360753940821113,
+      "firstScreenFraction": 0.07343234726869878,
       "saturatedBorderElements": 15,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -5979,14 +5999,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "shell-tool",
-      "chromeFillFraction": 1.046480411570123,
-      "artFillFraction": 0.00007028899911879101,
-      "totalFillFraction": 1.0465507005692416,
-      "firstScreenFraction": 1.2484863578980778,
+      "chromeFillFraction": 0.0464804115701229,
+      "artFillFraction": 0.00007026079771142449,
+      "totalFillFraction": 0.04655067236783433,
+      "firstScreenFraction": 0.24848588662122584,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 2,
           "22": 2,
           "28": 1
@@ -5998,14 +6018,14 @@
       "theme": "light",
       "viewport": "desktop",
       "route": "shell-courses",
-      "chromeFillFraction": 1.0252479112413195,
+      "chromeFillFraction": 0.025247911241319445,
       "artFillFraction": 0.0010871777708662698,
-      "totalFillFraction": 1.0263350890121858,
-      "firstScreenFraction": 1.0263350890121858,
+      "totalFillFraction": 0.026335089012185713,
+      "firstScreenFraction": 0.026335089012185713,
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "18": 1,
           "22": 1,
@@ -6019,13 +6039,13 @@
       "viewport": "desktop",
       "route": "trainer",
       "chromeFillFraction": 1.0005977376302084,
-      "artFillFraction": 0.0034966145230500337,
-      "totalFillFraction": 1.0040943521532584,
-      "firstScreenFraction": 1.0040943521532584,
+      "artFillFraction": 0.0034897265454904096,
+      "totalFillFraction": 1.0040874641756987,
+      "firstScreenFraction": 1.0040874641756987,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6037,13 +6057,13 @@
       "viewport": "desktop",
       "route": "pathway",
       "chromeFillFraction": 1.008985595703125,
-      "artFillFraction": 0.0013014128542239531,
-      "totalFillFraction": 1.010287008557349,
-      "firstScreenFraction": 1.010287008557349,
+      "artFillFraction": 0.0013016769904788312,
+      "totalFillFraction": 1.0102872726936039,
+      "firstScreenFraction": 1.0102872726936039,
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6061,7 +6081,7 @@
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "28": 1
         }
@@ -6079,7 +6099,7 @@
       "saturatedBorderElements": 12,
       "pageArea": 1344000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "28": 4
         }
@@ -6097,7 +6117,7 @@
       "saturatedBorderElements": 8,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "18": 1,
           "22": 1,
@@ -6117,7 +6137,7 @@
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1
         }
       },
@@ -6134,7 +6154,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6152,7 +6172,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1,
           "28": 1
@@ -6171,7 +6191,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6189,7 +6209,7 @@
       "saturatedBorderElements": 7,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6201,13 +6221,13 @@
       "viewport": "desktop",
       "route": "onboarding",
       "chromeFillFraction": 0.015277777777777777,
-      "artFillFraction": 0.0014741002078096951,
-      "totalFillFraction": 0.016751877985587475,
-      "firstScreenFraction": 0.016751877985587475,
+      "artFillFraction": 0.0014742295181123255,
+      "totalFillFraction": 0.016752007295890103,
+      "firstScreenFraction": 0.016752007295890103,
       "saturatedBorderElements": 1,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1
         }
       },
@@ -6218,9 +6238,9 @@
       "viewport": "desktop",
       "route": "feedback-correct",
       "chromeFillFraction": 0.003001247829861111,
-      "artFillFraction": 0.0018140598448323241,
-      "totalFillFraction": 0.004815307674693435,
-      "firstScreenFraction": 0.004815307674693435,
+      "artFillFraction": 0.0019208957084548375,
+      "totalFillFraction": 0.004922143538315949,
+      "firstScreenFraction": 0.004922143538315949,
       "saturatedBorderElements": 2,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -6231,9 +6251,9 @@
       "viewport": "desktop",
       "route": "feedback-wrong",
       "chromeFillFraction": 0.003001247829861111,
-      "artFillFraction": 0.0003983359878992714,
-      "totalFillFraction": 0.0033995838177603823,
-      "firstScreenFraction": 0.0033995838177603823,
+      "artFillFraction": 0.00039833889494022716,
+      "totalFillFraction": 0.0033995867248013383,
+      "firstScreenFraction": 0.0033995867248013383,
       "saturatedBorderElements": 2,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -6244,13 +6264,13 @@
       "viewport": "desktop",
       "route": "combo",
       "chromeFillFraction": 1.0204763726128472,
-      "artFillFraction": 0.009560843751623502,
-      "totalFillFraction": 1.0300372163644707,
-      "firstScreenFraction": 1.0300372163644707,
+      "artFillFraction": 0.010319778364122612,
+      "totalFillFraction": 1.0307961509769699,
+      "firstScreenFraction": 1.0307961509769699,
       "saturatedBorderElements": 5,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "176": 1
         }
       },
@@ -6261,13 +6281,13 @@
       "viewport": "desktop",
       "route": "reward-first",
       "chromeFillFraction": 1.0238333333333334,
-      "artFillFraction": 0.008898724536239267,
-      "totalFillFraction": 1.0327320578695727,
-      "firstScreenFraction": 1.0327320578695727,
+      "artFillFraction": 0.00890650601688766,
+      "totalFillFraction": 1.032739839350221,
+      "firstScreenFraction": 1.032739839350221,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1,
           "112": 1
         }
@@ -6279,13 +6299,13 @@
       "viewport": "desktop",
       "route": "reward-streak",
       "chromeFillFraction": 1.0289197591145833,
-      "artFillFraction": 0.009005635901460564,
-      "totalFillFraction": 1.0379253950160439,
-      "firstScreenFraction": 1.0379253950160439,
+      "artFillFraction": 0.009004344228588809,
+      "totalFillFraction": 1.037924103343172,
+      "firstScreenFraction": 1.037924103343172,
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "40": 1,
           "112": 1
         }
@@ -6297,13 +6317,13 @@
       "viewport": "desktop",
       "route": "hud-rest",
       "chromeFillFraction": 1.0352993147423928,
-      "artFillFraction": 0.00007026071694790795,
-      "totalFillFraction": 1.0353695754593404,
-      "firstScreenFraction": 1.0616373338392862,
+      "artFillFraction": 0.00007022933646092853,
+      "totalFillFraction": 1.0353695440788535,
+      "firstScreenFraction": 1.0616368094364814,
       "saturatedBorderElements": 15,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6315,13 +6335,13 @@
       "viewport": "desktop",
       "route": "hud-lit",
       "chromeFillFraction": 1.0353835578674966,
-      "artFillFraction": 0.00008849328810065817,
-      "totalFillFraction": 1.0354720511555973,
-      "firstScreenFraction": 1.0633498165856192,
+      "artFillFraction": 0.00008845998339244854,
+      "totalFillFraction": 1.035472017850889,
+      "firstScreenFraction": 1.0633492600269399,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6332,14 +6352,14 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-charge",
-      "chromeFillFraction": 1.0361235184228033,
-      "artFillFraction": 0.00009664986388649312,
-      "totalFillFraction": 1.0362201682866898,
-      "firstScreenFraction": 1.0758516850874327,
+      "chromeFillFraction": 1.0361235177306523,
+      "artFillFraction": 0.00009663913802017563,
+      "totalFillFraction": 1.0362201568686724,
+      "firstScreenFraction": 1.0758514942796764,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6350,14 +6370,14 @@
       "theme": "dark",
       "viewport": "desktop",
       "route": "hud-streak",
-      "chromeFillFraction": 1.0361311688686305,
-      "artFillFraction": 0.00007027789842996896,
-      "totalFillFraction": 1.0362014467670604,
-      "firstScreenFraction": 1.0755388276927382,
+      "chromeFillFraction": 1.0361312423123323,
+      "artFillFraction": 0.00007025706141803009,
+      "totalFillFraction": 1.0362014993737505,
+      "firstScreenFraction": 1.0755397068089798,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6369,9 +6389,9 @@
       "viewport": "desktop",
       "route": "streak-rest",
       "chromeFillFraction": 0.02447222222222222,
-      "artFillFraction": 0.014431818310340329,
-      "totalFillFraction": 0.03890404053256255,
-      "firstScreenFraction": 0.03890404053256255,
+      "artFillFraction": 0.014432090268101699,
+      "totalFillFraction": 0.038904312490323924,
+      "firstScreenFraction": 0.038904312490323924,
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -6382,9 +6402,9 @@
       "viewport": "desktop",
       "route": "streak-milestone",
       "chromeFillFraction": 0.027687981499565972,
-      "artFillFraction": 0.01440704077618769,
-      "totalFillFraction": 0.04209502227575366,
-      "firstScreenFraction": 0.04209502227575366,
+      "artFillFraction": 0.014407266151059755,
+      "totalFillFraction": 0.04209524765062573,
+      "firstScreenFraction": 0.04209524765062573,
       "saturatedBorderElements": 6,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -6395,9 +6415,9 @@
       "viewport": "desktop",
       "route": "streak-exam",
       "chromeFillFraction": 0.025597222222222223,
-      "artFillFraction": 0.014241647874005139,
-      "totalFillFraction": 0.03983887009622736,
-      "firstScreenFraction": 0.03983887009622736,
+      "artFillFraction": 0.01420594377556376,
+      "totalFillFraction": 0.03980316599778598,
+      "firstScreenFraction": 0.03980316599778598,
       "saturatedBorderElements": 5,
       "pageArea": 1152000,
       "faceSizes": {},
@@ -6408,13 +6428,13 @@
       "viewport": "desktop",
       "route": "charge-cost",
       "chromeFillFraction": 1.0361288555632246,
-      "artFillFraction": 0.00007894587223139851,
-      "totalFillFraction": 1.036207801435456,
-      "firstScreenFraction": 1.0756450212623707,
+      "artFillFraction": 0.00007892494855041984,
+      "totalFillFraction": 1.036207780511775,
+      "firstScreenFraction": 1.075644671604413,
       "saturatedBorderElements": 24,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6426,13 +6446,13 @@
       "viewport": "desktop",
       "route": "charge-empty",
       "chromeFillFraction": 1.0360451870776237,
-      "artFillFraction": 0.00009371382955369226,
-      "totalFillFraction": 1.0361389009071773,
-      "firstScreenFraction": 1.0744936168786927,
+      "artFillFraction": 0.0000936922734906947,
+      "totalFillFraction": 1.0361388793511144,
+      "firstScreenFraction": 1.0744932566529288,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6444,13 +6464,13 @@
       "viewport": "desktop",
       "route": "charge-exam",
       "chromeFillFraction": 1.036682971015316,
-      "artFillFraction": 0.00011216866252880707,
-      "totalFillFraction": 1.0367951396778448,
-      "firstScreenFraction": 1.0858084408007713,
+      "artFillFraction": 0.00011213929011950443,
+      "totalFillFraction": 1.0367951103054356,
+      "firstScreenFraction": 1.085807949857268,
       "saturatedBorderElements": 17,
       "pageArea": 19255040,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6462,13 +6482,13 @@
       "viewport": "desktop",
       "route": "shell-bar",
       "chromeFillFraction": 1.0352993147423928,
-      "artFillFraction": 0.00007025331831179472,
-      "totalFillFraction": 1.0353695680607045,
-      "firstScreenFraction": 1.061637210199856,
+      "artFillFraction": 0.0000702237797904255,
+      "totalFillFraction": 1.035369538522183,
+      "firstScreenFraction": 1.0616367165783434,
       "saturatedBorderElements": 15,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 1,
           "22": 1
         }
@@ -6480,13 +6500,13 @@
       "viewport": "desktop",
       "route": "shell-tool",
       "chromeFillFraction": 1.045621859570767,
-      "artFillFraction": 0.00007029044855567964,
-      "totalFillFraction": 1.0456921500193226,
-      "firstScreenFraction": 1.234139024263876,
+      "artFillFraction": 0.00007026315219074804,
+      "totalFillFraction": 1.0456921227229576,
+      "firstScreenFraction": 1.2341385681112886,
       "saturatedBorderElements": 16,
       "pageArea": 19251200,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "18": 2,
           "22": 2,
           "28": 1
@@ -6505,7 +6525,7 @@
       "saturatedBorderElements": 9,
       "pageArea": 1152000,
       "faceSizes": {
-        "Fraunces": {
+        "Rounded display": {
           "16": 5,
           "18": 1,
           "22": 1,

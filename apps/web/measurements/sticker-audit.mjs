@@ -157,15 +157,34 @@ const MASCOT_PALETTE = [
 ];
 
 /**
- * The display and accent faces, from docs/DESIGN-TOKENS.md.
+ * The display faces, from docs/DESIGN-TOKENS.md and docs/DESIGN-GOALS.md.
  *
- * `floorPx: null` means the project has recorded no minimum size for that face.
- * Fill one in and rule 8 starts scoring; until then it reports the observed
- * distribution and says that is what it is doing.
+ * RE-POINTED 2026-09-01 with the typography split: Fraunces and Caveat left
+ * the app (Caveat had already left the source tree; a needle for a face that
+ * never renders audits ghosts). The chrome face is now the ROUNDED display
+ * stack in theme.css (--font-display: ui-rounded, "SF Pro Rounded", "Arial
+ * Rounded MT Bold", ...), so the needle is "rounded", which matches every
+ * member of that stack and no member of the content stack (ui-sans-serif,
+ * system-ui, Segoe UI, Roboto, Helvetica Neue, Arial).
+ *
+ * THE FLOOR IS ARMED at 16px, and here is the derivation, because arming a
+ * dormant check is strengthening it and a strengthened check owes its number
+ * an argument. The type scale in theme.css steps 12, 14, 16, 18, 22, 28, 40.
+ * DESIGN-GOALS assigns the display face to CHROME (buttons, celebration
+ * numbers, streak counts, mascot speech) and everything body-sized to the
+ * neutral content face ("personality lives at the celebration, not between
+ * the student and the chemistry"). The two steps below 16px, scale-xs 12 and
+ * scale-sm 14, are exactly the sizes WCAG and rule 7 treat as body and
+ * caption text, so the smallest size at which the display face is doing its
+ * chrome job rather than leaking into body copy is scale-base, 16px. A
+ * rounded display glyph below that is body copy wearing a costume, and rule 8
+ * now says so instead of reporting a distribution.
+ *
+ * `floorPx: null` still means no floor is recorded and only the observed
+ * distribution is reported; no face uses it today.
  */
 const DISPLAY_FACES = [
-  { name: "Fraunces", needle: "fraunces", floorPx: null, note: "the display face, class .title-face" },
-  { name: "Caveat", needle: "caveat", floorPx: null, note: "the handwritten accent, class .playful-face, short labels only" },
+  { name: "Rounded display", needle: "rounded", floorPx: 16, note: "the chrome face, theme.css --font-display, class .title-face" },
 ];
 
 /** The one shadow exemption, and it is opt-in in the markup. Nothing carries it today. */
@@ -1096,9 +1115,11 @@ for (const rule of RULE_ORDER) {
  *
  * Same rule the contrast audit follows for a mark sitting on another mark: what
  * the script cannot resolve it refuses to score, and lists for a person. Rule 8
- * is the large one here and it is unresolved by absence rather than by
- * ambiguity: no floor is recorded for either face, so the distribution is the
- * honest answer and a number invented from Duolingo's 48px would not be.
+ * left this bucket on 2026-09-01: the display-face floor is armed (see
+ * DISPLAY_FACES for the derivation), so an undersized display glyph is a
+ * finding now, and this block only reports the observed size distribution as
+ * context beside it. A face with floorPx null would still be unresolved by
+ * absence, and the line below says which of the two it is.
  */
 console.log("UNRESOLVED, scored neither way:");
 const faceTally = {};
@@ -1110,7 +1131,11 @@ for (const metric of routeMetrics) {
 }
 for (const face of DISPLAY_FACES) {
   const sizes = faceTally[face.name];
-  console.log(`  rule 8, ${face.name} (${face.note}): no floor is recorded in docs/DESIGN-TOKENS.md, so nothing is scored.`);
+  if (face.floorPx === null) {
+    console.log(`  rule 8, ${face.name} (${face.note}): no floor is recorded, so nothing is scored.`);
+  } else {
+    console.log(`  rule 8, ${face.name} (${face.note}): floor armed at ${face.floorPx}px; sizes below it are findings above, the distribution here is context.`);
+  }
   if (sizes === undefined) {
     console.log("      observed on no visible text in this walk.");
     continue;
