@@ -983,3 +983,34 @@ dark is now a number anyone can.
 The lesson, recorded for the next drive an author writes: THE CLOCK IS PART OF THE
 SURFACE. A seed pins history; it cannot pin the hour. Any assertion downstream of copy or
 counts that branch on wall time must either assert per branch or seed the clock itself.
+
+## S3 look and feel: OURS WON BLIND, confidence 0.66. Exit met.
+
+Four rounds to a verdict, and only one of them was about design. Round 1's builder died to
+a connection drop. Round 2 built (6db7a11), captured, and was voided by our own audit for
+a leak on the BAR'S side: the Spanish flag course chip plus SECTION 1, UNIT 1, Order at a
+cafe named the product outright, so the pair was unfair in the bar's favour and the audit
+refused it, which is the audit doing its job in the other direction for the first time.
+Round 3's builder verified the design (sticker 194 to 32, rule 7 64 to 0, rule 4 52 to 4)
+and was blocked from re-measuring by the wall-clock instrument bugs recorded above, which
+it reported rather than edited. Round 4, after the instrument fix, captured a fair pair
+(flags now named strippable marks, both sides stripped equally, audit clean), and the
+judge picked ours.
+
+Why ours won, in the judge's words: truthfulness and instant comprehension outrank polish.
+The reward screen itemizes its headline number, First clear +10, Flawless +5, Daily goal
++10, summing exactly to the 25 shown; the charge meter pairs a number with a bar that does
+not contradict it; the goal pips are captioned; every lesson on the path is named and all
+four tabs are labelled, where the bar's nodes are anonymous grey discs, its bar icon-only,
+and its TOTAL XP 15 arrives with no account of itself.
+
+What the bar still does better, carried as R's brief: craft and finish across the board,
+and specifically PAIR 2, the lesson question screen, the best single frame of the six on
+their side and the worst on ours: a large dead zone, a floating mascot, and an outlined
+Check whose disabled state is ambiguous where theirs is unmistakable. Their reward screen
+also reports accuracy (92 percent), an honest performance measure ours omits. Both go to
+the R rebuild: the lesson-flow piece owns the question screen, the celebration piece owns
+the accuracy chip.
+
+D1's residue stands as the round 3 builder wrote it: two meters of different genera still
+share the header, a real argument a counting critic may still make. Recorded, not hidden.

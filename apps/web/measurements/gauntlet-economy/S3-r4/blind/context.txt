@@ -1,0 +1,28 @@
+Three pairs from two study apps. In each pair the two frames are the same moment, at the same
+viewport and in the same colour scheme, so the comparison is of how the screen looks and feels
+rather than of what it is doing.
+
+Pair 1, A.png and B.png. The course laid out as a run of lessons: the screen a student opens to
+see where they are and to work out which single lesson to do next. Phone shape 390x844 at 3x,
+light scheme, nothing pressed, the screen settled.
+
+Pair 2, A-2.png and B-2.png. One question inside a lesson, on screen, with nothing answered yet
+and no feedback shown. Phone shape 390x844 at 3x, dark scheme, nothing pressed.
+
+Pair 3, A-3.png and B-3.png. The end of a lesson: the screen that reports what the student just
+earned. Phone shape 390x844 at 3x, dark scheme, 2500 ms after the screen opened, so both frames
+are settled rather than mid animation.
+
+The two schemes are not a choice: the committed captures hold the course screen in light and the
+lesson and reward screens in dark, so each pair matches the scheme it was available in. Compare
+within a pair, not across pairs.
+
+What was painted out, and it was applied to both sides of pair 1 by the same rule: anything that
+names the course or the app was removed, and nothing else was. On one side of pair 1 a small
+course chip in the top corner and the two lines of text inside the green header card were painted
+over with the surrounding fill; on the other side the two lines of text inside the cream header
+card and the two lines of text inside the indigo unit banner were painted over with each card's
+own fill. The card and banner shapes, their borders and their colours are untouched, and no
+character, mascot or illustration was altered on either side. The lesson labels beside the path
+faces and all text in pairs 2 and 3 are unmodified lesson content: pairs 2 and 3 are unmodified
+captures on both sides.
