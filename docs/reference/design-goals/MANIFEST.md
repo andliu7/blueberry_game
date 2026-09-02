@@ -35,3 +35,6 @@ full decision list; this manifest maps decisions to files.
 | `blueberry_spec-meter-states_1788291102.png` | Charge and streak states: full, spending, empty (refills over time, mistakes never cost charge), exam pause, lit, rest day, freeze |
 | `blueberry_spec-node-types_1788291072.png` | Node type vocabulary: lesson, concept, challenge, unit gate, application, hub, video hook. Shape and badge say what a node is before you tap it |
 | `blueberry_spec-question-badges_1788291079.png` | Question type badges and the lesson recipe strip: a lesson shows its beat composition up front in its progress bar |
+| `blueberry_artkit-env-backdrop_1788378596.png` | THE PATHWAY ENVIRONMENT: the composed background world (terraces, sparse clouds, flasks, faint molecules, energy bands) with no UI. The scatter is dead; this composition is the bar |
+| `blueberry_artkit-prop-sheet_1788378602.png` | The environment prop family, drawn once each for tracing to SVG: clouds, flasks, molecule watermarks, terrace edge tiles, flourishes |
+| `blueberry_artkit-unit-strip_1788378610.png` | The repeatable per-unit background segment: one terrace transition with its props, the tileable rhythm of the path world |

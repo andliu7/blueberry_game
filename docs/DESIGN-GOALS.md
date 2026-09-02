@@ -57,6 +57,15 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   spot for the next round
 - The energy metaphor: lessons are intermediates (valleys), challenges are transition states
   (peaks), each unit ends lower than it began
+- BACKGROUND DOCTRINE, owner direction 2026-09-02: the environment is COMPOSED, never
+  scattered. The committed art kit (env-backdrop, prop-sheet, unit-strip in design-goals/)
+  is the reference; props are placed by a deterministic per-unit placement table, and the
+  preferred implementation is SVG traced from the prop sheet (tiny, theme-aware, budget-
+  safe), with compressed raster only where tracing genuinely cannot match. Random per-route
+  scatter of icons or molecules is a defect a critic names
+- THE TRAIL IS CODE, ALWAYS: it is derived from the node layout so it follows the buttons
+  by construction. A trail that visibly diverges from its nodes is a failing bug, never an
+  art-direction question, and no background image may substitute for it
 
 ## The scrollbar
 
