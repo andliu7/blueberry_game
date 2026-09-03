@@ -75,7 +75,17 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 
 - The F1 track map: a sticky pill holding a tiny outline of the unit's REAL path shape,
   completed stretch glowing green, riding a thin energy axis. Drag to scroll
-- AMENDED 2026-09-03, owner: THE THUMB IS A BLUEBERRY. The draggable scroll thumb is Berry
+- SUPERSEDED SAME DAY, 2026-09-03, owner after seeing it: REMOVE THE HOVER
+  REVEAL. The berry on the scroll track and its hover or hold behaviour are cut.
+  The track map is either always visible or absent; it does not appear and
+  disappear under the pointer. The dated reversal is kept rather than deleted so
+  the next round does not rebuild what was just removed. The clause below is the
+  superseded text.
+- BRANCHES CURVE, owner 2026-09-03: fork and rejoin geometry is smooth. No hard
+  angles where a branch leaves or meets the spine; the split and the merge are
+  continuous curves that keep the trail reading as one path that widens, which
+  is also what makes the unit outline legible at track-map size.
+- (SUPERSEDED) AMENDED 2026-09-03, owner: THE THUMB IS A BLUEBERRY. The draggable scroll thumb is Berry
   itself riding the energy axis at the student's position, not a generic dot with a mascot
   beside it. The berry IS the scrollbar handle; dragging it drags the student's viewpoint
   down the unit
