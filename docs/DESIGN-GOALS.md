@@ -32,6 +32,10 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   pressed frame must land inside the 100 ms budget
 - The five node states are the committed states sheet: rest, pressed, completed (green with
   soft glow), locked (flat, grey), current (halo plus START pill)
+- HOW the chip gets its depth is recorded in `docs/reference/design-goals/BUTTON-MECHANICS.md`
+  (owner reference, 2026-09-03): stacked edge and face layers rather than a box-shadow, the
+  press moving the face down onto the edge by transform so nothing reflows, and the trigger
+  staying pointer down. Read it before building any pressable
 - The glow is the completed-state language: static soft glow on finished path segments, a
   pulsing halo ONLY on the current node, and no pulse under reduced motion
 - Lone-pair and bond handles in the trainer carry an EXPANDED invisible hit area beyond
