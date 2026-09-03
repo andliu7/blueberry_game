@@ -26,40 +26,48 @@
  * the shape genuinely changing, not the reason for it, and a person should
  * confirm that reading against the captures rather than take the number.
  *
- * THE FIVE STATES, which is what this round is actually for. A blind judge read
- * our track and could not find a current node, a locked node or a start
- * affordance, because every node rendered in one purple at one size. So:
+ * THE FIVE STATES, re-pointed 2026-09-01 at the committed states sheet
+ * (docs/reference/design-goals/blueberry_r7-states-sheet_1788288485.png) and
+ * the warm cream regime's chip tokens in theme.css:
  *
- *   current  the largest face, the fully saturated brand fill, an outer
- *            progress ring and a START tag over it. Exactly one per track
- *   done     a darker green fill and a check. Finished, and visibly behind you
- *   review   amber, the same size as open
- *   open     a desaturated stone-purple, about a third of the saturation of
- *            current, carrying a HOLLOW star. Round two swapped the numeral out:
- *            a bare "4" beside a tick and a lock reads as a quantity, and a
- *            blind judge could not tell whether it meant lesson 4, 4 problems
- *            or 4 to unlock. An unfilled star is the same glyph as the live
- *            node, not yet earned
- *   locked   the same stone one step cooler, carrying a lock
+ *   rest     the periwinkle chip (--chip-*), blank face. Open and orderable,
+ *            because within a unit nothing locks (owner ruling 2026-09-01)
+ *   pressed  the face sinks the height of its own wall on pointer down and
+ *            darkens to --chip-face-press. Transform only, same frame as the
+ *            pointer, inside the 100 ms budget
+ *   done     the goal green as a FILL under dark progress ink (white on
+ *            #7ed957 is 1.76:1, measured, so the check is --progress-ink),
+ *            with the static soft glow that is the completed-state language
+ *   current  identity violet, a pulsing halo and the START tag. SAME SIZE as
+ *            every other node, per the goals: the halo and the pill carry it,
+ *            never scale. No pulse under reduced motion
+ *   locked   flat and grey: the wall colour equals the face colour, so the
+ *            chip visibly cannot be pressed, and it carries a lock glyph
  *
- * The desaturation is authored as REAL token values rather than a CSS filter,
- * for a measurement reason: the contrast audit reads computed colours, and a
- * filter would make it report a pair that is not the pair on screen.
+ * Review is this app's spaced-repetition seam, one state the sheet does not
+ * draw: amber, same chip anatomy, refresh glyph.
  *
- * DARK MODE keeps the rule an earlier round got wrong. In dark mode "darker than
- * the face" runs straight into the near black ground, so every well here is a
- * MID tone: clearly darker than its face and clearly lighter than the page, so
- * the rim reads as a lit wall from both directions.
+ * The desaturation (both locked and the side loop's dim) is authored as REAL
+ * token values rather than a CSS filter, for a measurement reason: the
+ * contrast audit reads computed colours, and a filter would make it report a
+ * pair that is not the pair on screen. That is the S2 floor.
+ *
+ * DARK MODE keeps the rule an earlier round got wrong. In dark mode "darker
+ * than the face" runs straight into the near black ground, so the face is
+ * what identifies the chip (7.5:1 as a shape, per theme.css) and the wall
+ * stays a mid tone. rest, current and done follow their tokens through .dark
+ * on their own; only review, locked and dim carry hand-set dark values here.
  */
 
 .path-node {
   --node-size: 4.25rem;
   --node-rim: 4px;
-  --node-lip: 9px;
-  --node-face: #cfc7dc;
-  --node-edge: #9990ab;
-  --node-line: #7d7490;
-  --node-ink: #3a3446;
+  --node-lip: 8px;
+  --node-face: var(--chip-face);
+  --node-face-press: var(--chip-face-press);
+  --node-edge: var(--chip-edge);
+  --node-line: var(--chip-edge);
+  --node-ink: var(--chip-ink);
   position: relative;
   display: block;
   box-sizing: border-box;
@@ -106,10 +114,12 @@
   will-change: transform;
 }
 
-/* The press: the face sinks the height of its own wall, the same frame as
-   pointer down, transform only, so no layout and no JavaScript in the path. */
+/* The press: the face sinks the height of its own wall AND darkens to the
+   authored press tone, the same frame as pointer down, transform plus a
+   painted colour only, so no layout and no JavaScript in the path. */
 .path-node--press:active .path-node__face {
   transform: translateY(var(--node-lip));
+  background: var(--node-face-press);
 }
 
 .path-node:focus-visible {
@@ -117,87 +127,204 @@
   outline-offset: 5px;
 }
 
+/* Completed: the goal green as a FILL carrying dark ink, per the fill-only
+   rule (--progress-ink on --progress is 7.17:1, measured in theme.css), the
+   bottom wall in --progress-edge (3.82:1 on the cream ground), and the
+   static soft glow that is the completed-state language. The glow does not
+   pulse: only the current node's halo does. */
 .path-node--done {
-  --node-face: #047857;
-  --node-edge: #065f46;
-  --node-line: #064e3b;
-  --node-ink: #ffffff;
+  --node-face: var(--progress);
+  --node-face-press: var(--progress);
+  --node-edge: var(--progress-edge);
+  --node-line: var(--progress-edge);
+  --node-ink: var(--progress-ink);
+  box-shadow: 0 0 16px 4px var(--progress-glow);
 }
-/* The one target. Bigger, fully saturated, and the only brand navy on the
-   track, so the eye has exactly one place to land.
-
-   IT LEFT #7c3aed WITH --primary. That hex was this app's chrome AND the
-   mascot's costume cape in MASCOT_PALETTE, and sticker rule 8 keeps the two
-   palettes disjoint; the node was 31 of the 247 rows. White on #3f4286 is
-   8.99:1 and the well below it is the same family two steps down. */
+/*
+ * The one target, and its FACE STAYS PERIWINKLE.
+ *
+ * blueberry_r7-states-sheet draws five states and the current one is the rest
+ * chip inside a violet halo with a START pill over it: rest, pressed and
+ * current share one face, and only completed and locked change colour. This
+ * used to paint the face --primary, which put a solid violet disc on the
+ * track and made the current node read as a sixth colour the sheet does not
+ * have (and, next to the violet unit banner, as a piece of chrome rather than
+ * a button). The halo and the pill carry the identity violet instead, which
+ * is what the sheet draws them in and what "all nodes the same size" is
+ * paired with: the mark is around the node, not inside it.
+ */
 .path-node--current {
-  --node-size: 5.5rem;
-  --node-rim: 5px;
-  --node-lip: 11px;
-  --node-face: #3f4286;
-  --node-edge: #262a5c;
-  --node-line: #1b1d3f;
-  --node-ink: #ffffff;
+  --node-face: var(--chip-face);
+  --node-face-press: var(--chip-face-press);
+  --node-edge: var(--chip-edge);
+  --node-line: var(--chip-edge);
+  --node-ink: var(--chip-ink);
+}
+/* The pulsing halo, on the current node only. A shape (a violet ring), never
+   a colour-alone signal: the START pill says the same thing in words. */
+.path-node--current::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+  border: 3px solid var(--primary);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: path-halo 1.8s ease-in-out infinite;
+}
+@keyframes path-halo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.25;
+  }
 }
 .path-node--review {
   --node-face: #b45309;
+  --node-face-press: #9a4708;
   --node-edge: #78350f;
-  --node-line: #653008;
+  --node-line: #78350f;
   --node-ink: #ffffff;
 }
+/* Open is rest: the same freely-orderable periwinkle chip. The tokens are
+   restated rather than inherited so the legend swatch can render the state
+   without riding on the base rule's defaults staying what they are. */
 .path-node--open {
-  --node-face: #cfc7dc;
-  --node-edge: #9990ab;
-  --node-line: #7d7490;
-  --node-ink: #3a3446;
+  --node-face: var(--chip-face);
+  --node-face-press: var(--chip-face-press);
+  --node-edge: var(--chip-edge);
+  --node-line: var(--chip-edge);
+  --node-ink: var(--chip-ink);
 }
+/* Locked is FLAT, per the states sheet: the wall colour equals the face, so
+   the chip reads as unpressable, and only the grey cut edge (3.32:1 on the
+   cream ground) identifies it. Authored greys, not a filter. */
 .path-node--locked {
-  --node-face: #d8d4cd;
-  --node-edge: #a8a29a;
+  --node-face: #ddd8cf;
+  --node-face-press: #ddd8cf;
+  --node-edge: #ddd8cf;
   --node-line: #8b857c;
   --node-ink: #57534e;
   cursor: not-allowed;
 }
+/* The side loop's dim, an AUTHORED desaturated periwinkle (S2 floor: never a
+   CSS filter). The ink still clears its face at 6.52:1 and the cut edge
+   clears the cream at 3.80:1, so dim recedes without dropping a floor. */
+.path-node--dim {
+  --node-face: #ccd1e9;
+  --node-face-press: #bfc5e2;
+  --node-edge: #a3abd4;
+  --node-line: #6f78b3;
+  --node-ink: #3a4166;
+}
+/* The AUTHORING QUEUE, riding beside state rather than inside it. A node
+   with no content yet is DASHED, the same treatment the queued side-quest
+   chips already wear, never a padlock: the S3 critic found u1-da drawn
+   locked-and-dimmed inside the active unit, a sixth hybrid the states sheet
+   does not draw, and the unlock policy is that only unit gates lock. Flat
+   like locked (wall equals face: there is nothing to press), near-paper
+   face so it recedes, and the dashed cut edge is what says "not built yet".
+   Authored values, never a filter: the line is 4.2:1 on the cream ground
+   and the ink 6.7:1 on its face, both over their floors. Declared after
+   open and dim so the overlay wins the tie at equal specificity. */
+/*
+ * IT IS STILL A CHIP. The near-paper face above (#f6f1e7 on a #fbf3e6 page)
+ * rendered as an EMPTY DASHED RING with a badge floating beside it, which is
+ * what the critic captured on the one node that was on a loop: "an EMPTY
+ * dashed ring with a flag badge and no chip inside it". A node with no
+ * authored content is still a node on the map, so it keeps the dim
+ * periwinkle face the side loop wears and says "not built yet" with the
+ * DASHED CUT EDGE alone. The line is 4.2:1 on the cream ground and the ink
+ * 6.5:1 on its face, both over their floors, and both are authored values
+ * rather than a filter.
+ */
+.path-node--queued {
+  --node-face: #dfe2f0;
+  --node-face-press: #dfe2f0;
+  --node-edge: #dfe2f0;
+  --node-line: #6f78b3;
+  --node-ink: #3a4166;
+  border-style: dashed;
+  cursor: default;
+}
+.path-node--queued .path-node__face {
+  border-style: dashed;
+}
 
-.dark .path-node--done {
-  --node-face: #0f766e;
-  --node-edge: #115e59;
-  --node-line: #1c8479;
-  --node-ink: #ffffff;
-}
-/* #5b60c8 is this theme's own --primary and carries white at 5.31:1. */
-.dark .path-node--current {
-  --node-face: #5b60c8;
-  --node-edge: #383c8e;
-  --node-line: #7d82d8;
-  --node-ink: #ffffff;
-}
 .dark .path-node--review {
   --node-face: #b45309;
+  --node-face-press: #9a4708;
   --node-edge: #7c3d0a;
   --node-line: #9a5410;
   --node-ink: #ffffff;
 }
-.dark .path-node--open {
-  --node-face: #4a4358;
-  --node-edge: #322c3d;
-  --node-line: #4c445c;
-  --node-ink: #ddd7e8;
-}
 .dark .path-node--locked {
   --node-face: #423d38;
-  --node-edge: #2e2a26;
-  --node-line: #4a453f;
+  --node-face-press: #423d38;
+  --node-edge: #423d38;
+  --node-line: #6b645b;
   --node-ink: #cdc6bc;
 }
+.dark .path-node--dim {
+  --node-face: #3b3f5e;
+  --node-face-press: #343855;
+  --node-edge: #2c3050;
+  --node-line: #6f78b3;
+  --node-ink: #ccd1e9;
+}
+.dark .path-node--queued {
+  --node-face: #262a45;
+  --node-face-press: #262a45;
+  --node-edge: #262a45;
+  --node-line: #8a90b8;
+  --node-ink: #cdd1e8;
+}
 
-/* The legend dot: the same shape at swatch size, no press. */
+/* The legend dot: the same shape at swatch size, no press, and neither the
+   halo nor the glow: a legend names states, it does not perform them. */
 .path-node--swatch {
   --node-size: 0.875rem;
   --node-rim: 2px;
   --node-lip: 3px;
   border-width: 1px;
   cursor: default;
+  box-shadow: none;
+}
+.path-node--swatch::before {
+  content: none;
+}
+
+/* The badge in the chip's corner: what a node IS, before you tap it, per
+   blueberry_spec-node-types. A small card-coloured disc with the node's own
+   cut edge, so it reads as part of the chip and not a sticker on it. */
+.path-node__badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--card);
+  border: 2px solid var(--node-line);
+  color: var(--foreground);
+}
+/*
+ * The video hook's play badge, per blueberry_spec-node-types. It is the one
+ * badge drawn in the identity violet rather than in the foreground ink,
+ * because a play control is a control everywhere else in the product and the
+ * vocabulary should not have to be learned twice. --primary is 7.30:1 on the
+ * card it sits on, so it clears the body floor, not merely the graphics one.
+ */
+.path-node__badge--video {
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 /*
@@ -336,6 +463,48 @@
   padding-top: 52px;
   padding-bottom: 18px;
 }
+/*
+ * THE DIMMED SIDE LOOP, docs/DESIGN-GOALS.md's third branch shape.
+ *
+ * It is the SAME CHIP AT THE SAME SIZE ("all nodes the same size"), swung
+ * further off the centreline than any spine step so the detour reads as off
+ * the road rather than as another kink in it, and dimmed with the authored
+ * --node-* tokens in .path-node--dim, never with a CSS filter: the contrast
+ * audit reads computed colours off the built page, and a filter would make it
+ * measure a pair that is not on screen.
+ *
+ * The step SHRINKS on a loop row rather than the wind growing without limit.
+ * At the spine's own min(58px, 10vw) a 2.55 step is 99px on a 390pt phone,
+ * which puts the chip's outer edge 133px from the centreline against about
+ * 156px of half column: inside, but with nothing left for the rim or a
+ * pressed state. min(46px, 8vw) is 80px there and 117px on a desktop, which
+ * keeps the detour clearly outboard of the widest spine step (1.7 x 58 = 99px)
+ * at the width that has room for it, and inboard of the column at the width
+ * that does not.
+ *
+ * The rows are tighter too: a detour is an aside, and a full-height row for
+ * one is the flow-wrapped side-quest block the critic named, in a column.
+ */
+.path-row--loop {
+  --wind-step: min(46px, 8vw);
+  padding: 4px 0;
+}
+.path-row--loop .path-row__title {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-weight: 600;
+  /* PLATED, because a detour's label is the one label that lands on the
+     spine: the chip swings out and the label swings back over the ribbon.
+     Same ground-colour plate as the fork labels and the gate text, and the
+     same reason: no text in this tab shares a pixel with the trail. */
+  background: var(--background);
+  border-radius: 8px;
+  padding: 1px 6px;
+  /* fit-content, or the plate fills the whole 1fr label column and reads as
+     a bar laid across the trail rather than as a label sitting on it. */
+  width: fit-content;
+  max-width: 100%;
+}
 .path-row__label {
   grid-column: 3;
   /* LEFT ALIGNED ON BOTH SIDES. A blind judge called the right aligned column a
@@ -410,10 +579,29 @@
  * painted over it. The outline is SOLID so the dashed crest arcing over it is the
  * only dashed mark in the frame; two dashed shapes crossing read as noise.
  */
+/*
+ * The unit gate. The PLATE is for the checkpoint questions, not for the arch:
+ * every unit carries a gate now (it is the rejoin anchor the diamond closes
+ * on), and drawing an empty bordered rectangle around a lone arch on the
+ * twelve units with no authored checkpoint is a box around nothing. So the
+ * border arrives with the content it exists to hold.
+ */
 .path-gate {
   border-radius: 1rem;
-  border: 2px solid var(--path-gate-line);
   background: transparent;
+}
+.path-gate--checkpoint {
+  border: 2px solid var(--path-gate-line);
+}
+/* The strip stays transparent (the crest behind it is the lesson), but its
+   TEXT does not share a pixel with the ribbon: the spine's cubic runs down
+   the strip's centre to the arch, and the attempt-2 critic caught it struck
+   through "The barrier between units". Same ground-colour plate as the fork
+   labels, same reasoning. */
+.path-gate__text {
+  background: var(--background);
+  border-radius: 8px;
+  padding: 1px 8px;
 }
 
 /*
@@ -496,11 +684,35 @@
    replaced them is a wash the labels can sit over the edge of. The 6 percent is
    43px of label width on a 390pt phone, which is where the node titles were
    wrapping. */
+/*
+ * THE RAIL GETS A RESERVED GUTTER, and the column pays for it only where
+ * there is no landscape flank to put the rail in instead. The S3 critic
+ * measured the track-map pill (x 10..50) sitting over the "Unit 1" banner
+ * eyebrow and the first characters of "Allylic/resonance delocalization"
+ * (label left edge x=27): a centred 94 percent column leaves ~12px beside
+ * itself and the rail is 44, so overlap was guaranteed at every scroll. In
+ * the committed reference (blueberry_r7-compiled-v2) the pill rides the
+ * LEFT MARGIN over landscape, never over labels. So: below 768px the rail
+ * hugs the viewport's left edge (its negative margin swallows the page
+ * padding) and the column starts past it, which costs the column ~22px
+ * against the centred 94 percent; at 768px and up the stage has a real
+ * landscape flank outside itself, the rail moves out into it, and the
+ * column takes its centred 94 percent back. The scene MEASURES the column
+ * rect, so the channel follows whichever geometry is live and the S2 floor
+ * (channel never narrower than the label column) holds by construction.
+ */
 .path-stage__content {
   position: relative;
   z-index: 1;
-  max-width: 94%;
-  margin-inline: auto;
+  margin-left: 38px;
+  margin-right: 0;
+  max-width: calc(100% - 44px);
+}
+@media (min-width: 768px) {
+  .path-stage__content {
+    max-width: 94%;
+    margin-inline: auto;
+  }
 }
 /*
  * The scene is STICKY and viewport sized, not absolute and track sized.
@@ -584,25 +796,56 @@
      the lavender ground it sits against, so the shape is identifiable from
      either side. This is the same value --border is, and for the same reason. */
   --path-edge: #55597f;
-  /* The energy curve, inking in over that hairline as the page is travelled.
-     8.17:1 on the cream, 4.16:1 on the ground. */
-  --path-line: #3f4286;
-  --path-hump: #2a2c5e;
+  /* --path-line and --path-hump left with the two boundary curves and the
+     near-black crest they inked: the curves are gone (see the note where
+     .path-channel used to be) and the crest is drawn in the terrace ink now,
+     because a barrier in this landscape is a contour and not a rule. */
   --path-prop: #55597f;
   /* Part of a control, so it is held to the same 3:1 as any other interface
      component. */
   --path-ring-track: #55597f;
   --path-gate-line: #55597f;
+  /* THE TERRACES, the goals' "terraced hills stepping down". The fill is a
+     hair off the warm cream page on purpose (a watermark landscape is the
+     point) and the EDGE is what identifies the shape: fill and stroke live
+     on ONE path, so the audit collapses them to the better of the two, and
+     the stroke measures 3.80:1 on the cream ground. Warm, not the ink blue,
+     because a hillside is ground and not chrome. */
+  --path-terrace-fill: #f2e6d0;
+  --path-terrace-line: #8a7a5c;
+  /*
+   * THE TRAIL'S OWN SURFACE, and it is a new token because the old value was
+   * the bug.
+   *
+   * The not-done trail used to be `stroke: var(--card)`, which the warm cream
+   * regime resolves to #ffffff: a 10px white line inside a 14px slate line on
+   * a cream page, which renders as TWO ~2px dark hairlines with a white gap
+   * between them. A railway ladder, not a path, and the critic measured it as
+   * the reason only the two done segments read as a trail at all. A ribbon
+   * has to be a colour of its own.
+   *
+   * #6b73a8 is 4.03:1 on the cream, so the ribbon is an identifiable graphic
+   * on its own terms and does not depend on its rim to be seen; the rim is
+   * then what gives it an edge rather than what gives it existence. It is
+   * also the periwinkle family the chips are cut from, one step deeper, so
+   * the road and the buttons on it read as one object.
+   */
+  --path-trail-rest: #6b73a8;
 }
 .dark {
   /* See the light half: the flank is the page, not a wash on it. */
   --path-shade: transparent;
   --path-edge: #6f74a3;
-  --path-line: #b3b6f2;
-  --path-hump: #b3b6f2;
   --path-prop: #6f74a3;
   --path-ring-track: #6f74a3;
   --path-gate-line: #6f74a3;
+  /* The night terrace: a step up off the night ground, edge 3.84:1 on it. */
+  --path-terrace-fill: #1d2140;
+  --path-terrace-line: #6f74a3;
+  /* The night road: 4.58:1 on the night ground, same argument as the light
+     half. It lifts OFF the ground rather than sinking into it, because at
+     night the ground is the dark surface and the ribbon is the object. */
+  --path-trail-rest: #7c86c8;
 }
 
 .path-layer--ground {
@@ -614,6 +857,10 @@
 .path-layer--paper {
   transform: translate3d(0, var(--shift-ground, 0px), 0);
 }
+/* The margin doodles ride with the ground they are drawn on. */
+.path-layer--marks {
+  transform: translate3d(0, var(--shift-ground, 0px), 0);
+}
 
 /* The flank either side of the paper. It paints nothing today: see --path-shade
    for the seam that took the wash off it. The layer, the geometry in
@@ -622,13 +869,21 @@
 .path-ground {
   fill: var(--path-shade);
 }
-/* THE PAPER. A strip of the card's own cream, with the hairline that makes it
-   a shape rather than a coincidence of colour. */
-.path-channel {
-  fill: var(--card);
-  stroke: var(--path-edge);
-  stroke-width: 2;
-}
+/*
+ * .path-channel AND .path-curve ARE GONE, deliberately, and their absence is
+ * the fix rather than an omission. See the long note in PathScene.tsx where
+ * they used to be drawn: the channel resolved to a PURE WHITE sheet over the
+ * cream page under the warm cream regime, and the two boundary curves were
+ * the hard vertical rules either side of it. The committed reference has no
+ * white and no vertical rules; the page is one cream ground with a landscape
+ * on it and objects on the landscape.
+ *
+ * The terrain geometry that fed them stays in terrain.ts with its tests: the
+ * channel's WIDTH is still what the hump is measured against, and the S2
+ * floor (the channel is never narrower than the label column) still holds by
+ * construction because the scene still measures the column and still derives
+ * the basis from it. What changed is that nothing paints that width opaque.
+ */
 /* An OUTLINED prop, not a filled silhouette. Sticker rule 3, and it is also
    what lets it clear the 3:1 an interface graphic is held to on the ground it
    is drawn on: a 0.18 alpha fill could not. */
@@ -638,26 +893,15 @@
   stroke-width: 2;
   stroke-linejoin: round;
 }
-/* The energy curve draws itself as the page is travelled. pathLength is 1 on
-   the element, so the dash arithmetic is a fraction and never a measured
-   length. Never fully undrawn: a backdrop that is blank on arrival is the empty
-   box the motion brief forbids. */
-.path-curve {
-  fill: none;
-  stroke: var(--path-line);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--path-progress, 1));
-}
+
 /* The crest a checkpoint sits on. Dashed, because it is a barrier rather than
    ground, and it arcs high enough to pass over the chips instead of under them. */
 .path-hump {
   fill: none;
-  stroke: var(--path-hump);
-  stroke-width: 3.5;
+  stroke: var(--path-terrace-line);
+  stroke-width: 2.5;
   stroke-linecap: round;
-  stroke-dasharray: 9 10;
+  stroke-dasharray: 7 11;
 }
 
 /* The lens. Two holes in the shade: one following a pointer, one anchored on
@@ -675,6 +919,551 @@
   transform: translate(var(--lens-x, 0px), var(--lens-y, 0px)) scale(var(--lens-r, 0));
 }
 
+/* The terrace bands PathScene draws from terracePath(). Fill and stroke on
+   one path, per the token comment above: the edge is the shape. */
+.path-terrace {
+  fill: var(--path-terrace-fill);
+  stroke: var(--path-terrace-line);
+  stroke-width: 2;
+}
+/* Molecule line-art watermarks and clouds: outlined, never filled, in the
+   same ink as the flask prop (6.11:1 on cream), faint by WEIGHT (thin
+   strokes, sparse placement) rather than by a colour under the graphics
+   floor, which is the mistake the first ridge already paid for. */
+.path-mark {
+  fill: none;
+  stroke: var(--path-prop);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+/*
+ * The clouds, and they are the one FILLED prop in the landscape because the
+ * committed backdrop draws them that way: white clouds over the cream ground,
+ * not outlines of clouds. White on cream is 1.10:1, so the shape carries the
+ * terrace ink as its boundary and the two live on ONE path, which is how the
+ * contrast audit is asked to read it (a shape is one component; its fill and
+ * its boundary collapse to the better of the two). At night the cloud takes
+ * the terrace fill instead, because a white cloud on an indigo night is a
+ * hole in the page rather than weather.
+ */
+.path-cloud {
+  fill: #ffffff;
+  stroke: var(--path-terrace-line);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.dark .path-cloud {
+  fill: var(--path-terrace-fill);
+}
+
+/*
+ * THE TRAIL: the drawn winding ribbon connecting the nodes, derived by
+ * PathScene from where the chips actually landed (trail.ts is the
+ * arithmetic). Two strokes per segment, and that is the fill-only rule made
+ * drawable: the goal green is 1.60:1 as a line on cream, so a done stretch
+ * is never a bare green stroke. It is a wide under-stroke in
+ * --progress-edge (3.82:1 on cream) with the green riding on it as a
+ * narrower fill, the same pay-for-the-fill-with-an-edge idiom the completed
+ * chip uses. The not-done trail is the same road in the ribbon's own edge
+ * ink with the card's surface riding on it.
+ */
+.path-trail {
+  pointer-events: none;
+}
+/*
+ * ONE RIBBON, WITH A RIM. The widths are 15 and 12, so the rim shows 1.5px
+ * either side: enough to be an edge, not enough to be a second line. At 14
+ * over 10 with a white fill the eye read the two rims as the drawing and the
+ * fill as the gap between them, which is the ladder the critic measured.
+ */
+.path-trail__edge {
+  fill: none;
+  stroke: var(--path-edge);
+  stroke-width: 13;
+  stroke-linecap: round;
+}
+.path-trail__edge--done {
+  stroke: var(--progress-edge);
+}
+.path-trail__fill {
+  fill: none;
+  stroke: var(--path-trail-rest);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.path-trail__fill--done {
+  stroke-width: 10;
+  stroke: var(--progress);
+  /* The static soft glow on finished path segments: the completed-state
+     language, and it does not pulse. */
+  filter: drop-shadow(0 0 4px var(--progress-glow));
+}
+/* The side loop's detour is DOTTED, not a road: an application lesson is
+   optional and off the exam-weighted spine, and a dotted line is the
+   vocabulary for "you may". It never renders in the progress green. */
+.path-trail__loop {
+  fill: none;
+  stroke: var(--path-prop);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 10;
+}
+
+/*
+ * THE DIAMOND FORK, per blueberry_branch-diamond: concept centred above the
+ * split, one arm per column, both open at once because nothing mid-unit
+ * locks. The trail closes the diamond on the next unit gate's arch.
+ */
+.path-fork {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 12px 0 18px;
+}
+.path-fork__concept {
+  display: flex;
+  justify-content: center;
+}
+.path-fork__arms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  justify-items: center;
+  align-items: start;
+}
+.path-fork__arm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.path-fork__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 10rem;
+}
+/* The current-state headroom, the same 52px .path-row--current reserves.
+   The attempt-2 critic captured the START pill (bottom: calc(100% + 16px))
+   covering the concept label above a current fork-arm chip, because
+   TrackSlab reserved room for the pill and the fork cell reserved none.
+   Now the pill lands inside the cell's own padding instead of on the
+   neighbour above. In the hub the padding also happens to centre the chip
+   nearer its spoke anchor, so no exception is carved out for it. */
+.path-fork__cell[data-node-state="current"] {
+  padding-top: 52px;
+}
+/* The fork label sits BELOW its chip (a two-column diamond has no side
+   gutter), centred, same clamp discipline as the row labels.
+
+   THE PLATE. The attempt-2 critic measured the drawn trail struck THROUGH
+   this text at 390px and 1280px: the fork arms' cubics run down the chip's
+   vertical axis, which is exactly where the label sits, and the dotted loop
+   line crossed "Diels-Alder" the same way. The goal images never run the
+   ribbon through text, so the label carries an opaque plate in the GROUND
+   colour: the ribbon passes behind an opaque surface and the text keeps the
+   exact ink-on-cream pairs the audit already measures. Ground, not card, so
+   no new floating white slab appears (white on cream is 1.10:1 and the
+   card-needs-a-border rule would follow it here). */
+.path-fork__label {
+  text-align: center;
+  background: var(--background);
+  border-radius: 10px;
+  padding: 2px 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+/* The dimmed side loop: one detour off the spine, pushed to the flank so it
+   reads as beside the road rather than on it. */
+.path-loop {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10%;
+  margin: 2px 0;
+}
+
+/*
+ * THE UNIT GATE: a grey arch the trail passes through, carrying a REAL
+ * double dagger, the transition-state symbol. The goals are explicit that
+ * the drafts' up-down arrows and glowing pouch were model artifacts, so the
+ * only marks here are the arch and the glyph.
+ */
+.path-gatenode {
+  position: relative;
+  width: 84px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.path-gatenode__arch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.path-gatenode__arch path {
+  stroke: var(--path-gate-line);
+}
+/* A passed gate's arch takes the progress EDGE green, the one member of the
+   green family derived to stand on the page (3.82:1 on cream), never the
+   goal green itself, which is fill-only. */
+.path-gatenode[data-trail-done="true"] .path-gatenode__arch path {
+  stroke: var(--progress-edge);
+}
+.path-gatenode__dagger {
+  position: relative;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--foreground);
+  transform: translateY(5px);
+}
+.path-gatenode--locked .path-gatenode__dagger {
+  color: var(--muted-foreground);
+}
+
+/*
+ * THE F1 TRACK MAP. A sticky rail on the stage's left edge: a thin energy
+ * axis, and the pill (the unit's real path shape in miniature) riding it at
+ * the viewport's own travel fraction. Height plus the same negative-margin
+ * trick the scene uses, so it occupies no flow height; 44px wide, which is
+ * the touch floor for the one control it is.
+ */
+.path-trackmap {
+  --trackmap-h: min(52vh, 430px);
+  position: sticky;
+  top: 16vh;
+  z-index: 2;
+  width: 44px;
+  height: var(--trackmap-h);
+  margin-bottom: calc(-1 * var(--trackmap-h));
+  /* Into the page padding, so the rail occupies the reserved gutter the
+     content column now starts past (see .path-stage__content): the pill
+     never sits over a banner eyebrow or a label's first characters again. */
+  margin-left: -1rem;
+  touch-action: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+@media (min-width: 768px) {
+  /* Out into the landscape flank the stage has at this width, the reference
+     placement: the rail rides the left margin over landscape. -60px keeps
+     the whole 44px rail left of the stage with air to spare, and at 768px
+     the stage's own left offset is 72px, so nothing clips. */
+  .path-trackmap {
+    margin-left: -60px;
+  }
+}
+/* Pressed lands on pointer down; the grabbing cursor only once it is a drag. */
+.path-trackmap--dragging {
+  cursor: grabbing;
+}
+.path-trackmap:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+/* The thin energy axis. The filled stretch below is where the reader has
+   been; identity violet, because travel is position, not progress. */
+.path-trackmap__axis {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--path-ring-track);
+}
+.path-trackmap__axis-fill {
+  width: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+}
+/* The pill: a card capsule holding the miniature. Its top rides the travel
+   fraction; PathTrackMap writes the offset inline. The pressed frame is the
+   rail's own --active class, set on pointer down. */
+.path-trackmap__pill {
+  position: absolute;
+  left: 2px;
+  /* Border-box arithmetic: 40 = the 32px miniature + 2px padding + 4px of
+     border + 2px of air, so the svg never clips against its own capsule. */
+  width: 40px;
+  box-sizing: border-box;
+  padding: 8px 2px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 2px solid var(--path-edge);
+  transition: top 80ms linear;
+}
+.path-trackmap--active .path-trackmap__pill {
+  border-color: var(--primary);
+}
+.path-trackmap__groove {
+  fill: none;
+  stroke: var(--path-ring-track);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+/* The done stretch: the same fill-on-edge rule at pill size, glowing softly
+   because completed is the glow state. */
+.path-trackmap__done-edge {
+  fill: none;
+  stroke: var(--progress-edge);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.path-trackmap__done {
+  fill: none;
+  stroke: var(--progress);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px var(--progress-glow));
+}
+/* A side loop in the miniature: the same dotted vocabulary the full-size
+   detour uses, at pill weight. Enrichment is never drawn as progress. */
+.path-trackmap__thread {
+  fill: none;
+  stroke: var(--path-ring-track);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 4;
+}
+.path-trackmap__dot {
+  fill: var(--path-ring-track);
+}
+.path-trackmap__dot--current {
+  fill: var(--primary);
+}
+/* The tiny berry marking where the student left off, with its dialogue
+   bubble. Decorative (the slider's accessible name says the same thing), so
+   it takes no pointer events. */
+.path-trackmap__berry {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  transform: translate(-4px, -10px);
+}
+/*
+ * THE DIALOGUE BUBBLE, and it shows at EVERY WIDTH now.
+ *
+ * docs/DESIGN-GOALS.md's scrollbar clause: "A small mascot marks where the
+ * student left off, with a short dialogue bubble (\"Pick up here!\")", and the
+ * committed reference blueberry_r7-compiled-v2 is a PHONE frame that draws it
+ * at rest. Attempt 2 hid it below 1024px to keep it off the node labels and
+ * the critic was right that hiding a clause at the width the goal image draws
+ * it is not the fix.
+ *
+ * The fix is the direction. Beside the pill, the bubble reaches into the
+ * content column, which is where every collision the previous critics
+ * measured came from. ABOVE the pill it reaches into the gap between rows,
+ * and the rail is anchored inside its own reserved gutter, so a bubble that
+ * starts at the rail's left edge and is capped at 112px stays inside the
+ * gutter plus the flank the reference draws it over. It takes no pointer
+ * events, so even where it does overlap a chip the press still lands on the
+ * chip: it can cover a pixel, it can never eat a tap.
+ *
+ * It rides the PILL, so it travels with the thumb and always sits with the
+ * berry rather than at a fixed height on the rail.
+ */
+.path-trackmap__bubble {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 7px);
+  /* The pill is only 44px wide and this is absolutely positioned inside it,
+     so without max-content the bubble shrink-to-fits to the PILL and breaks
+     "Pick up here!" over two 47px lines. max-content sizes it to its own
+     text; the cap is what keeps it inside the gutter plus the flank. */
+  width: max-content;
+  max-width: 108px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  border-bottom-left-radius: 2px;
+  padding: 2px 7px;
+  font-family: var(--font-display);
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--foreground);
+  pointer-events: none;
+}
+/* From 1024px up there is a real landscape flank to the rail's left, which
+   is where the reference puts it on a wide frame, so it moves out of the
+   column's airspace entirely rather than merely above it. */
+@media (min-width: 1024px) {
+  .path-trackmap__bubble {
+    left: auto;
+    right: calc(100% + 6px);
+    bottom: auto;
+    top: 12px;
+    border-radius: 10px;
+    border-bottom-right-radius: 2px;
+  }
+}
+
+/*
+ * THE FAST-TRAVEL OVERLAY: the pill, expanded, per the goals' scrollbar
+ * clause ("Tap the pill to expand into the fast-travel overlay"). A real
+ * dialog: card panel, one 44px-minimum row per unit, the active unit ringed
+ * in the identity violet. Every colour here is an existing audited pair:
+ * foreground and muted-foreground on the card, border on the scrim.
+ */
+.path-fasttravel {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+.path-fasttravel__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(23, 26, 46, 0.45);
+  cursor: pointer;
+}
+.path-fasttravel__panel {
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: 78vh;
+  overflow-y: auto;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 0.75rem;
+}
+.path-fasttravel__title {
+  margin: 0.25rem 0.5rem 0.625rem;
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.path-fasttravel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.path-fasttravel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.625rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.path-fasttravel__row:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 1px;
+}
+.path-fasttravel__row--active {
+  border-color: var(--primary);
+}
+/* The two-line unit label. min-width: 0 lets a long unit name wrap inside
+   the row instead of pushing the count off the panel's edge. */
+.path-fasttravel__unit {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+.path-fasttravel__number {
+  display: block;
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.path-fasttravel__name {
+  display: block;
+  font-size: var(--text-scale-sm);
+  font-weight: 600;
+}
+.path-fasttravel__count {
+  font-size: var(--text-scale-xs);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+/*
+ * THE HUB WITH PETALS, the goals' reserved shape for categories with three
+ * or more families, built for EAS (blueberry_spec-node-types). The spokes
+ * and the chips share one arithmetic (hubPlan.petalPositions), so the lines
+ * end under the chips by construction. The spoke rides --path-edge, the
+ * same 3:1-clearing ink as the trail's own edge, with vector-effect keeping
+ * its width honest under the stretched percent viewBox.
+ */
+.path-hub {
+  position: relative;
+  /* 30rem, up from 27: with hubPlan's PETAL_RING (ry 42 percent) this puts
+     about 60px of clear air between an upper petal's chip and the centre
+     chip, which is what a plated label between them needs. Derived with the
+     ring in hubPlan.ts; change them together. */
+  height: 30rem;
+  margin-top: 0.25rem;
+}
+.path-hub__spokes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.path-hub__spoke {
+  stroke: var(--path-edge);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.path-hub__cell {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  /* 8rem, up from 7: "Sulfonation and desulfonation" wraps to two plated
+     lines instead of three, which is part of the label-room arithmetic in
+     hubPlan.ts. */
+  width: 8rem;
+  display: flex;
+  justify-content: center;
+  /* Every cell above the spokes, and, because the petals come after the
+     centre in the DOM, petal labels paint ABOVE the centre chip. The
+     attempt-2 critic measured the two upper petal labels partly BEHIND the
+     centre cell; with the wider ring they no longer reach it, and if a long
+     title ever does, its opaque plate reads over the chip instead of
+     vanishing under it. */
+  z-index: 1;
+}
+/* The centre chip still sits over its own spokes' meeting point; it shares
+   the cells' z-index and precedes the petals in the DOM. */
+.path-hub__cell--centre {
+  z-index: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .path-node__face {
     transition-duration: 1ms;
@@ -682,11 +1471,20 @@
   .path-start {
     animation: none;
   }
+  /* No pulse under reduced motion, per the goals: the halo stays as a
+     static ring, which is a real frame of the design. */
+  .path-node--current::before {
+    animation: none;
+  }
+  .path-trackmap__pill {
+    transition: none;
+  }
   /* A settled frame: the curve fully drawn, every layer at rest, the lens
      parked on the current node. A real frame of the design, not an empty box. */
   .path-layer--ground,
   .path-layer--props,
-  .path-layer--paper {
+  .path-layer--paper,
+  .path-layer--marks {
     transform: none;
   }
   .path-curve {

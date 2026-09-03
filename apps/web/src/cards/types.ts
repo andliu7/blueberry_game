@@ -77,6 +77,12 @@ export type CardSource =
       readonly at: string;
     }
   | {
+      /** Written by the student in the composer. Their own words, never graded. */
+      readonly kind: "composed";
+      /** ISO 8601, when they saved it. */
+      readonly at: string;
+    }
+  | {
       readonly kind: "import";
       /** The deck name as the file gave it, kept so the student recognises it. */
       readonly deckName: string;
@@ -95,6 +101,7 @@ export type CardSourceKind = CardSource["kind"];
 export const CARD_SOURCE_KINDS: readonly CardSourceKind[] = Object.freeze([
   "lesson",
   "mistake",
+  "composed",
   "import",
 ]);
 
@@ -117,7 +124,29 @@ export interface Card {
   /** Free tags for filtering and for the import path, which brings its own. */
   readonly tags: readonly string[];
   readonly source: CardSource;
+  /**
+   * The three sides of a reaction card, when the card was composed as one.
+   * Optional so every existing card, import and generated deck stays valid;
+   * front, back and why are always populated too, so a surface that does not
+   * know about sides still renders the card whole. The composer is the only
+   * writer. See ui/composer.ts for the mapping.
+   */
+  readonly sides?: ReactionSides;
 }
+
+/**
+ * A reaction card's three sides, per the design goals: Setup (what you start
+ * with, and the question), Conditions (reagents, solvent, heat or light), and
+ * Product (what forms). Plain strings, because these are a student's own
+ * words: nothing here is graded, so nothing here goes near chem-core.
+ */
+export interface ReactionSides {
+  readonly setup: string;
+  readonly conditions: string;
+  readonly product: string;
+}
+
+export type ReactionSide = keyof ReactionSides;
 
 /**
  * `kind` separates the three decks a student can hold at once: the deck a
@@ -173,6 +202,22 @@ export interface ReviewState {
   readonly dueAt: string;
   /** Null for a card that has never been rated. */
   readonly lastRating: Rating | null;
+  /**
+   * Paused by the student, the states sheet's fifth state. A suspended card
+   * keeps its whole schedule, it just stops being dealt: `dueInDeck` and
+   * `dueEverywhere` skip it, so it never counts toward the hero's number and
+   * never enters a session it was not opened into by hand. Optional so every
+   * persisted state from before the flag existed stays valid; absent means
+   * false. Rating the card resumes it, because a rating is the schedule
+   * restarting; scheduler.ts's `rateCard` builds a fresh state without the
+   * flag, so that rule holds by construction rather than by a branch.
+   */
+  readonly suspended?: boolean;
+}
+
+/** The flag read, in one place, so "absent means false" is code, not lore. */
+export function isSuspended(state: ReviewState | undefined): boolean {
+  return state?.suspended === true;
 }
 
 /**
@@ -262,6 +307,12 @@ export interface DeckSource {
   /** The student said no thanks. Counted, not repeated. */
   dismissReco(cardId: CardId): void;
   rate(cardId: CardId, rating: Rating): void;
+  /**
+   * Pause or resume one card's reviews. Suspension is schedule state, so it
+   * travels with ReviewState and through this seam, and the Phase 6 source
+   * will sync it like any other rating side effect.
+   */
+  setSuspended(cardId: CardId, suspended: boolean): void;
   createDeck(deck: Deck): void;
   /** The import path. Cards carrying a known externalId update rather than duplicate. */
   importCards(deckId: DeckId, cards: readonly Card[]): void;
@@ -285,19 +336,25 @@ export function cardsIn(snapshot: DeckSnapshot, deckId: DeckId): readonly Card[]
   return cards;
 }
 
-/** How many cards in this deck are due. What the deck icon's badge shows. */
+/**
+ * How many cards in this deck are due. What the deck icon's badge shows.
+ * Suspended cards are not counted: a number that includes cards the student
+ * paused is a promise the REVIEW button then breaks.
+ */
 export function dueInDeck(snapshot: DeckSnapshot, deckId: DeckId, now: Date): number {
   let count = 0;
   for (const card of cardsIn(snapshot, deckId)) {
     const state = snapshot.review[card.id];
-    if (state !== undefined && isDue(state, now)) count += 1;
+    if (state !== undefined && isDue(state, now) && !isSuspended(state)) count += 1;
   }
   return count;
 }
 
-/** Every due card across every deck, soonest due first. */
+/** Every due card across every deck, soonest due first. Suspended cards skip. */
 export function dueEverywhere(snapshot: DeckSnapshot, now: Date): readonly Card[] {
-  const states = Object.values(snapshot.review).filter((state) => isDue(state, now));
+  const states = Object.values(snapshot.review).filter(
+    (state) => isDue(state, now) && !isSuspended(state),
+  );
   states.sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt));
   const cards: Card[] = [];
   for (const state of states) {

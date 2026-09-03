@@ -15,21 +15,46 @@
  * the field cards/types.ts exists to protect and it is the reason a card
  * reviewed cold six weeks later still explains itself.
  *
+ * THE THREE-SIDED FACE, and this is the clause the round 2 build missed.
+ * DESIGN-GOALS locks reaction cards as three-sided, Setup / Conditions /
+ * Product, switched by a segmented pill with the active segment filled and
+ * the inactive ones outlined. Round 2 implemented that in the AUTHORING
+ * composer only: `card.sides` was read nowhere but tray.ts, for the name, and
+ * a composed card reviewed as a flat front/back with its conditions flattened
+ * into a "Conditions: ..." prose line. The card a student actually REVIEWS is
+ * the one the goals are about, so a card that carries `sides` now reviews on
+ * the same pill it was written on. A card without sides (a lesson card, an
+ * imported card, a miss from the journal) has no three sides to switch and
+ * renders exactly as before; inventing sides for it would be a lie about
+ * where its text came from.
+ *
+ * PRODUCT IS THE REVEAL. On a three-sided card the pill IS the reveal
+ * gesture: Setup and Conditions are the question, Product is the answer, so
+ * pressing Product before the reveal reveals. That also settles the HTML,
+ * which would otherwise be a button inside a button: a sided face is a plain
+ * div carrying real segment buttons, and it is the segments rather than the
+ * whole card that take the press. An unsided face keeps the whole-card button
+ * it always had.
+ *
  * ONE ELEMENT, TWO FACES, and this is deliberate. Front and back are the same
  * bordered box with the back's content revealed inside it, not two boxes that
  * swap. A flip animation looks good once and costs a student the answer's
  * position on screen every single time, and the reveal is a moment where they
  * are comparing what they thought against what is written.
  *
- * The whole card is a button when it is unrevealed, so tapping anywhere
- * reveals. `.press` gives the pointer-down acknowledgement in CSS with no
- * JavaScript in the way, which is what CLAUDE.md's under 100 ms contract asks
- * for; the reveal itself then runs on click so a keyboard reaches it too.
+ * `.press` gives the pointer-down acknowledgement in CSS with no JavaScript
+ * in the way, which is what CLAUDE.md's under 100 ms contract asks for; the
+ * reveal itself then runs on click so a keyboard reaches it too.
  */
 
-import type { Card } from "../types";
+import { useState } from "react";
+import type { Card, CardId, ReactionSide } from "../types";
 import { MoleculeSvg } from "../../render/svg/MoleculeSvg";
 import { structureOnCard } from "./cardStructure";
+import { SIDE_LABELS, SIDE_ORDER } from "./composer";
+import { CARD_STATE_LABELS, type CardSchedulerState } from "./cardState";
+import { StateBadge } from "./StateBadge";
+import "./cards.css";
 
 /** The small label above the rule. Says where this card came from. */
 function sourceLabel(card: Card): string {
@@ -38,6 +63,8 @@ function sourceLabel(card: Card): string {
       return "From a lesson";
     case "mistake":
       return "From a miss";
+    case "composed":
+      return "Your own card";
     case "import":
       return card.source.deckName;
     default: {
@@ -72,33 +99,142 @@ export interface CardFaceProps {
   readonly card: Card;
   readonly revealed: boolean;
   readonly onReveal: () => void;
+  /**
+   * Where the card is in the scheduler, per the committed states sheet: the
+   * face wears the state's edge tint, corner badge, and word. Optional so a
+   * surface with no review state (the composer's preview, a bare render in a
+   * test) still draws a neutral card rather than inventing a state.
+   */
+  readonly schedulerState?: CardSchedulerState;
 }
 
-export function CardFace({ card, revealed, onReveal }: CardFaceProps) {
+/** Which side a sided card is showing, and what the student picked to get there. */
+interface SidePick {
+  readonly cardId: CardId;
+  readonly side: ReactionSide;
+  /** The reveal state the pick was made under. See `activeSide`. */
+  readonly revealed: boolean;
+}
+
+export function CardFace({ card, revealed, onReveal, schedulerState }: CardFaceProps) {
   const tags = visibleTags(card);
+  const sides = card.sides;
+
+  /**
+   * DERIVED STATE WITH A KEYED OVERRIDE, which is the boring alternative to
+   * resetting state in an effect when a prop changes. The default side is a
+   * pure function of `revealed` (Setup while the card is a question, Product
+   * the moment it is an answer); a student's own pick overrides it, but only
+   * while both the card AND the reveal state it was made under still hold. So
+   * moving to the next card, or revealing, re-asserts the default with no
+   * effect, no stale render, and nothing to clean up.
+   */
+  const [pick, setPick] = useState<SidePick | null>(null);
+  const activeSide: ReactionSide =
+    pick !== null && pick.cardId === card.id && pick.revealed === revealed
+      ? pick.side
+      : revealed
+        ? "product"
+        : "setup";
+
+  const chooseSide = (side: ReactionSide): void => {
+    // Product before the reveal IS the reveal; the default then lands on
+    // Product on its own, so the pick is cleared rather than set.
+    if (side === "product" && !revealed) {
+      setPick(null);
+      onReveal();
+      return;
+    }
+    setPick({ cardId: card.id, side, revealed });
+  };
+
+  const header = (
+    <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+      <span className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {sourceLabel(card)}
+      </span>
+      {/* The state's word, spoken as text beside the badge so the edge and
+          disc never carry it in colour alone. "young" stays silent. */}
+      {schedulerState !== undefined && schedulerState !== "young" && (
+        <span className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {CARD_STATE_LABELS[schedulerState]}
+        </span>
+      )}
+    </div>
+  );
+
+  const tagRow =
+    tags.length > 0 ? (
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full bg-muted px-2.5 py-0.5 text-scale-xs font-medium text-muted-foreground"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    ) : null;
+
+  // The .fan__card--{state} classes carry the states sheet's edge tints and
+  // set --fan-edge, which .card-slab's own bottom edge then takes its colour
+  // from; the fan's absolute positioning rules key off .fan__card alone, so
+  // none of that reaches this tall face.
+  const stateEdge = schedulerState === undefined ? "" : `fan__card--${schedulerState}`;
+  const shell = `card-slab relative flex min-h-[22rem] w-full flex-col gap-4 rounded-2xl border-2 border-border bg-card p-5 text-left ${stateEdge}`;
+  const badge = schedulerState === undefined ? null : <StateBadge state={schedulerState} />;
+
+  if (sides !== undefined) {
+    return (
+      /* A div, not a button: the pill's segments are the buttons here, and a
+         button inside a button is invalid HTML that browsers resolve by
+         dropping one of them. The 14px bottom margin is the slab's, which a
+         box-shadow does not reserve for itself. */
+      <div className={`${shell} mb-1.5`}>
+        {badge}
+        {header}
+
+        <div className="seg-pill" role="group" aria-label="Card side">
+          {SIDE_ORDER.map((side) => (
+            <button
+              key={side}
+              type="button"
+              className="seg-pill__opt press text-scale-sm"
+              aria-pressed={side === activeSide}
+              aria-label={
+                side === "product" && !revealed
+                  ? "Product, reveals the answer"
+                  : `Show the ${SIDE_LABELS[side].toLowerCase()}`
+              }
+              onClick={() => chooseSide(side)}
+            >
+              {SIDE_LABELS[side]}
+            </button>
+          ))}
+        </div>
+
+        <CardStructureBlock card={card} />
+        {tagRow}
+
+        <p className="whitespace-pre-line text-scale-lg font-semibold leading-snug text-card-foreground">
+          {sides[activeSide].trim().length > 0 ? sides[activeSide] : "Nothing written on this side."}
+        </p>
+
+        {!revealed && (
+          <p className="mt-auto text-right text-scale-sm text-muted-foreground">
+            Tap Product when you have your answer
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const body = (
     <>
-      <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-        <span className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {sourceLabel(card)}
-        </span>
-      </div>
-
+      {header}
       <CardStructureBlock card={card} />
-
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-muted px-2.5 py-0.5 text-scale-xs font-medium text-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+      {tagRow}
 
       <p className="text-scale-lg font-semibold leading-snug text-card-foreground">{card.front}</p>
 
@@ -117,14 +253,23 @@ export function CardFace({ card, revealed, onReveal }: CardFaceProps) {
     </>
   );
 
-  const shell = "flex min-h-[22rem] w-full flex-col gap-4 rounded-2xl border-2 border-border bg-card p-5 text-left";
-
   if (revealed) {
-    return <div className={shell}>{body}</div>;
+    return (
+      <div className={`${shell} mb-1.5`}>
+        {badge}
+        {body}
+      </div>
+    );
   }
 
   return (
-    <button type="button" className={`press ${shell}`} onClick={onReveal} aria-label="Reveal the answer">
+    <button
+      type="button"
+      className={`press ${shell} mb-1.5`}
+      onClick={onReveal}
+      aria-label="Reveal the answer"
+    >
+      {badge}
       {body}
     </button>
   );

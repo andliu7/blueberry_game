@@ -1,26 +1,20 @@
 /**
  * The deck surfaces, in one door.
  *
- * A barrel file exists here for one reason: the shell mounts three screens and
- * should import them from `cards/ui` rather than from three paths that are an
- * implementation detail of this folder. Everything else in the folder is
- * exported too, because the pure functions are what the tests address and a
- * barrel that hides them would just be a second import path to remember.
+ * A barrel file exists here for one reason: the shell mounts ONE screen,
+ * CardsHome, and should import it from `cards/ui` rather than from a path
+ * that is an implementation detail of this folder. Everything else in the
+ * folder is exported too, because the pure functions are what the tests
+ * address and a barrel that hides them would just be a second import path to
+ * remember.
  *
- * THE THREE SCREENS, and how they fit together:
- *
- *   MyDeck        The hub. A count, one button carrying its reward, the cards
- *                 below it, and deck management underneath that. This is the
- *                 screen the homepage links to.
- *   DeckPicker    For a student who wants to choose rather than start. Decks,
- *                 counts, shuffle, and a start button naming the session size.
- *   ReviewSession The loop. Front, reveal, four ratings.
- *
- * The shell owns the transitions between them: each screen takes callbacks and
- * none of them reads a route. That is the same arrangement app/routes.ts
- * already describes for the tabs, and it is what lets a review start from the
- * hub, from the picker, or from a lesson's own end without three copies of the
- * session.
+ * CardsHome owns the four design-goals faces and the transitions between
+ * them: CardsLanding (the Due-today decision), Composer (the three-sided
+ * card), DeckTray (the fanned browser), ReviewSession (the loop). The
+ * earlier screens stay exported and real: MyDeck is the deck-management hub
+ * the CSV import and export flows live on, DeckPicker the choose-first
+ * session builder; nothing links to them from the tab today, and their
+ * flows' tests keep running against them until those surfaces are re-homed.
  */
 
 export { MyDeck, hubHeadline, hubSubline } from "./MyDeck";
@@ -113,3 +107,87 @@ export { intervalLabel } from "./intervalLabel";
 export { knownStructureIds, structureFor, structureIdOf, structureOnCard, STRUCTURE_TAG_PREFIX } from "./cardStructure";
 export type { CardStructure } from "./cardStructure";
 export { useDeckSnapshot } from "./useDeck";
+
+/* The design-goals faces, added by the R rebuild. CardsHome is the one the
+   shell mounts; the rest are exported for tests and for any surface that
+   wants a single face (a lesson end linking straight into the composer). */
+
+export { CardsHome, adoptMistakeDrafts } from "./CardsHome";
+export type { CardsHomeProps } from "./CardsHome";
+
+export { CardsLanding } from "./CardsLanding";
+export type { CardsLandingProps } from "./CardsLanding";
+
+export { Composer } from "./CardComposer";
+export type { ComposerProps } from "./CardComposer";
+
+export { DeckTray } from "./DeckTray";
+export type { DeckTrayProps } from "./DeckTray";
+
+export { AutoBolt, DeckDoodle } from "./Doodles";
+export type { DeckDoodleProps } from "./Doodles";
+
+export {
+  DOODLE_COUNT,
+  MISTAKES_DECK_ID,
+  MISTAKES_DECK_TITLE,
+  doodleFor,
+  heroModel,
+  lessonDeckTiles,
+  mistakeDeckCards,
+  myDeckTiles,
+  reviewQueue,
+} from "./landing";
+export type { DeckTile, HeroModel, TileMarker } from "./landing";
+
+export {
+  EMPTY_SIDES,
+  SIDE_HINTS,
+  SIDE_LABELS,
+  SIDE_ORDER,
+  canSave,
+  cardFromDraft,
+  composedCardId,
+  deckTitleProblem,
+  draftProblems,
+  newDeckId,
+  setSide,
+} from "./composer";
+
+export {
+  LEARNING_MASTERY,
+  MASTERY_DOTS,
+  MATURE_INTERVAL_DAYS,
+  cardMastery,
+  deckMastery,
+  masteryDots,
+} from "./mastery";
+
+export {
+  FAN_CARD_H,
+  FAN_CARD_W,
+  FAN_DROOP_RATE,
+  FAN_EDGE_GUTTER,
+  FAN_MAX,
+  FAN_NAME_STRIP,
+  FAN_REFERENCE_WIDTH,
+  FAN_ROT_MAX,
+  FAN_ROT_SPAN,
+  FAN_X_STEP_MAX,
+  fanCapacity,
+  fanCards,
+  fanLayout,
+  fanNameFloor,
+  fanStep,
+  nameWidthPx,
+  rotatedHalfWidth,
+  trayLabel,
+  trayTitle,
+} from "./tray";
+export type { FanSlot } from "./tray";
+
+export { CARD_STATE_LABELS, cardSchedulerState } from "./cardState";
+export type { CardSchedulerState } from "./cardState";
+
+export { StateBadge } from "./StateBadge";
+export type { StateBadgeProps } from "./StateBadge";

@@ -33,6 +33,8 @@ import { RATING_LABELS, RATINGS } from "../types";
 import { decks } from "../store";
 import { nextInterval, startCard } from "../scheduler";
 import { CardFace } from "./CardFace";
+import { cardSchedulerState } from "./cardState";
+import "./cards.css";
 import { intervalLabel } from "./intervalLabel";
 import {
   currentCard,
@@ -58,16 +60,21 @@ export interface ReviewSessionProps {
   readonly onDone?: (diamonds: number) => void;
 }
 
-/** Each rating's tone. Again is neutral, never red: it is not an error. */
-const RATING_TONE: Readonly<Record<Rating, string>> = {
-  again: "border-border bg-muted text-foreground",
-  hard: "border-border bg-card text-foreground",
-  good: "border-[color:var(--primary-edge)] bg-primary text-primary-foreground",
-  // WHITE, not --good-ink. --good-ink is the darker step of the same hue and it
-  // is for TEXT ON A CARD; on the --good fill itself the two are 1.26:1. White
-  // on #065f46 is 7.68:1. The lavender turn darkened --good (Bloom's charged
-  // halo needs 3:1 on the new ground) which is what made this visible.
-  easy: "border-[color:var(--good-ink)] bg-[color:var(--good)] text-white",
+/**
+ * Each rating's chip, from the cards.css 3D chip family, per the committed
+ * button-types sheet: four small grade chips, each a fill under its own
+ * measured ink. Again is the QUIET one, never red: it is not an error, and
+ * the reference sheet's red Again is the one part of that drawing the voice
+ * rules overrule. Good is the goal-green GO fill under dark ink (the
+ * fill-only rule's legal shape); Easy is the teal alt-route family. The old
+ * inline tone map put white on --good, which measured 1.9:1 in the dark
+ * theme; every pairing here is measured in cards.css's own header.
+ */
+const RATING_CHIP: Readonly<Record<Rating, string>> = {
+  again: "chip3d--quiet",
+  hard: "chip3d--hard",
+  good: "chip3d--go",
+  easy: "chip3d--easy",
 };
 
 export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewSessionProps) {
@@ -79,16 +86,28 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
 
   if (done) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 p-6 text-center">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 p-6 text-center">
         <p className="title-face text-scale-display font-bold text-[color:var(--good)]">{summary.reviewed}</p>
         <h1 className="title-face text-scale-2xl font-bold text-foreground">{summaryHeadline(summary)}</h1>
         <p className="text-scale-base leading-normal text-muted-foreground">{summaryLine(summary)}</p>
         <p className="text-scale-base font-semibold text-[color:var(--diamond)]">
           {summary.diamonds} diamonds
         </p>
+        {/* The committed button sheet's CONTINUE chip: periwinkle face, thick
+            darker bottom edge, presses down. Round 2 shipped a flat violet
+            slab with no edge and no depression here, which is the one screen
+            in the deck where the shape language matters most.
+
+            Deliberately CONTINUE and not the sheet's green CLAIM, though this
+            is the end-of-session moment where a claim would sit: nothing on
+            this screen is claimed. The diamonds line above is the run's
+            tally, and CardsHome does not credit it to a balance, so a button
+            reading "Claim" would promise a transaction that does not happen.
+            When the economy store is wired to onDone, this is the button that
+            becomes chip3d--go and says Claim, and not before. */}
         <button
           type="button"
-          className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground"
+          className="chip3d press title-face min-h-14 w-full rounded-full text-scale-lg font-bold"
           onClick={() => {
             onDone?.(summary.diamonds);
             onExit();
@@ -104,7 +123,7 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
     // Only reachable if a card id outlived its card, which the store's trim
     // could do. Say so rather than rendering an empty frame.
     return (
-      <div className="mx-auto flex max-w-md flex-col gap-3 p-6">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-3 p-6">
         <p className="text-scale-base text-foreground">That card is no longer in your deck.</p>
         <button type="button" className="press min-h-11 rounded-xl bg-muted px-4 font-semibold" onClick={onExit}>
           Back to the decks
@@ -113,7 +132,11 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
     );
   }
 
-  const reviewState: ReviewState = snapshot.review[card.id] ?? startCard(card.id, new Date());
+  // One clock read per render, per the wall-clock rule: the fallback state
+  // and the badge both see the same instant.
+  const at = new Date();
+  const reviewState: ReviewState = snapshot.review[card.id] ?? startCard(card.id, at);
+  const schedulerState = cardSchedulerState(snapshot.review[card.id], at);
 
   const press = (rating: Rating): void => {
     const outcome = rateCurrent(state, rating);
@@ -125,7 +148,7 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4 p-4 md:p-6">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 md:p-6">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -134,9 +157,12 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
         >
           Exit
         </button>
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+        {/* The session bar is the mastery bar: a filled bar is the progress
+            semantic, so it takes the goal-green FILL closed by its own edge,
+            not the correctness emerald it used to borrow. */}
+        <div className="mastery-bar flex-1">
           <div
-            className="h-full rounded-full bg-[color:var(--good)] transition-[width] duration-200"
+            className="mastery-bar__fill"
             style={{ width: `${Math.round(sessionProgress(state) * 100)}%` }}
           />
         </div>
@@ -145,7 +171,12 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
         </span>
       </div>
 
-      <CardFace card={card} revealed={state.revealed} onReveal={() => setState(reveal(state))} />
+      <CardFace
+        card={card}
+        revealed={state.revealed}
+        onReveal={() => setState(reveal(state))}
+        schedulerState={schedulerState}
+      />
 
       {state.revealed ? (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -153,7 +184,10 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
             <button
               key={rating}
               type="button"
-              className={`press flex min-h-14 flex-col items-center justify-center rounded-2xl border font-bold ${RATING_TONE[rating]}`}
+              className={`chip3d ${RATING_CHIP[rating]} press flex min-h-14 flex-col items-center justify-center font-bold`}
+              /* The visible name alone would shift per card ("Good 8 days");
+                 this keeps the rating word first and the consequence named. */
+              aria-label={`${RATING_LABELS[rating]}, comes back in ${intervalLabel(nextInterval(reviewState, rating))}`}
               onClick={() => press(rating)}
             >
               <span className="text-scale-base">{RATING_LABELS[rating]}</span>
@@ -164,9 +198,13 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
           ))}
         </div>
       ) : (
+        /* The committed button sheet draws this exact button type, CHECK, as a
+           periwinkle 3D chip. Round 2 gave it a flat violet fill with a
+           border and no edge, so it had no bottom slab and did not press
+           down; the base .chip3d face IS the periwinkle, so no modifier. */
         <button
           type="button"
-          className="press min-h-14 w-full rounded-2xl border-2 border-[color:var(--primary-edge)] bg-primary text-scale-lg font-bold text-primary-foreground"
+          className="chip3d press title-face min-h-14 w-full rounded-full text-scale-lg font-bold"
           onClick={() => setState(reveal(state))}
         >
           Show the answer

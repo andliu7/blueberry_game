@@ -271,9 +271,32 @@ export function createLocalDecks(options: LocalDeckOptions = {}): LocalDeckSourc
       const at = now();
       const current = snapshot.review[cardId] ?? startCard(cardId, at);
 
+      // rateCard builds a fresh state with explicit fields, so a suspended
+      // flag on `current` does not survive it. That is the resume-on-rating
+      // rule from types.ts holding by construction: a student who opens a
+      // paused card and rates it has restarted its schedule on purpose.
       commitSnapshot({
         ...snapshot,
         review: { ...snapshot.review, [cardId]: rateCard(current, rating, at) },
+      });
+    },
+
+    setSuspended(cardId, suspended) {
+      const snapshot = stored.snapshot;
+      if (snapshot.cards[cardId] === undefined) return;
+      const current = snapshot.review[cardId] ?? startCard(cardId, now());
+      if ((current.suspended === true) === suspended) return;
+
+      // Resuming DELETES the flag rather than writing false, so a resumed
+      // state is byte identical to one that was never paused and the stored
+      // blob does not grow a field per card that never uses it.
+      const next = suspended
+        ? { ...current, suspended: true }
+        : (({ suspended: _dropped, ...rest }) => rest)(current);
+
+      commitSnapshot({
+        ...snapshot,
+        review: { ...snapshot.review, [cardId]: next },
       });
     },
 

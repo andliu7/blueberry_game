@@ -429,3 +429,62 @@ export function groundPath(
   const last = samples[samples.length - 1]!;
   return `${boundary} L ${edge} ${last.y.toFixed(2)} L ${edge} ${first.y.toFixed(2)} Z`;
 }
+
+/* -------------------------------------------------------------------------- */
+/* The terraces: the hills the goals ask for, as bands with one drawn edge.    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One terrace band per unit: a filled band whose visible edge is its wavy TOP,
+ * stepping down across the page, per docs/DESIGN-GOALS.md ("terraced hills
+ * stepping down"). Each band is drawn OVER the one before it, so the only
+ * stroke a reader ever sees is the top edge; the sides and bottom run past the
+ * viewport and under the next band.
+ *
+ * WHY FILL AND STROKE LIVE ON ONE PATH, and it is a contrast rule. The audit
+ * collapses a shape's fill and its boundary to the better of the two, because
+ * WCAG 1.4.11 asks whether a component is identifiable. A terrace's fill is
+ * deliberately a hair off the page (a faint warm wash is the whole point of a
+ * watermark landscape), so the EDGE is what identifies it, and the edge only
+ * counts if it is the same path's stroke. A separate stroke path would leave
+ * the fill an unidentifiable 1.1:1 rectangle, which is exactly what the audit
+ * failed the first ridge for.
+ *
+ * The steps use the golden-ratio spread rippleScale already provides, so no
+ * two terraces have the same step heights and index i always draws the same
+ * terrace: deterministic, like everything else in this file.
+ */
+export const TERRACE_STEPS = 4;
+export const TERRACE_DROP_PX = 26;
+/** How far past the viewport's sides and the band's own span the fill runs. */
+export const TERRACE_BLEED_PX = 90;
+
+export function terracePath(top: number, bottom: number, width: number, seed: number): string {
+  const left = -TERRACE_BLEED_PX;
+  const right = width + TERRACE_BLEED_PX;
+  const depth = bottom - top + 600;
+  // Even seeds descend left to right, odd seeds right to left, so the run
+  // reads as switchbacks rather than as one long slope.
+  const forward = seed % 2 === 0;
+  const xs: number[] = [];
+  for (let i = 0; i <= TERRACE_STEPS; i += 1) {
+    const x = left + ((right - left) * i) / TERRACE_STEPS;
+    xs.push(forward ? x : right - (x - left));
+  }
+  let y = top;
+  let d = `M ${xs[0]!.toFixed(1)} ${y.toFixed(1)}`;
+  for (let i = 1; i <= TERRACE_STEPS; i += 1) {
+    const drop = TERRACE_DROP_PX * rippleScale(seed * TERRACE_STEPS + i);
+    const nextY = y + drop;
+    const fromX = xs[i - 1]!;
+    const toX = xs[i]!;
+    const mid = (fromX + toX) / 2;
+    // Horizontal tangents at both ends: each step is a shelf easing into the
+    // next, which is what makes the edge read as a terrace and not a ramp.
+    d += ` C ${mid.toFixed(1)} ${y.toFixed(1)}, ${mid.toFixed(1)} ${nextY.toFixed(1)}, ${toX.toFixed(1)} ${nextY.toFixed(1)}`;
+    y = nextY;
+  }
+  const floor = top + depth;
+  d += ` L ${xs[TERRACE_STEPS]!.toFixed(1)} ${floor.toFixed(1)} L ${xs[0]!.toFixed(1)} ${floor.toFixed(1)} Z`;
+  return d;
+}

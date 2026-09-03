@@ -1,0 +1,535 @@
+/*
+   The node sheet and the guidebook.
+
+   Reference, judged by filename per the manifest:
+     blueberry_r5-node-sheet-v2_1788286114.png  the sheet
+     blueberry_r5-guidebook_1788286119.png      the guidebook page
+
+   Conventions inherited rather than invented:
+   - The sheet is a native <dialog> bottom sheet with four real rounded
+     corners and a gap under it, exactly as charge.css argues (a sticker has
+     four corners; the pathway stays visible around it).
+   - Colour comes only from theme.css tokens, so both themes are already
+     measured pairs. The START button's bottom lip reads the theme token
+     --primary-lip and, until the integrator lands that token, derives its
+     fallback from --primary itself, so a palette move carries the lip with
+     it and no hex lives here; the contrast audit collapses the lip into the
+     fill either way (a shape is one component).
+   - Press acknowledgement is transform-driven and lands on pointer down via
+     :active, inside the 100 ms budget. See theme.css's .press for why only
+     transforms move.
+*/
+
+/* --------------------------------------------------------------- the sheet */
+
+.ns-sheet {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  color: var(--foreground);
+}
+.ns-sheet:not([open]) {
+  display: none;
+}
+.ns-sheet::backdrop {
+  background: rgb(0 0 0 / 0.52);
+}
+.ns-sheet[open]::backdrop {
+  animation: ns-scrim-in 220ms ease-out;
+}
+@keyframes ns-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.ns-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(27rem, calc(100% - 1rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  margin-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  padding: 0.625rem 1.125rem 0;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--card);
+}
+.ns-sheet[open] .ns-panel {
+  animation: ns-panel-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes ns-panel-in {
+  from {
+    transform: translateY(2.5rem);
+    opacity: 0;
+  }
+}
+@media (min-width: 768px) {
+  .ns-sheet {
+    align-items: center;
+  }
+  .ns-panel {
+    margin-bottom: 0;
+  }
+}
+
+/* The grabber: the sheet's drag-handle affordance. Decoration, not a control;
+   dismissal is the backdrop, Escape, or the close the caller wires. */
+.ns-grabber {
+  align-self: center;
+  width: 2.5rem;
+  height: 0.3125rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--muted-foreground) 45%, transparent);
+}
+
+/* ---------------------------------------------------------------- the head */
+
+.ns-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.ns-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--border);
+  background: var(--secondary);
+  color: var(--muted-foreground);
+}
+.ns-badge svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.ns-head__text {
+  flex: 1;
+  min-width: 0;
+}
+.ns-kind {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  color: var(--muted-foreground);
+}
+
+/* Cleared: the goal green as a FILL carrying dark ink, per the fill-only rule.
+   --progress-ink on --progress measures 7.17:1 (theme.css); the check is the
+   same ink, never white, because white on #7ed957 is 1.76:1 and fails. */
+.ns-cleared {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid var(--progress-edge);
+  background: var(--progress);
+  color: var(--progress-ink);
+  font-weight: 700;
+}
+.ns-cleared svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* The hamburger: 44px square, the corner route to the guidebook. */
+.ns-menu {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.ns-menu:hover {
+  border-color: var(--border);
+}
+.ns-menu svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* --------------------------------------------------------------- the cards */
+
+/* Panel is the white card, so the cards inside it stand on the cream the page
+   uses as ground. Every card carries a border: white on cream is 1.10:1 and
+   the border is what separates them (DESIGN-TOKENS, the structural rule). */
+.ns-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--background);
+  text-align: left;
+  color: var(--foreground);
+}
+button.ns-card {
+  cursor: pointer;
+  width: 100%;
+  font: inherit;
+}
+.ns-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.ns-card__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+.ns-note {
+  color: var(--muted-foreground);
+}
+
+/* The Challenge card's two states must READ at rest, not merely exist in the
+   DOM (the attempt 1 critic's finding: same cream fill, same border, only
+   the note line differed). Enabled is a pressable chip: cream fill, a thick
+   darker bottom lip in the structural border colour, a chevron, and a press
+   that travels DOWN on pointer down like every 3D chip in the goals.
+   Disabled is muted flat: the fill drops to the panel's own white so the
+   card recedes to its outline, the heading recedes to the muted ink, no
+   lip, no chevron. The pairs are already measured: --muted-foreground on
+   --card and the --border lip are theme.css's own combinations. */
+button.ns-card--go {
+  --ns-lip: 4px;
+  box-shadow: 0 var(--ns-lip) 0 var(--border);
+  transform: translateY(0);
+  transition: transform 90ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 90ms cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button.ns-card--go:active {
+  transform: translateY(var(--ns-lip));
+  box-shadow: 0 0 0 var(--border);
+}
+.ns-go {
+  flex: none;
+  display: inline-flex;
+  color: var(--muted-foreground);
+}
+.ns-go svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.ns-card--flat {
+  background: var(--card);
+}
+.ns-card--flat h3 {
+  color: var(--muted-foreground);
+}
+
+/* Difficulty pips: dark filled dots, outlined empties. Read as one image. */
+.ns-pips {
+  display: inline-flex;
+  gap: 0.375rem;
+}
+.ns-pip {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--border);
+  background: transparent;
+}
+.ns-pip.is-filled {
+  border-color: var(--foreground);
+  background: var(--foreground);
+}
+
+/* The violet 3D START. Thick darker bottom lip, and the press travels DOWN on
+   pointer down: :active fires on the down edge, well inside the 100 ms row.
+   The lip cannot be --primary-edge, which flips lighter in the dark theme
+   (it is the outline token); a physical lip must stay darker than its face
+   in both. So it reads --primary-lip from theme.css (requested from the
+   integrator, defined per theme), and until that token lands the fallback
+   DERIVES from --primary, 72 percent of the face toward black, rather than
+   hardcoding a hex that would drift when the palette moves. The lip never
+   carries meaning on its own: the audit collapses a shape's fill and
+   boundary to the better of the two. */
+.ns-start {
+  --ns-lip: 4px;
+  --ns-start-lip: var(--primary-lip, color-mix(in srgb, var(--primary) 72%, #000));
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 7.5rem;
+  padding: 0 1.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--primary-edge);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 var(--ns-lip) 0 var(--ns-start-lip);
+  transform: translateY(0);
+  transition: transform 90ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 90ms cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.ns-start:active {
+  transform: translateY(var(--ns-lip));
+  box-shadow: 0 0 0 var(--ns-start-lip);
+}
+
+/* Challenge marks: the stopwatch and the transition-state double dagger. */
+.ns-marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--muted-foreground);
+}
+.ns-marks svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.ns-dagger {
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------ the peeking mascot */
+
+/* The mascot peeking over the sheet edge stays (DESIGN-GOALS), and the face
+   must READ over the edge: eyes clearing the crop is what peeking means in
+   blueberry_r5-node-sheet-v2. Geometry, so the window is not guessed: the
+   mark's eyes bottom out at viewBox y 38.7 of 64 and the smile at y 44.3
+   (BlueberryMark.tsx), which at the 88px render are 53.2px and 60.9px from
+   the top of the berry; a 4rem (64px) window with no downward offset shows
+   the whole face and crops the body below it. The attempt 1 window (48px
+   less a 12px push down) showed only the crown, which the critic rejected.
+   pathwaySheetContract.test.ts holds this arithmetic. */
+.ns-peek {
+  display: flex;
+  justify-content: center;
+  height: 4rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ns-peek__b {
+  display: block;
+}
+
+/* ----------------------------------------------------------- the guidebook */
+
+.gb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  background: var(--background);
+}
+
+.gb-page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--foreground);
+}
+
+.gb-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+}
+.gb-back svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.gb-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+.gb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--border);
+  background: var(--secondary);
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+.gb-badge svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* The placeholder mark: honest, visible, and gone the day authored copy
+   lands with placeholder:false. Warn family tokens, already measured. */
+.gb-draft {
+  align-self: flex-start;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--warn-ink-strong);
+  background: var(--warn-soft-solid);
+  color: var(--warn-ink-strong);
+  font-weight: 700;
+}
+
+/* Guidebook body is CONTENT, so it stays in the neutral content face: no
+   .title-face here and no font-family override, because --font-sans is the
+   page's own default. The goals bind the body face, not the glyphs. */
+.gb-intro {
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+/* The figure and the KEY IDEA compose side by side ON A PHONE, staggered:
+   figure high left, callout riding lower right, which is the composition
+   blueberry_r5-guidebook locks. Two across at every width, no single-column
+   fallback, because the reference devices are 390 to 430px wide and the
+   goal image shows the pair sharing exactly that width; attempt 1's 480px
+   breakpoint meant no reference phone ever saw the locked layout. */
+.gb-figrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 0.75rem;
+}
+.gb-figrow .gb-callout {
+  margin-top: 2.25rem;
+}
+.gb-figure {
+  margin: 0;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+  color: var(--muted-foreground);
+}
+.gb-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gb-callout {
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--tab-active);
+}
+.gb-callout__cap {
+  margin-bottom: 0.25rem;
+  color: var(--primary-ink);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.gb-callout__body {
+  color: var(--foreground);
+  line-height: 1.55;
+}
+
+.gb-worked {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.gb-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+}
+/* Wide art scrolls inside its own box; the page never scrolls sideways. */
+.gb-strip__art {
+  overflow-x: auto;
+  color: var(--muted-foreground);
+}
+.gb-strip__art svg {
+  display: block;
+  min-width: 20rem;
+  width: 100%;
+  height: auto;
+}
+.gb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.gb-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  line-height: 1.5;
+}
+.gb-steps__n {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid var(--foreground);
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-sheet[open] .ns-panel,
+  .ns-sheet[open]::backdrop {
+    animation: none;
+  }
+  .ns-start,
+  .ns-start:active,
+  button.ns-card--go,
+  button.ns-card--go:active {
+    transition: none;
+  }
+}

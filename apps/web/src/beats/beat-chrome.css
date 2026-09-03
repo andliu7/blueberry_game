@@ -1,0 +1,218 @@
+/*
+ * Lesson chrome: the 3D pressable chip button and the recipe strip.
+ *
+ * Both are DESIGN-GOALS surfaces. The chip is the goals' "every button is a
+ * 3D pressable chip: thick darker bottom edge, and it visibly presses down on
+ * pointer down"; the strip is the committed question-badges spec's recipe
+ * strip, a lesson's beat composition drawn as its progress bar.
+ *
+ * Every colour is a theme token, so both themes are correct without this file
+ * knowing which is on, and the contrast audit measures composed pairs that
+ * exist in theme.css's derivations:
+ *   chip check face  --primary with --primary-foreground ink
+ *   chip claim face  --progress with --progress-ink ink (FILL-ONLY green:
+ *                    the green is a fill carrying dark ink, never text)
+ *   disabled         flat --muted with --muted-foreground, no edge at all
+ */
+
+/* ------------------------------------------------------------------ */
+/* The chip button                                                      */
+/* ------------------------------------------------------------------ */
+
+.chip-press {
+  --chip-press-edge: var(--primary-edge);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem; /* the 44px floor */
+  min-width: 2.75rem;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 1rem;
+  font-family: var(--font-display); /* chrome face, per the typography split */
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  touch-action: manipulation;
+  transform: translateY(0);
+  /* The edge is a box-shadow rather than a border so pressing can compress
+     it without reflowing the layout around the button. */
+  box-shadow: 0 var(--chip-edge-size) 0 var(--chip-press-edge);
+  /* Reserve the edge's room so a tight flex row does not clip it. */
+  margin-bottom: var(--chip-edge-size);
+  transition:
+    transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chip-press--check {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  --chip-press-edge: var(--primary-edge);
+}
+
+.chip-press--claim {
+  background: var(--progress);
+  color: var(--progress-ink);
+  --chip-press-edge: var(--progress-edge);
+}
+
+.chip-press--quiet {
+  background: var(--muted);
+  color: var(--foreground);
+  border: 2px solid var(--border);
+  --chip-press-edge: var(--border);
+}
+
+/* The press itself is the first frame of feedback: :active paints on pointer
+   down, the same frame, before any JS runs. The chip travels down and its
+   edge compresses by the same distance, which is the goals' pressed state. */
+.chip-press:active:not(:disabled) {
+  transform: translateY(var(--chip-press-travel));
+  box-shadow: 0 calc(var(--chip-edge-size) - var(--chip-press-travel)) 0 var(--chip-press-edge);
+}
+
+/* UNMISTAKABLY DISABLED, the S3 judge's carry. The old disabled state was the
+   live button at reduced opacity, which reads as "maybe". This one is a
+   different object: flat grey fill, outlined, no bottom edge and no travel,
+   the disabled chip on the committed button-types sheet. */
+.chip-press:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 2px solid var(--border);
+  box-shadow: none;
+  transform: none;
+  cursor: default;
+}
+
+.chip-press:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-press {
+    /* The pressed state still lands (it is a state, not a decoration); it
+       just lands in one step instead of travelling. */
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The recipe strip                                                     */
+/* ------------------------------------------------------------------ */
+
+.recipe-strip {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 1.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--border);
+  background: var(--muted);
+  overflow: hidden;
+}
+
+.recipe-strip__seg {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--muted);
+}
+
+/* The divider clears 3:1 against every segment fill it separates, the same
+   structural-border argument cards carry. */
+.recipe-strip__seg + .recipe-strip__seg {
+  border-left: 2px solid var(--border);
+}
+
+/* Completed is the progress green as a FILL under a dark-ink badge, which is
+   the only way the goal green is allowed to appear. */
+.recipe-strip__seg[data-state="done"] {
+  background: var(--progress);
+}
+
+/* Current is the violet family: this is Blueberry, and this is where you are. */
+.recipe-strip__seg[data-state="current"] {
+  background: var(--chip-face);
+}
+
+/* The within-step fraction, the S3 goal-strip precedent: the current segment
+   fills to its own fraction. A green fill, never a number, never text. */
+.recipe-strip__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--progress);
+  transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recipe-strip--still .recipe-strip__fill {
+  transition: none;
+}
+
+/* The badge: a miniature of the goals' chip, face plus darker bottom edge.
+   The glyph ink is dark on every face it sits on, because white fails on
+   both the periwinkle (2.26:1) and the goal green (1.76:1); measured in
+   DESIGN-TOKENS.md, not assumed. */
+.recipe-strip__badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.375rem;
+  background: var(--card);
+  color: var(--chip-ink);
+  box-shadow: 0 2px 0 var(--chip-edge);
+}
+
+.recipe-strip__seg[data-state="done"] .recipe-strip__badge {
+  background: var(--progress-soft);
+  color: var(--progress-ink);
+  box-shadow: 0 2px 0 var(--progress-edge);
+}
+
+/* To-do reads flat and quiet, the locked-state language: no edge, thin
+   outline, receded ink. */
+.recipe-strip__seg[data-state="todo"] .recipe-strip__badge {
+  background: transparent;
+  color: var(--muted-foreground);
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+}
+
+.recipe-strip__badge svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* The anchored mascot                                                  */
+/*                                                                      */
+/* The S3 judge's carry: the question screen's mascot floated in dead   */
+/* space. Anchored means attached to an edge the layout owns: this      */
+/* wrapper sits inside a position:relative parent and stands the berry  */
+/* on that parent's top edge, right side, in front of whatever is       */
+/* beneath, exactly where the committed lesson frames put it. It is     */
+/* decoration to the layout (no reserved row, no pointer target).       */
+/* ------------------------------------------------------------------ */
+
+.berry-anchor {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 100%;
+  margin-bottom: -0.375rem; /* toes over the edge, standing on it */
+  pointer-events: none;
+  line-height: 0;
+}

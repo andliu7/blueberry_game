@@ -1,0 +1,156 @@
+/* -------------------------------------------------------------------------
+   The Feed tab. Reference: blueberry_r7-feed-v2_1788288479.png, which locks
+   the iconography (flask quests, berry avatars, toast flask) and the layout;
+   the draft text inside it is model gibberish and binds nothing.
+
+   THE GREEN IS FILL ONLY, per DESIGN-GOALS and theme.css's own measurement:
+   the quest bar's fill is --progress carrying no text and no mark, the track
+   carries the boundary ring, and the reading beside the bar is the page's ink
+   on the card. Nothing green here is text and nothing green is a hairline.
+
+   EVERY QUEST ROW CARRIES A BORDER, the structural-border rule: white on the
+   warm cream ground is 1.10:1, so without the cut edge the card has no edge. */
+
+.feed-quest {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border: 2px solid var(--border);
+  background: var(--card);
+  padding: 0.7rem 0.85rem 0.75rem 0.7rem;
+}
+
+/* The flask's seat: a soft tinted disc so the icon reads as a sticker on the
+   card rather than a floating glyph. The flask outline is the page's ink. */
+.feed-quest-flask {
+  display: flex;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--foreground);
+}
+.feed-flask {
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.feed-quest-body {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.feed-quest-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.feed-quest-label {
+  font-size: var(--text-scale-base);
+  font-weight: 700;
+  color: var(--foreground);
+}
+/* The honest pair beside the bar. tabular-nums so 4 / 5 and 5 / 5 hold width. */
+.feed-quest-reading {
+  flex-shrink: 0;
+  font-size: var(--text-scale-xs);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The bar. Track ring in --hud-track (the same boundary the streak strip's
+   empty squares use), fill in the goal green, chest riding the right end.
+   Padded on the right so the fill never runs under the chest at 100%. */
+.feed-quest-track {
+  position: relative;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 70%, var(--card));
+  box-shadow: inset 0 0 0 2px var(--hud-track);
+  margin-right: 0.9rem;
+}
+.feed-quest-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--progress);
+  /* Width moves with the journal, not with a timer; the transition is only
+     so a bar does not teleport when the tab regains focus after a lesson. */
+  transition: width 420ms var(--ease-out);
+  min-width: 0;
+}
+/* A full bar completes its own boundary: the edge green is the only member of
+   the family dark enough to identify the shape on the track (theme.css). */
+.feed-quest[data-done="true"] .feed-quest-fill {
+  box-shadow: inset 0 0 0 2px var(--progress-edge);
+}
+
+.feed-chest {
+  position: absolute;
+  right: -0.9rem;
+  top: 50%;
+  width: 1.7rem;
+  height: 1.7rem;
+  transform: translateY(-50%);
+}
+/* The open chest pops once. State first, motion second: data-open is the
+   information, the scale is the ceremony. */
+.feed-chest[data-open="true"] {
+  animation: feed-chest-pop 480ms var(--ease-spring) both;
+}
+@keyframes feed-chest-pop {
+  0% {
+    transform: translateY(-50%) scale(1);
+  }
+  45% {
+    transform: translateY(-50%) scale(1.22) rotate(-4deg);
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------- lab mates */
+
+.feed-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+}
+/* Where the cheer will live: the toast flask in a quiet outlined seat at the
+   row's end, the shape of the future control without pretending to be one.
+   It sits inside an aria-hidden placeholder row and is not focusable. */
+.feed-toast-seat {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--muted);
+}
+.feed-toast {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* ------------------------------------------------------- reduced motion --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-quest-fill {
+    transition: none;
+  }
+  .feed-chest[data-open="true"] {
+    animation: none;
+  }
+}

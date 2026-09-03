@@ -1,0 +1,489 @@
+/**
+ * The Cards tab's shape language: the 3D pressable chip, the segmented pill,
+ * the mastery bar, the fan, the tray, and the scheduler state edges and
+ * badges. Everything reads theme.css tokens; the one literal colour is the
+ * mastered badge's white check, whose reason sits on the rule.
+ *
+ * THE 3D CHIP is the design goals' button: a face over a thick darker bottom
+ * edge, and it visibly PRESSES DOWN on pointer down. The edge is drawn as a
+ * box-shadow at --chip-edge-size below the face; on :active the face
+ * translates down by --chip-press-travel while the shadow collapses to 1px,
+ * so the total height holds and the motion reads as depression, not as the
+ * whole control jumping. Only TRANSFORM is transitioned, per theme.css's own
+ * .press rule (a transitioned colour or shadow passes through midpoints the
+ * contrast gate would have to score); the shadow and the face darkening step
+ * in one frame, which on a 120ms press is indistinguishable and compliant.
+ * :active paints on pointer down, the same frame, before any JS runs, which
+ * is what the under-100ms acknowledgement budget asks of a stylesheet.
+ *
+ * CONTRAST, measured not assumed (WCAG 2.1 ratios, light / dark):
+ *   chip ink #23264a on face #9ba8f5             6.43 both themes
+ *   progress ink #163a26 on fill #7ed957         7.17 both themes
+ *   hero border --chip-edge on cream             4.57 (face on cream is 2.05,
+ *     so the border is what identifies the shape; at night the face itself
+ *     is 7.61 on the ground and carries it)
+ *   mastery track border --border on its tile    6.73 / 3.27 (the structural
+ *     border every card carries); fill edge --progress-edge on the track
+ *     4.21 light / 4.90 on the night card
+ *   hard chip --warn-ink-strong on --warn-soft   6.37 / 7.80
+ *   easy chip --alt-route on --alt-route-soft    4.86 / 6.67 (composed)
+ *   pill active: background text on foreground  12.64 / 13.92
+ *   state edges on the card: --warn-ink-strong 7.09 / 10.13,
+ *     --progress-edge 4.21 / 4.90, due edge --chip-edge 5.03 light but 2.19
+ *     dark, so the dark rule swaps it for --chip-face at 6.48 (see the rule);
+ *     every kept pairing clears the 3.0 shape floor
+ *   mastered badge: white check on --progress-deep #43a047, 3.30, the one
+ *     green DESIGN-TOKENS records a white mark may sit on (the 3.0 large
+ *     graphic floor); #7ed957 itself never carries a white mark
+ *   suspended card: muted-foreground on muted, 8.40 / 5.40
+ *   card slabs (the bottom edges added for the states sheet's 3D language):
+ *     --fan-edge defaults to --border, 6.11 on cream and 3.84 on the night
+ *     ground, so every slab clears the 3.0 shape floor on its own; the state
+ *     rules only re-tint it, and each re-tint was measured on the ground too:
+ *     learning 6.44 / 11.90, due 4.57 / 7.61, mastered 3.82 / 5.76
+ *   compose slab: --foreground on cream 12.62, --border on the night ground
+ *     3.84; the first dark value tried, #0b0d1a, measured 1.13 there and was
+ *     replaced rather than explained away (see the rule)
+ *   page dots: --border 6.11 / 3.84 for the empty ones, --foreground 12.62 /
+ *     13.92 for the filled one, and they are aria-hidden decoration over
+ *     controls that already say the same thing in words
+ * The goal green #7ed957 appears in this file ONLY as a fill carrying its
+ * dark ink or closed by a boundary that clears on its own; never as text,
+ * never as a hairline, and NEVER as the outline of an empty shape: a track
+ * at zero is a neutral --border pill, and the green arrives only as fill.
+ */
+
+.chip3d {
+  --c3-face: var(--chip-face);
+  --c3-face-press: var(--chip-face-press);
+  --c3-edge: var(--chip-edge);
+  --c3-ink: var(--chip-ink);
+  position: relative;
+  background: var(--c3-face);
+  color: var(--c3-ink);
+  border-radius: 1rem;
+  box-shadow: 0 var(--chip-edge-size) 0 0 var(--c3-edge);
+  transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+}
+
+.chip3d:active:not(:disabled) {
+  transform: translateY(var(--chip-press-travel));
+  box-shadow: 0 1px 0 0 var(--c3-edge);
+  background: var(--c3-face-press);
+}
+
+/* The disabled chip is FLAT: no edge, no travel, honest muted surfaces. The
+   label stays --foreground on --muted (11.45 light, 10.23 dark), because a
+   disabled control's label still has to be readable to explain itself. */
+.chip3d:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+/* The green GO chip: REVIEW on the hero, the tray's review action, the Good
+   grade. Goal green as a FILL carrying its dark ink, the only legal shape. */
+.chip3d--go {
+  --c3-face: var(--progress);
+  --c3-face-press: var(--progress-deep);
+  --c3-edge: var(--progress-edge);
+  --c3-ink: var(--progress-ink);
+}
+
+/* The violet identity chip: Save to deck, the primary act on a screen. */
+.chip3d--primary {
+  --c3-face: var(--primary);
+  --c3-face-press: var(--primary-ink);
+  --c3-edge: var(--primary-edge);
+  --c3-ink: var(--primary-foreground);
+}
+
+/* The quiet chip: Again. Neutral on purpose; see ReviewSession's tone note. */
+.chip3d--quiet {
+  --c3-face: var(--muted);
+  --c3-face-press: var(--secondary);
+  --c3-edge: var(--border);
+  --c3-ink: var(--foreground);
+}
+
+.chip3d--hard {
+  --c3-face: var(--warn-soft-solid);
+  --c3-face-press: var(--warn-soft-solid);
+  --c3-edge: var(--warn-ink-strong);
+  --c3-ink: var(--warn-ink-strong);
+}
+
+.chip3d--easy {
+  --c3-face: var(--alt-route-soft);
+  --c3-face-press: var(--alt-route-soft);
+  --c3-edge: var(--alt-route);
+  --c3-ink: var(--alt-route);
+}
+
+/* The white tile chip: a deck tile in the grid, a fanned card. The face is
+   1.10 on cream, so the border is the shape, per the structural-border rule
+   every card in this app already carries (--border is 6.11 on cream). */
+.chip3d--card {
+  --c3-face: var(--card);
+  --c3-face-press: var(--muted);
+  --c3-edge: var(--border);
+  --c3-ink: var(--card-foreground);
+  border: 1px solid var(--border);
+}
+
+/* The hero card is a chip that is not a button, so it keeps the edge but not
+   the press. Its face is 2.05 on cream; the 2px border is what makes it a
+   shape (4.57), per the border rule every card in this app already carries. */
+.hero-chip {
+  background: var(--chip-face);
+  color: var(--chip-ink);
+  border: 2px solid var(--chip-edge);
+  border-radius: 1.5rem;
+  box-shadow: 0 var(--chip-edge-size) 0 0 var(--chip-edge);
+}
+
+/* ------------------------------------------------------------------ */
+/* The segmented pill: Setup / Conditions / Product                     */
+/* ------------------------------------------------------------------ */
+
+.seg-pill {
+  display: flex;
+  border: 2px solid var(--border);
+  border-radius: 9999px;
+  background: var(--card);
+  padding: 3px;
+  gap: 3px;
+}
+
+/* 2.75rem is 44px, the minimum hit target, not a rounding of 2.5. The pill was
+   40px while it lived only in the authoring composer, which the hit-target
+   instrument does not drive into; it is on the reviewed card now, and a
+   control a student taps mid-session is exactly the one the floor is for. */
+.seg-pill__opt {
+  flex: 1 1 0;
+  min-height: 2.75rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: var(--foreground);
+  background: transparent;
+}
+
+/* Active segment: filled dark, exactly the committed composer image. The
+   inactive segments are the outlined ones, carried by the pill's own border. */
+.seg-pill__opt[aria-pressed="true"] {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* ------------------------------------------------------------------ */
+/* The composer's editing card and its page dots                        */
+/* ------------------------------------------------------------------ */
+
+/* THE LARGEST SHAPE ON THE COMPOSER SCREEN, and the committed composer image
+   draws it with a pronounced thick dark bottom slab: the same 3D chip
+   language as every button, applied to the card being written. The round 2
+   build drew a flat outlined box, which made the screen's biggest element the
+   only one not speaking the shape language.
+
+   It is a SLAB, not a chip: it never presses, because it is a text field and
+   not a button, so there is no :active rule here. The slab is drawn as a
+   box-shadow so the card's own height is unchanged and the textarea inside it
+   keeps its box.
+
+   Why the slab colour splits by theme. Light takes --foreground, 12.62 on the
+   cream ground: the committed image's pronounced near-black slab, exactly.
+   The first attempt at the dark value was #0b0d1a, chosen so the slab would
+   be DARKER than the night card the way a shadow is; measured, it is 1.13 on
+   the night ground, which is an invisible slab on the screen's largest shape.
+   So dark takes --border instead, 3.84 on the night ground, clearing the 3.0
+   shape floor. That makes it lighter than the card face, a rim rather than a
+   shadow, which is the same trade .card-slab and .fan__card already make at
+   night and the same one theme.css's own --chip-edge makes: at these ground
+   luminances a visible edge beats a physically literal one. */
+.compose-card {
+  --compose-slab: var(--foreground);
+  border-radius: 1.25rem;
+  box-shadow: 0 14px 0 0 var(--compose-slab);
+}
+
+.dark .compose-card {
+  --compose-slab: var(--border);
+}
+
+/* The three page dots the committed image draws directly under the preview
+   fan: which of the three sides is being written, said a second way and
+   without words. Decoration over controls that already carry the state
+   (the pill's aria-pressed, each preview's own label), so aria-hidden. */
+.page-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+.page-dot--on {
+  background: var(--foreground);
+}
+
+/* ------------------------------------------------------------------ */
+/* The mastery bar and dots                                             */
+/* ------------------------------------------------------------------ */
+
+/* The track is NEUTRAL: --border, the same structural border every card in
+   this app carries. It used to be --progress-edge, which made every empty
+   bar (a new deck, My mistakes at zero, "1 of 8") a green-outlined hairline
+   pill, exactly the outline shape the fill-only rule bans; the goal landing
+   image draws its tracks neutral with green fill only. The fill closes
+   itself with its own darker inset edge (4.21 light / 4.90 dark on the
+   track), so both halves stay identifiable and the green arrives only as
+   the fill it is allowed to be. */
+.mastery-bar {
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.mastery-bar__fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--progress);
+  box-shadow: inset 0 0 0 1px var(--progress-edge);
+  transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mastery-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--muted-foreground);
+}
+
+.mastery-dot--on {
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+/* ------------------------------------------------------------------ */
+/* The fan and the tray                                                 */
+/* ------------------------------------------------------------------ */
+
+/* Each fanned card positions itself from three custom properties the
+   component writes from tray.ts's fanLayout: --fan-x and --fan-y in px,
+   --fan-rot in degrees. The rotation is about the card's CENTRE, because
+   tray.ts's fit arithmetic bounds the extent of a centre-rotated rect; the
+   old 50% 120% origin added a horizontal shift that arithmetic never saw,
+   and a seven card hand escaped a 390px phone by 84px a side. The droop the
+   low origin used to provide is --fan-y now, computed, not emergent. */
+.fan {
+  position: relative;
+}
+
+.fan__card {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(calc(-50% + var(--fan-x, 0px))) translateY(var(--fan-y, 0px))
+    rotate(var(--fan-rot, 0deg));
+  transform-origin: 50% 50%;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* The 3D language the committed states sheet draws on every card: a thick
+     darker bottom edge under the face. It is a box-shadow rather than a
+     chip3d, because chip3d's press translate would replace the fan's own
+     placement transform; the press below keeps the slot and adds the shrink.
+     Each state rule below RESTATES this edge in its own colour, since a
+     box-shadow is replaced wholesale, never merged. */
+  --slab-size: 3px;
+  box-shadow: 0 var(--slab-size) 0 0 var(--fan-edge, var(--border));
+}
+
+/* The tall review face wears the same edge, thicker for its size. It is a
+   separate class because .fan__card also carries the absolute placement, and
+   the review card is not in a fan. The state modifiers below set --fan-edge
+   only, so one variable tints both slabs and neither rule has to know which
+   shape it is painting. */
+.card-slab {
+  --slab-size: 6px;
+  box-shadow: 0 var(--slab-size) 0 0 var(--fan-edge, var(--border));
+}
+
+/* The name is a SPINE LABEL: one line, never wrapped, never clipped. tray.ts
+   sizes the fan so this box (FAN_NAME_STRIP wide) is wholly clear of the card
+   stacked on top of it, which is the whole reason a narrow phone is dealt
+   fewer cards. Wrapping it would silently break that arithmetic. */
+.fan__name {
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+}
+
+/* THE SCHEDULER STATE EDGES, per the committed states sheet: a card's edge
+   and badge say where it is in the scheduler. The edge tints; the corner
+   badge (StateBadge.tsx) names it. New and young stay on the neutral
+   --border edge. These sit BEFORE the lifted rule on purpose: a lifted
+   card's glow wins over the mastered glow at equal specificity by order. */
+.fan__card--learning {
+  border-color: var(--warn-ink-strong);
+  --fan-edge: var(--warn-ink-strong);
+}
+
+.fan__card--due {
+  border-color: var(--chip-edge);
+  --fan-edge: var(--chip-edge);
+}
+
+/* At night --chip-edge is the chip's SHADOW side (#4a54ab), 2.19 on the
+   night card, under the 3.0 shape floor; the chip FACE is what reads there
+   (6.48). Same split theme.css's own --primary / --primary-ink pair uses:
+   one role, two values, because no one value clears both grounds. */
+.dark .fan__card--due {
+  border-color: var(--chip-face);
+  --fan-edge: var(--chip-face);
+}
+
+.fan__card--mastered {
+  border-color: var(--progress-edge);
+  --fan-edge: var(--progress-edge);
+  box-shadow: 0 var(--slab-size) 0 0 var(--progress-edge), 0 0 14px 2px var(--progress-glow);
+}
+
+/* Suspended is FLAT and quiet, the sheet's grey card: still readable
+   (muted-foreground on muted is 4.5+ in both themes per theme.css), still a
+   button, just visibly out of the rotation. */
+.fan__card--suspended {
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  --fan-edge: var(--border);
+}
+
+/* The lifted card: forward, upright, and glowing the progress glow, which is
+   this app's highlight language for the thing you are on. */
+.fan__card--lifted {
+  transform: translateX(calc(-50% + var(--fan-x, 0px))) translateY(calc(var(--fan-y, 0px) - 16px))
+    scale(1.08);
+  box-shadow: 0 var(--slab-size) 0 0 var(--progress-edge), 0 0 0 2px var(--progress-edge),
+    0 0 28px 6px var(--progress-glow);
+  z-index: 10;
+}
+
+/* .press:active is transform: scale(0.96), which would REPLACE the fan
+   placement transform and snap the pressed card to the fan's centre for the
+   length of the press. These two rules keep the slot and add the shrink, so
+   the acknowledgement happens in place. Same one-step-filter discipline. */
+.fan__card.press:active {
+  transform: translateX(calc(-50% + var(--fan-x, 0px))) translateY(var(--fan-y, 0px))
+    rotate(var(--fan-rot, 0deg)) scale(0.96);
+}
+
+.fan__card--lifted.press:active {
+  transform: translateX(calc(-50% + var(--fan-x, 0px))) translateY(calc(var(--fan-y, 0px) - 16px))
+    scale(1.04);
+}
+
+/* ------------------------------------------------------------------ */
+/* The scheduler state badges                                           */
+/* ------------------------------------------------------------------ */
+
+/* The corner disc a card wears, per the states sheet. 22px: a marker, not a
+   target, so the 44px floor does not apply; it is aria-hidden decoration
+   over a button whose accessible name already speaks the state. */
+.state-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+}
+
+/* New: the sheet's small periwinkle dot, worn as a hollow disc holding it.
+   The dot is --chip-edge, 5.03 on the white card; at night the chip FACE
+   (6.48 on the night card), for the reason on the due edge above. */
+.state-badge--new {
+  background: var(--card);
+  border: 1.5px solid var(--chip-edge);
+  color: var(--chip-edge);
+}
+
+.dark .state-badge--new {
+  border-color: var(--chip-face);
+  color: var(--chip-face);
+}
+
+.dark .state-badge--due {
+  border-color: var(--chip-face);
+}
+
+/* Learning: amber, the warn family as a SURFACE with its own strong ink,
+   the measured 6.37 / 7.80 pair the hard chip already carries. */
+.state-badge--learning {
+  background: var(--warn-soft-solid);
+  border: 1.5px solid var(--warn-ink-strong);
+  color: var(--warn-ink-strong);
+}
+
+/* Due: the periwinkle clock, chip ink on chip face, the measured 6.43 pair. */
+.state-badge--due {
+  background: var(--chip-face);
+  border: 1.5px solid var(--chip-edge);
+  color: var(--chip-ink);
+}
+
+/* Mastered: the sheet's white check on a green disc. The disc is
+   --progress-deep, the ONE green DESIGN-TOKENS records a white mark may sit
+   on (3.30 against the 3.0 large-graphic floor); the goal green #7ed957
+   itself never carries a white mark, so it is not used here. The white is
+   declared here rather than a token because no theme moves it: the deep
+   green is the same hex in both themes by design. */
+.state-badge--mastered {
+  background: var(--progress-deep);
+  color: #ffffff;
+}
+
+/* Suspended: the grey pause, muted-foreground on muted, readable and calm. */
+.state-badge--suspended {
+  background: var(--muted);
+  border: 1.5px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+/* The side previews in the composer fan the same way but are static. */
+.side-fan__card {
+  transform: rotate(var(--fan-rot, 0deg));
+}
+
+/* The violet tray the fan hangs over, the committed deck-tray image's box.
+   Identity violet as a SURFACE: the label inside is --primary-foreground,
+   the same measured pair every primary button in the app already carries.
+   The cavity is decoration (the tray reads as open); the shape itself is
+   identified by its fill against the cream ground, not by the cavity. */
+.tray {
+  position: relative;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 1.25rem;
+  box-shadow: 0 var(--chip-edge-size) 0 0 var(--primary-edge);
+  padding: 0.875rem 1rem 1rem;
+}
+
+.tray__cavity {
+  height: 1.25rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: var(--primary-edge);
+  margin-bottom: 0.625rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip3d,
+  .fan__card,
+  .mastery-bar__fill {
+    transition-duration: 1ms;
+  }
+}

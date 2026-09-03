@@ -513,6 +513,81 @@
   }
 }
 
+/* --------------------------------------------- the reward moment, restated */
+
+/* Piece R additions to the celebration, per docs/DESIGN-GOALS.md Celebration
+   and blueberry_r6-lesson-complete_1788286354.png. They live HERE rather than
+   beside the .reward-* rules because theme.css is the integrator's file and
+   this one is the celebration piece's own. streak.css is imported at the TOP
+   of theme.css, so nothing below relies on source order: every override
+   outranks the base rule by specificity (.reward-stage .reward-card beats
+   .reward-card), and the claim button's colours outrank the Press variant's
+   utilities because these rules are unlayered and Tailwind's utilities live
+   in a layer. */
+
+/* The receipt cards read as 3D chips: the goals' thick darker bottom edge,
+   drawn as border, a cut rather than a shadow, so sticker rule 3 has nothing
+   to count. The edge is the accent every card variant already carries at 2px;
+   only the bottom thickens. */
+.reward-stage .reward-card {
+  border-bottom-width: 7px;
+}
+
+/* The accuracy chip. A reading, not a badge: neutral surfaces, the page's own
+   ink, sitting beside FLAWLESS without competing with it. 12px text is body
+   sized, so it is --foreground on --muted per rule 7, never a hue. */
+.reward-accuracy {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1.5px solid var(--border);
+}
+
+/* The cartoon flame's seat in the streak card. The glyph is HudIcons'
+   FlameMark; the lick reuses this file's own keyframes so the flame moves the
+   same way everywhere it burns. */
+.reward-flame-seat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reward-flame-seat[data-lit="true"] {
+  animation: streak-land 520ms var(--ease-spring) both;
+}
+.reward-flame-seat[data-lit="true"] .hud-flame-body {
+  transform-origin: 50% 92%;
+  animation: streak-lick 2600ms ease-in-out infinite;
+}
+.reward-flame-seat[data-lit="true"] .hud-flame-core {
+  transform-origin: 50% 92%;
+  animation: streak-lick-core 1900ms ease-in-out infinite;
+}
+
+/* CLAIM. The goal green as a FILL under dark ink, the only way the green may
+   appear: --progress-ink on --progress is 7.17:1, and the boundary is
+   --progress-edge because the fill alone is 1.60:1 on cream and cannot
+   identify its own shape (theme.css measures all three). The thick bottom
+   edge makes it the goals' 3D pressable chip, and :active compresses that
+   edge while the face travels down, which paints on pointer down with no JS
+   in the path, inside the 100 ms budget by construction. */
+.press.reward-claim {
+  background: var(--progress);
+  color: var(--progress-ink);
+  border-color: var(--progress-edge);
+  border-bottom-width: 6px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.press.reward-claim:active {
+  transform: translateY(3px);
+  border-bottom-width: 3px;
+  filter: brightness(0.96);
+}
+
 /* ------------------------------------------------------- reduced motion --- */
 /* The settled frame says everything: the flame is drawn, the number is today's,
    every square is in its state, the sentence is there. Nothing on this screen
@@ -525,6 +600,9 @@
   .streak-day-slot[data-in="true"],
   .streak-day[data-today="true"][data-kind="counted"] .streak-day-slot[data-in="true"],
   .streak-reveal,
+  .reward-flame-seat[data-lit="true"],
+  .reward-flame-seat[data-lit="true"] .hud-flame-body,
+  .reward-flame-seat[data-lit="true"] .hud-flame-core,
   .streak-spark {
     animation: none;
   }

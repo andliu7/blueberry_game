@@ -24,8 +24,15 @@
  * The one thing the map has that topics do not is an AUTHORING QUEUE: a node
  * with no `playable` link is not locked by progress, it is a node whose content
  * is not written yet. Conflating the two would tell a student they had failed
- * to unlock something that does not exist, so `queued` rides beside the state
- * rather than inside it, and the copy differs.
+ * to unlock something that does not exist, so `queued` rides BESIDE the state
+ * rather than inside it, and the copy differs. Concretely: in a reachable
+ * unit a queued node is "open" with queued=true, rendered as the dashed
+ * authoring treatment and never as a padlock, per the UNLOCK POLICY (only
+ * unit gates lock; a mid-unit padlock inside the active unit is exactly the
+ * defect the S3 critic measured). A queued node is never "current", because
+ * a START tag over a node with no content is a promise the app cannot keep.
+ * In an unreachable unit it is "locked" like its siblings, because there the
+ * lock is the unit gate's true statement.
  *
  * PROGRESS IS SERVER STATE. CLAUDE.md: unlock state is enforced server side and
  * the client renders it. This is the rendering rule Phase 6's server applies to
@@ -148,9 +155,9 @@ export function deriveMapPathway(
       if (cleared.has(node.id)) {
         const tally = tallies.get(node.id);
         state = tally !== undefined && tally.attempted > 0 && tally.correct / tally.attempted < REVIEW_ACCURACY ? "review" : "done";
-      } else if (!unitReachable || queued) {
+      } else if (!unitReachable) {
         state = "locked";
-      } else if (currentNodeId === null && isTrackNode(node)) {
+      } else if (!queued && currentNodeId === null && isTrackNode(node)) {
         state = "current";
         currentNodeId = node.id;
         active = true;

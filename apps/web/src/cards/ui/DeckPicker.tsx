@@ -215,7 +215,12 @@ function CheckCircle({ on }: { readonly on: boolean }) {
       }`}
     >
       {on && (
-        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="var(--good-ink)" strokeWidth="2.5">
+        /* The tick is --background, not --good-ink: good-ink on the good fill
+           measures 1.26:1 (ReviewSession's own note), which is dead ink. The
+           page ground is the fill's opposite in both themes, cream on the deep
+           light green and near-black on the bright dark one, so one value
+           clears the fill both ways. */
+        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="var(--background)" strokeWidth="2.5">
           <path d="M3 8.5 L6.5 12 L13 4.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )}

@@ -56,10 +56,12 @@
  * another surface's; every question in this beat is answerable from its words.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { Press } from "../../app/ui/Press";
+
 import { Berry } from "../../mascot/Berry";
+import { ChipPress } from "../ChipPress";
 import { masteryLabel, type MasteryLevel, type McqBeat } from "../types";
 import { revealHeading, type McqReveal } from "./grade";
 import type { McqProgress } from "./session";
@@ -92,6 +94,12 @@ export interface McqBeatViewProps {
    */
   readonly showHowTo?: boolean;
   readonly reducedMotion?: boolean;
+  /**
+   * Replaces the thin per-question bar: the beat runner passes the lesson's
+   * recipe strip so the top bar carries the committed frame (X, the strip,
+   * the counters) with one progress instrument rather than two stacked bars.
+   */
+  readonly progressSlot?: ReactNode;
 }
 
 const HOW_TO_PICKING = "Pick one, then press Check. You can change your mind as many times as you like first.";
@@ -112,6 +120,7 @@ export function McqBeatView({
   reported,
   showHowTo,
   reducedMotion = false,
+  progressSlot,
 }: McqBeatViewProps) {
   const answered = reveal !== null;
   const howTo = showHowTo ?? level === 0;
@@ -146,22 +155,26 @@ export function McqBeatView({
           &#10005;
         </button>
 
-        <div
-          className="h-2 flex-1 overflow-hidden rounded-full bg-muted"
-          role="progressbar"
-          aria-label="Questions answered"
-          aria-valuemin={0}
-          aria-valuemax={progress.total}
-          aria-valuenow={progress.answered}
-        >
+        {progressSlot !== undefined ? (
+          <div className="min-w-0 flex-1">{progressSlot}</div>
+        ) : (
           <div
-            className="h-full rounded-full bg-primary"
-            style={{
-              width: `${Math.round(progress.fraction * 100)}%`,
-              transition: reducedMotion ? "none" : "width 220ms cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          />
-        </div>
+            className="h-2 flex-1 overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+            aria-label="Questions answered"
+            aria-valuemin={0}
+            aria-valuemax={progress.total}
+            aria-valuenow={progress.answered}
+          >
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{
+                width: `${Math.round(progress.fraction * 100)}%`,
+                transition: reducedMotion ? "none" : "width 220ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            />
+          </div>
+        )}
 
         <button
           type="button"

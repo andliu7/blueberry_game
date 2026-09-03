@@ -166,6 +166,8 @@ function itemLabel(card: Card): string {
       return "From a lesson";
     case "mistake":
       return "You kept this after a miss";
+    case "composed":
+      return "Your own card";
     case "import":
       return card.source.deckName;
     default: {

@@ -13,13 +13,31 @@
  *
  * HIERARCHY, the round 2 ruling. The moment is one large number and a
  * celebration, not a dashboard. So XP appears in exactly one place, the hero
- * number, with its receipt lines as chips under it; there is no stats row, no
- * time, no accuracy tile, and the screen ends on at most two cards below the
+ * number, with its receipt lines as chips under it; there is no stats row and
+ * no time, and the screen ends on at most two cards below the
  * chips: diamonds, and the streak. A milestone does not add a third card, it
  * takes over the streak card. Nothing on this screen is shown twice, which is
  * also why the diamond receipt lines are the card's accessible name rather
  * than three lines of grey type repeating the chips above them, and why the
  * milestone band says MILESTONE and lets the body say which day it is.
+ *
+ * AMENDED BY THE S3 VERDICT (measurements/gauntlet-economy/LOG.md): the ruling
+ * above also cut the accuracy tile, and the S3 judge named that cut as the one
+ * honest measure the bar reports and we omitted. So accuracy returns, as a
+ * small CHIP under the headline rather than as a tile: one quiet pill from the
+ * session tally, never a second hero number. The round 2 law it may not break
+ * stands exactly as written, the hero number appears once and its itemization
+ * sums exactly, and the old "n of m right" subline folds INTO the chip, so the
+ * same fact is still never on screen twice.
+ *
+ * RESTATED WARM, per docs/DESIGN-GOALS.md Celebration and the committed
+ * blueberry_r6-lesson-complete_1788286354.png: the two receipt cards read as
+ * 3D chips with a thick darker bottom edge, the streak card carries the
+ * product's one cartoon flame (HudIcons' FlameMark, the same glyph as the
+ * header and the streak screen), and Continue becomes CLAIM on the goal
+ * green, a FILL under dark ink per the fill-only rule, every pairing measured
+ * in theme.css rather than assumed. The chip-edge and claim styles live in
+ * streak.css because this piece owns that file; theme.css is the integrator's.
  *
  * HOW THE SEQUENCE IS ORCHESTRATED. One clock, `useStageClock`, gives the
  * elapsed milliseconds since the screen appeared. Every beat below is a start
@@ -64,6 +82,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Receipt, ReceiptLine } from "@blueberry/economy";
 import { Press } from "../app/ui/Press";
+import { FlameMark } from "../app/ui/HudIcons";
 import { Berry } from "../mascot/Berry";
 import type { BerryBehaviour } from "../mascot/berryBehaviour";
 import type { BerryMood } from "../mascot/berryMood";
@@ -102,6 +121,57 @@ const MILESTONE_CARD = new Set([7, 14, 30, 60, 100, 180, 365]);
  * the session tally, because the engine is the one that decided it counted.
  */
 const FLAWLESS_LABELS = new Set(["Flawless", "Flawless quiz"]);
+
+/**
+ * The accuracy chip's number, exported so the test can hold it still. The
+ * session tally is a local count and was never an entitlement (see the props),
+ * so this is the ONE number on the screen that is not a receipt line, which is
+ * exactly why it renders as a quiet chip and never as a hero. Null when
+ * nothing was attempted: a percent of zero questions is not a measure, and an
+ * honest chip is absent rather than showing a made-up 100.
+ */
+export function accuracyPercent(correct: number, attempted: number): number | null {
+  if (attempted <= 0) return null;
+  const clamped = Math.max(0, Math.min(correct, attempted));
+  return Math.round((clamped / attempted) * 100);
+}
+
+/**
+ * Everything the screen decides FROM the receipt, as data, so the round 2 law
+ * (the hero appears once, the itemization sums exactly) and the S3 amendment
+ * (accuracy is reported) are assertable in a node test without rendering.
+ * The component reads this and draws; it adds nothing up itself.
+ */
+export interface CelebrationModel {
+  /** The hero. The sum of the receipt's XP lines and nothing else. */
+  readonly xpTotal: number;
+  readonly diamondTotal: number;
+  readonly hasDiamonds: boolean;
+  /** Off the receipt, not the tally: the engine decided whether it counted. */
+  readonly flawless: boolean;
+  readonly streakOn: boolean;
+  /** A milestone day, else null. Takes over the streak card, never a third. */
+  readonly milestone: number | null;
+  /** The honest performance chip. Null when nothing was attempted. */
+  readonly accuracy: number | null;
+}
+
+export function celebrationModel(receipt: Receipt, correct: number, attempted: number): CelebrationModel {
+  const xpTotal = sum(receipt.xp);
+  const diamondTotal = sum(receipt.diamonds);
+  return {
+    xpTotal,
+    diamondTotal,
+    hasDiamonds: diamondTotal > 0,
+    flawless: receipt.xp.some((line) => FLAWLESS_LABELS.has(line.label)),
+    streakOn: receipt.streak.counted && receipt.streak.current > 0,
+    milestone:
+      receipt.streak.milestone !== undefined && MILESTONE_CARD.has(receipt.streak.milestone)
+        ? receipt.streak.milestone
+        : null,
+    accuracy: accuracyPercent(correct, attempted),
+  };
+}
 
 interface Beats {
   readonly xpCountStart: number;
@@ -233,23 +303,25 @@ function DiamondIcon({ className = "h-6 w-6" }: { readonly className?: string })
   );
 }
 
-/** The flame, scaled to the streak: taller and fuller the longer it has burned. */
-function Flame({ streak, lit }: { readonly streak: number; readonly lit: boolean }) {
+/**
+ * The streak card's flame is the product's ONE cartoon flame, HudIcons'
+ * FlameMark, per DESIGN-GOALS' header ruling (the realistic comet fireball is
+ * eliminated; the cartoonish flat flame carries the streak everywhere). The
+ * header, the streak screen and this card now draw the same glyph, so the
+ * number in the corner tomorrow is visibly the thing celebrated tonight.
+ * Still scaled to the streak: taller and fuller the longer it has burned.
+ */
+function StreakFlame({ streak, lit }: { readonly streak: number; readonly lit: boolean }) {
   const size = 30 + Math.min(streak, 30) * 0.9;
   return (
-    <svg
-      viewBox="0 0 24 28"
-      className="reward-flame shrink-0"
-      style={{ width: size, height: size * 1.15 }}
+    <span
+      className="reward-flame-seat shrink-0"
+      style={{ width: size, height: size } as CSSProperties}
       data-lit={lit ? "true" : "false"}
       aria-hidden
     >
-      <path
-        className="reward-flame__outer"
-        d="M12 1c1 5 6 7 6 14a6 6 0 0 1-12 0c0-3 1.5-4.5 2.5-6.5C9 10.5 10 12 11 13c1-3 .5-8 1-12z"
-      />
-      <path className="reward-flame__inner" d="M12 15c.6 2.4 2.5 3.2 2.5 5.5a2.5 2.5 0 0 1-5 0c0-2 1.6-2.9 2.5-5.5z" />
-    </svg>
+      <FlameMark lit={lit} className="h-full w-full" />
+    </span>
   );
 }
 
@@ -288,20 +360,19 @@ export function RewardMoment({
   attempted,
   reducedMotion,
   onContinue,
-  continueLabel = "Continue",
+  // CLAIM, per the goals' celebration row and the committed reference. The
+  // word is literal: the button banks the receipt the screen just itemized.
+  continueLabel = "Claim",
 }: RewardProps) {
   const beats = useMemo(() => beatsFor(firstDiamond), [firstDiamond]);
   const [skipped, setSkipped] = useState(false);
   const now = useStageClock(beats.end, reducedMotion, skipped);
   const bloomPx = useBloomSize();
 
-  const xpTotal = sum(receipt.xp);
-  const diamondTotal = sum(receipt.diamonds);
-  const hasDiamonds = diamondTotal > 0;
-  const flawless = receipt.xp.some((line) => FLAWLESS_LABELS.has(line.label));
-  const streakOn = receipt.streak.counted && receipt.streak.current > 0;
-  const milestone =
-    receipt.streak.milestone !== undefined && MILESTONE_CARD.has(receipt.streak.milestone) ? receipt.streak.milestone : null;
+  const { xpTotal, diamondTotal, hasDiamonds, flawless, streakOn, milestone, accuracy } = useMemo(
+    () => celebrationModel(receipt, correct, attempted),
+    [receipt, correct, attempted],
+  );
   const done = now >= beats.end;
 
   // Counts. Each is the receipt number scaled by where the clock sits. The
@@ -391,6 +462,7 @@ export function RewardMoment({
       data-reward-diamonds={diamondTotal}
       data-reward-balance={diamondBalance}
       data-reward-milestone={milestone ?? ""}
+      data-reward-accuracy={accuracy ?? ""}
       data-reward-rank-up={receipt.mastery.rankUp ?? ""}
       onPointerDown={() => {
         if (!done) setSkipped(true);
@@ -456,15 +528,34 @@ export function RewardMoment({
         <h2 className="reward-headline title-face mt-6 text-center text-scale-2xl font-semibold leading-none text-foreground md:text-scale-display">
           Lesson complete
         </h2>
-        {flawless ? (
-          <span className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-badge mt-2.5 rounded-full px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.16em]`}>
-            Flawless
-          </span>
-        ) : (
-          <p className="mt-2 text-scale-sm font-medium text-muted-foreground">
-            {correct} of {attempted} right
-          </p>
-        )}
+        {/* The badge and the accuracy chip share one row under the headline.
+            They are different facts: Flawless is the RECEIPT's scarce badge
+            (the engine decided it counted), accuracy is the session tally the
+            S3 judge asked for. The tally's "n of m" lives in the chip's
+            accessible name so the fact is spoken without being printed twice. */}
+        {flawless || accuracy !== null ? (
+          <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
+            {flawless ? (
+              <span className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-badge rounded-full px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.16em]`}>
+                Flawless
+              </span>
+            ) : null}
+            {accuracy !== null ? (
+              <span
+                className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-accuracy rounded-full px-3 py-1 text-scale-xs`}
+                aria-label={`Accuracy ${accuracy} percent: ${correct} of ${attempted} right`}
+              >
+                <b className="font-bold tabular-nums" aria-hidden>
+                  {accuracy}%
+                </b>
+                <span className="font-medium" aria-hidden>
+                  {" "}
+                  accuracy
+                </span>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* The one large number: XP, the effort number. The only place XP
             appears. Its receipt lines sit beneath as a chip row, one per
@@ -552,7 +643,7 @@ export function RewardMoment({
                   {milestone !== null ? "Milestone" : receipt.streak.current === 1 ? "Streak started" : "Streak"}
                 </div>
                 <div className="reward-card__body">
-                  <Flame streak={receipt.streak.current} lit={show(beats.streak)} />
+                  <StreakFlame streak={receipt.streak.current} lit={show(beats.streak)} />
                   <span className="flex items-baseline gap-1 leading-none">
                     <span className="text-scale-xl font-bold text-warn-ink tabular-nums">{receipt.streak.current}</span>
                     <span className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -576,12 +667,17 @@ export function RewardMoment({
       </div>
 
       <div className="relative mx-auto w-full max-w-2xl shrink-0 p-4 pb-safe md:p-6">
+        {/* The green CLAIM. A fill-only use of the goal green: --progress under
+            --progress-ink (7.17:1, measured in theme.css), the boundary drawn
+            by --progress-edge because the fill itself is 1.60:1 on cream and
+            may never be the thing that identifies the shape. Styled in
+            streak.css (.reward-claim), which this piece owns. */}
         <Press
           onPointerDown={(event) => {
             event.stopPropagation();
             onContinue();
           }}
-          className="w-full"
+          className="reward-claim w-full"
         >
           {continueLabel}
         </Press>

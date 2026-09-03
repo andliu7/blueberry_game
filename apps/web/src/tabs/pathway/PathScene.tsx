@@ -40,19 +40,20 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { PathwayUnit } from "../../demo/pathwayMap";
 import {
-  boundaryPath,
   channelHalfWidth,
   CHANNEL_SWING,
-  channelPath,
   energyProfile,
   groundPath,
   isCheckpointUnit,
   stepProfile,
+  terracePath,
   unitEnergies,
   type RowSpan,
   type TerrainSample,
   type UnitSpan,
 } from "./terrain";
+import { placePropPx, propsForUnit } from "./sceneProps";
+import { trailSegments, type TrailLane, type TrailPoint } from "./trail";
 
 /** What one measurement pass reads off the built page. */
 interface SceneMetrics {
@@ -74,6 +75,13 @@ interface SceneMetrics {
   readonly checkpoints: readonly { readonly unitId: string; readonly y: number }[];
   /** Where the START node sits, so the lens has somewhere to be on touch. */
   readonly focus: { readonly x: number; readonly y: number } | null;
+  /**
+   * Every trail anchor on the page, in document order: chip centres with the
+   * lane and done flag their data-trail attributes declare. trail.ts turns
+   * these into the drawn ribbon, so the trail is derived from where the nodes
+   * actually landed and can never disagree with the layout.
+   */
+  readonly trail: readonly TrailPoint[];
 }
 
 const EMPTY: SceneMetrics = {
@@ -87,6 +95,7 @@ const EMPTY: SceneMetrics = {
   rows: [],
   checkpoints: [],
   focus: null,
+  trail: [],
 };
 
 /**
@@ -182,6 +191,17 @@ const RATES = { ground: 0.04, props: 0.14 } as const;
 const MAX_SHIFT_PX = 110;
 /** How long the pointer lens stays open after the pointer stops moving. */
 const LENS_IDLE_MS = 900;
+/**
+ * The room a prop keeps from the scene's edge, in pixels.
+ *
+ * The placement table is written in fractions of the scene width, and the
+ * scene is the whole viewport, so a prop at 0.9 on a 390pt phone would hang
+ * half off the right edge. Clamping by the widest prop's half width (the
+ * cloud, about 34px at scale 1) turns that into a prop sitting AT the edge,
+ * which is a composition, rather than one cut by it, which is a defect.
+ */
+const PROP_MARGIN_PX = 38;
+
 /** How far the crest clears the checkpoint panel's top edge, and how far its ends fall. */
 const HUMP_LIFT = 8;
 const HUMP_DROP = 110;
@@ -259,6 +279,22 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     const rect = row.getBoundingClientRect();
     rows.push({ top: rect.top - box.top, bottom: rect.bottom - box.top });
   }
+  // The trail anchors, in DOCUMENT ORDER, which is the order the track lays
+  // them down: trail.ts is explicit that nothing sorts, because the layout is
+  // the authority. X is scene relative and Y is stage relative, the same split
+  // the focus uses and for the same reason (the world group is translated by
+  // the stage's own top; the scene is full bleed).
+  const trail: TrailPoint[] = [];
+  for (const anchor of stage.querySelectorAll<HTMLElement>("[data-trail]")) {
+    const rect = anchor.getBoundingClientRect();
+    const lane = anchor.dataset.trail;
+    trail.push({
+      x: rect.left - scene.left + rect.width / 2,
+      y: rect.top - box.top + rect.height / 2,
+      lane: lane === "left" || lane === "right" || lane === "loop" ? (lane as TrailLane) : "main",
+      done: anchor.dataset.trailDone === "true",
+    });
+  }
   const centreX = columnBox.left - scene.left + columnBox.width / 2;
   const channelBasis = Math.min(MAX_BASIS_PX, columnBox.width / 2 + LABEL_GUTTER_PX);
   // The nearer side is what limits the swell, because the channel is symmetric
@@ -308,6 +344,7 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     rows,
     checkpoints,
     focus,
+    trail,
   };
 }
 
@@ -329,6 +366,60 @@ function Flask({ x, y, scale }: { readonly x: number; readonly y: number; readon
 }
 
 /**
+ * The molecule line-art watermarks the goals ask for, one per unit on the
+ * flank, alternating a benzene ring with a skeletal chain so the landscape
+ * reads as a chemist's margin doodles rather than a repeated tile. Outlined
+ * in the prop ink, faint by WEIGHT rather than by a colour under the
+ * graphics floor; see .path-mark in pathway.css for the measured reasoning.
+ */
+function MoleculeMark({
+  x,
+  y,
+  kind,
+  scale = 1,
+}: {
+  readonly x: number;
+  readonly y: number;
+  readonly kind: "benzene" | "chain";
+  readonly scale?: number;
+}) {
+  const at = `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${scale})`;
+  return kind === "benzene" ? (
+    <g className="path-mark" transform={at}>
+      <path d="M 0 -22 L 19.1 -11 L 19.1 11 L 0 22 L -19.1 11 L -19.1 -11 Z" />
+      <circle cx="0" cy="0" r="12.5" />
+    </g>
+  ) : (
+    <g className="path-mark" transform={at}>
+      <path d="M -32 8 L -16 -8 L 0 8 L 16 -8 L 32 8" />
+      <path d="M -28.5 2 L -19.5 -7" />
+    </g>
+  );
+}
+
+/**
+ * A cloud, drifting over the terraces.
+ *
+ * FILLED, unlike the flask and the molecule watermarks, because that is what
+ * the committed backdrop draws: white clouds over the cream ground, not
+ * outlines of clouds. White on cream is 1.10:1 on its own, which is why the
+ * shape also carries the terrace ink as a boundary; fill and stroke ride on
+ * ONE path, so the contrast audit collapses them to the better of the two and
+ * the stroke is what identifies the shape, exactly the argument every card in
+ * this app carries a border on.
+ */
+function CloudMark({ x, y, scale }: { readonly x: number; readonly y: number; readonly scale: number }) {
+  return (
+    <g transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${scale})`}>
+      <path
+        className="path-cloud"
+        d="M -26 8 a 9 9 0 0 1 2 -17.6 a 12.5 12.5 0 0 1 24 -4.4 a 9.5 9.5 0 0 1 13 8.4 a 7 7 0 0 1 -2.6 13.6 z"
+      />
+    </g>
+  );
+}
+
+/**
  * The scene measures its OWN PARENT rather than taking a ref to it.
  *
  * That is not a style choice, it is the bug this file shipped with for one
@@ -343,9 +434,18 @@ function Flask({ x, y, scale }: { readonly x: number; readonly y: number; readon
 export default function PathScene({
   units,
   reducedMotion,
+  stamp = "",
 }: {
   readonly units: readonly PathwayUnit[];
   readonly reducedMotion: boolean;
+  /**
+   * A progress fingerprint (current node id plus done count). The trail's
+   * done colouring is measured off the DOM, and clearing a lesson changes
+   * the DOM without changing `units`, so the measurement re-runs when this
+   * string moves. Layout-only changes are already covered by the
+   * ResizeObserver below.
+   */
+  readonly stamp?: string;
 }) {
   const [metrics, setMetrics] = useState<SceneMetrics>(EMPTY);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -366,7 +466,7 @@ export default function PathScene({
       observer.disconnect();
       window.removeEventListener("resize", read);
     };
-  }, [units]);
+  }, [units, stamp]);
 
   // One rAF, one cached scroll value, every layer written from it.
   useEffect(() => {
@@ -377,7 +477,20 @@ export default function PathScene({
     // sticky, viewport sized surface showing the right slice of a 14000px track.
     // So it is written in both branches, and only the parallax, the draw and the
     // pointer lens are held back under reduced motion.
-    const world = () => svg.style.setProperty("--world-y", String(stage.getBoundingClientRect().top.toFixed(1)) + "px");
+    // THE TRANSLATE IS THE STUCK-STATE DELTA: stage.top MINUS the scene's own
+    // top, never stage.top alone. The scene is sticky, so once it is stuck its
+    // own top is 0 and the two numbers coincide, which is how the bug hid: at
+    // landing scroll the scene still sits at the stage's flow position, and
+    // stage.top alone double-offsets the whole drawn world, trail included.
+    // The S3 critic measured 198px of divergence between the current chip's
+    // centre and the nearest trail endpoint at scrollY 0, converging to 0 only
+    // at scrollY 400, on the first screen a student sees. World coordinates
+    // are stage-relative, so the honest translate is where the stage sits
+    // relative to the scene element itself, in every scroll state.
+    const world = () => {
+      const sceneTop = svg.getBoundingClientRect().top;
+      svg.style.setProperty("--world-y", (stage.getBoundingClientRect().top - sceneTop).toFixed(1) + "px");
+    };
     if (reducedMotion) {
       world();
       svg.style.setProperty("--path-progress", "1");
@@ -411,9 +524,14 @@ export default function PathScene({
     const write = () => {
       frame = 0;
       const box = stage.getBoundingClientRect();
+      const scene = svg.getBoundingClientRect();
       const viewport = window.innerHeight || 1;
-      // ONE rect read, shared by every layer, rather than each layer asking.
-      svg.style.setProperty("--world-y", box.top.toFixed(1) + "px");
+      // ONE pair of rect reads, shared by every layer, rather than each layer
+      // asking. The translate is the stuck-state delta (box.top - scene.top),
+      // per the comment on world() above: stage.top alone is only correct
+      // once the sticky scene is stuck, and at landing scroll it double-
+      // offset the whole world by the stage's flow position.
+      svg.style.setProperty("--world-y", (box.top - scene.top).toFixed(1) + "px");
       // How far the stage has travelled through the viewport, 0 to 1.
       const travel = Math.max(0, Math.min(1, (viewport - box.top) / (viewport + box.height)));
       const swing = (rate: number) => `${(Math.max(-1, Math.min(1, travel * 2 - 1)) * rate * MAX_SHIFT_PX).toFixed(1)}px`;
@@ -423,9 +541,15 @@ export default function PathScene({
       // a backdrop that is blank on arrival is the empty box the brief forbids.
       svg.style.setProperty("--path-progress", (0.35 + travel * 0.65).toFixed(3));
       if (pointer !== null) {
-        const scene = svg.getBoundingClientRect();
+        // The lens circles live in the mask, which is WORLD coordinate space
+        // (the referencing group rides inside the translated world). So the
+        // y is stage-relative, pointer.y - box.top, the same split the focus
+        // anchor uses; the old scene-relative y was only right in the one
+        // scroll state where the two frames coincide, the same family of bug
+        // as the --world-y double offset above. X carries no world translate,
+        // so scene-relative is correct there.
         svg.style.setProperty("--lens-x", (pointer.x - scene.left).toFixed(0) + "px");
-        svg.style.setProperty("--lens-y", (pointer.y - scene.top).toFixed(0) + "px");
+        svg.style.setProperty("--lens-y", (pointer.y - box.top).toFixed(0) + "px");
         svg.style.setProperty("--lens-r", "1");
       }
     };
@@ -530,16 +654,65 @@ export default function PathScene({
         collapses a fill and its stroke to the better of the two, and says so).
       */}
       <g className="path-layer path-layer--ground" mask="url(#path-lens-mask)">
+        {/*
+          THE TERRACES, which are also the descending energy bands.
+          docs/DESIGN-GOALS.md asks the background for "terraced hills stepping
+          down ... a gentle descending energy-band gradient" and for the energy
+          metaphor where "each unit ends lower than it began". One band per
+          unit, each drawn OVER the one before it so the only visible stroke is
+          its wavy top edge, satisfies all three with one mechanism rather than
+          three stacked layers: the step IS the drop in energy across the unit.
+          Each band runs far past its own span so the next band's fill ends it.
+        */}
+        {metrics.spans.map((span, index) => (
+          <path key={span.unitId} className="path-terrace" d={terracePath(span.top + 8, span.bottom, width, index)} />
+        ))}
         <path className="path-ground" d={groundPath(samples, geometry, -1)} />
         <path className="path-ground" d={groundPath(samples, geometry, 1)} />
       </g>
+
+      {/*
+        The margin doodles: a molecule watermark per unit on one flank, a
+        cloud on the other every second unit. Deterministic from the spans,
+        clamped inside the scene so a phone's narrow flanks show what fits
+        rather than clipping mid-shape. They ride at the ground's rate,
+        unmasked: the lens lightens the ground, it does not erase the drawings.
+      */}
+      <g className="path-layer path-layer--marks">
+        {metrics.spans.flatMap((span, index) =>
+          propsForUnit(index).map((placement, slot) => {
+            const point = placePropPx(placement, width, span.top, span.bottom, PROP_MARGIN_PX);
+            const key = `${span.unitId}-${slot}`;
+            if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={placement.scale} />;
+            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={placement.scale} />;
+            return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={placement.scale} />;
+          }),
+        )}
+      </g>
       <g className="path-layer path-layer--paper">
-        <path className="path-channel" d={channelPath(samples, geometry)} />
-        {/* The meaning layer: the energy curve itself, drawn as the page is read.
-            It inks in over the ribbon's own hairline as the page is travelled,
-            so the edge is never absent and the draw is still a real reveal. */}
-        <path className="path-curve" d={boundaryPath(samples, geometry, -1)} pathLength={1} />
-        <path className="path-curve" d={boundaryPath(samples, geometry, 1)} pathLength={1} />
+        {/*
+          THE WHITE CHANNEL AND ITS TWO BOUNDARY RULES ARE GONE, and their
+          going is the biggest single change in this pass.
+          `.path-channel` was `fill: var(--card)`, which the warm cream regime
+          resolves to #ffffff: the paper the entire track was printed on was
+          PURE WHITE on a cream page, edged with a hard 2px slate rule each
+          side, so the tab read as a white document taped onto cream with two
+          vertical rules the committed reference has nowhere. The critic
+          measured it live at 390px (body rgb(251,243,230), channel
+          rgb(255,255,255), cream surviving only in ~25px flanks) and every
+          layer below (15 terraces, 23 marks, 2 grounds, 2 props) was painted
+          and then covered by it.
+
+          The channel was not a mistake when it was written: under the lavender
+          turn the page ground was #a3aee2 and body copy genuinely could not
+          sit on it, so a cream strip under the labels was load bearing. The
+          warm cream regime (DESIGN-TOKENS.md, Supersession 2026-09-01) makes
+          the PAGE the cream, so every ink on this track was already derived
+          against the surface it now sits on, and the strip has nothing left to
+          do but hide the landscape. terrain.ts keeps channelPath and
+          boundaryPath, and their tests keep passing, because the geometry was
+          never the thing that was wrong.
+        */}
         {/*
           The hump. A checkpoint is the activation barrier between two wells, so
           it is drawn as the crest the path has to climb over: an arc across the
@@ -571,23 +744,50 @@ export default function PathScene({
         })}
       </g>
 
-      <g className="path-layer path-layer--props">
-        {metrics.checkpoints.map((checkpoint, index) => {
-          const side = index % 2 === 0 ? -1 : 1;
-          const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
-          const half = channelHalfWidth(-(energy?.wellDepth ?? 0.5), metrics.basis, metrics.swingPx);
-          return (
-            <Flask
-              key={checkpoint.unitId}
-              x={metrics.centreX + side * (half + 26)}
-              // Beside the panel, not above it: the anchor is the panel's top
-              // edge now, and 90px above that is over the unit banner.
-              y={checkpoint.y + 120}
-              scale={0.9}
-            />
-          );
-        })}
-      </g>
+      {/*
+        THE TRAIL: the winding drawn ribbon connecting the chips, derived from
+        their measured centres (trail.ts). Edges first, then fills, so
+        consecutive segments join seamlessly instead of each segment's edge
+        overpainting its neighbour's fill. The loop detours are dotted and
+        never green; the done stretches ride the fill-on-edge rule pathway.css
+        documents. No parallax: the trail is pinned to the track it connects.
+      */}
+      {(() => {
+        const segments = trailSegments(metrics.trail);
+        const roads = segments.filter((segment) => !segment.loop);
+        return (
+          <g className="path-trail">
+            {segments
+              .filter((segment) => segment.loop)
+              .map((segment, index) => (
+                <path key={`loop-${index}`} className="path-trail__loop" d={segment.d} />
+              ))}
+            {roads.map((segment, index) => (
+              <path
+                key={`edge-${index}`}
+                className={segment.done ? "path-trail__edge path-trail__edge--done" : "path-trail__edge"}
+                d={segment.d}
+              />
+            ))}
+            {roads.map((segment, index) => (
+              <path
+                key={`fill-${index}`}
+                className={segment.done ? "path-trail__fill path-trail__fill--done" : "path-trail__fill"}
+                d={segment.d}
+              />
+            ))}
+          </g>
+        );
+      })()}
+
+      {/*
+        THE PER-CHECKPOINT FLASK LAYER IS GONE, folded into the placement
+        table above. It was the only prop in the scene placed by a rule of its
+        own ("one every three units, beside the checkpoint panel"), which is
+        precisely the scatter the BACKGROUND DOCTRINE names: two placement
+        systems in one landscape cannot compose, because neither knows what
+        the other drew. There is one table now, and glassware is in it.
+      */}
 
       {/*
         THE VAPOUR LAYER IS GONE AND ITS LENS MOVED DOWN ONE.

@@ -33,7 +33,7 @@
  * instead of none.
  */
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 
 import { Press } from "../../app/ui/Press";
 import type { Card, Reco } from "../../cards/types";
@@ -82,6 +82,18 @@ export interface McqRunnerProps {
   readonly reducedMotion?: boolean;
   /** Injected so a caller can freeze time. Defaults to the real clock. */
   readonly now?: () => Date;
+  /**
+   * Replaces the thin per-question bar in the view's top bar. The beat
+   * runner passes the lesson's recipe strip here, so the lesson-level and
+   * question-level progress are one instrument rather than two stacked bars.
+   */
+  readonly progressSlot?: ReactNode;
+  /**
+   * Fired on every committed answer and on the advance past it, with the
+   * run's progress, so the owner of `progressSlot` can fill the strip's
+   * current segment to its fraction.
+   */
+  readonly onProgress?: (progress: McqProgress) => void;
 }
 
 export function McqRunner({
@@ -95,6 +107,8 @@ export function McqRunner({
   showHowTo,
   reducedMotion = false,
   now = () => new Date(),
+  progressSlot,
+  onProgress,
 }: McqRunnerProps) {
   const source = beats ?? mcqBeatsForNode(node);
   const runKey = `${node}:${level}:${source.length}`;
@@ -119,6 +133,7 @@ export function McqRunner({
       const next = advance(session);
       setSession(next);
       startedAt.current = Date.now();
+      if (onProgress !== undefined) onProgress(sessionProgress(next));
       if (isFinished(next) && onDone !== undefined) onDone(next.results, sessionProgress(next));
       return;
     }
@@ -129,6 +144,7 @@ export function McqRunner({
     });
     if (committed === null) return;
     setSession(committed.session);
+    if (onProgress !== undefined) onProgress(sessionProgress(committed.session));
     if (committed.offer !== null && onOfferCard !== undefined) {
       onOfferCard(committed.offer.card, committed.offer.reco);
     }
@@ -177,6 +193,7 @@ export function McqRunner({
       onReport={report}
       reported={isReported(session)}
       {...(showHowTo !== undefined ? { showHowTo } : {})}
+      {...(progressSlot !== undefined ? { progressSlot } : {})}
       reducedMotion={reducedMotion}
     />
   );
