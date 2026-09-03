@@ -88,7 +88,12 @@
 :root {
   /* THE GROUND. Warm cream paper, per DESIGN-GOALS. This hex was the lavender
      regime's CARD, the one light surface the goals keep. */
-  --background: #fbf3e6;
+  /* Sampled from the approved mockup blueberry_r7-compiled-v2 (owner, 2026-09-03:
+     "change the colors to match the generated images"). The previous #fbf3e6 was
+     near-white, so a white card lifted off it by 1.10:1 and the whole screen read
+     as one pale field. This is the mockup's actual ground and it carries 1.23:1
+     under the card, which is still a border's job, not a value's. */
+  --background: #ede7d9;
   /* Deep navy, near-neutral by measurement (S 0.222). 12.6:1 on the ground,
      13.9:1 on the card. See the file header. */
   --foreground: #2a2a42;
@@ -109,8 +114,10 @@
      7.30:1 on the cream ground and 8.04:1 on the white card. */
   --primary-ink: #5b2fc0;
   /* Warm steps of the cream family, so a muted surface reads as paper. */
-  --secondary: #f1e8d7;
-  --muted: #f1e8d7;
+  /* One warm step DOWN from the ground, not up: on #ede7d9 the old #f1e8d7 was
+     1.10:1 and disappeared. */
+  --secondary: #e0d7c3;
+  --muted: #e0d7c3;
   /* Derived once to clear the worst ground it composes on: 9.28:1 on the
      cream ground, 10.22:1 on the white card. */
   --muted-foreground: #394153;

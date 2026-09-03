@@ -25,21 +25,46 @@
 
 export type FlagId = "leaderboards" | "chat" | "messages";
 
+/**
+ * BETA EXPLORATION FLAGS, owner request 2026-09-03: "unlock all of the buttons
+ * so that I can access all of them from the pathway (beta version I suppose)"
+ * and "give infinite charge".
+ *
+ * A SEPARATE TYPE, not three more FlagIds, and the type system is the reason
+ * the difference got written down. A FlagId names a SURFACE that exists and is
+ * not linked yet, so every FlagId has a route, a tab id and a "not open yet"
+ * notice, and the compiler enforces that each one does. A BetaId names a RULE
+ * suspended for exploration. It has no route, no tab and no notice, and folding
+ * it into FlagId made three unrelated files claim it needed all three.
+ *
+ * Neither grants anything. Unlock state and any balance that costs money are
+ * server enforced per CLAUDE.md and nothing here is consulted on that path.
+ * These let the CLIENT draw the product as though the server had said yes,
+ * which is a demo, not an entitlement. When Phase 6 puts the server behind
+ * progress, these keep drawing a local preview and grant exactly nothing.
+ *
+ * On by ?flags=unlockall,infinitecharge or the same list in localStorage.
+ */
+export type BetaId = "unlockall" | "infinitecharge";
+
 const FLAG_IDS: readonly FlagId[] = ["leaderboards", "chat", "messages"];
+const BETA_IDS: readonly BetaId[] = ["unlockall", "infinitecharge"];
+
+const ALL_IDS: readonly string[] = [...FLAG_IDS, ...BETA_IDS];
 
 const STORAGE_KEY = "blueberry.flags";
 
-function parseList(raw: string | null): ReadonlySet<FlagId> {
-  const on = new Set<FlagId>();
+function parseList(raw: string | null): ReadonlySet<string> {
+  const on = new Set<string>();
   if (raw === null) return on;
   for (const part of raw.split(",")) {
     const name = part.trim();
-    if ((FLAG_IDS as readonly string[]).includes(name)) on.add(name as FlagId);
+    if (ALL_IDS.includes(name)) on.add(name);
   }
   return on;
 }
 
-function read(): ReadonlySet<FlagId> {
+function read(): ReadonlySet<string> {
   if (typeof window === "undefined") return new Set();
   const fromUrl = new URLSearchParams(window.location.search).get("flags");
   if (fromUrl !== null) return parseList(fromUrl);
@@ -59,10 +84,15 @@ function read(): ReadonlySet<FlagId> {
  * reload. Reading once also means the tab bar and the Me tab cannot disagree
  * with each other halfway down a screen.
  */
-const ON: ReadonlySet<FlagId> = read();
+const ON: ReadonlySet<string> = read();
 
 export function isFlagOn(flag: FlagId): boolean {
   return ON.has(flag);
+}
+
+/** A beta exploration flag. Never an entitlement; see the note above. */
+export function isBetaOn(beta: BetaId): boolean {
+  return ON.has(beta);
 }
 
 /** Every flag currently on. Used by the Me tab to decide what to list. */

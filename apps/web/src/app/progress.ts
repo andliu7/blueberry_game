@@ -52,6 +52,7 @@
 
 import type { CourseId, ProblemId, TopicId } from "@blueberry/curriculum";
 import { COURSE_UNIVERSE } from "./courseUniverse.generated";
+import { isBetaOn } from "./flags";
 import {
   deriveEconomy,
   isEconomyEvent,
@@ -266,6 +267,71 @@ function localZone(): string {
   }
 }
 
+/**
+ * The two beta exploration flags, applied at the ONE seam every surface reads.
+ *
+ * Owner request 2026-09-03: walk the whole product without grinding for it.
+ * They are applied here, in the projection, rather than inside any screen,
+ * because that is the single place the tabs, the pathway, the HUD and the
+ * charge gate all read from, so none of them can disagree about what is open.
+ * `packages/economy` is untouched: it stays a pure function of the journal, and
+ * a flag that reached into it would make the ledger lie about its own history.
+ * This overrides the PROJECTION, not the record.
+ *
+ * Neither grants anything. Unlock state and any balance that costs money are
+ * server enforced per CLAUDE.md; when Phase 6 lands, this keeps drawing a local
+ * preview and the server keeps saying no. See app/flags.ts for the argument.
+ */
+function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
+  const unlockAll = isBetaOn("unlockall");
+  const infiniteCharge = isBetaOn("infinitecharge");
+  if (!unlockAll && !infiniteCharge) return snapshot;
+
+  let next = snapshot;
+
+  if (unlockAll && snapshot.course !== null) {
+    // Every node in the course universe reads as cleared, which is what the
+    // pathway derives reachability from, so every unit opens without the
+    // pathway itself knowing a flag exists.
+    const lessons: Record<string, LessonRecord> = { ...snapshot.lessons };
+    for (const node of courseUniverse(snapshot.course)) {
+      // The record is keyed by topic; the universe carries node ids, which are
+      // lessonNodeId(topic), so the topic is the tail. Non lesson nodes have no
+      // topic and are skipped rather than guessed at.
+      if (!node.nodeId.startsWith("lesson:")) continue;
+      const topic = node.nodeId.slice("lesson:".length) as TopicId;
+      if (lessons[topic] !== undefined) continue;
+      lessons[topic] = {
+        topic,
+        correct: 1,
+        attempted: 1,
+        completedAt: BETA_COMPLETED_AT,
+      };
+    }
+    next = { ...next, lessons };
+  }
+
+  if (infiniteCharge) {
+    next = {
+      ...next,
+      economy: {
+        ...next.economy,
+        charge: {
+          ...next.economy.charge,
+          current: next.economy.charge.cap,
+          nextRegenAt: null,
+          fullAt: null,
+        },
+      },
+    };
+  }
+
+  return next;
+}
+
+/** A fixed stamp, so a beta unlock never looks like a real completion date. */
+const BETA_COMPLETED_AT = "1970-01-01T00:00:00.000Z";
+
 function project(stored: StoredProgress, receipt: Receipt | null, now: string): ProgressSnapshot {
   const economy = deriveEconomy(stored.journal, now, deriveOptions(stored.course));
   const days = new Set<string>();
@@ -273,7 +339,7 @@ function project(stored: StoredProgress, receipt: Receipt | null, now: string): 
     const ms = Date.parse(event.at);
     if (Number.isFinite(ms)) days.add(localDate(ms, event.tz));
   }
-  return {
+  return applyBetaFlags({
     course: stored.course,
     startTopics: stored.startTopics,
     lessons: stored.lessons,
@@ -285,7 +351,7 @@ function project(stored: StoredProgress, receipt: Receipt | null, now: string): 
     journal: stored.journal,
     economy,
     lastReceipt: receipt,
-  };
+  });
 }
 
 export const EMPTY_PROGRESS: ProgressSnapshot = Object.freeze(project(EMPTY_STORED, null, nowIso()));
