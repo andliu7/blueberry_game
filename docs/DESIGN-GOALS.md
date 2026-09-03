@@ -71,8 +71,18 @@ the owner's newer word and the conflict gets reported, not silently resolved.
 
 - The F1 track map: a sticky pill holding a tiny outline of the unit's REAL path shape,
   completed stretch glowing green, riding a thin energy axis. Drag to scroll
-- A small mascot marks where the student left off, with a short dialogue bubble ("Pick up
-  here!"). Tap the pill to expand into the fast-travel overlay
+- AMENDED 2026-09-03, owner: THE THUMB IS A BLUEBERRY. The draggable scroll thumb is Berry
+  itself riding the energy axis at the student's position, not a generic dot with a mascot
+  beside it. The berry IS the scrollbar handle; dragging it drags the student's viewpoint
+  down the unit
+- THE MAP REVEALS ON HOVER, and by the touch equivalent. At rest the edge shows only the
+  thin energy axis and the berry, so the screen stays quiet. Hovering the axis (desktop) or
+  touching and holding the berry (touch, where hover does not exist) expands the track map
+  pill: the unit's real path outline, completed stretch glowing green. Tap-to-expand into
+  the full fast-travel overlay stays. The reveal is a width and opacity transition, never a
+  layout shift, and it respects reduced motion by appearing without the animation
+- The dialogue bubble ("Pick up here!") is attached to the berry and shows on the same
+  reveal, not permanently
 - Constraint shared with the pathway: unit shapes stay simple enough that their outline reads
   as a track map at pill size
 
