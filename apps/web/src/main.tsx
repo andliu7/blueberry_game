@@ -7,6 +7,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { HoverLabel } from "./cursor/HoverLabel";
 import "./theme.css";
 import "./tabs/trainer/backdrop.css";
 
@@ -18,6 +19,9 @@ if (container === null) {
 createRoot(container).render(
   <StrictMode>
     <App />
+    {/* App-wide chrome, mounted outside the router because it belongs to the
+        window rather than to any route. Renders nothing on touch. */}
+    <HoverLabel />
   </StrictMode>,
 );
 
