@@ -32,6 +32,26 @@ small, touch target grows), and the mis-tap-rate measurement at tightest lone-pa
 (already a measured axis in CLAUDE.md) becomes the gate that proves it. Home: packages/
 interaction hit geometry, verified in the trainer rounds. Also added to DESIGN-GOALS.
 
+## 2b. Magnetic snap for arrow targets, from the owner's cursor reference
+
+Owner pasted two custom-cursor libraries 2026-09-03. As cursors they do not fit: a cursor
+does not exist on touch and this product is iOS first, and hiding the system cursor breaks
+students who rely on OS cursor size and contrast settings. But one pattern inside them is
+the right answer to a problem already on this list.
+
+The MAGNETIC pattern: elements marked `data-magnetic` attract the pointer, which snaps
+toward the target centre and morphs to wrap its bounding box. Applied to the mechanism
+trainer, that is arrow drawing done properly: while an arrow is being dragged, every legal
+electron source and sink attracts the arrowhead and visibly claims it when it wins. That
+is the sophisticated form of entry 2 above (larger lone pair hit areas), it is how the
+Alchemie bar feels to use, and it is measurable by the mis-tap-rate axis already in
+CLAUDE.md.
+
+Where it lives: the snap decision is geometry, so it belongs in `packages/interaction`,
+which is pure TypeScript with no React and no DOM by rule. The React layer renders what
+interaction decides and adds no logic of its own. No new animation dependency is needed
+for this; the attraction is a distance calculation, not a spring library.
+
 ## 3. Team runthrough, the closing human gate
 
 Owner: after R completes, a full product runthrough by the owner and team, walking every
