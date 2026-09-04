@@ -64,15 +64,35 @@ function parseList(raw: string | null): ReadonlySet<string> {
   return on;
 }
 
+/**
+ * THE BETA FLAGS ARE ON BY DEFAULT IN DEV, off in every build.
+ *
+ * Owner asked twice for infinite charge and no locked buttons "inside of the
+ * localhost", and a flag that has to be typed into the URL is not that: the dev
+ * server is exactly the place where walking the whole product without grinding
+ * is the point. `import.meta.env.DEV` is true only for `npm run dev` and is
+ * statically false in any build, so this cannot reach a student: the branch is
+ * removed by the bundler along with the flags it names.
+ *
+ * Still overridable both ways, because a capture script and a critic run
+ * against the dev server too and must see the real rules: ?flags= wins over
+ * this, and ?flags= with any other value (or an empty one) turns them off.
+ */
+function devDefaults(): ReadonlySet<string> {
+  return import.meta.env.DEV ? new Set<string>(BETA_IDS) : new Set<string>();
+}
+
 function read(): ReadonlySet<string> {
   if (typeof window === "undefined") return new Set();
   const fromUrl = new URLSearchParams(window.location.search).get("flags");
   if (fromUrl !== null) return parseList(fromUrl);
   try {
-    return parseList(window.localStorage.getItem(STORAGE_KEY));
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored !== null) return parseList(stored);
+    return devDefaults();
   } catch {
-    /* storage blocked: no flags, which is the shipped default anyway */
-    return new Set();
+    /* storage blocked: fall back to the dev default, which is empty in a build */
+    return devDefaults();
   }
 }
 

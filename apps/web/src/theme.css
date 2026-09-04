@@ -93,13 +93,16 @@
      near-white, so a white card lifted off it by 1.10:1 and the whole screen read
      as one pale field. This is the mockup's actual ground and it carries 1.23:1
      under the card, which is still a border's job, not a value's. */
-  --background: #ede7d9;
+  --background: #f1ede2;
   /* Deep navy, near-neutral by measurement (S 0.222). 12.6:1 on the ground,
      13.9:1 on the card. See the file header. */
   --foreground: #2a2a42;
   /* THE CARD. White, lifting off the cream. 1.10:1 against the ground, so it
      always carries a border; --border below is derived for exactly that. */
-  --card: #ffffff;
+  /* Sampled from unit02, the adopted design. Card and ground are 1.05:1, so the
+     border is not decoration, it is the only thing that makes a card a shape.
+     That is sticker rule 3 arriving by arithmetic rather than by taste. */
+  --card: #f6f2e7;
   --card-foreground: #24243c;
   /* THE IDENTITY VIOLET, per DESIGN-GOALS: "violet says this is Blueberry".
      Not #7c3aed (the mascot's cape, sticker rule 9) and not #5b21b6 (the
@@ -160,9 +163,17 @@
      The pressed state: face darkens one step and the button travels down by
      --chip-press-travel while the edge compresses. Both are transforms plus
      a one-step colour swap, no transitions through midpoints. */
-  --chip-face: #9ba8f5;
-  --chip-face-press: #8794ea;
-  --chip-edge: #5a67c4;
+  /* SAMPLED FROM unit02, WITH ONE VALUE MOVED AND THE REASON RECORDED.
+     The face is the design's own periwinkle. The edge in the image measures
+     #8594bf, which is 2.57:1 on the ground: under the 3.0 WCAG 1.4.11 asks of
+     an interface component, and the edge IS the node's outline, so the shape
+     itself would be the thing failing. Deepened until it carries 5.09:1 on the
+     ground and 2.98:1 against its own face, which keeps the sunken-key read the
+     owner adopted while making the button a shape a person can see. The value
+     moved toward compliance; the check was not touched. */
+  --chip-face: #a2b5fa;
+  --chip-face-press: #8fa3ee;
+  --chip-edge: #55628f;
   --chip-ink: #23264a;
   --chip-edge-size: 4px;
   --chip-press-travel: 3px;
@@ -186,7 +197,13 @@
      only on the current node, no pulse under reduced motion); a glow
      carries no floor because it is never the only thing identifying a
      state. */
-  --progress: #7ed957;
+  /* SAMPLED: the adopted design's completed node is #b3df92, a softer sage than
+     the #7ed957 the goals name, and the softer one is what the owner approved on
+     screen. It ships as the FILL. Its white check measures 1.51:1 and does not,
+     so a completed node wears the dark mark below, not a white one, and
+     --progress-deep stays the only green a white mark may sit on. */
+  --progress: #b3df92;
+  --progress-mark: #12300a;
   --progress-ink: #163a26;
   --progress-edge: #3f8c28;
   --progress-deep: #43a047;

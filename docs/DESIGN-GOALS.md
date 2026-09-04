@@ -71,6 +71,42 @@ the owner's newer word and the conflict gets reported, not silently resolved.
   by construction. A trail that visibly diverges from its nodes is a failing bug, never an
   art-direction question, and no background image may substitute for it
 
+## The pathway node, settled by owner review of the per-unit designs, 2026-09-03
+
+Reviewed against `docs/reference/design-goals/units/`. Named files, so a builder compares
+against an image rather than this prose.
+
+- THE BUTTON: `unit02-path.jpg` is the adopted node. A periwinkle disc SUNKEN into the
+  page with its darker edge below it, reading as a key pressed into paper rather than a
+  sticker floating above it
+- ICONS ARE ENGRAVED INTO THE FACE, `unit07-path.jpg`: the motif is cut into the chip in a
+  darker tone of the chip's own colour, never a separate badge on top of or beside it. One
+  motif per node: curved arrow mechanism, lightbulb concept, stopwatch challenge, play video
+- NAME LABELS ARE DEFAULT AND ALWAYS VISIBLE. Cream cards attached beside each node
+  carrying the real lesson name. Never on hover, never a reveal. This supersedes every
+  hover-reveal line elsewhere in this file
+- THE MASCOT POINTS AT THE CURRENT LESSON, and there is exactly ONE Berry on screen.
+  `unit02-path.jpg` draws two, which is a defect in the draft, not the design
+- THE UNIT GATE is the simple arch of `unit02-path.jpg`: one clean mark, sunken, violet
+  family, no ornament. ON THE GLYPH: the owner liked it as "just a hashtag", which is what
+  the draft rendered; the correct symbol is a single cleanly drawn double dagger.
+  `unit07-path.jpg` draws it doubled and muddy, which is what made unit 2 read simpler.
+  Simplicity is the adopted quality; the glyph is a proper double dagger drawn once
+- BRANCHES: `unit08-path.jpg` is REJECTED. Its geometry crowds the labels and its two
+  columns read as a ladder rather than a fork. The later units are the reference: a clear
+  split, room for a label on each side, a clear rejoin
+- NO FLAGS IN THE BACKGROUND. The small flag on a pole reads as a destination and competes
+  with the real nodes. Cut from the prop family
+- ONE FIRE IN THE HEADER, the cartoonish flat flame. The comet fireball beside it is cut
+
+## Backgrounds vary by unit
+
+Owner 2026-09-03: more creative backgrounds, changing slightly unit to unit, the way
+Duolingo's SECTIONS change character as a course runs. The prop family and the terrace
+language stay constant so the product still reads as one place; what varies per unit is the
+placement table, the terrain silhouette, and which props appear. Crossing from Unit 3 to
+Unit 4 should feel like somewhere new without anything being redrawn.
+
 ## The scrollbar
 
 - The F1 track map: a sticky pill holding a tiny outline of the unit's REAL path shape,
