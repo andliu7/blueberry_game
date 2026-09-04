@@ -77,46 +77,50 @@ const STICKERS: Record<"pathway" | "trainer" | "cards" | "me", Sticker> = {
       { d: "M17.2 4.7a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4z", as: "ink" },
     ],
   },
-  /* The curved arrow leaving an electron source. This is the one move the
-     Mechanism Trainer is about, so the icon is the move.
+  /* THE FLASK AND THE DUMBBELL, owner 2026-09-03: "keep train the flask and
+     dumbbell, makes more sense", and the committed designs draw exactly that.
 
-     ROUND TWO REDREW THIS ONE TWICE. The first attempt put a lone pair, two
-     dots, inside a tinted disc at the arrow's tail, which is the notation a
-     chemist writes. At 32px the disc is ten pixels across and its outline eats
-     six of them, so the two dots landed as two light gaps on a dark round
-     shape and the icon read as a face. Correct notation, wrong size. What is
-     drawn instead is one solid source and a shaft with a light stripe down its
-     middle, which is where this sticker's two tones come from: the highlight
-     is the same trick the reference uses on a shield, and it survives being
-     small in a way an interior detail does not. */
+     What was here before was a curved electron arrow, which is a fine picture
+     of the Mechanism Trainer and the wrong picture of this TAB. The tab is not
+     the mechanism trainer; it is the gym, holding Puzzle Sprint, four practice
+     modes and the daily mechanism, and an arrow says none of that. Flask plus
+     dumbbell says chemistry plus reps in one glance, which is the job.
+
+     Drawn as a conical flask on the left with a filled body, and a compact
+     dumbbell on the right: two bells and a bar. The bar is a `line` rather
+     than a rectangle so it survives being 20px next to a label, where a thin
+     filled bar closes up into a smudge. */
   trainer: {
     hue: "train",
     layers: [
-      { d: "M5.4 18.6C5.4 11.2 10.6 6.6 16.4 5.9", as: "line", w: 4.2 },
-      { d: "M14.4 1.7 21.8 5.5 14.4 9.3z", as: "ink" },
-      { d: "M5.4 15.4a3.2 3.2 0 1 1 0 6.4 3.2 3.2 0 0 1 0-6.4z", as: "ink" },
-      { d: "M5.4 18.6C5.4 11.2 10.6 6.6 16.4 5.9", as: "line", w: 1.5, tint: true },
+      // The flask: neck, shoulders, and a body that holds the level.
+      { d: "M9.1 2.4h4.2", as: "line", w: 1.9 },
+      { d: "M10.3 2.9v4.4L6.1 17.6a2.2 2.2 0 0 0 2 3.1h4.6a2.2 2.2 0 0 0 2-3.1l-4.2-10.3V2.9z", as: "body" },
+      // The level inside it: the wide part only, so it reads as liquid.
+      { d: "M7.3 14.8h6.9l1.5 3.4a1.6 1.6 0 0 1-1.5 2.5H7.3a1.6 1.6 0 0 1-1.5-2.5z", as: "ink" },
+      // The dumbbell: bar first, then a bell each end.
+      { d: "M16.4 12.6h4.6", as: "line", w: 2.1 },
+      { d: "M15.5 10.2a1.5 1.5 0 0 1 1.5 1.5v1.8a1.5 1.5 0 0 1-3 0v-1.8a1.5 1.5 0 0 1 1.5-1.5z", as: "ink" },
+      { d: "M21.9 10.2a1.5 1.5 0 0 1 1.5 1.5v1.8a1.5 1.5 0 0 1-3 0v-1.8a1.5 1.5 0 0 1 1.5-1.5z", as: "ink" },
     ],
   },
-  /* Two cards. The back one is solid so the front one, which is the tint, has
-     something to sit on: a stack of two identical tints is one smudge, and the
-     tone step is what says there are two of them. */
+  /* A FANNED CARD STACK, per the committed designs, not two squares stacked
+     square. What was here was two rounded rectangles offset on the diagonal,
+     which at label size reads as two windows rather than as cards. The
+     references fan them: the back card leans, the front one sits upright, and
+     the lean is the whole tell. Three layers so the middle one gives the fan
+     somewhere to happen; the back is ink, the middle tint, the front body, so
+     each edge is legible against the one behind it. */
   cards: {
     hue: "cards",
     layers: [
-      {
-        d: "M11.8 2.6h6.4a3.2 3.2 0 0 1 3.2 3.2v6.4a3.2 3.2 0 0 1-3.2 3.2h-6.4a3.2 3.2 0 0 1-3.2-3.2V5.8a3.2 3.2 0 0 1 3.2-3.2z",
-        as: "ink",
-      },
-      {
-        d: "M5.8 8.6h6.4a3.2 3.2 0 0 1 3.2 3.2v6.4a3.2 3.2 0 0 1-3.2 3.2H5.8a3.2 3.2 0 0 1-3.2-3.2v-6.4a3.2 3.2 0 0 1 3.2-3.2z",
-        as: "body",
-      },
+      { d: "M14.6 2.2 19 3.6a2.6 2.6 0 0 1 1.7 3.3l-3 9.2a2.6 2.6 0 0 1-3.3 1.7l-4.4-1.5a2.6 2.6 0 0 1-1.7-3.3l3-9.1a2.6 2.6 0 0 1 3.3-1.7z", as: "ink" },
+      { d: "M9.8 4.4h4.6a2.6 2.6 0 0 1 2.6 2.6v9.6a2.6 2.6 0 0 1-2.6 2.6H9.8a2.6 2.6 0 0 1-2.6-2.6V7a2.6 2.6 0 0 1 2.6-2.6z", as: "body" },
+      { d: "M5.2 6.6h4.6a2.6 2.6 0 0 1 2.6 2.6v9.6a2.6 2.6 0 0 1-2.6 2.6H5.2a2.6 2.6 0 0 1-2.6-2.6V9.2a2.6 2.6 0 0 1 2.6-2.6z", as: "body" },
     ],
   },
-  /* Head and shoulders. The shoulders are the outlined body and the head is
-     solid ink over the top of them, which is the same two-tone move the cards
-     make and the reason the head does not need an outline of its own. */
+  /* The avatar: a head and shoulders, the shoulders solid so the head reads as
+     sitting in front of them rather than floating. */
   me: {
     hue: "me",
     layers: [
