@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blueberry device harness</title>
+<!--
+  A DEV TOOL, not a product surface, and the difference matters.
+
+  The owner pasted two React device-mockup components. Neither is used, for
+  three reasons worth writing down: both assume a shadcn project with a `cn`
+  helper and framer-motion, none of which this app has; both hardcode hex
+  colours, which this app forbids because every colour is a token that passes
+  the contrast gate; and, more importantly, a React frame renders the app as a
+  DIV that happens to be phone-shaped, so the app inside still sees the
+  desktop viewport. Media queries, safe-area insets, dvh units and touch
+  behaviour all lie.
+
+  This uses an IFRAME at a real device size instead. The document inside gets
+  a genuine 393x852 viewport, so a media query that fires on a phone fires
+  here, and the layout you see is the layout a student gets. That is the whole
+  point of a harness rather than a picture of one.
+
+  The second pane puts the adopted reference image beside the live app at the
+  SAME size, because the standing problem on this project is translating an
+  image into code, and the cheapest way to close that gap is to stop
+  comparing from memory.
+
+  Lives in public/ deliberately: it needs no route, so it never touches
+  routes.ts while another agent owns it.
+-->
+<style>
+  :root {
+    --bg: #14131a; --panel: #1d1b26; --ink: #efeef4; --muted: #9d99ad;
+    --line: #322f3f; --accent: #9eaff7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 10;
+  }
+  h1 { font-size: 15px; margin: 0 8px 0 0; font-weight: 650; letter-spacing: -0.01em; }
+  label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  select, input[type=text], button {
+    background: #262433; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px;
+  }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  input[type=text] { min-width: 200px; }
+  .stage {
+    display: flex; gap: 40px; justify-content: center; align-items: flex-start;
+    padding: 32px 20px 60px; flex-wrap: wrap;
+  }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .cap { color: var(--muted); font-size: 12px; }
+
+  /* THE DEVICE. Sizes are logical CSS pixels, which is what a phone reports to
+     a document, so the iframe inside is the same width Safari would give it. */
+  .device {
+    position: relative;
+    background: linear-gradient(145deg, #3d3b45 0%, #23222a 45%, #131218 100%);
+    padding: 11px;
+    border-radius: 58px;
+    box-shadow: 0 26px 60px rgba(0,0,0,.55), 0 3px 10px rgba(0,0,0,.4),
+                inset 0 0 0 1px rgba(255,255,255,.07);
+  }
+  /* The side buttons, purely so the frame reads as a phone at a glance. */
+  .device::before, .device::after {
+    content: ""; position: absolute; width: 3px; border-radius: 2px;
+    background: linear-gradient(180deg, #46444f, #26252d);
+  }
+  .device::before { left: -3px; top: 130px; height: 62px; }
+  .device::after  { right: -3px; top: 150px; height: 96px; }
+  .screen {
+    position: relative; overflow: hidden; background: #000;
+    border-radius: 47px;
+  }
+  .screen iframe { display: block; border: 0; background: #fff; }
+  .screen img { display: block; object-fit: cover; }
+  /* The island sits OVER the content, exactly as it does on a device, so a
+     header hidden behind it here is a header hidden behind it in the hand. */
+  .island {
+    position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 126px; height: 37px; border-radius: 20px; background: #000; z-index: 3;
+    pointer-events: none;
+  }
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 210px; height: 32px; border-radius: 0 0 18px 18px; background: #000; z-index: 3;
+    pointer-events: none;
+  }
+  .home {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 34%; max-width: 140px; height: 5px; border-radius: 3px;
+    background: rgba(255,255,255,.75); z-index: 3; pointer-events: none;
+  }
+  .hint { color: var(--muted); font-size: 12px; padding: 0 20px 30px; text-align: center; }
+  .missing {
+    display: grid; place-items: center; height: 100%; color: #6c6880;
+    font-size: 13px; text-align: center; padding: 24px; background: #f6f2e7;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Blueberry device harness</h1>
+  <label>Device
+    <select id="model">
+      <option value="393,852,island,47">iPhone 15 / 16 Pro (393x852)</option>
+      <option value="390,844,notch,47">iPhone 12 / 13 / 14 (390x844)</option>
+      <option value="375,812,notch,44">iPhone X / 13 mini (375x812)</option>
+      <option value="430,932,island,52">iPhone 15 Pro Max (430x932)</option>
+      <option value="412,915,none,40">Pixel 6a (412x915)</option>
+    </select>
+  </label>
+  <label>Zoom
+    <select id="zoom">
+      <option value="1">100%</option>
+      <option value="0.85" selected>85%</option>
+      <option value="0.7">70%</option>
+      <option value="0.55">55%</option>
+    </select>
+  </label>
+  <label>Route
+    <input id="route" type="text" value="#/pathway" spellcheck="false">
+  </label>
+  <label>Compare with
+    <select id="ref">
+      <option value="">nothing</option>
+      <option value="unit01">unit01 reference</option>
+      <option value="unit02">unit02 reference (adopted)</option>
+      <option value="unit03">unit03 reference</option>
+      <option value="unit07">unit07 reference</option>
+    </select>
+  </label>
+  <button id="reload">Reload app</button>
+  <button id="swap">Swap sides</button>
+</header>
+
+<div class="stage" id="stage"></div>
+<p class="hint">
+  The left pane is the real app in a real viewport, so what you see is what a phone renders.
+  The right pane is the adopted design at the same device size, for comparing without going from memory.
+</p>
+
+<script>
+  const stage = document.getElementById("stage");
+  const modelEl = document.getElementById("model");
+  const zoomEl = document.getElementById("zoom");
+  const routeEl = document.getElementById("route");
+  const refEl = document.getElementById("ref");
+  let swapped = false;
+
+  // Reference images live in docs/, outside the served app. Vite's dev server
+  // exposes the project root at /@fs, so this works while developing and shows
+  // an honest note in a build rather than a broken image.
+  const REF_BASE = "/@fs/C:/Users/zeusa/Downloads/Projects/blueberry_game/docs/reference/design-goals/units/";
+
+  function deviceEl(inner, w, h, cutout, radius) {
+    const d = document.createElement("div");
+    d.className = "device";
+    d.innerHTML =
+      '<div class="screen" style="width:' + w + 'px;height:' + h + 'px;border-radius:' + radius + 'px">' +
+        (cutout === "island" ? '<div class="island"></div>' : "") +
+        (cutout === "notch" ? '<div class="notch"></div>' : "") +
+        '<div class="home"></div>' +
+      "</div>";
+    d.querySelector(".screen").prepend(inner);
+    return d;
+  }
+
+  function column(caption, node) {
+    const c = document.createElement("div");
+    c.className = "col";
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = caption;
+    c.append(node, cap);
+    return c;
+  }
+
+  function render() {
+    const [w, h, cutout, radius] = modelEl.value.split(",");
+    const zoom = Number(zoomEl.value);
+    stage.innerHTML = "";
+
+    const frame = document.createElement("iframe");
+    frame.width = w; frame.height = h;
+    frame.src = "/" + (routeEl.value || "");
+    frame.title = "Blueberry app";
+    const live = column(w + " x " + h + " CSS px, live app", deviceEl(frame, w, h, cutout, radius));
+
+    const cols = [live];
+    if (refEl.value) {
+      const img = document.createElement("img");
+      img.width = Number(w); img.height = Number(h);
+      img.alt = refEl.value + " reference";
+      img.src = REF_BASE + refEl.value + "-path.jpg";
+      img.onerror = function () {
+        const note = document.createElement("div");
+        note.className = "missing";
+        note.textContent = "Reference images are only reachable from the dev server. Run npm run dev.";
+        img.replaceWith(note);
+      };
+      cols.push(column(refEl.value + " adopted design", deviceEl(img, w, h, cutout, radius)));
+    }
+    if (swapped) cols.reverse();
+
+    for (const c of cols) {
+      c.style.zoom = String(zoom);
+      stage.append(c);
+    }
+  }
+
+  modelEl.onchange = render;
+  zoomEl.onchange = render;
+  refEl.onchange = render;
+  routeEl.onchange = render;
+  document.getElementById("reload").onclick = render;
+  document.getElementById("swap").onclick = function () { swapped = !swapped; render(); };
+  render();
+</script>
+</body>
+</html>

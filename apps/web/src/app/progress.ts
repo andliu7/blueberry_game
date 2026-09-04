@@ -52,6 +52,7 @@
 
 import type { CourseId, ProblemId, TopicId } from "@blueberry/curriculum";
 import { COURSE_UNIVERSE } from "./courseUniverse.generated";
+import { PATHWAY_UNITS } from "../demo/pathwayMap";
 import { OPEN_COURSE_IDS } from "./courses";
 import { isBetaOn } from "./flags";
 import {
@@ -304,7 +305,12 @@ function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
     if (first !== undefined) next = { ...next, course: first, onboardingDone: true };
   }
 
-  if (unlockAll && snapshot.course !== null) {
+  // NEXT, not snapshot: the block above may have just chosen the course, and
+  // testing the original here is what made every earlier attempt do nothing on
+  // a fresh device. The parameter is the world before beta; `next` is the world
+  // beta is describing, and every clause after the first must read that one.
+  const betaCourse = next.course;
+  if (unlockAll && betaCourse !== null) {
     // THE FIX THAT MAKES THIS ACTUALLY WORK, and the reason it did not before.
     // The pathway does NOT read `lessons`. pathwayState.ts derives `cleared`
     // from node_cleared EVENTS IN THE JOURNAL (see its switch on event.kind),
@@ -317,7 +323,42 @@ function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
     const at = BETA_COMPLETED_AT;
     const tz = "UTC";
     const synthetic: EconomyEvent[] = [];
-    for (const node of courseUniverse(snapshot.course)) {
+
+    // UNLOCK IN THE PATHWAY'S OWN VOCABULARY. The first attempt cleared node
+    // ids from courseUniverse, which are "lesson:<topic>", while the pathway's
+    // nodes are "u1-allylic" and friends: a different id space entirely, so
+    // nothing matched and nothing unlocked. pathwayState reads
+    // `finished = passedUnits.has(unit.id) || every playable node done`, and
+    // passedUnits comes from unit_cleared. One event per unit unlocks the whole
+    // track without inventing node ids.
+    for (const unit of PATHWAY_UNITS) {
+      synthetic.push({ kind: "unit_cleared", at, tz, unitId: unit.id });
+    }
+
+    // And a realistic opening state, because UNLOCKED is not COMPLETED and the
+    // difference matters on screen: with nothing finished the trail is violet
+    // end to end, which is truthful but is not what the adopted design shows.
+    // Clearing the first few spine nodes of unit one puts a walked stretch,
+    // its join and the road ahead on the first screen, which is the picture
+    // the references draw and the one worth developing against.
+    const opening = ["u1-allylic", "u1-12v14", "u1-kvt"];
+    for (const nodeId of opening) {
+      synthetic.push({
+        kind: "node_cleared",
+        at,
+        tz,
+        nodeId,
+        nodeKind: "reaction",
+        flawless: false,
+        stepsInOneSitting: 1,
+        spine: true,
+        difficulty: 3,
+      });
+    }
+
+    // The economy still wants the universe's own ids for mastery, which is a
+    // different question from what the pathway draws.
+    for (const node of courseUniverse(betaCourse)) {
       synthetic.push({
         kind: "node_cleared",
         at,
@@ -335,7 +376,7 @@ function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
     // Kept as well: some surfaces read the lesson record rather than the
     // journal, and the two must not disagree about what is finished.
     const lessons: Record<string, LessonRecord> = { ...snapshot.lessons };
-    for (const node of courseUniverse(snapshot.course)) {
+    for (const node of courseUniverse(betaCourse)) {
       // The record is keyed by topic; the universe carries node ids, which are
       // lessonNodeId(topic), so the topic is the tail. Non lesson nodes have no
       // topic and are skipped rather than guessed at.
