@@ -14,7 +14,7 @@
 
 import { describe, expect, it } from "vitest";
 import { DAILY_GOAL_XP, DEFAULT_DAILY_GOAL, type EconomyEvent } from "@blueberry/economy";
-import { feedModel, QUEST_CORRECT_TARGET } from "../src/tabs/feed/feedModel";
+import { feedModel, QUEST_CORRECT_TARGET, type QuestMotif } from "../src/tabs/feed/feedModel";
 
 const TZ = "UTC";
 const NOW = "2026-08-28T14:00:00.000Z";
@@ -151,5 +151,51 @@ describe("the clock, which is part of the surface", () => {
     // The snapshots differ (charge regen, at-risk); the QUESTS may not.
     expect(night.quests).toEqual(morning.quests);
     expect(night.doneCount).toBe(morning.doneCount);
+  });
+});
+
+/**
+ * THE ICON COLUMN IS INFORMATION, so it is asserted rather than eyeballed.
+ *
+ * A critic measured the built Feed against blueberry_r7-feed-v2_1788288479.png
+ * and found three identical dark-navy outlined flasks where the image draws
+ * three DIFFERENT motifs matched to their quests, and found all three drawing
+ * no liquid at all because every quest sat at fraction 0, so the icon column
+ * carried no colour and no information. Owner ruling 4 of 2026-09-04 is the
+ * general form of it: "A node with no authored content still shows what KIND
+ * it will be ... an empty chip reads as broken rather than unauthored."
+ *
+ * The motif lives on the model for that reason. A view that switches on an id
+ * can be given two identical branches by anybody in a hurry; a model that
+ * declares one motif per quest cannot, and the check below is what says so.
+ */
+describe("the motif each quest wears", () => {
+  /** The drawn family. FeedTab.tsx has one component per member and no other. */
+  const QUEST_MOTIFS: readonly QuestMotif[] = ["flask", "flame", "cards"];
+  const quests = feedModel([CASUAL], NOW).quests;
+
+  it("gives every quest a motif, so no row can render an empty icon", () => {
+    for (const quest of quests) {
+      expect(QUEST_MOTIFS, `${quest.id} has no motif`).toContain(quest.motif);
+    }
+  });
+
+  it("gives the three quests three DIFFERENT motifs", () => {
+    const seen = new Set(quests.map((quest) => quest.motif));
+    expect(seen.size).toBe(quests.length);
+  });
+
+  it("puts the filling flask on the XP quest, which is the one that fills", () => {
+    // The brief's own words, "a flask filling as progress". The flask is the
+    // only motif that also carries a reading, so it belongs on the quest whose
+    // progress is continuous rather than on the one-step streak quest.
+    expect(quests.find((quest) => quest.id === "earn-xp")?.motif).toBe("flask");
+    expect(quests.find((quest) => quest.id === "keep-streak")?.motif).toBe("flame");
+  });
+
+  it("keeps the motif fixed while the fraction moves, so the icon is not the meter", () => {
+    const empty = feedModel([CASUAL], NOW).quests;
+    const busy = feedModel([CASUAL, ...Array.from({ length: 9 }, (_, i) => attempt(0, i, true))], NOW).quests;
+    expect(busy.map((quest) => quest.motif)).toEqual(empty.map((quest) => quest.motif));
   });
 });

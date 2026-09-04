@@ -221,7 +221,7 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
             they are 3.87 and 3.72 as graphics with their ink variants over 4.5
             as text. Coloured ink lives on a card in this palette; the page is a
             ground, not a surface to write on. */}
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-card px-2 pb-5 pt-2 sm:gap-3 sm:px-4 md:px-6">
+        <header className="pt-safe sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-card px-2 pb-5 sm:gap-3 sm:px-4 md:px-6">
           {/* TOOLS ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
               on the P3 round was that the header's left half held chrome at the
               same size and weight as the readouts, so the row had seven equal

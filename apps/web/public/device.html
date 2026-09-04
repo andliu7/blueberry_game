@@ -158,10 +158,15 @@
   const refEl = document.getElementById("ref");
   let swapped = false;
 
-  // Reference images live in docs/, outside the served app. Vite's dev server
-  // exposes the project root at /@fs, so this works while developing and shows
-  // an honest note in a build rather than a broken image.
-  const REF_BASE = "/@fs/C:/Users/zeusa/Downloads/Projects/blueberry_game/docs/reference/design-goals/units/";
+  // The adopted designs are copied into public/refs, so this ONE path works in
+  // dev and in the deployed build alike. The first version pointed at the repo
+  // through Vite's /@fs escape hatch, which is a dev-server-only door and an
+  // absolute path on one machine: it would have shown a broken pane to anyone
+  // the link was shared with, which is most of the point of deploying it. The
+  // images are about a megabyte of JPEG and they do not touch the 400 KB
+  // budget, which is a ceiling on the game route's initial SCRIPT payload, not
+  // on static files nobody downloads unless they open this page.
+  const REF_BASE = "refs/";
 
   function deviceEl(inner, w, h, cutout, radius) {
     const d = document.createElement("div");
@@ -193,7 +198,7 @@
 
     const frame = document.createElement("iframe");
     frame.width = w; frame.height = h;
-    frame.src = "/" + (routeEl.value || "");
+    frame.src = "./" + (routeEl.value || "");
     frame.title = "Blueberry app";
     const live = column(w + " x " + h + " CSS px, live app", deviceEl(frame, w, h, cutout, radius));
 
@@ -206,7 +211,7 @@
       img.onerror = function () {
         const note = document.createElement("div");
         note.className = "missing";
-        note.textContent = "Reference images are only reachable from the dev server. Run npm run dev.";
+        note.textContent = "Reference image not found: " + refEl.value;
         img.replaceWith(note);
       };
       cols.push(column(refEl.value + " adopted design", deviceEl(img, w, h, cutout, radius)));

@@ -23,6 +23,8 @@ import {
   FEED_BAND,
   FLANK_LEFT,
   FLANK_RIGHT,
+  HEADING_BANDS,
+  crossesHeading,
   feedProps,
   type FeedPropKind,
 } from "../src/tabs/feed/backdropProps";
@@ -117,5 +119,49 @@ describe("the band", () => {
       expect(value).toBeGreaterThan(0);
       expect(value).toBeLessThan(1);
     }
+  });
+});
+
+/**
+ * NO PROP SITS BEHIND BARE HEADING TYPE, and this block exists because one
+ * did. A critic capture of the built Feed found "a cloud in the build's
+ * FeedBackdrop sits over the 'Daily Quests' heading and its outline cuts
+ * through the D and the a."
+ *
+ * The flank rule above was passing on that placement and was right to: x 0.08
+ * IS the left flank. What the flank rule protects is the CARD column, and a
+ * card is opaque, so a prop behind one is invisible by construction. A section
+ * HEADING is bare type sitting at the column's left edge, so the top of the
+ * left flank is exactly where a watermark stops being decoration. The rule is
+ * `crossesHeading` and it belongs beside the table, not in a reviewer's eye.
+ */
+describe("props and headings", () => {
+  it("keeps every placement clear of the heading bands", () => {
+    for (const { kind, x, y } of feedProps()) {
+      expect(crossesHeading(x, y), `${kind} at ${x}, ${y} sits behind a heading`).toBe(false);
+    }
+  });
+
+  it("only excludes the LEFT flank, because that is where a heading starts", () => {
+    // The headings are short, so the right flank beside them is genuinely
+    // empty and is where both clouds now live. A rule that excluded the band
+    // outright would empty the top of the page on both sides for nothing.
+    expect(crossesHeading(0.08, 0.03)).toBe(true);
+    expect(crossesHeading(0.9, 0.03)).toBe(false);
+  });
+
+  it("names both headings, so the lower one is not forgotten", () => {
+    expect(HEADING_BANDS.length).toBe(2);
+    // One at the top of the page and one around the middle, which is where
+    // Lab mates falls once three quest cards are above it. Destructured and
+    // guarded rather than indexed: noUncheckedIndexedAccess types a lookup as
+    // possibly undefined, and the guard is a real failure rather than a
+    // loosened assertion, so the two expectations below stay exactly as
+    // strict as they read.
+    const [first, second] = HEADING_BANDS;
+    if (!first || !second) throw new Error("HEADING_BANDS must name both headings");
+    expect(first.from).toBe(0);
+    expect(second.from).toBeGreaterThan(0.3);
+    for (const band of HEADING_BANDS) expect(band.to).toBeGreaterThan(band.from);
   });
 });

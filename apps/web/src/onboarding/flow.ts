@@ -281,6 +281,32 @@ export function tileIsDense(text: string): boolean {
   return text.length > TILE_DENSE_CHARS;
 }
 
+/**
+ * How long an authored PROMPT has to be before the frame stops giving it as
+ * much vertical room as it asks for.
+ *
+ * blueberry_r9-onboard-placement draws a one line question and then the whole
+ * 2x2 clear beneath it. The corpus does not oblige: the first problem the walk
+ * serves is a 45 word compound stem, and rendered at the image's own type size
+ * it stood 257px tall, pushed the grid down and sliced the second row of tiles
+ * flat at the pinned foot.
+ *
+ * 96 characters is roughly three lines at the stem's size on a 390px screen,
+ * which is as much as can sit above a 2x2 and still leave the whole answer set
+ * on the screen. Past it the stem drops a type size and takes a capped
+ * scroller of its own (`.ob-stem[data-long="true"]`), so the thing a student
+ * has to scroll for is the prompt they can already partly read rather than the
+ * options they are being asked to choose between.
+ *
+ * A RENDERING threshold, never a layout one, and never a filter: no problem is
+ * refused the screen for being long, and nothing here shortens authored words.
+ */
+export const STEM_LONG_CHARS = 96;
+
+export function stemIsLong(prompt: string): boolean {
+  return prompt.length > STEM_LONG_CHARS;
+}
+
 /* ------------------------------------------------------------------ */
 /* The daily goal, mapped onto charge pacing                          */
 /* ------------------------------------------------------------------ */

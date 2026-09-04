@@ -34,6 +34,11 @@
  * the product alone would feed the placement walk a wrong answer the student
  * was never asked to avoid, and the walk would then probe backwards on a gap
  * that is not there. So the gate is both.
+ *
+ * THE TILE IS A PICTURE WITH A CAPTION NOW, which is the 2026-09-04 ruling
+ * honoured rather than reported upward. See figures.ts for how the drawn
+ * structures got here without a figure field in the corpus, and for what makes
+ * that a shim with a boundary rather than a shell inventing chemistry.
  */
 
 import { useMemo, useRef, useState } from "react";
@@ -50,8 +55,10 @@ import {
 } from "@blueberry/curriculum";
 import { Berry } from "../mascot/Berry";
 import { ProblemView } from "../lesson/ProblemView";
-import { Action, ChipList, Frame, SkipAction } from "./Frame";
-import { tileIsDense, twoColumnGrid, progressPercent } from "./flow";
+import { Action, ChipList, Frame, Hero, TrailingSkip } from "./Frame";
+import { STEM_LONG_CHARS, tileIsDense, twoColumnGrid, progressPercent } from "./flow";
+import { figureFor } from "./figures";
+import { StructureFigure } from "./StructureFigure";
 import {
   CONTINUE,
   PLACEMENT_CHECK,
@@ -60,6 +67,7 @@ import {
   PLACEMENT_INTRO_ASK,
   PLACEMENT_REASON_ASK,
   PLACEMENT_SKIP_QUESTION,
+  PLACEMENT_SKIP_SHORT,
   PLACEMENT_SKIPPED_ASK,
   PLACEMENT_START,
   fill,
@@ -74,6 +82,26 @@ interface Pick {
 }
 
 const NOTHING_PICKED: Pick = Object.freeze({ optionId: null, reasonId: null });
+
+/** The hero berry on the two screens that hold one sentence and one button. */
+const HERO_BERRY_PX = 132;
+
+/**
+ * THE PEEKING BERRY'S SIZE, AND WHY IT IS NOT 168.
+ *
+ * blueberry_r9-onboard-placement draws him rising from behind CHECK, cropped
+ * by the right screen edge, overlapping nothing but the button's right end and
+ * empty ground. The previous pass drew 168px anchored at the foot's own bottom,
+ * which rose 170px into the body and covered the fourth tile's caption: at 390
+ * by 844 the words "The secondary amine N-H" were unreadable in the unpicked
+ * state. A mascot that occludes an answer is worse than no mascot.
+ *
+ * 128, anchored at the page's bottom edge, puts his crown about 32px above the
+ * top of CHECK, which is where the image puts it, and `.ob[data-peek="true"]
+ * .ob__body` reserves exactly that much air under the last row so the overlap
+ * can only ever land on empty ground.
+ */
+const PEEK_BERRY_PX = 128;
 
 export interface PlacementStepProps {
   readonly claimedCourse: CourseId | null;
@@ -128,15 +156,13 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
             step's row is small because four chips sit under it; this screen
             has nothing under it at all, and the row left three quarters of the
             page empty above a lone button. Same two objects, composed for a
-            screen whose whole job is one sentence and one press. It is the
-            welcome beat's composition, which the goal images already draw for
-            exactly that case. */}
-        <div className="ob-welcome">
-          <div className="ob-welcome__hero">
-            <Berry behaviour="idle" mood="curious" reducedMotion={reducedMotion} sizePx={132} />
-            <p className="ob-bubble ob-welcome__bubble">{withoutMark(PLACEMENT_INTRO_ASK)}</p>
-          </div>
-        </div>
+            screen whose whole job is one sentence and one press. */}
+        <Hero
+          line={PLACEMENT_INTRO_ASK}
+          reducedMotion={reducedMotion}
+          sizePx={HERO_BERRY_PX}
+          behaviour="idle"
+        />
       </Frame>
     );
   }
@@ -157,14 +183,12 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
             shown, and "that is your starting point" would then be a sentence
             about nothing. The skipped line names what happens instead, plainly
             and without treating the skipping as a failure. */}
-        <div className="ob-welcome">
-          <div className="ob-welcome__hero">
-            <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={132} />
-            <p className="ob-bubble ob-welcome__bubble">
-              {withoutMark(recommendation === null ? PLACEMENT_SKIPPED_ASK : PLACEMENT_DONE_ASK)}
-            </p>
-          </div>
-        </div>
+        <Hero
+          line={recommendation === null ? PLACEMENT_SKIPPED_ASK : PLACEMENT_DONE_ASK}
+          reducedMotion={reducedMotion}
+          sizePx={HERO_BERRY_PX}
+          mood="happy"
+        />
       </Frame>
     );
   }
@@ -180,12 +204,12 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
         onBack={onBack}
         foot={<Action label={CONTINUE} onPress={() => onDone(state.recommendation)} />}
       >
-        <div className="ob-welcome">
-          <div className="ob-welcome__hero">
-            <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={132} />
-            <p className="ob-bubble ob-welcome__bubble">{withoutMark(PLACEMENT_DONE_ASK)}</p>
-          </div>
-        </div>
+        <Hero
+          line={PLACEMENT_DONE_ASK}
+          reducedMotion={reducedMotion}
+          sizePx={HERO_BERRY_PX}
+          mood="happy"
+        />
       </Frame>
     );
   }
@@ -245,11 +269,10 @@ function Question({
    * WHETHER THIS QUESTION GETS THE PICTURE-FIRST LAYOUT.
    *
    * blueberry_r9-onboard-placement draws a 2x2 of tiles, each one a drawn
-   * structure over a short caption, and that composition only holds when there
-   * are four options and each caption is a few words. An option that is a full
-   * sentence has no picture in it and no room for one, so it renders as the
-   * row it already is. Same predicate as the grid, because it is the same
-   * question asked once: is this option a NAME for something, or is it prose.
+   * structure over a short caption. The condition is the option COUNT and
+   * nothing else: three options in a 2x2 leaves a hole and five leaves a
+   * widow. See flow.twoColumnGrid for why an earlier length condition was
+   * wrong and how the tall tile answers the worry it was built on.
    */
   const tiled = twoColumnGrid(options ?? []);
 
@@ -280,33 +303,68 @@ function Question({
          agree. The screens before the stopwatch starts keep the chevron: back
          from those really is one step of the flow. */
       leading="leave"
+      /* THE WIDE COLUMN. The placement image breaks its answer board OUT of
+         the text column: the tiles run x 23 to 367 of a 390 wide frame where
+         the question image's chips run 46 to 344. Same frame, two measured
+         column widths, and this is the screen that gets the wider one. */
+      column="wide"
+      /* SKIP LIVES IN THE HEADER ROW, because the image's foot holds CHECK
+         alone and its header row draws three elements, not two. */
+      trailing={
+        <TrailingSkip
+          label={PLACEMENT_SKIP_QUESTION}
+          short={PLACEMENT_SKIP_SHORT}
+          onPress={onSkip}
+        />
+      }
+      peek={options !== null}
       foot={
         options === null ? (
-          <SkipAction label={PLACEMENT_SKIP_QUESTION} onPress={onSkip} />
+          /* The handed-off shapes carry their own submit and their own skip
+             inside ProblemView, so the frame's CHECK would be a second control
+             for the same act. It is drawn and switched off rather than removed,
+             which is the same rule the gated CONTINUE follows: a control that
+             disappears teaches nothing about why it was not available. */
+          <Action label={PLACEMENT_CHECK} disabled onPress={check} />
         ) : (
-          <>
-            <div className="ob-peek">
-              <Action label={PLACEMENT_CHECK} disabled={!ready} onPress={check} />
-              {/* BIG, AND CROPPED BY THE SCREEN EDGE. The image draws Berry
-                  around 180px rising from BEHIND the CHECK button and running
-                  off the right of the screen. At 76px and fully inside the
-                  button he read as an icon printed on it. onboarding.css puts
-                  him past the button's right end and lets the page crop him. */}
-              <Berry
-                className="ob-peek__berry"
-                behaviour="idle"
-                mood="curious"
-                reducedMotion={reducedMotion}
-                sizePx={168}
-              />
-            </div>
-            <SkipAction label={PLACEMENT_SKIP_QUESTION} onPress={onSkip} />
-          </>
+          <div className="ob-peek">
+            <Action label={PLACEMENT_CHECK} disabled={!ready} onPress={check} />
+            {/* CROPPED BY THE SCREEN EDGE AND CLAMPED TO THE BUTTON BAND.
+                See PEEK_BERRY_PX: he rises about 32px over CHECK's top, which
+                is where the image puts him, and the body reserves that air. */}
+            <Berry
+              className="ob-peek__berry"
+              behaviour="idle"
+              mood="curious"
+              reducedMotion={reducedMotion}
+              sizePx={PEEK_BERRY_PX}
+            />
+          </div>
         )
       }
     >
       <p className="ob-kicker">{withoutMark(counter)}</p>
-      <p className="ob-stem">{problem.prompt}</p>
+      {/*
+        THE STEM IS SIZED SO THE ANSWER SET IS NEVER WHAT GETS CUT.
+
+        blueberry_r9-onboard-placement draws a single line question at y=127
+        and the whole 2x2 clear beneath it, from y=187 to 541, with CHECK below
+        that and air between. The corpus does not oblige: the first problem the
+        walk serves is a 45 word compound stem that rendered 257px tall, pushed
+        the grid down, overflowed the body, and sliced the second row of tiles
+        flat at the foot band with no fade and no scroll cue. A student's first
+        real chemistry screen showed two whole answers and two half answers.
+
+        The frame cannot shorten an authored prompt and must not try. What it
+        can do is refuse to let the prompt take the answers' room: a long stem
+        drops a type size and gets a capped scroller of its own, and the grid
+        below it never shrinks. If anything has to be scrolled to, it is the
+        words the student can already partly see, never the options they are
+        being asked to choose between.
+      */}
+      <p className="ob-stem" data-long={problem.prompt.length > STEM_LONG_CHARS ? "true" : "false"}>
+        {problem.prompt}
+      </p>
 
       {options === null ? (
         // Numeric, reagents, structure, ordering and matching. The lesson's own
@@ -323,6 +381,7 @@ function Question({
               <Tile
                 picked={pick.optionId === option.id}
                 caption={option.text}
+                figure={figureFor(problem.id, option.id)}
                 pictureFirst={tiled}
                 onPick={() => onPick({ optionId: option.id, reasonId: pick.reasonId })}
               />
@@ -346,6 +405,7 @@ function Question({
                 <Tile
                   picked={pick.reasonId === reason.id}
                   caption={reason.text}
+                  figure={null}
                   pictureFirst={false}
                   onPick={() => onPick({ optionId: pick.optionId, reasonId: reason.id })}
                 />
@@ -359,40 +419,27 @@ function Question({
 }
 
 /**
- * One periwinkle answer tile.
+ * One periwinkle answer tile: a drawn structure with its name under it.
  *
- * WHAT THE GOAL IMAGE ASKS FOR, AND WHAT THIS CAN HONESTLY GIVE. Ruling 2 of
- * 2026-09-04 says "the image comes first and the name comes second... OPTION
- * CARDS ARE PICTURES WITH CAPTIONS, not captions with pictures", and
- * blueberry_r9-onboard-placement draws it: four periwinkle tiles, each a drawn
- * carbocation over the words Methyl, Primary, Secondary and Tertiary.
+ * THIS IS RULING 2 OF 2026-09-04 HONOURED. "The image comes first and the name
+ * comes second... OPTION CARDS ARE PICTURES WITH CAPTIONS, not captions with
+ * pictures", and "the name sits UNDER it, small and light (the muted ink,
+ * never the body ink)". blueberry_r9-onboard-placement draws exactly that:
+ * four periwinkle tiles, each a drawn carbocation over the words Methyl,
+ * Primary, Secondary and Tertiary set small and light.
  *
- * THE OPTION DATA CARRIES NO PICTURE, AND THAT IS A BLOCKER RATHER THAN A
- * CHOICE MADE HERE. `ChoiceOption` in packages/curriculum is `{ id, text }`
- * and its own comment says so in as many words: "a structure is referred to by
- * label here; rendering is Phase 4". `Problem` has no figure field either. No
- * option and no problem anywhere in SEED_CORPUS carries a SMILES, an atom list
- * or a figure, so there is nothing on this side of the boundary to draw. A
- * structure derived from an option's words would be a structure this shell
- * invented, and inventing chemistry in a shell is how a student is taught the
- * wrong molecule. It is reported upward rather than worked around; the fix is
- * a figure field on ChoiceOption and Problem, authored and reviewed in
- * packages/curriculum, which this builder does not own.
+ * WHERE THE PICTURE COMES FROM, since the previous pass reported truthfully
+ * that there is none in the corpus. `ChoiceOption` in packages/curriculum is
+ * `{ id, text }` and `Problem` carries no figure field, so the figures are
+ * authored in figures.ts against exact problem-and-option ids, and a coverage
+ * test walks the real quiz machine to prove every option a student can be
+ * served has one. That file's header records what makes it a shim with a
+ * boundary rather than a shell deriving chemistry from an option's words.
  *
- * WHAT REPLACED THE PLACEHOLDER, and why the placeholder had to go. The
- * previous pass drew a dashed frame containing a generic picture-frame glyph,
- * identical on all four tiles, borrowing ruling 4's queued treatment. Ruling 4
- * is about a pathway NODE with no authored content, and a critic was right
- * that it is not a licence to ship a question whose visual is four copies of
- * the same empty frame: four identical marks over four different answers teach
- * a student nothing and cost the tile its whole face.
- *
- * So the tile draws the OPTION ITSELF as its subject: the words, set large and
- * centred in the content face on the periwinkle field, which is the image's
- * composition, weight and colour with the one thing missing that the data does
- * not have. The tile is marked `data-visual="name"` so the gap is countable
- * from outside rather than being visible only to whoever reads this comment,
- * and it becomes `"figure"` on the day an option carries one.
+ * `data-visual` stays, and it is now the countable proof rather than the
+ * countable gap: "figure" where a structure is drawn, "name" where the tile
+ * falls back to words. The reason tiles of a major-product question are
+ * legitimately "name": a ranking argument is a sentence and has no structure.
  *
  * Periwinkle because DESIGN-GOALS makes it the LESSON colour and this is the
  * first lesson-shaped thing a student touches. `data-stacking` is the sticker
@@ -401,29 +448,45 @@ function Question({
 function Tile({
   picked,
   caption,
+  figure,
   pictureFirst,
   onPick,
 }: {
   readonly picked: boolean;
-  /** The option's own words. */
+  /** The option's own words: the caption under the picture. */
   readonly caption: string;
-  /** True in the 2x2, where the tile is tall and the words are its subject. */
+  readonly figure: ReturnType<typeof figureFor>;
+  /** True in the 2x2, where the tile is tall enough to hold a drawing. */
   readonly pictureFirst: boolean;
   readonly onPick: () => void;
 }) {
+  /*
+   * A FIGURE IS DRAWN WHEREVER THERE IS ONE, AND THE 2x2 IS NOT THE CONDITION.
+   *
+   * An earlier draft of this component only drew the picture in the four
+   * option grid, which quietly meant every three candidate major-product
+   * question went back to being prose. The count decides the LAYOUT (a 2x2
+   * needs four); the ruling that every question carries a visual has no count
+   * in it at all. So a three option question stacks its rows and each row is
+   * still a drawing with its name beside it, which is the chip family's own
+   * icon-then-label composition carrying real chemistry instead of a sticker.
+   */
+  const drawn = figure !== null;
   return (
     <button
       type="button"
       className="ob-tile"
       aria-pressed={picked}
-      data-visual="name"
+      data-visual={drawn ? "figure" : "name"}
+      data-shape={pictureFirst ? "tile" : "row"}
       data-stacking=""
       onClick={onPick}
     >
+      {drawn ? <StructureFigure className="ob-tile__figure" figure={figure} /> : null}
       <span
         className="ob-tile__caption"
-        data-layout={pictureFirst ? "tile" : "row"}
-        data-dense={pictureFirst && tileIsDense(caption) ? "true" : "false"}
+        data-layout={drawn ? "caption" : pictureFirst ? "tile" : "row"}
+        data-dense={!drawn && pictureFirst && tileIsDense(caption) ? "true" : "false"}
       >
         {caption}
       </span>

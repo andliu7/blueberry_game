@@ -341,17 +341,56 @@ function jitter(i: number, salt: number): number {
   return x - Math.floor(x);
 }
 
+/**
+ * A CROWN AROUND THE NUMBER, and every constant below was measured off the
+ * committed image rather than chosen. That matters because "confetti" is
+ * exactly the kind of thing an eye tunes and a critic then measures.
+ *
+ * HOW THE REFERENCE WAS MEASURED. In blueberry_r6-lesson-complete the violet
+ * digits occupy x 230 to 530 and y 327 to 536, and the confetti (every
+ * saturated pixel that is neither a digit nor the mascot) occupies x 157 to
+ * 602 and y 253 to 537. Expressed as percentages of the NUMBER's own box, the
+ * fan runs from -24 to +124 across and from -35 down to +100: it reaches a
+ * quarter of the number's width past each side, a third of its height above
+ * it, and stops exactly at the number's baseline. Nothing falls below the
+ * digits, which is what makes it a crown rather than a shower.
+ *
+ * THE ELLIPSE THAT PRODUCES THOSE FOUR EDGES. Centre (50, 66), radii 68 by 92,
+ * all in percent of the number's box, swept from 160 to 380 degrees: up one
+ * side, over the top, down the other. Screen y grows downward, so 270 degrees
+ * is the top of the crown and the two ends of the sweep sit at sin 0.342,
+ * which puts them 31 percent of the box below the centre, at y 97: the
+ * baseline. The centre sits BELOW the number's middle because the fan is not
+ * concentric with the digits, it hangs over them.
+ *
+ * WHAT THIS REPLACES, and it is a real correction rather than a tidy-up. The
+ * previous pass used centre (50, 50) with radius 38 to 51 inside a container
+ * grown 36 percent sideways and 58 percent up, which measured on a capture at
+ * -39 to +136 across and -60 to +64 down: too wide on both flanks, nearly
+ * twice as tall above, and stopping a third of the way down the digits, so it
+ * read as a big loose halo with a gap under it instead of the reference's
+ * tight crown with streamers reaching the baseline.
+ *
+ * THE CONTAINER IS THE NUMBER'S OWN BOX now, `inset: 0` in streak.css, so
+ * every percentage here is measured against the thing the burst is about and
+ * a reader can check these numbers against the paragraph above without a
+ * second conversion. Values outside 0 to 100 are the point, not an accident;
+ * `.reward-column` clips at the screen edge so nothing can widen the page.
+ */
+const BURST = { cx: 50, cy: 66, rx: 68, ry: 92, fromDeg: 160, toDeg: 380 } as const;
+
 const CONFETTI = Array.from({ length: 40 }, (_, i) => {
-  // The fan sweeps the upper arc, 190 to 350 degrees, so the pieces sit above
-  // and to the sides of the pair and none of them lands on Bloom's face.
-  const angle = ((190 + (i / 39) * 160 + jitter(i, 1) * 9) * Math.PI) / 180;
-  const radius = 30 + jitter(i, 2) * 26;
+  const angle = ((BURST.fromDeg + (i / 39) * (BURST.toDeg - BURST.fromDeg) + jitter(i, 1) * 6) * Math.PI) / 180;
+  // A BAND, not a wire. Six percent of play either side of the ellipse so the
+  // fan reads as scattered paper; more than that and the measured edges above
+  // stop being the edges that land.
+  const spread = 0.94 + jitter(i, 2) * 0.12;
   return {
-    // Percentages of the hero box, so the fan scales with the screen instead
-    // of being pinned to a pixel distance that is a halo on a phone and a
-    // freckle on a tablet.
-    x: 50 + Math.cos(angle) * radius,
-    y: 46 + Math.sin(angle) * radius * 0.92,
+    // Percentages of the number's box, so the fan scales with the screen
+    // instead of being pinned to a pixel distance that is a halo on a phone
+    // and a freckle on a tablet.
+    x: BURST.cx + Math.cos(angle) * BURST.rx * spread,
+    y: BURST.cy + Math.sin(angle) * BURST.ry * spread,
     spin: Math.round(jitter(i, 3) * 340 - 170),
     delay: Math.round(jitter(i, 4) * 420),
     tone: ["pink", "diamond", "streak", "spark", "primary"][i % 5] as
@@ -386,12 +425,163 @@ function Confetti({ reducedMotion }: { readonly reducedMotion: boolean }) {
   );
 }
 
+/**
+ * THE GEM IS A TEAL HEXAGON, and both committed images say so.
+ *
+ * blueberry_r6-lesson-complete and blueberry_r7-feed-v2 draw the currency as a
+ * flat teal hexagon, sampled at #26bdb6 and #2eb3b0. The build drew a sky-blue
+ * kite: --diamond is #0284c7, and the shape was the four-point rhombus a
+ * jewellery brief would draw rather than the six-sided gem the product's own
+ * art does. Two things were wrong at once, the hue and the silhouette, and the
+ * silhouette is the half a reader notices first.
+ *
+ * THE HUE IS A LOCAL TOKEN, NOT AN EDIT TO --diamond. theme.css is the
+ * integrator's file, and --diamond is also the header's gem, the Feed's band
+ * wash and a confetti hue, so moving it is a product-wide change with its own
+ * contrast row. This screen is a full-bleed overlay with no header under it,
+ * so nothing here can disagree with a gem drawn elsewhere in the same frame.
+ * The token change is REPORTED; --gem is what this surface paints with.
+ *
+ * IT CLEARS ITS FLOOR THE WAY THE IMAGE DRAWS IT. A bright teal face is about
+ * 2.2:1 on cream and could not identify itself, so the shape carries
+ * --gem-edge #0e7f7a as its boundary at 3.36:1. That is the contrast audit's
+ * own "a shape is one component" rule being satisfied, not waived.
+ */
 function DiamondIcon({ className = "h-6 w-6" }: { readonly className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path d="M5 3h14l4 6-11 12L1 9z" fill="var(--diamond)" />
-      <path d="M5 3l7 18L1 9z" fill="var(--reward-shine)" />
-      <path d="M9 9h6l-3 8z" fill="var(--reward-shine)" />
+    <svg viewBox="0 0 24 24" className={className} aria-hidden focusable="false">
+      <path d="M12 1.6 21 6.8v10.4L12 22.4 3 17.2V6.8z" fill="var(--gem)" />
+      {/* The top table, lighter, and one shaded flank: the house volume cue,
+          the same device as the flask's meniscus and the visor's glint. */}
+      <path d="M12 1.6 21 6.8l-9 5.2-9-5.2z" fill="var(--gem-light)" />
+      <path d="M12 12 21 6.8v10.4z" fill="#000000" fillOpacity="0.12" />
+      <path
+        d="M12 1.6 21 6.8v10.4L12 22.4 3 17.2V6.8z"
+        fill="none"
+        stroke="var(--gem-edge)"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------ the rounded face -- */
+
+/**
+ * THE HERO NUMBER'S TYPEFACE, DRAWN RATHER THAN LOADED, and the reasoning
+ * matters more than the paths because it is a genuine constraint, not a
+ * preference.
+ *
+ * DESIGN-GOALS' Typography names "celebration numbers" as the ROUNDED display
+ * surface, and the committed image draws 42 in a heavily rounded display face.
+ * `--font-display` is a pure system stack (`ui-rounded, "SF Pro Rounded",
+ * "Arial Rounded MT Bold", "Baloo 2", Quicksand, "Varela Round", ...`) and
+ * DESIGN-TOKENS.md records the decision behind it: "No webfont ships in this
+ * phase." On Apple platforms that stack reaches SF Pro Rounded and the image
+ * is satisfied. On Windows and on the Pixel 6a REFERENCE DEVICE it falls all
+ * the way through to system-ui, so the hero rendered as a flat grotesque
+ * identical to the body face, which a critic measured and named.
+ *
+ * Three ways out, and only one of them is available to this piece. Shipping a
+ * webfont means a font file and a link in index.html, which is the
+ * integrator's file and a reversal of a recorded decision; both are reported
+ * rather than taken. Faking roundness by stroking the system glyph rounds the
+ * corners and leaves the skeleton of a grotesque underneath. So the ten digits
+ * are DRAWN, as a monoline stroked in round caps and round joins, which is
+ * exactly how a rounded display face is constructed and is the only thing this
+ * screen ever needs: the hero is always an integer.
+ *
+ * THE GEOMETRY. Every digit is a centreline inside a 100-unit cap height with
+ * a 21-unit stroke, so the drawn extents fill the box by construction and no
+ * digit can drift off its own advance. Two advances only, 40 for the 1 and 60
+ * for everything else, which is the proportional spacing a rounded face uses.
+ * `currentColor` so the mark inherits the number's ink and the count-up needs
+ * no repaint rule of its own.
+ *
+ * IT IS NOT A FONT AND IT DOES NOT PRETEND TO BE ONE. Nothing else in the
+ * product may use it: body copy, chip numbers and streak counts stay on the
+ * real stack. This is one drawn mark for one number on one screen.
+ */
+const DIGIT_STROKE = 21;
+const DIGIT_TRACK = 2;
+const DIGIT_ADVANCE: Readonly<Record<string, number>> = { "1": 40 };
+const DIGIT_ADVANCE_DEFAULT = 60;
+
+const DIGIT_PATH: Readonly<Record<string, string>> = {
+  "0": "M30 10.5A19.5 39.5 0 0 1 30 89.5A19.5 39.5 0 0 1 30 10.5Z",
+  "1": "M9 28 20 12v77.5",
+  "2": "M11 30A19.5 19.5 0 1 1 46 41L11 89.5h38",
+  "3": "M12 27A19 19 0 1 1 32 49M32 49A21 21 0 1 1 12 76",
+  "4": "M40 89.5V12L10 63h42",
+  "5": "M47 12H17l-2 31A21.5 22.5 0 1 1 12 77",
+  "6": "M45 15C27 20 13 34 13 58M12.5 62A17.5 17.5 0 1 1 47.5 62A17.5 17.5 0 1 1 12.5 62",
+  "7": "M11 13h38L25 89.5",
+  "8": "M15 27A15 15 0 1 1 45 27A15 15 0 1 1 15 27M11 68A19 19 0 1 1 49 68A19 19 0 1 1 11 68",
+  "9": "M15 85C33 80 47 66 47 42M47.5 38A17.5 17.5 0 1 1 12.5 38A17.5 17.5 0 1 1 47.5 38",
+};
+
+function digitAdvance(glyph: string): number {
+  return DIGIT_ADVANCE[glyph] ?? DIGIT_ADVANCE_DEFAULT;
+}
+
+/**
+ * The measured box of a number in the drawn face, exported so the size rule in
+ * streak.css and the test can both read the same arithmetic instead of each
+ * guessing it. Height is always 100, the cap height; width is the sum of the
+ * advances plus the tracking between them.
+ */
+export function heroNumberWidth(value: number): number {
+  const glyphs = String(Math.max(0, Math.round(value))).split("");
+  return glyphs.reduce((total, glyph) => total + digitAdvance(glyph), 0) + (glyphs.length - 1) * DIGIT_TRACK;
+}
+
+/**
+ * `box` is the value the BOX is sized for and `value` is what is drawn in it,
+ * and they differ for one beat only: the count-up. A number whose box grows
+ * from one digit to two mid count drags the confetti and the mascot with it,
+ * which is a layout shift on the one frame the screen is asking to be looked
+ * at. So the viewBox is the final total's width from the first frame and the
+ * counting digits are CENTRED inside it, which is also why nothing here needs
+ * tabular figures: the advances are ours and they are already fixed.
+ */
+function RoundedNumber({
+  value,
+  box,
+  className = "",
+}: {
+  readonly value: number;
+  readonly box: number;
+  readonly className?: string;
+}) {
+  const glyphs = String(Math.max(0, Math.round(value))).split("");
+  const boxWidth = Math.max(1, heroNumberWidth(box));
+  const drawnWidth = heroNumberWidth(Math.max(0, Math.round(value)));
+  let cursor = Math.max(0, (boxWidth - drawnWidth) / 2);
+  const placed = glyphs.map((glyph, i) => {
+    const at = cursor;
+    cursor += digitAdvance(glyph) + DIGIT_TRACK;
+    return { glyph, at, key: `${glyph}-${i}` };
+  });
+  return (
+    <svg
+      className={className}
+      viewBox={`0 0 ${boxWidth} 100`}
+      style={{ "--hero-aspect": boxWidth / 100 } as CSSProperties}
+      aria-hidden
+      focusable="false"
+    >
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={DIGIT_STROKE}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {placed.map(({ glyph, at, key }) => (
+          <path key={key} transform={`translate(${at} 0)`} d={DIGIT_PATH[glyph] ?? DIGIT_PATH["0"]} />
+        ))}
+      </g>
     </svg>
   );
 }
@@ -460,14 +650,23 @@ function StateFlame({ state, className = "" }: { readonly state: FlameState; rea
   const icy = state === "freeze";
   return (
     <svg viewBox="0 0 24 24" className={className} data-flame={state} aria-hidden focusable="false">
+      {/* THE BODY IS THE BRIGHT ORANGE AND --streak IS ITS BOUNDARY, which is
+          how blueberry_spec-meter-states and the celebration image both draw
+          the lit flame: a flat #ffa60e body over a deeper orange edge. The
+          build filled it with --streak #d94a06 itself, a markedly darker and
+          redder orange, and drew no edge at all. The token stays where it is,
+          doing the job it was measured for: --streak is 3.64:1 on the page and
+          identifies the shape, so the fill is free to be the image's bright
+          orange under the audit's "a shape is one component" rule. */}
       <path
         className="hud-flame-body"
         d={FLAME_BODY}
-        fill={icy ? ICE_BODY : "var(--streak)"}
-        stroke={icy ? ICE_LINE : "none"}
-        strokeWidth={icy ? 1 : 0}
+        fill={icy ? ICE_BODY : "var(--flame-bright)"}
+        stroke={icy ? ICE_LINE : "var(--streak)"}
+        strokeWidth={icy ? 1 : 1.1}
+        strokeLinejoin="round"
       />
-      <path className="hud-flame-core" d={FLAME_CORE} fill={icy ? ICE_CORE : "var(--streak-core)"} />
+      <path className="hud-flame-core" d={FLAME_CORE} fill={icy ? ICE_CORE : "var(--flame-glow)"} />
       {/* REST DAY: the leaf, cut into the core the way the sheet draws it, in
           the flame's own deeper orange so it reads as a shape in the fire
           rather than as a sticker on top of it. */}
@@ -787,11 +986,74 @@ export function RewardMoment({
   // measured out of one of them mid-reveal and a rise would move it under the
   // measurement. Everything else on the screen rises.
   const fadeClass = (at: number) => (show(at) ? "reward-fade-in" : "reward-fade-out");
-  const cardCount = (hasDiamonds ? 1 : 0) + (streakOn ? 1 : 0);
+  /**
+   * WHICH TWO CHIPS, decided once and by one rule, because the image draws
+   * exactly two and the screen has three things that could want a slot.
+   *
+   * The reference's pair is a big earned NUMBER beside the streak. Our hero is
+   * already the XP number, so the left slot goes to the honest performance
+   * measure the S3 judge named as the one thing the bar reports and we omit,
+   * and the right slot goes to the streak, which is the image's own. Diamonds
+   * are scarcer than either and keep their whole ceremony, but a receipt that
+   * pays them arrives on a screen whose two slots are already the right two,
+   * so they land on the quiet line under the pair, WITH the gem, and that line
+   * is where the flight ends. Every branch below yields at most two chips and
+   * both of them are the same chip.
+   */
+  const leftSlot: "accuracy" | "diamonds" | null = accuracy !== null ? "accuracy" : hasDiamonds ? "diamonds" : null;
+  const rightSlot: "streak" | "diamonds" | null = streakOn
+    ? "streak"
+    : leftSlot !== "diamonds" && hasDiamonds
+      ? "diamonds"
+      : null;
+  const diamondsOnLine = hasDiamonds && leftSlot !== "diamonds" && rightSlot !== "diamonds";
+  const cardCount = (leftSlot !== null ? 1 : 0) + (rightSlot !== null ? 1 : 0);
+
+  /* The gem and its count, drawn once and placed wherever the diamonds landed.
+     `slotRef` rides it either way, so the flight has one target and the effect
+     above needs no branch of its own. */
+  const gemSlot = (
+    <span
+      ref={slotRef}
+      className="reward-slot inline-flex h-8 w-8 items-center justify-center"
+      data-landed={catchStage === "landed" ? "true" : "false"}
+    >
+      <DiamondIcon className="h-8 w-8" />
+    </span>
+  );
+  const diamondName = `Diamonds earned: ${diamondTotal}. ${receipt.diamonds
+    .map((line) => `${line.label} plus ${line.amount}`)
+    .join(", ")}`;
+
+  /* The diamond CHIP, for the branches where a slot is free. Identical to its
+     twin in every respect but its mark and its caption. */
+  const diamondChip = (
+    <section className={`${fadeClass(beats.diamondCard)} reward-chip reward-chip--diamond`} aria-label={diamondName}>
+      <div className="reward-chip__value">
+        {gemSlot}
+        {/* THE NUMBER IS THE PAGE'S INK, not the system's. Both chips in the
+            image draw their number in the page's dark ink and let the MARK
+            beside it carry the hue. */}
+        <span
+          className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-chip__number ${diamondsCounting ? "reward-shine" : ""}`}
+          aria-hidden
+        >
+          +{diamondsShown}
+        </span>
+      </div>
+      <div className="reward-chip__caption">{diamondTotal === 1 ? "diamond" : "diamonds"}</div>
+    </section>
+  );
 
   return (
     <div
-      className="reward-stage fixed inset-0 z-30 flex flex-col overflow-hidden"
+      /* `reward-sheet` is not decoration and not a second name for the same
+         thing: theme.css also carries a `.reward-stage { background }` rule,
+         at equal specificity and LATER in the sheet, so streak.css's cream
+         could never win on source order alone. The second class is what
+         raises this piece's rule to `.reward-stage.reward-sheet` and lets the
+         celebration paint on the product's own paper. See streak.css. */
+      className="reward-stage reward-sheet fixed inset-0 z-30 flex flex-col overflow-hidden"
       role="dialog"
       aria-modal="true"
       aria-label="Lesson complete"
@@ -824,7 +1086,6 @@ export function RewardMoment({
             beside it reacting, which is what makes a still of this screen
             legible at a glance. */}
         <div className="reward-hero relative flex w-full shrink-0 items-end justify-center">
-          <Confetti reducedMotion={reducedMotion} />
           {/* Two elements, one job each, because they carry two animations and
               a single element can only run the last `animation` declared: the
               outer one fades the number in when counting starts, the inner one
@@ -836,20 +1097,29 @@ export function RewardMoment({
             className={`reward-hero-number ${show(beats.xpCountStart) ? "reward-fade-in" : "reward-fade-out"}`}
             aria-label={`${xpTotal} XP earned`}
           >
+            {/* THE BURST IS ANCHORED TO THE NUMBER, not to the hero row. Every
+                confetti percentage resolves against the nearest positioned
+                ancestor, and the row is as wide as the screen and as tall as
+                Bloom, so a fan expressed in percentages of it landed as a band
+                across the top with nothing beside the digits. */}
+            <Confetti reducedMotion={reducedMotion} />
             {/* THE UNIT IS NOT DRAWN, and that is the image rather than an
                 omission. The reference's hero is a bare "42": the word XP
-                lives on the chip below it, and a hero big enough to be 22
-                percent of the screen simply has no room for a word beside it
-                on a 390 pt phone. `data-digits` is what lets the size step
-                down for a three or four digit total instead of wrapping, and
-                the aria-label above still says "XP" out loud, so nothing was
-                lost except a glyph the composition could not afford. */}
+                lives below it and a hero at a fifth of the screen has no room
+                for a word beside it on a 390 pt phone. The aria-label above
+                still says "XP" out loud, so nothing was lost except a glyph
+                the composition could not afford.
+
+                `data-digits` stays as the capture scripts' hook and as the
+                pop's target; the SIZE is no longer stepped by it, because the
+                drawn face reports its own aspect ratio and streak.css can size
+                the box from that directly. See RoundedNumber. */}
             <div
               className="reward-xp-row flex items-end justify-center"
               data-landed={xpLanded ? "true" : "false"}
               data-digits={String(xpTotal).length}
             >
-              <span className="reward-xp title-face font-semibold leading-none text-primary-ink tabular-nums">{xpShown}</span>
+              <RoundedNumber value={xpShown} box={xpTotal} className="reward-xp" />
             </div>
           </section>
           <div
@@ -926,19 +1196,27 @@ export function RewardMoment({
             floor. Dropping the fill drops that hairline with it, which is what
             makes feed.css's "nothing green is a hairline" true here too.
 
-            ONE ROW, HELD BY SIZE RATHER THAN BY DROPPING A TERM. The common
-            lesson pays two XP lines, so with accuracy that is exactly the
-            image's three. A flawless clear pays a third and a one-sitting run
-            a fourth, and `data-count` steps the type and the padding down so
-            four still fit a 390 pt phone rather than wrapping. Dropping a
-            line to make the row fit is not available: the round 2 law is that
-            the itemisation sums to the hero exactly, and a row that fits
-            because a term is missing is a screen that lies. */}
-        <ul
-          className="reward-reasons mt-4"
-          aria-label="How it adds up"
-          data-count={receipt.xp.length + (accuracy !== null ? 1 : 0)}
-        >
+            THE ROW IS THE ITEMISATION AND NOTHING ELSE, which is what changed
+            and it is a measurement rather than a preference. The row used to
+            carry the receipt's XP lines PLUS the accuracy reading, and a
+            critic measured the result: four ragged-width chips wrapped onto
+            two rows where the image draws three of near-equal width on one.
+            Four cannot be made to fit. A common clear pays three XP lines
+            ("First clear +10, Flawless +5, Daily goal +10" is the S3 verdict's
+            own example), each label carrying its amount, and four of those at
+            a legible size is about 500 px of chip on a 358 px row. Dropping an
+            XP line is not available, because the round 2 law is that the
+            itemisation sums to the hero exactly and a row that fits because a
+            term is missing is a screen that lies. So ACCURACY left the row and
+            took a chip of its own below, where it is bigger rather than
+            smaller, and the row is now exactly the three the image draws.
+
+            EQUAL WIDTH, BY CONSTRUCTION. The row is a grid of equal columns
+            rather than a flex line of natural widths, so "near-equal" is not
+            something a label length can undo, and one row is not something a
+            long label can wrap out of. A label that needs two lines takes two
+            lines inside its own pill; nothing truncates. */}
+        <ul className="reward-reasons mt-4" aria-label="How it adds up" data-count={receipt.xp.length}>
           {receipt.xp.map((line, i) => (
             <li
               key={`${line.label}-${i}`}
@@ -952,19 +1230,6 @@ export function RewardMoment({
               <span className="font-bold text-foreground tabular-nums">+{line.amount}</span>
             </li>
           ))}
-          {accuracy !== null ? (
-            <li
-              className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-line reward-accuracy`}
-              aria-label={`Accuracy ${accuracy} percent: ${correct} of ${attempted} right`}
-            >
-              <b className="font-bold tabular-nums" aria-hidden>
-                {accuracy}%
-              </b>
-              <span className="font-medium" aria-hidden>
-                accuracy
-              </span>
-            </li>
-          ) : null}
         </ul>
 
         {/* AT MOST TWO 3D CHIPS, side by side, the pair the committed image
@@ -994,50 +1259,24 @@ export function RewardMoment({
                 on the chips wrapper rather than inside a chip so it does not
                 move when the left chip is absent. */}
             <BoltBadge />
-            {hasDiamonds ? (
-              /* The diamond receipt lines are the chip's accessible NAME and
-                 are not printed on it: on screen they were three lines of grey
-                 type repeating First clear and Flawless from the chips above.
-                 The receipt is still animated, as the count. */
+            {leftSlot === "accuracy" && accuracy !== null ? (
               <section
-                className={`${fadeClass(beats.diamondCard)} reward-chip reward-chip--diamond`}
-                aria-label={`Diamonds earned: ${diamondTotal}. ${receipt.diamonds.map((line) => `${line.label} plus ${line.amount}`).join(", ")}`}
+                className={`${fadeClass(beats.lineFirst)} reward-chip reward-chip--accuracy`}
+                aria-label={`Accuracy ${accuracy} percent: ${correct} of ${attempted} right`}
               >
                 <div className="reward-chip__value">
-                  {/* The slot is on screen empty from the moment the chip is,
-                      so the diamond has somewhere visible to be going. It is
-                      also the fly target the effect above measures, which is
-                      why it renders before it is filled. */}
-                  <span
-                    ref={slotRef}
-                    className="reward-slot inline-flex h-8 w-8 items-center justify-center"
-                    data-landed={catchStage === "landed" ? "true" : "false"}
-                  >
-                    <DiamondIcon className="h-8 w-8" />
-                  </span>
-                  {/* THE NUMBER IS THE PAGE'S INK, not the system's. Both
-                      chips in the image draw their number in the page's dark
-                      ink and let the MARK beside it carry the hue; ours drew a
-                      blue number and a brown one, which is two more accents in
-                      a screen that already has a violet hero and a green CTA,
-                      and it is also the reading the type hierarchy wants,
-                      because the number is the loudest thing on the chip. */}
-                  <span
-                    className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-chip__number ${diamondsCounting ? "reward-shine" : ""}`}
-                    aria-hidden
-                  >
-                    +{diamondsShown}
+                  <span className="reward-chip__number" aria-hidden>
+                    {accuracy}%
                   </span>
                 </div>
-                <div className="reward-chip__caption">{diamondTotal === 1 ? "diamond" : "diamonds"}</div>
+                <div className="reward-chip__caption">accuracy</div>
               </section>
+            ) : leftSlot === "diamonds" ? (
+              diamondChip
             ) : null}
 
-            {streakOn ? (
-              <section
-                className={`${fadeClass(beats.streak)} reward-chip ${milestone !== null ? "reward-chip--milestone" : "reward-chip--streak"}`}
-                aria-label="Streak"
-              >
+            {rightSlot === "streak" ? (
+              <section className={`${fadeClass(beats.streak)} reward-chip reward-chip--streak`} aria-label="Streak">
                 <div className="reward-chip__value">
                   {/* WHICH OF THE SPEC SHEET'S THREE FLAMES, decided by the
                       receipt rather than by this screen: the engine is the one
@@ -1053,21 +1292,59 @@ export function RewardMoment({
                     {receipt.streak.current}
                   </span>
                 </div>
-                {/* The caption says what the number is, once. A milestone chip
-                    says MILESTONE and lets the line below say which day it is,
-                    because the same number twice inside one small chip is the
-                    exact fault the round 2 ruling was written about. */}
+                {/* The caption says what the number is, once. A milestone says
+                    MILESTONE here and lets the line under the pair say which
+                    day it is, because the same number twice inside one small
+                    chip is the exact fault the round 2 ruling was about. */}
                 <div className="reward-chip__caption">
                   {milestone !== null ? "Milestone" : receipt.streak.current === 1 ? "day streak, started" : "day streak"}
                 </div>
-                {milestone !== null ? (
-                  <p className="reward-chip__note text-foreground">{MILESTONE_LINE[milestone] ?? "Another milestone lit."}</p>
-                ) : receipt.streak.savedBy !== undefined ? (
-                  <p className="reward-chip__note text-muted-foreground">
-                    {receipt.streak.savedBy === "rest_day" ? "A rest day held it. Streak safe." : "A freeze held it. Streak safe."}
-                  </p>
-                ) : null}
               </section>
+            ) : rightSlot === "diamonds" ? (
+              diamondChip
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* THE QUIET LINE UNDER THE PAIR, and it is where two defects were
+            fixed at once.
+
+            The milestone used to make the streak chip a DIFFERENT chip: a
+            red-brown rim, a red-brown slab and a 34 percent outline halo, plus
+            two more lines of body copy inside a box its twin did not have. A
+            critic read the result exactly as it looks, "one card and one
+            alert", where the image draws two cards of identical size and
+            treatment with the same dark charcoal lip on both. So the chips are
+            now the same chip in every state, and everything that used to swell
+            one of them lives here instead, outside the pair.
+
+            IT IS ONE SLOT AND IT CARRIES REAL COPY, not decoration. A saved
+            streak is the moment ECONOMY.md's mitigation set exists for, and
+            drawing it as an unremarkable lit day is the one reading that makes
+            the mitigation invisible; a milestone is a scarcity signal; a
+            diamond payout is money. None of the three may be dropped to tidy a
+            composition, so they come out of the chips rather than out of the
+            product. */}
+        {diamondsOnLine || milestone !== null || receipt.streak.savedBy !== undefined ? (
+          <div className="reward-aside mt-3">
+            {diamondsOnLine ? (
+              <p className={`${fadeClass(beats.diamondCard)} reward-aside__row`} aria-label={diamondName}>
+                {gemSlot}
+                <span
+                  className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-aside__number ${diamondsCounting ? "reward-shine" : ""}`}
+                  aria-hidden
+                >
+                  +{diamondsShown}
+                </span>
+                <span aria-hidden>{diamondTotal === 1 ? "diamond" : "diamonds"}</span>
+              </p>
+            ) : null}
+            {milestone !== null ? (
+              <p className="reward-aside__note text-foreground">{MILESTONE_LINE[milestone] ?? "Another milestone lit."}</p>
+            ) : receipt.streak.savedBy !== undefined ? (
+              <p className="reward-aside__note text-muted-foreground">
+                {receipt.streak.savedBy === "rest_day" ? "A rest day held it. Streak safe." : "A freeze held it. Streak safe."}
+              </p>
             ) : null}
           </div>
         ) : null}

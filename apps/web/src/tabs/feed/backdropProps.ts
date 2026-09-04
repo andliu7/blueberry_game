@@ -76,6 +76,41 @@ export const FLANK_LEFT = 0.2;
 export const FLANK_RIGHT = 0.8;
 
 /**
+ * THE HEADING BANDS, and this is a defect a critic actually measured rather
+ * than a hypothetical: "a cloud in the build's FeedBackdrop sits over the
+ * 'Daily Quests' heading and its outline cuts through the D and the a."
+ *
+ * The flank rule above is not enough on its own, and the arithmetic says why.
+ * A prop is kept out of the middle because the CARDS run down the middle, but
+ * a section HEADING starts at the content column's left edge and is short, so
+ * it lives in the top of the LEFT flank: x 0.04 to about 0.5, which the flank
+ * rule reads as "left flank, allowed". A card is opaque and a prop behind it
+ * is invisible; a heading is bare type on the page and a prop behind it is an
+ * outline cutting through letterforms. So the left flank carries two extra
+ * exclusions, one per heading, expressed as y bands of the tab's own height.
+ *
+ * The numbers are for the narrow case, which is the only one that can fail:
+ * on a phone the column is the whole screen, the Daily Quests heading sits in
+ * the first tenth of the page and the Lab mates heading around the middle. On
+ * a desktop the column is 672 px inside a much wider page and the flanks are
+ * real margin, so a prop at x 0.1 is nowhere near the type either way.
+ */
+export interface Band {
+  readonly from: number;
+  readonly to: number;
+}
+export const HEADING_BANDS: readonly Band[] = Object.freeze([
+  Object.freeze({ from: 0, to: 0.12 }),
+  Object.freeze({ from: 0.46, to: 0.62 }),
+]);
+
+/** True when a placement would sit behind bare heading type. */
+export function crossesHeading(x: number, y: number): boolean {
+  if (x > FLANK_LEFT) return false;
+  return HEADING_BANDS.some((band) => y >= band.from && y <= band.to);
+}
+
+/**
  * The composition, read as a picture rather than as a list.
  *
  * Two clouds high and on opposite flanks, so the eye crosses the Daily Quests
@@ -110,27 +145,23 @@ export const FLANK_RIGHT = 0.8;
 const PLACEMENTS: readonly FeedPropPlacement[] = Object.freeze(
   [
     /*
-     * BOTH CLOUDS SIT BESIDE THE HEADINGS, NOT UNDER THE SUBTITLES, and that
-     * is a capture correction. The first pass put one at y 0.07, which on a
-     * phone is exactly the line "Fresh each day, filled by whatever you play"
-     * occupies: a cloud outline running through body text is the one place a
-     * watermark stops being decoration and starts costing legibility. A
-     * section HEADING is short, so the space beside it is genuinely empty and
-     * is where a prop belongs.
+     * BOTH CLOUDS SIT ON THE RIGHT FLANK, WHICH IS THE HEADING CORRECTION.
+     * The first pass put one at x 0.08, y 0.025, on the reading that the left
+     * flank is empty above the first card. It is not: "Daily Quests" starts at
+     * the column's left edge, so a capture found this cloud's outline cutting
+     * through the D and the a of the heading. The headings are SHORT, so the
+     * space that is genuinely empty beside them is the right flank, and both
+     * clouds go there. `crossesHeading` above is the rule and the test holds
+     * it, so the next round cannot reintroduce this by eye.
      */
     { kind: "cloud", x: 0.88, y: 0.045, scale: 1.0 },
-    /*
-     * HALF OFF THE TOP EDGE ON PURPOSE. A prop caught in the 10 px gap between
-     * two quest cards is a cloud sliced twice, which reads as a smudge rather
-     * than as weather; one clipped by the PAGE edge reads as a cloud drifting
-     * in, which is what the committed backdrop does with its own. So this one
-     * sits above the first card entirely.
-     */
-    { kind: "cloud", x: 0.08, y: 0.025, scale: 0.78 },
+    { kind: "cloud", x: 0.92, y: 0.2, scale: 0.78 },
     { kind: "flask", x: 0.09, y: 0.32, scale: 1.15 },
     { kind: "flask", x: 0.9, y: 0.46, scale: 1.5 },
-    { kind: "chain", x: 0.16, y: 0.6, scale: 1.0 },
-    { kind: "flask", x: 0.84, y: 0.79, scale: 0.95 },
+    /* Below the Lab mates heading band rather than through it: y 0.6 sat in
+       the second exclusion, which on a phone is the heading's own line. */
+    { kind: "chain", x: 0.16, y: 0.7, scale: 1.0 },
+    { kind: "flask", x: 0.84, y: 0.82, scale: 0.95 },
     { kind: "chain", x: 0.11, y: 0.93, scale: 1.2 },
   ].map((placement) => Object.freeze(placement as FeedPropPlacement)),
 );

@@ -37,6 +37,13 @@
  */
 
 import { HUMAN_GATE_MARK, type HearChoice, type StartChoice, type WhyChoice } from "./flow";
+
+/**
+ * Re-exported so a component can draw the mark without importing the flow
+ * model to get it. The mark's home is flow.ts, where `draft()` reads it; this
+ * is the copy module's own surface for the one component that renders it.
+ */
+export { HUMAN_GATE_MARK };
 import type { DailyGoalTier } from "@blueberry/economy";
 
 /** Marks one draft line. Exported so a test can rebuild the expectation. */
@@ -91,6 +98,15 @@ export const WHY_LABEL: Readonly<Record<WhyChoice, string>> = Object.freeze({
 export const PLACEMENT_INTRO_ASK = draft("A few questions, so I know where to start you.");
 export const PLACEMENT_START = draft("Start");
 export const PLACEMENT_SKIP_QUESTION = draft("Skip this one");
+/**
+ * The word that fits in the header pill.
+ *
+ * blueberry_r9-onboard-placement draws its trailing pill 37 css wide, which
+ * holds one short word and no more. The full sentence above stays as the
+ * control's accessible name, so a screen reader hears "skip this one" and a
+ * sighted student reads the four letters that fit.
+ */
+export const PLACEMENT_SKIP_SHORT = draft("Skip");
 export const PLACEMENT_CHECK = draft("Check");
 /** The counter over the question. `%d` slots are filled by the view. */
 export const PLACEMENT_COUNTER = draft("Question %n of %total");
@@ -146,6 +162,23 @@ export const LEAVE_LABEL = draft("Leave the quiz");
 export const PROGRESS_LABEL = draft("Getting set up");
 
 /**
+ * THE GATE STRIP'S OWN LINE, and the one place the mark is drawn rather than
+ * stripped.
+ *
+ * CLAUDE.md rules the onboarding funnel a human gate rather than a loop: the
+ * flow and the frames are the deliverable and the words are the owner's. A
+ * reviewer opening #/start/welcome has to be able to SEE that, and between
+ * 2026-09-04 and this pass they could not: every line still carried the mark
+ * in the string and `withoutMark` stripped it at every render site, so eight
+ * screens of draft copy presented as finished copy.
+ *
+ * It is one strip under the action rather than a stamp in the header, because
+ * the header stamp cost the progress bar 79px of a 358px row and that is a
+ * real measurement. This costs the bar nothing.
+ */
+export const GATE_NOTICE = draft("Placeholder copy, pending owner review.");
+
+/**
  * Fills the `%n`, `%total`, `%c` and `%cap` slots above. A tiny formatter
  * rather than template literals in the view, because the owner rewriting a
  * line at the gate must be able to move a number inside the sentence without
@@ -182,6 +215,7 @@ export const ALL_DRAFT_LINES: readonly string[] = Object.freeze([
   PLACEMENT_INTRO_ASK,
   PLACEMENT_START,
   PLACEMENT_SKIP_QUESTION,
+  PLACEMENT_SKIP_SHORT,
   PLACEMENT_CHECK,
   PLACEMENT_REASON_ASK,
   PLACEMENT_COUNTER,
@@ -207,6 +241,7 @@ export const ALL_DRAFT_LINES: readonly string[] = Object.freeze([
   BACK_LABEL,
   LEAVE_LABEL,
   PROGRESS_LABEL,
+  GATE_NOTICE,
 ]);
 
 /* ------------------------------------------------------------------ */

@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from "vitest";
 import { receiptFor, type EconomyEvent, type Receipt } from "@blueberry/economy";
-import { accuracyPercent, celebrationModel } from "../src/lesson/RewardMoment";
+import { accuracyPercent, celebrationModel, heroNumberWidth } from "../src/lesson/RewardMoment";
 
 const TZ = "UTC";
 const NOW = "2026-08-28T14:00:00.000Z";
@@ -207,5 +207,52 @@ describe("the clock", () => {
     const a = celebrationModel(receiptForClear(history, event, morning), 4, 5);
     const b = celebrationModel(receiptForClear(history, event, night), 4, 5);
     expect(a).toEqual(b);
+  });
+});
+
+/**
+ * THE DRAWN HERO FACE, held as a check because it is a typeface this
+ * repository maintains rather than one a platform ships.
+ *
+ * DESIGN-GOALS names celebration numbers as the ROUNDED display surface, and
+ * a critic measured the built hero as "a flat grotesque identical to the body
+ * face": --font-display is a pure system stack with no @font-face anywhere in
+ * apps/web, so off Apple platforms it falls through to system-ui, the Pixel 6a
+ * reference device included. RewardMoment.tsx answers that by DRAWING the ten
+ * digits as a rounded monoline, which is the only part of the face this screen
+ * ever needs.
+ *
+ * The risk a drawn face carries is a missing glyph, and a missing glyph on the
+ * one number the whole screen is about is the worst place in the product for
+ * one. So: every digit exists, and the box arithmetic streak.css sizes the
+ * hero from is the same arithmetic the component draws with.
+ */
+describe("the drawn hero number", () => {
+  it("draws every digit the engine can pay", () => {
+    for (let digit = 0; digit <= 9; digit += 1) {
+      expect(heroNumberWidth(digit), `digit ${digit} has no drawn width`).toBeGreaterThan(0);
+    }
+  });
+
+  it("widens with the total, so a four digit clear cannot render inside a two digit box", () => {
+    expect(heroNumberWidth(9)).toBeLessThan(heroNumberWidth(42));
+    expect(heroNumberWidth(42)).toBeLessThan(heroNumberWidth(185));
+    expect(heroNumberWidth(185)).toBeLessThan(heroNumberWidth(1850));
+  });
+
+  it("gives the 1 a narrower advance, which is what proportional spacing means", () => {
+    // 11 against 88: same digit count, and a face that reported the same width
+    // for both would be drawing a monospace grid rather than a rounded face.
+    expect(heroNumberWidth(11)).toBeLessThan(heroNumberWidth(88));
+  });
+
+  it("puts a two digit total at about the reference's aspect", () => {
+    // The image's 42 is roughly 56 percent of a 390 pt screen wide and 20
+    // percent of 844 tall, an aspect of about 1.2. streak.css sizes the box
+    // as min(56vw, 20vh * aspect), so this ratio is what decides which of the
+    // two limits a common total lands on.
+    const aspect = heroNumberWidth(42) / 100;
+    expect(aspect).toBeGreaterThan(1.1);
+    expect(aspect).toBeLessThan(1.35);
   });
 });

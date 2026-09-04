@@ -345,38 +345,37 @@ export function CloseIcon(props: GlyphProps) {
 }
 
 /**
- * The welcome screen's horizon: two clouds, a small ghost flask, and the rise.
+ * THE WELCOME BEAT'S BACKGROUND WORLD: two overlapping white mounds filling
+ * the lower third, a classic Erlenmeyer standing on the rise, and two clouds.
  *
- * DRAWN TO blueberry_r9-onboard-welcome, and three things about it are the
- * image's rather than a choice made here.
+ * REDRAWN AGAINST blueberry_r9-onboard-welcome AFTER A PIXEL COMPARISON, and
+ * every number below is that comparison rather than a taste. The previous pass
+ * drew a thin arc entering only from the RIGHT at 82 percent of screen height,
+ * with no mass at all on the left half and the white fill almost entirely
+ * below GET STARTED, so the composition the backdrop rework was written to
+ * deliver never reached the screen. The image draws an opaque mound whose
+ * crest is at 67 percent of screen height, unbroken across BOTH edges, with a
+ * second overlapping mound in front of it, and the button resting on it.
  *
- * THE CLOUDS ARE THE DOMINANT PROPS AND THE FLASK IS A SMALL GHOST. The image
- * makes the two clouds the largest objects in the lower third and tucks a
- * faint flask partly BEHIND the rise. An earlier pass inverted that: the flask
- * was the biggest thing on the screen and floated clear above the hill line,
- * with the clouds as small outlines beside it. Order in this file is paint
- * order, so the flask is drawn before the rise and the rise covers its foot.
+ * WHERE 67 PERCENT LANDS IN THIS viewBox, since it is the one piece of
+ * arithmetic here. `.ob-welcome__horizon` is 116 percent of a 390px frame at
+ * this viewBox's own ratio, so it renders 394 css tall against a 844 css
+ * screen and is anchored to the bottom. 67 percent of 844 from the top is 278
+ * css up from the bottom, which is y = 100 in these units. That is where the
+ * main crest sits and it is why the flask's base is at y = 104.
  *
- * THE PROPS ARE OPAQUE AND THEY READ. The image draws white props with a clear
- * soft outline against the cream ground. The previous fill was --card on
- * --background, two percent of luminance apart, and the whole composition was
- * very nearly invisible. --ob-prop and --ob-prop-edge (onboarding.css) are
- * derived from --primary-foreground, --card, --secondary and
- * --muted-foreground, so the white is white in both themes and the outline
- * clears the 3.0 a graphic owes.
+ * THE FLASK IS AN ERLENMEYER AND THE LAST ONE WAS NOT. The image draws a wide
+ * triangular body on a flat base with a short lipped neck, about 61 by 74 css,
+ * fully visible and standing ON the rise. The previous pass drew a tall
+ * near-parallel-sided tube with a long neck and a barely flared foot, half
+ * hidden behind GET STARTED, which read as a chimney. Different silhouette,
+ * not a smaller version of the same one.
  *
- * THE RISE BLEEDS OFF BOTH EDGES. `preserveAspectRatio="xMidYMax slice"` fills
- * the width and crops the top, and the element is placed by onboarding.css as
- * a backdrop layer OUTSIDE the scrolling body, which is what actually fixed
- * the three hard edges an earlier pass left behind. See the note on
- * `.ob__backdrop` there: negative margins could not do it, because a sibling
- * `overflow-y: auto` makes overflow-x compute to auto and clip.
- *
- * The rise's FILL and its TOP CURVE are two paths on purpose. One closed path
- * stroked all the way round draws its own left, right and bottom edges, so the
- * hill arrives as a rectangle with a wavy top.
- *
- * It is decoration and carries `aria-hidden`; nothing here is information.
+ * EVERY EDGE IS `--ob-prop-edge`, which onboarding.css now resolves to the
+ * warm tan the image ghosts these props in rather than the cool neutral grey
+ * that made wallpaper read as foreground objects. See the token's comment
+ * there for the measured luminance delta and the argument about what
+ * decoration owes.
  */
 export function WelcomeHorizon(props: Omit<SVGProps<SVGSVGElement>, "children" | "viewBox">) {
   return (
@@ -388,44 +387,60 @@ export function WelcomeHorizon(props: Omit<SVGProps<SVGSVGElement>, "children" |
       preserveAspectRatio="xMidYMax meet"
       {...props}
     >
-      {/* The flask, small and quiet, standing where the rise will cover its
-          foot. Drawn first so the hill is in front of it. */}
-      <g opacity="0.7">
-        <path
-          d="M186 152v15l-10 55a4.4 4.4 0 0 0 4.2 5.8h17.6a4.4 4.4 0 0 0 4.2-5.8l-10-55v-15"
-          fill="var(--ob-prop)"
-          stroke="var(--ob-prop-edge)"
-          strokeWidth={2.4}
-          strokeLinejoin="round"
-        />
-        <path d="M183 152h11" stroke="var(--ob-prop-edge)" strokeWidth={2.4} strokeLinecap="round" />
-      </g>
-
-      {/* The rise. Fill first, then the top curve alone as the outline: one
-          closed path stroked all the way round draws its own left, right and
-          bottom edges, and the hill arrives as a rectangle with a wavy top. */}
-      <path d="M-6 214c54-23 99-23 150 2s101 26 155 6 99-20 104 2v122H-6Z" fill="var(--ob-prop)" />
+      {/* The two clouds, above the horizon, the right one running off the
+          screen edge as the image draws it. */}
       <path
-        d="M-6 214c54-23 99-23 150 2s101 26 155 6 99-20 104 2"
+        d="M26 62a30 30 0 0 1 57-10 24 24 0 0 1 40 17 17 17 0 0 1-4 34H40a22 22 0 0 1-14-41Z"
+        fill="var(--ob-prop)"
+        stroke="var(--ob-prop-edge)"
+        strokeWidth={2.4}
+      />
+      <path
+        d="M262 34a26 26 0 0 1 49-9 21 21 0 0 1 35 15 15 15 0 0 1-4 30h-78a19 19 0 0 1-2-36Z"
+        fill="var(--ob-prop)"
+        stroke="var(--ob-prop-edge)"
+        strokeWidth={2.4}
+      />
+
+      {/* THE RISE. Fill and top curve are separate paths on purpose: one
+          closed path stroked all the way round draws its own left, right and
+          bottom edges too, and the hill then arrives as a rectangle with a
+          wavy top. */}
+      <path
+        d="M-20 340V196c60-66 120-100 180-100s140 32 250 12v232Z"
+        fill="var(--ob-prop)"
+      />
+      <path
+        d="M-20 196c60-66 120-100 180-100s140 32 250 12"
         fill="none"
         stroke="var(--ob-prop-edge)"
         strokeWidth={2.4}
         strokeLinecap="round"
       />
 
-      {/* The two clouds, the dominant props of the composition. The right one
-          runs off the screen edge, as the image draws it. */}
+      {/* The Erlenmeyer, standing on the crest: a wide triangular body on a
+          flat base, a short neck, and a lip across its mouth. */}
       <path
-        d="M22 176a30 30 0 0 1 57-10 24 24 0 0 1 40 17 17 17 0 0 1-4 34H36a22 22 0 0 1-14-41Z"
+        d="M183 40v16l-16 48h56l-16-48V40Z"
         fill="var(--ob-prop)"
         stroke="var(--ob-prop-edge)"
         strokeWidth={2.4}
+        strokeLinejoin="round"
+      />
+      <path d="M177 40h36" stroke="var(--ob-prop-edge)" strokeWidth={2.4} strokeLinecap="round" />
+
+      {/* The second mound, overlapping the first from the left and in front of
+          it, which is what gives the lower third its depth in the image. */}
+      <path
+        d="M-20 340V236c48-46 112-60 166-50 38 7 60 24 78 50v104Z"
+        fill="var(--ob-prop)"
       />
       <path
-        d="M252 96a26 26 0 0 1 49-9 21 21 0 0 1 35 15 15 15 0 0 1-4 30h-78a19 19 0 0 1-2-36Z"
-        fill="var(--ob-prop)"
+        d="M-20 236c48-46 112-60 166-50 38 7 60 24 78 50"
+        fill="none"
         stroke="var(--ob-prop-edge)"
         strokeWidth={2.4}
+        strokeLinecap="round"
       />
     </svg>
   );

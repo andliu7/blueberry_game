@@ -545,9 +545,62 @@
    them is the confetti, the enormous number and the chip pair filling the
    frame, not a different shade of paper. Retiring --reward-ground itself is
    theme.css's call and theme.css is the integrator's file, so the token stays
-   defined and stops being painted here. */
-.reward-stage {
+   defined and stops being painted here.
+
+   AND IT IS A TWO-CLASS SELECTOR FOR A MEASURED REASON. theme.css carries
+   `.reward-stage { background: var(--reward-ground) }` LATER in the sheet at
+   the same specificity, so a single-class rule here lost on source order and
+   a capture read the celebration ground back as #eee7df: the pink-grey, not
+   the cream this block says it paints. The block comment at the top of this
+   section claimed specificity settled it, and for `.reward-stage .reward-card`
+   it does; for a bare `.reward-stage` against a bare `.reward-stage` it does
+   not. RewardMoment.tsx puts `reward-sheet` on the same element so the rule
+   below is 0,2,0 and wins in both directions. The custom properties ride the
+   same block deliberately: they are this surface's local palette and they
+   belong wherever its ground is decided. */
+.reward-stage.reward-sheet {
   background: var(--background);
+
+  /* ---------------------------------------------------------------------
+     THE THREE HUES THIS SCREEN TAKES FROM THE COMMITTED IMAGE RATHER THAN
+     FROM theme.css, each with the reason it is scoped here.
+
+     theme.css is the integrator's file, and every one of these tokens is
+     also painted somewhere this piece does not own: --diamond is the
+     header's gem and the Feed's band wash, --streak is the header's flame,
+     --progress is the pathway's trail and every filled bar in the product.
+     Moving one is a product-wide change with its own contrast row, so the
+     move is REPORTED and this surface paints with locals. It can do that
+     safely because it is a full-bleed overlay: no header, no tab bar and no
+     other surface is on screen with it, so nothing here can disagree with
+     the same object drawn elsewhere in the same frame.
+
+     GEM. Both committed images draw a TEAL hexagon, sampled #26bdb6 and
+     #2eb3b0. --diamond is #0284c7, a sky blue. The bright face is about
+     2.2:1 on cream, so --gem-edge #0e7f7a carries the boundary at 3.36:1
+     and the shape is identified by its outline, which is the contrast
+     audit's own "a shape is one component" rule rather than an exemption.
+
+     FLAME. The image and blueberry_spec-meter-states draw a flat bright
+     orange (#ffa60e over #fc8e01). --streak #d94a06 is markedly darker and
+     redder. Same construction as the gem: the bright body is the fill and
+     --streak, already measured at 3.64:1 on the page, is the boundary.
+
+     CLAIM. The image fills CLAIM with a soft mint, sampled #9ae1b7;
+     --progress #b3df92 is yellow-leaning lime. --progress-ink #163a26 on
+     the mint is 8.32:1, over the 4.5 body floor, and --claim-edge #2f7d55
+     is 4.29:1 on the cream page, over the 3.0 a boundary owes. The image's
+     WHITE label is not reachable at AA on either green, and the fill-only
+     rule prescribes dark ink on green, so the ink stays ours and only the
+     hue moves.
+     --------------------------------------------------------------------- */
+  --gem: #26bdb6;
+  --gem-light: #5fd8d2;
+  --gem-edge: #0e7f7a;
+  --flame-bright: #ffa60e;
+  --flame-glow: #ffd166;
+  --claim-face: #9ae1b7;
+  --claim-edge: #2f7d55;
 }
 
 /* ---------------------------------------------------------- the hero row -- */
@@ -560,48 +613,63 @@
 
    The confetti fan is positioned against this row, because .reward-flake
    resolves its percentages against the nearest positioned ancestor. */
+/* THE NUMBER'S TOP EDGE SITS 18 PERCENT DOWN THE SCREEN, which is the
+   reference's own placement and the second half of the size correction. The
+   build rendered the hero at y = 28 on an 844 pt screen, jammed against the
+   top edge and overlapping its own confetti, because the column centred short
+   content and the number was too big to leave room above it. The padding here
+   is what the crown of confetti occupies: 15.5vh plus the column's own 1.25rem
+   puts the digits' top at about 151 px, or 17.9 percent. */
 .reward-hero {
   position: relative;
-  padding-top: 0.5rem;
+  padding-top: 15.5vh;
   padding-bottom: 0.25rem;
 }
+/* NO z-index HERE, DELIBERATELY, and it is the whole reason the crown can sit
+   behind Bloom. This element is the confetti's positioning context; the moment
+   it also carries a z-index it becomes a STACKING CONTEXT, and then every
+   flake inside it paints as one layer at that level and no negative z-index on
+   a child can reach behind a sibling outside. With the property absent the
+   three actors below sort against each other directly: confetti at 0, Bloom at
+   0 and later in the DOM so he covers it, the digits at 1 and above them both.
+   That ordering is the reference's own reading, where the fan is thrown from
+   BEHIND the pair and the pieces that would land on the mascot are simply
+   occluded by him, which is what makes the reference's crown descend further
+   on its left than on its right without any asymmetry being drawn. */
 .reward-hero-number {
   position: relative;
+}
+
+/* THE NUMBER IS 56 PERCENT OF THE SCREEN WIDE AND 20 PERCENT TALL, which is
+   the reference measured at 3x and is now reachable exactly rather than
+   approximately, because the digits are DRAWN (see RoundedNumber) and the
+   drawing reports its own aspect ratio on --hero-aspect.
+
+   The previous pass sized a font and got 260 by 248 px on a 390 by 844 screen:
+   67 percent of the width and 29 percent of the height, which is a third too
+   big in both directions and is what pinned it to the top edge. Sizing a font
+   cannot do better, because the box a font produces depends on which family
+   the platform actually resolved and on that family's cap height, neither of
+   which CSS can read.
+
+   THE RULE READS AS ARITHMETIC. Width wants 56vw; height wants 20vh, which is
+   a width of 20vh times the aspect. Take the smaller, so a two digit total
+   lands on its height (206 by 169 px, 53 percent by 20 percent) and a four
+   digit total lands on its width and gets shorter instead of wrapping. A
+   single digit is limited by height and stays a sensible column. There is no
+   step table and no digit-count branch left: one expression covers every
+   total the engine can pay. */
+.reward-stage .reward-xp {
+  /* The digits are the top layer of the hero, above both Bloom and the fan.
+     See .reward-hero-number for why the layer is declared here rather than on
+     the wrapper. */
+  position: relative;
   z-index: 1;
-}
-
-/* THE NUMBER IS THE LARGEST OBJECT ON THE SCREEN BY A FACTOR OF THREE, and
-   that is a measurement off the committed image rather than a preference.
-   Scaling the reference to a 390 pt phone puts its "42" at about 180 CSS px of
-   GLYPH height, roughly 21 percent of the screen. The previous pass resolved
-   to a 109 px font, which is about 78 px of glyph and under half the
-   reference: the mascot beside it then read as a co-equal subject rather than
-   as a reaction to it, and half the screen was empty because the subject was
-   too small to fill the composition.
-
-   HOW THE SIZE IS REACHED. A digit's cap height is roughly 0.72em, so 180 px
-   of glyph wants a 250 px font, which is 64vw on a 390 pt screen. That only
-   fits because two things changed with it: the unit "XP" is no longer drawn
-   beside the number (the reference draws a bare number), and Bloom overlaps
-   the last digit instead of being paid for out of the number's width.
-
-   IT STEPS DOWN BY DIGIT COUNT rather than wrapping. Two digits is the common
-   case and gets the reference's own size; three and four get progressively
-   less, because a four digit total at 64vw is 700 px of glyph on a phone and a
-   hero number that wraps is not a hero number. `data-digits` is written by the
-   component from the total's own string length, so there is no guessing here
-   and no measurement in JavaScript. */
-.reward-stage .reward-xp-row[data-digits="1"] .reward-xp,
-.reward-stage .reward-xp-row[data-digits="2"] .reward-xp {
-  font-size: min(64vw, 15.5rem);
-}
-.reward-stage .reward-xp-row[data-digits="3"] .reward-xp {
-  font-size: min(45vw, 11rem);
-}
-.reward-stage .reward-xp-row .reward-xp {
-  /* Four digits and up. Last, so it loses the cascade to the rules above on
-     specificity ties and wins where none of them matched. */
-  font-size: min(33vw, 8rem);
+  display: block;
+  width: min(56vw, calc(20vh * var(--hero-aspect, 1.22)));
+  max-width: 26rem;
+  height: auto;
+  color: var(--primary-ink);
 }
 .reward-hero .reward-bloom {
   /* THE OVERLAP, and it is a fraction of Bloom's own size rather than a fixed
@@ -609,9 +677,20 @@
      0.3 is what the reference draws: his left shoulder sits over the digit and
      his face clears it. */
   margin-left: calc(var(--bloom-size) * -0.3);
-  /* The mascot is BEHIND the number where they overlap. The number is the
-     subject of this screen and nothing may cross in front of a digit. */
-  z-index: 0;
+  /* BLOOM IS IN FRONT OF THE DIGIT, which is a reversal and the image is why.
+     This rule used to say "nothing may cross in front of a digit", and that
+     was a house rule rather than a clause: no line in DESIGN-GOALS asks for
+     it, and blueberry_r6-lesson-complete plainly draws his raised left arm
+     ACROSS the 2's right stroke. Behind, the arm was sliced clean off at the
+     digit's edge, which reads as a clipping bug rather than as depth, and it
+     also cost the pair the thing the overlap exists for: two figures sharing
+     one space instead of two columns that happen to touch. The digits stay
+     legible because the overlap is a shoulder's worth, not a body's, and the
+     number is still the largest, boldest object on the screen.
+
+     The layers on this row now read front to back as mascot, digits, confetti,
+     which is the reference's own order. */
+  z-index: 2;
 }
 
 /* ---------------------------------------------------------- the confetti -- */
@@ -622,9 +701,21 @@
    ms frame a critic judges still has the fan on it. The old .reward-spark
    ended at opacity 0 and the screen it left behind had nothing above the
    number at all. */
+/* THE BURST BOX IS THE NUMBER'S BOX EXACTLY, and the grown inset it replaces
+   is why: at `inset: -58% -36% -20%` a flake's `left: 14%` meant 14 percent of
+   a box a third wider than the digits, so the four edges RewardMoment measured
+   off the committed image had to be converted twice before anyone could check
+   them, and a capture found the fan sitting at -39 to +136 across and -60 to
+   +64 down where the reference draws -24 to +124 and -35 to +100.
+
+   At `inset: 0` a percentage in BURST is a percentage of the number, full
+   stop, so the constants there are the measurement and a reader can hold the
+   two side by side. Values outside 0 to 100 are the composition rather than
+   overflow: `.reward-column` is `overflow-x: hidden` (below), so the widest
+   flake is trimmed at the screen edge and can never widen the page. */
 .reward-confetti {
   position: absolute;
-  inset: -18% -6% 6%;
+  inset: 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -644,8 +735,10 @@
 /* Five hues, the reference's own. --good is deliberately absent: it is a
    near-black green that reads as a hole in the paper. */
 .reward-flake--pink { background: var(--flake-pink); }
-.reward-flake--diamond { background: var(--diamond); }
-.reward-flake--streak { background: var(--streak); }
+/* The teal of the gem this screen actually draws, not --diamond's sky blue:
+   a confetti hue that is not a colour on the screen is a sixth accent. */
+.reward-flake--diamond { background: var(--gem); }
+.reward-flake--streak { background: var(--flame-bright); }
 .reward-flake--spark { background: var(--streak-core); }
 .reward-flake--primary { background: var(--primary-bright); }
 /* Thrown from the centre of the pair out to where it settles. The `from` is
@@ -707,11 +800,22 @@
    down by count so the common three and the flawless four both hold one row on
    a 390 pt phone, and a fifth term wraps rather than scrolling, because a chip
    a student has to swipe to find is a term of the sum they will not see. */
+/* ONE ROW OF EQUAL COLUMNS, and both properties are the fix rather than a
+   layout preference. A critic measured "four ragged-width chips wrapped onto
+   TWO rows" against the image's three of near-equal width on one. `flex-wrap`
+   is what allowed the second row and natural widths are what made them ragged,
+   so both are gone: a grid whose columns are `minmax(0, 1fr)` cannot wrap and
+   cannot give one chip more width than another, whatever a receipt label says.
+   The row's COUNT came down to the image's three separately, by moving
+   accuracy out of it and into a chip of its own; see RewardMoment.tsx. */
 .reward-reasons {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: stretch;
   justify-content: center;
+  width: 100%;
+  max-width: 26rem;
   gap: 0.4rem;
 }
 /* EVERY PILL CARRIES A REAL OUTLINE, and that is a correction rather than a
@@ -735,33 +839,54 @@
    that holds the image's ONE ROW, and the divergence is named rather than
    hidden. Four terms take 14px and five take 13, which is the same trade made
    one step further along. */
+/* LABEL ABOVE, AMOUNT BELOW, IN EVERY PILL, and the reason is uniformity
+   rather than a second idea about hierarchy.
+
+   The image's pills carry one word each ("Vocabulary", "Accuracy", "Speed") so
+   they are single-line and identical. Ours carry a label AND its amount,
+   because the round 2 law is that the itemisation sums to the hero exactly, so
+   they are longer by construction. Laid out as a wrapping BASELINE row, the
+   break landed wherever each label's length put it: a capture showed "Lesson
+   cleared / +30" over two lines, "Flawless +8" on one, and "Daily goal / +4"
+   over two, so three pills of equal width still read as three different pills
+   and the row was 78 px deep where the reference's is about 35.
+
+   A column makes the break a DESIGN rather than an accident: every pill is the
+   same two lines whatever the label says, the row is one shape again, and the
+   padding comes in because a stack does not need a wrapping row's slack. It is
+   a named divergence from the image's single line, and the alternative was
+   measured and is not available: "Lesson cleared +30" needs about 124 px on
+   one line and an equal third of a 390 pt phone's row is 115 px, so no
+   legible type size fits it. Type size is not the lever, content length is,
+   and the content is the law's. */
 .reward-stage .reward-line {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
   border-radius: 999px;
   border: 1.5px solid var(--border);
   background: var(--card);
   color: var(--foreground);
-  padding: 0.36rem 0.85rem;
+  padding: 0.42rem 0.55rem;
   font-size: var(--text-scale-base);
+  line-height: 1.2;
+  text-align: center;
 }
+/* A LABEL THAT DOES NOT FIT WRAPS INSIDE ITS OWN PILL; nothing truncates and
+   nothing leaves the row. Truncated labels appear nowhere in the reference,
+   and a term of the sum that a student cannot read is the round 2 law failing
+   quietly. The type steps down with the count first, so wrapping is the last
+   resort rather than the plan. */
 .reward-reasons[data-count="4"] .reward-line {
-  padding: 0.32rem 0.68rem;
+  padding: 0.3rem 0.45rem;
   font-size: var(--text-scale-sm);
 }
 .reward-reasons[data-count="5"] .reward-line,
 .reward-reasons[data-count="6"] .reward-line {
-  padding: 0.3rem 0.58rem;
+  padding: 0.28rem 0.35rem;
   font-size: 0.8125rem;
-}
-/* The accuracy reading keeps its own hook because the component and the
-   capture scripts key off the class, but it is drawn identically to its
-   neighbours now. What separates it is what it SAYS: no plus and no XP, so it
-   cannot be read as a term of the sum. */
-.reward-stage .reward-accuracy {
-  background: var(--card);
-  border-color: var(--border);
 }
 
 /* ------------------------------------------------------------- the chips -- */
@@ -837,11 +962,17 @@
   --chip-rim: var(--border);
   --chip-edge: #0b0e1e;
 }
-/* Both chips take the quiet rim above. The rules stay as named hooks because
-   the component and the capture scripts key off the class, and because a
-   milestone has to be able to override exactly one of them. */
+/* EVERY CHIP IS THE SAME CHIP, IN EVERY STATE. The rules stay as named hooks
+   because the component and the capture scripts key off the class, but not one
+   of them may change a colour, a border or a size any more: a critic read the
+   milestone variant's red-brown rim, red-brown slab and outline halo as "one
+   card and one alert" against an image that draws two cards of identical size
+   and treatment. What used to swell a chip now lives on .reward-aside below,
+   outside the pair, where it can say what it needs to without breaking the
+   match. */
 .reward-chip--diamond,
-.reward-chip--streak {
+.reward-chip--streak,
+.reward-chip--accuracy {
   --chip-accent: var(--chip-rim);
 }
 
@@ -868,17 +999,6 @@
 .reward-bolt svg {
   width: 100%;
   height: 100%;
-}
-/* A milestone does not get a chip of its own, because a third chip is the
-   dashboard this screen is not allowed to become. It takes over the streak
-   chip: same slot, louder, and louder by an OUTLINE rather than by recolouring
-   the surface, because a halo carries no text and can be as loud as it likes.
-   --streak-ink is the streak family's own ink and is 6.63:1 on the cream card,
-   where --warn's amber-700 is 4.56. */
-.reward-chip--milestone {
-  --chip-accent: var(--streak-ink);
-  outline: 4px solid color-mix(in srgb, var(--streak-ink) 34%, transparent);
-  outline-offset: 0;
 }
 .reward-chip__value {
   display: flex;
@@ -910,11 +1030,38 @@
   color: var(--muted-foreground);
   text-align: center;
 }
-.reward-chip__note {
-  margin-top: 0.3rem;
+/* THE QUIET LINE UNDER THE PAIR. One slot, outside the chips, carrying
+   whatever the receipt has to say that a matched pair cannot: a diamond
+   payout when both chip slots were already the right two, the milestone
+   sentence, or the saved-streak sentence. It is centred, small and on the
+   page's own ground, so it can never be mistaken for a third chip. */
+.reward-aside {
+  display: flex;
+  width: 100%;
+  max-width: 26rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+.reward-aside__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: var(--text-scale-base);
+  color: var(--foreground);
+}
+.reward-aside__number {
+  font-family: var(--font-display);
+  font-size: var(--text-scale-lg);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.reward-aside__note {
   font-size: var(--text-scale-xs);
   line-height: 1.35;
-  text-align: center;
 }
 
 /* The cartoon flame's seat in the streak card. The glyph is HudIcons'
@@ -945,9 +1092,12 @@
    edge while the face travels down, which paints on pointer down with no JS
    in the path, inside the 100 ms budget by construction. */
 .press.reward-claim {
-  background: var(--progress);
+  /* The image's soft mint, not --progress's yellow-leaning lime. The pairing
+     is measured in .reward-stage's token block above: dark ink at 8.32:1 on
+     the face, the edge at 4.29:1 on the page. */
+  background: var(--claim-face);
   color: var(--progress-ink);
-  border-color: var(--progress-edge);
+  border-color: var(--claim-edge);
   border-bottom-width: 6px;
   font-family: var(--font-display);
   font-weight: 800;
@@ -985,8 +1135,22 @@
    390x844 capture: roughly half the screen. `space-between` inside real
    vertical padding gives the reference's even rhythm instead, and `auto`
    margins are not used so the three blocks keep their own spacing. */
+/* THE COLUMN RUNS FROM THE TOP, and that is what makes the hero's 18 percent
+   placement hold. `space-between` distributes leftover height into the gaps,
+   so the number's top moved with the length of the receipt: a two-line receipt
+   put it somewhere different from a four-line one, and neither was the
+   reference's placement. `flex-start` plus .reward-hero's own padding gives one
+   deterministic rhythm, and CLAIM is docked outside this column so it is never
+   what the leftover pushes around.
+
+   THE HORIZONTAL AXIS IS CLIPPED because the vertical one scrolls. `overflow-y:
+   auto` makes the other axis a scroll container too, so the confetti reaching
+   past the content box would grow the page sideways. Clipping is the right
+   answer for a burst: a flake at the screen edge is trimmed, never a
+   scrollbar. */
 .reward-column {
-  justify-content: space-between;
+  justify-content: flex-start;
+  overflow-x: hidden;
   padding-top: 1.25rem;
   padding-bottom: 0.5rem;
 }

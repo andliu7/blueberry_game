@@ -42,10 +42,29 @@ export const QUEST_CORRECT_TARGET = 5;
 
 export type QuestId = "earn-xp" | "keep-streak" | "get-right";
 
+/**
+ * THE ICON A QUEST WEARS, and it is model data rather than a switch inside the
+ * view, because the committed reference blueberry_r7-feed-v2_1788288479.png
+ * makes it INFORMATION: its three quest rows carry three DIFFERENT drawings,
+ * one matched to each quest, and the icon column is the row's colour anchor.
+ * Three identical glyphs was the defect a critic named, so "which motif" is
+ * asserted in feedModel.test.ts rather than left to whoever next edits JSX.
+ *
+ *   flask   the vessel that FILLS as the quest fills. The one motif that also
+ *           carries progress, per the brief ("a flask filling as progress")
+ *   flame   the product's one cartoon flame, for the streak quest
+ *   cards   a fan of answer cards. The reference draws this beside a "review
+ *           cards" quest; ours counts correct answers, so the front card
+ *           carries a check instead. Same motif, our quest's own meaning
+ */
+export type QuestMotif = "flask" | "flame" | "cards";
+
 export interface QuestModel {
   readonly id: QuestId;
   /** "Earn 20 XP". The number inside is the student's own goal tier. */
   readonly label: string;
+  /** Which of the three drawings leads the row. See QuestMotif. */
+  readonly motif: QuestMotif;
   /** Clamped to target, so a bar never overflows its own track. */
   readonly progress: number;
   readonly target: number;
@@ -78,11 +97,24 @@ function correctToday(journal: readonly EconomyEvent[], today: string): number {
   return count;
 }
 
+/**
+ * One motif per quest, declared once. A record rather than a switch so adding
+ * a quest without deciding what it looks like is a type error rather than an
+ * empty icon column, which is the failure mode owner ruling 4 of 2026-09-04
+ * is about ("an empty chip reads as broken rather than unauthored").
+ */
+export const QUEST_MOTIF: Readonly<Record<QuestId, QuestMotif>> = Object.freeze({
+  "earn-xp": "flask",
+  "keep-streak": "flame",
+  "get-right": "cards",
+});
+
 function quest(id: QuestId, label: string, progress: number, target: number, reading: string): QuestModel {
   const clamped = Math.max(0, Math.min(progress, target));
   return {
     id,
     label,
+    motif: QUEST_MOTIF[id],
     progress: clamped,
     target,
     fraction: target > 0 ? clamped / target : 0,

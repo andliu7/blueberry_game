@@ -458,13 +458,29 @@
      5.48, blue 6.70. The tint each sticker's body is filled with is the same
      hue at 22 percent over that ground, so the shape reads as a cut-out with a
      lighter body inside it rather than as a blob. */
-  --tab-hue-path: #5b2fc0;
-  --tab-hue-train: #c2410c;
-  --tab-hue-cards: #0f766e;
-  --tab-hue-me: #1d4ed8;
+  /* THE TAB HUES ARE THE REFERENCE'S OWN, owner 2026-09-04: "the icons I want
+     basically exactly what we have in the reference images". Sampled from the
+     tab bar of unit02-path.jpg and then each deepened along its own hue until
+     it clears 3.0 against the cream bar, because an icon is a graphic and
+     WCAG 1.4.11 asks 3.0 of one. The sampled values sit between 1.67 and 2.23,
+     which is why they are not used raw: the reference is a picture and does not
+     have to be legible to someone with low vision. Hue kept, value moved, and
+     the arithmetic is the reason.
+
+       path  sampled #80b07e 2.23 -> #4d7a49 4.47   the green trail
+       train sampled #70756f 4.21 -> #5d6360 5.49   the flask's cool grey
+       cards sampled #ffab5a 1.67 -> #c06f1f 3.39   the orange card fan
+       feed  sampled #8ebdf1 1.75 -> #3a71b0 4.50   the blue newspaper
+       me    sampled #dcb278 1.76 -> #9c6f31 3.97   the warm avatar */
+  --tab-hue-path: #4d7a49;
+  --tab-hue-train: #5d6360;
+  --tab-hue-cards: #c06f1f;
+  --tab-hue-feed: #3a71b0;
+  --tab-hue-me: #9c6f31;
   --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 22%, var(--card));
   --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 22%, var(--card));
   --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 22%, var(--card));
+  --tab-tint-feed: color-mix(in srgb, var(--tab-hue-feed) 22%, var(--card));
   --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 22%, var(--card));
 }
 
@@ -591,10 +607,13 @@
      the same ground, which on this theme darkens rather than lightens the body;
      what the shape needs is contrast between body and outline, not a particular
      direction. */
-  --tab-hue-path: #b3b6f2;
-  --tab-hue-train: #fb923c;
-  --tab-hue-cards: #5eead4;
-  --tab-hue-me: #93c5fd;
+  /* Dark lifts the same five hues rather than substituting different ones, so
+     the bar is recognisably the same bar in either theme. */
+  --tab-hue-path: #8fc98a;
+  --tab-hue-train: #b7bdb8;
+  --tab-hue-cards: #f0a659;
+  --tab-hue-feed: #8ebdf1;
+  --tab-hue-me: #e0b478;
 
   /* The chip at night. The periwinkle face carries itself here: 7.5:1 as a
      shape on the night ground, so the fill identifies the chip and the edge
@@ -899,6 +918,19 @@ body {
 /* Safe area for the bottom tab bar on notched phones. */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* AND THE TOP ONE, owner 2026-09-04: the header's controls sat under the
+   status bar and the dynamic island on a real iPhone. Shrinking them was the
+   suggested fix and it is the wrong one: the island is a fixed 37px tall
+   regardless of how small a button is, so anything in that band is covered no
+   matter its size, and every phone has a different band. env() is the number
+   the DEVICE reports, so this is correct on an island, on a notch, and on a
+   flat-top Android where it resolves to zero and costs nothing. The header
+   keeps its own 0.5rem of breathing room on top of whatever the device asks
+   for, so the row never sits flush against the cutout either. */
+.pt-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

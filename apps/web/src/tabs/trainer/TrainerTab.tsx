@@ -68,6 +68,8 @@ import { RESONANCE_HUNT } from "../../demo/resonance";
 import { TRAINER_SEQUENCES } from "../../demo/sequences";
 import { ProblemBrowser } from "./ProblemBrowser";
 import type { PlayableLink } from "../../demo/pathwayMap";
+import { hrefForLesson } from "../../app/routes";
+import { navigate } from "../../app/useHashRoute";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
 
@@ -490,6 +492,48 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
     setEpoch((n) => n + 1);
   };
 
+  /**
+   * A node picked in the problem browser, sent where that node actually lives.
+   *
+   * THE BUG THIS CLOSES. A PlayableLink has four kinds and the trainer's
+   * Selection has three, because a BEAT is not a mechanism: it is an MCQ, a
+   * matching board, a ladder or a synthesis gap, and BeatRunner plays it at
+   * "#/lesson/<node>". The old handler was an if / else-if / else over the
+   * four, so a beat fell into the bare else and was dispatched as
+   * { kind: "resonance", id: <node id> }. resolveSelection then does
+   * `RESONANCE_HUNT.find(...) ?? RESONANCE_HUNT[0]`, so every one of the map's
+   * beat nodes silently opened the allyl cation hunt instead of its lesson.
+   * Silently is the expensive part: no error, no empty state, just the wrong
+   * chemistry under the right title.
+   *
+   * PathwayTab.hrefForPlayable has always got this right, so the two callers
+   * disagreed and only one of them was reachable from the trainer.
+   *
+   * The switch is exhaustive on purpose and the default asserts `never`: a
+   * fifth PlayableLink kind is now a compile error here rather than another
+   * silent redirect to whatever the last branch happened to be.
+   */
+  const openPlayable = (link: PlayableLink) => {
+    switch (link.kind) {
+      case "reaction":
+        pickSelection({ kind: "reaction", id: link.id });
+        return;
+      case "sequence":
+        pickSelection({ kind: "sequence", id: link.id, stepIndex: 0 });
+        return;
+      case "resonance":
+        pickSelection({ kind: "resonance", id: link.id });
+        return;
+      case "beat":
+        navigate(hrefForLesson(link.id));
+        return;
+      default: {
+        const unreachable: never = link;
+        throw new Error(`unhandled playable kind: ${JSON.stringify(unreachable)}`);
+      }
+    }
+  };
+
   const reset = () => {
     setVerdict(null);
     setDistractor(null);
@@ -522,11 +566,7 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
           {!tutorial ? (
             <ProblemBrowser
               currentTitle={playable.title}
-              onPick={(link: PlayableLink) => {
-                if (link.kind === "reaction") pickSelection({ kind: "reaction", id: link.id });
-                else if (link.kind === "sequence") pickSelection({ kind: "sequence", id: link.id, stepIndex: 0 });
-                else pickSelection({ kind: "resonance", id: link.id });
-              }}
+              onPick={openPlayable}
             />
           ) : null}
           {playable.sequencePosition !== null ? (

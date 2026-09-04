@@ -41,8 +41,7 @@ import type { DailyGoalTier } from "@blueberry/economy";
 import { hrefForOnboarding, hrefForTab } from "../app/routes";
 import { navigate } from "../app/useHashRoute";
 import { progress } from "../app/progress";
-import { Berry } from "../mascot/Berry";
-import { Action, Ask, Chip, ChipList, Frame, QuietAction, SkipAction } from "./Frame";
+import { Action, Ask, Chip, ChipList, Frame, Hero, QuietAction } from "./Frame";
 import { PlacementStep } from "./PlacementStep";
 import {
   EMPTY_ANSWERS,
@@ -410,6 +409,11 @@ function Welcome({
     <Frame
       percent={percent}
       onBack={null}
+      /* THE WELCOME BAR IS THE ONE WITH ITS NUMERAL INSIDE IT, and the wide
+         column, both measured off blueberry_r9-onboard-welcome: a ~17px track
+         running about 85 percent of the frame with "5%" set in it. */
+      column="wide"
+      barNumeral
       /* THE HORIZON IS A BACKDROP, NOT A FLEX CHILD. See FrameProps.backdrop:
          it has to sit outside the scrolling body to bleed off both screen
          edges, and outside the flow so it can never push GET STARTED down. */
@@ -421,21 +425,16 @@ function Welcome({
         </>
       }
     >
-      <div className="ob-welcome" data-hero="welcome">
-        <div className="ob-welcome__hero">
-          {/* Waving, and looking at the student while he does it. See the note
-              on Ask in Frame.tsx: the welcome image draws open eyes too. */}
-          <Berry
-            className="ob-welcome__berry"
-            behaviour="wave"
-            mood="curious"
-            reducedMotion={reducedMotion}
-            sizePx={186}
-          />
-          <p className="ob-bubble ob-welcome__bubble">{withoutMark(WELCOME_GREETING)}</p>
-        </div>
+      {/* Waving, and looking at the student while he does it. See the note on
+          Ask in Frame.tsx: the welcome image draws open eyes too. */}
+      <Hero
+        line={WELCOME_GREETING}
+        reducedMotion={reducedMotion}
+        sizePx={186}
+        bottomAnchored
+      >
         <p className="ob-promise">{withoutMark(WELCOME_PROMISE)}</p>
-      </div>
+      </Hero>
     </Frame>
   );
 }
@@ -476,19 +475,9 @@ function Bond({
 }) {
   return (
     <Frame percent={percent} onBack={onBack} foot={<Action label={CONTINUE} onPress={onGo} />}>
-      <div className="ob-welcome">
-        <div className="ob-welcome__hero">
-          <Berry
-            className="ob-welcome__berry"
-            behaviour="wave"
-            mood="happy"
-            reducedMotion={reducedMotion}
-            sizePx={186}
-          />
-          <p className="ob-bubble ob-welcome__bubble">{withoutMark(INTRO_ASK)}</p>
-        </div>
+      <Hero line={INTRO_ASK} reducedMotion={reducedMotion} sizePx={186} mood="happy">
         <p className="ob-note ob-note--centre">{withoutMark(INTRO_NOTE)}</p>
-      </div>
+      </Hero>
     </Frame>
   );
 }
@@ -545,7 +534,17 @@ function ChoiceStep<T extends string>({
       foot={
         <>
           <Action label={goLabel} disabled={!canGo} onPress={onGo} />
-          {skip === null ? null : <SkipAction label={skip.label} onPress={skip.onPress} />}
+          {/* SKIP IS A QUIET LINK, NOT A SECOND STADIUM.
+              blueberry_r9-onboard-question draws ONE control in the pinned
+              band. A previous pass drew skip as the button taxonomy's violet
+              outlined stadium and stacked it under CONTINUE, which made the
+              foot 74px taller than the image and gave a step's optional exit
+              the same visual weight as its answer. The taxonomy is right that
+              skip is a real control; the frame is right that this one is not a
+              second answer. So it keeps a 44px target and the welcome beat's
+              underlined treatment, which the image already uses for the one
+              other control that leaves rather than answers. */}
+          {skip === null ? null : <QuietAction label={skip.label} onPress={skip.onPress} />}
         </>
       }
     >

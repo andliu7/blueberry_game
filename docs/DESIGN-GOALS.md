@@ -212,6 +212,27 @@ THE REST, each as element / reference / build:
   and then nothing, with large flat empty tan. The build reads as a diagram on a beige field;
   the reference reads as a landscape
 
+## The course chip: quiet, then a course picker, then search
+
+Owner 2026-09-04. Three behaviours on the "Orgo II" chip in the header.
+
+- INVISIBLE UNTIL HOVER. At rest the chip is the flask and the course name with
+  no border at all; the outline appears on hover and on keyboard focus. It is
+  the one control in the header that is not shouting, because the course rarely
+  changes. On touch, where hover does not exist, the border appears on press,
+  and focus-visible carries it for keyboards, so no input method loses the
+  affordance
+- TAP OPENS THE COURSE PICKER, a sheet listing the courses. `orgo_2` is the only
+  selectable one and every other renders greyed with its honest coming
+  treatment, per the amendment: never a dead end and never a broken link
+- SWIPE DOWN REVEALS SEARCH, the way iOS reveals Spotlight from the home
+  screen. A downward drag starting at the top of a scrolled-to-top screen pulls
+  a search field into view; releasing past the threshold commits it, releasing
+  short of it springs back. Search is already a header tool and a route, so this
+  is a second way into a surface that exists, not a new surface. It must not
+  fight the browser's own pull-to-refresh: the gesture only arms when the
+  scroller is already at the top and the app owns the overscroll
+
 ## Backgrounds vary by unit
 
 Owner 2026-09-03: more creative backgrounds, changing slightly unit to unit, the way
