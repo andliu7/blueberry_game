@@ -137,6 +137,37 @@ Owner 2026-09-04: implement the icons everywhere. A node with no playable conten
 shows what KIND it will be rather than an empty face, because an empty chip reads as broken
 rather than as unauthored. Queued authoring keeps its motif and takes the dashed treatment.
 
+## The trail: colour, flow, and why it lags today
+
+Owner 2026-09-04.
+
+- THE TRAIL CARRIES PROGRESS AS COLOUR. Completed stretches are green; everything ahead is
+  the plain violet family. The join between them is where the student is
+- IT ANIMATES AS FLOW. On finishing a node the green does not appear, it TRAVELS from the
+  node just finished to the next one, along the trail. If several nodes complete at once
+  the flow runs through all of them in sequence rather than snapping. Under reduced motion
+  the colour changes without the travel
+- A GATE IS NEVER SKIPPABLE. The flow can run through several lesson nodes, never through a
+  unit gate
+
+### The lag has a root cause, and it is not tuning
+
+Owner, twice: "every time I scroll the path lags behind the buttons." The cause is
+structural. `PathScene` is a STICKY, viewport-sized SVG, and the trail is recomputed from
+node positions read with getBoundingClientRect inside a requestAnimationFrame on scroll. The
+compositor scrolls the nodes first and the callback moves the trail afterwards, so the trail
+is ALWAYS at least one frame behind. No amount of making that callback faster fixes it,
+because scroll-linked JavaScript repaint cannot beat compositor scrolling by construction.
+
+THE FIX IS TO TAKE JAVASCRIPT OUT OF THE LOOP: the trail must live in the SAME scrolling
+layer as the nodes, so the compositor moves both together and there is nothing to
+synchronise. One tall SVG at track height is not the answer, and the S2 round already
+recorded why: a 14500px layer killed the renderer. The answer is PER UNIT: each unit section
+draws its own trail SVG inside its own section, a few hundred pixels tall, in normal
+document flow with its nodes. No global read, no rAF, no drift, and the background parallax
+layers can stay sticky because a background is allowed to lag; a line that connects buttons
+is not.
+
 ## Backgrounds vary by unit
 
 Owner 2026-09-03: more creative backgrounds, changing slightly unit to unit, the way
