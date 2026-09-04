@@ -37,7 +37,7 @@
  * an empty box.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { PathwayUnit } from "../../demo/pathwayMap";
 import {
   terraceBands,
@@ -45,16 +45,25 @@ import {
   CHANNEL_SWING,
   energyProfile,
   groundPath,
-  isCheckpointUnit,
+  ridgePath,
   stepProfile,
   terracePath,
+  terraceProfile,
   unitEnergies,
+  unitRidges,
   type RowSpan,
   type TerrainSample,
   type UnitSpan,
 } from "./terrain";
-import { placePropPx, propsForUnit } from "./sceneProps";
-import { trailSegments, type TrailLane, type TrailPoint } from "./trail";
+import {
+  drawScale,
+  placePropPx,
+  propExtent,
+  propsForBand,
+  unitCharacter,
+  type PropPlacement,
+  type SceneFrame,
+} from "./sceneProps";
 
 /** What one measurement pass reads off the built page. */
 interface SceneMetrics {
@@ -77,18 +86,17 @@ interface SceneMetrics {
   /** Where the START node sits, so the lens has somewhere to be on touch. */
   readonly focus: { readonly x: number; readonly y: number } | null;
   /**
-   * Every trail anchor on the page, in document order: chip centres with the
-   * lane and done flag their data-trail attributes declare. trail.ts turns
-   * these into the drawn ribbon, so the trail is derived from where the nodes
-   * actually landed and can never disagree with the layout.
+   * Every box that carries READING: the node name cards, the unit signposts,
+   * the gate. Nothing in the landscape is drawn over one of these. Same
+   * coordinate split as `focus` (x scene relative, y stage relative), so a
+   * prop can be tested against it without another pass.
    */
-  readonly trail: readonly TrailPoint[];
+  readonly keepOutText: readonly KeepOut[];
   /**
-   * Every box a background prop may not be drawn over: chips, and the unit
-   * signposts. Same coordinate split as `trail` (x scene relative, y stage
-   * relative), so a prop can be tested against it without another pass.
+   * Every CHIP box. Only the filled props avoid these; see propClear for why
+   * an outlined watermark is allowed to pass behind one.
    */
-  readonly keepOut: readonly KeepOut[];
+  readonly keepOutChips: readonly KeepOut[];
 }
 
 /** A rectangle the background must leave alone. See SceneMetrics.keepOut. */
@@ -110,8 +118,8 @@ const EMPTY: SceneMetrics = {
   rows: [],
   checkpoints: [],
   focus: null,
-  trail: [],
-  keepOut: [],
+  keepOutText: [],
+  keepOutChips: [],
 };
 
 /**
@@ -208,15 +216,17 @@ const MAX_SHIFT_PX = 110;
 /** How long the pointer lens stays open after the pointer stops moving. */
 const LENS_IDLE_MS = 900;
 /**
- * The room a prop keeps from the scene's edge, in pixels.
+ * The air a prop keeps from the page edge ON TOP OF its own half width.
  *
- * The placement table is written in fractions of the scene width, and the
- * scene is the whole viewport, so a prop at 0.9 on a 390pt phone would hang
- * half off the right edge. Clamping by the widest prop's half width (the
- * cloud, about 34px at scale 1) turns that into a prop sitting AT the edge,
- * which is a composition, rather than one cut by it, which is a defect.
+ * It used to be the whole margin, one number for every prop (38px, "the
+ * widest prop's half width"). That was wrong in both directions once the
+ * props grew: a cloud drawn 94px wide had 9px of it hanging off a phone, and
+ * a chevron 55px wide was held 10px further in than it needed. The margin is
+ * now `propExtent(placement).w + this`, so every prop is clamped by its own
+ * size and this number is only the breathing room, which is the part that
+ * genuinely is the same for all of them.
  */
-const PROP_MARGIN_PX = 38;
+const PROP_EDGE_PX = 6;
 
 /** How far the crest clears the checkpoint panel's top edge, and how far its ends fall. */
 const HUMP_LIFT = 8;
@@ -295,53 +305,64 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     const rect = row.getBoundingClientRect();
     rows.push({ top: rect.top - box.top, bottom: rect.bottom - box.top });
   }
-  // The trail anchors, in DOCUMENT ORDER, which is the order the track lays
-  // them down: trail.ts is explicit that nothing sorts, because the layout is
-  // the authority. X is scene relative and Y is stage relative, the same split
-  // the focus uses and for the same reason (the world group is translated by
-  // the stage's own top; the scene is full bleed).
-  const trail: TrailPoint[] = [];
-  for (const anchor of stage.querySelectorAll<HTMLElement>("[data-trail]")) {
-    const rect = anchor.getBoundingClientRect();
-    const lane = anchor.dataset.trail;
-    trail.push({
-      x: rect.left - scene.left + rect.width / 2,
-      y: rect.top - box.top + rect.height / 2,
-      lane: lane === "left" || lane === "right" || lane === "loop" ? (lane as TrailLane) : "main",
-      done: anchor.dataset.trailDone === "true",
-    });
-  }
   /*
-   * THE KEEP-OUT SET, and it is why the background can be dense without
-   * landing on anything.
+   * THE TRAIL IS NOT MEASURED HERE ANY MORE, and its absence is the point.
+   *
+   * This surface is STICKY, so every one of its layers has to be re-placed
+   * from a scroll listener, and a scroll listener repaints after the
+   * compositor has already moved the page. The owner reported the consequence
+   * twice: the trail lagged the buttons on every scroll. A background is
+   * allowed to be a frame behind and a line connecting buttons is not, so the
+   * ribbon moved into the unit sections themselves, where it scrolls in the
+   * same layer as the chips it connects. See UnitTrail.tsx.
+   *
+   * The chip boxes are still read below, but only for the keep-out set, which
+   * is a background composition rule and re-measured on layout rather than on
+   * scroll.
+   */
+  /*
+   * THE KEEP-OUT SETS, and there are two of them because the two kinds of
+   * prop fail differently.
    *
    * BACKGROUND DOCTRINE: "the environment is COMPOSED, never scattered". A
    * critic measured the opposite on the built page: "a cloud overlaps the
    * top-left challenge chip and a second cloud is clipped in half by the Unit
-   * 3 signpost's violet rule". The placement table cannot fix that on its own,
-   * because it is written in fractions of the SCENE and the chips are placed
-   * in fractions of the COLUMN, which is a different width on every device;
-   * on a 390pt phone the column plus its wind reaches from 0.11 to 0.89 of
-   * the scene, so almost every flank placement is over a chip somewhere.
+   * 3 signpost's violet rule". The composition is therefore decided against
+   * the real layout rather than against an assumption about it: the boxes
+   * below are what the browser actually laid out.
    *
-   * So the composition is decided against the real layout rather than against
-   * an assumption about it: the boxes below are the chips and the signposts as
-   * the browser actually laid them out, and the prop layer drops any prop
-   * whose own box meets one. Dropping rather than nudging is deliberate. A
-   * nudged prop is a prop somewhere the table did not compose, which is the
-   * scatter the doctrine names; an absent one simply leaves the landscape a
-   * little emptier at that width, and the strip has six or seven others.
+   * TEXT is absolute. A node's name card, a unit signpost and the gate carry
+   * reading, and terrain.ts's header explains at length why nothing in the
+   * landscape may sit under reading: the contrast audit climbs CSS boxes, an
+   * SVG mark under a text box is not that box's ancestor, so a pair the audit
+   * reports as passing could be composed on something else entirely. A prop
+   * that meets one of these is not drawn.
+   *
+   * CHIPS are not, and that is the change of 2026-09-04. A chip is an OPAQUE
+   * disc drawn above the whole scene, so an outlined watermark passing behind
+   * one is occluded, not clipped: it shows either side of the chip, which is
+   * what the per-unit designs draw (unit04's watermarks run behind the label
+   * column). Dropping on chips as well was measured to be what starved the
+   * landscape: on a 390pt phone the column plus its wind reaches from 0.11 to
+   * 0.89 of the scene, so nearly every flank placement met a chip somewhere
+   * and the whole strip vanished. The FILLED prop is the exception and keeps
+   * the old rule, because a white cloud meeting a chip reads as two stickers
+   * colliding rather than as weather behind a button.
    */
-  const keepOut: KeepOut[] = [];
-  for (const element of stage.querySelectorAll<HTMLElement>("[data-trail], .path-banner, .path-gate")) {
+  const keepOutText: KeepOut[] = [];
+  const keepOutChips: KeepOut[] = [];
+  const boxOf = (element: HTMLElement): KeepOut | null => {
     const rect = element.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) continue;
-    keepOut.push({
-      x: rect.left - scene.left,
-      y: rect.top - box.top,
-      w: rect.width,
-      h: rect.height,
-    });
+    if (rect.width === 0 || rect.height === 0) return null;
+    return { x: rect.left - scene.left, y: rect.top - box.top, w: rect.width, h: rect.height };
+  };
+  for (const element of stage.querySelectorAll<HTMLElement>(".path-label, .path-banner, .path-gate")) {
+    const rect = boxOf(element);
+    if (rect !== null) keepOutText.push(rect);
+  }
+  for (const element of stage.querySelectorAll<HTMLElement>("[data-trail]")) {
+    const rect = boxOf(element);
+    if (rect !== null) keepOutChips.push(rect);
   }
   const centreX = columnBox.left - scene.left + columnBox.width / 2;
   const channelBasis = Math.min(MAX_BASIS_PX, columnBox.width / 2 + LABEL_GUTTER_PX);
@@ -392,8 +413,8 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     rows,
     checkpoints,
     focus,
-    trail,
-    keepOut,
+    keepOutText,
+    keepOutChips,
   };
 }
 
@@ -408,14 +429,18 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
  */
 const PROP_CLEARANCE_PX = 22;
 
-/** The half-extent of a drawn prop, so its box can be tested. See propClear. */
-const PROP_HALF_PX: Record<string, { readonly w: number; readonly h: number }> = {
-  cloud: { w: 46, h: 20 },
-  flask: { w: 26, h: 30 },
-  ring: { w: 44, h: 34 },
-  amide: { w: 44, h: 34 },
-  chain: { w: 30, h: 16 },
-};
+/**
+ * THE SECOND HALF-EXTENT TABLE IS GONE, and its going is a bug fix.
+ *
+ * This file used to carry a `PROP_HALF_PX` of its own beside sceneProps'
+ * `PROP_HALF`, and the two disagreed: the cloud was tested as 92 wide and
+ * drawn 54, the flask tested as 52 and drawn 22. A keep-out test that
+ * measures a different rectangle from the one the renderer paints is not a
+ * loose test, it is a test of a shape that is not on the page, and it is why
+ * props both collided with chips and vanished from strips that had room.
+ * `propExtent` is now the only answer to "how big is this prop", and it is
+ * derived from the same `drawScale` the renderer passes to the component.
+ */
 
 /**
  * Whether a prop at this point clears everything the layout put on the page.
@@ -426,14 +451,13 @@ const PROP_HALF_PX: Record<string, { readonly w: number; readonly h: number }> =
  * and would cost a scan of every path on every measurement.
  */
 function propClear(
-  kind: string,
+  placement: PropPlacement,
   point: { readonly x: number; readonly y: number },
-  scale: number,
   keepOut: readonly KeepOut[],
 ): boolean {
-  const half = PROP_HALF_PX[kind] ?? { w: 32, h: 24 };
-  const w = half.w * scale + PROP_CLEARANCE_PX;
-  const h = half.h * scale + PROP_CLEARANCE_PX;
+  const half = propExtent(placement);
+  const w = half.w + PROP_CLEARANCE_PX;
+  const h = half.h + PROP_CLEARANCE_PX;
   for (const box of keepOut) {
     if (
       point.x + w > box.x &&
@@ -731,6 +755,24 @@ export default function PathScene({
       : stepProfile(energyProfile(energies, metrics.spans), metrics.rows);
   const geometry = { width, height: metrics.worldHeight, centreX: metrics.centreX, basis: metrics.basis, swingPx: metrics.swingPx };
 
+  /*
+    THE LADDER, laid ONCE and shared by the plates and by the props.
+
+    Owner 2026-09-04: "the background is small and does not flow well." The
+    second half was structural and this line is the fix. The plates and the
+    props used to be laid per UNIT, so both restarted at every unit boundary
+    and a unit read as a strip with its own beginning and end. terraceBands
+    lays one constant pitch from before the first unit to after the last, and
+    the props hang off the SAME bands, so the composition crosses a boundary
+    without a seam. What still changes at the boundary is the unit's
+    CHARACTER: its skyline profile, its watermark family and its far ridge.
+  */
+  const bands = terraceBands(metrics.spans);
+  const ridges = unitRidges(metrics.spans);
+  /* The frame a placement is resolved against: the viewport, and where the
+     track column sits inside it. See sceneProps.placePropPx. */
+  const frame: SceneFrame = { width, centreX: metrics.centreX, basis: metrics.basis };
+
   const focus = metrics.focus ?? { x: metrics.centreX, y: metrics.worldHeight * 0.2 };
 
   return (
@@ -810,26 +852,51 @@ export default function PathScene({
           THE TERRACES, which are also the descending energy bands.
           docs/DESIGN-GOALS.md asks the background for "terraced hills stepping
           down ... a gentle descending energy-band gradient" and for the energy
-          metaphor where "each unit ends lower than it began". One band per
-          unit, each drawn OVER the one before it so the only visible stroke is
-          its wavy top edge, satisfies all three with one mechanism rather than
-          three stacked layers: the step IS the drop in energy across the unit.
-          Each band runs far past its own span so the next band's fill ends it.
+          metaphor where "each unit ends lower than it began". Each plate is
+          drawn OVER the one before it, so the only visible edge is its own
+          rolling top: the step IS the drop in energy, with one mechanism
+          rather than three stacked layers. Each plate runs far past its own
+          span so the next plate's fill is what ends it.
+
+          THE PITCH IS CONSTANT AND THE LADDER IS THE TRACK'S, NOT THE UNIT'S,
+          which is the "does not flow" half of the owner's note. A plate that
+          started and stopped with its unit put a hard horizontal every time
+          the banner passed; a plate every 230px puts one wherever it lands,
+          and the boundary is crossed by whichever plate happens to straddle
+          it. Nothing about the unit is lost: terraceProfile still reads the
+          unit index, so the SKYLINE changes character at the boundary while
+          the ladder carrying it does not stop.
+
+          THE RIDGE IS DRAWN INSIDE THIS LOOP, immediately after the plate its
+          summit stands in, and terrain.ts's Ridge comment explains why it
+          cannot be a layer of its own: every plate's body runs 600px past its
+          own bottom, so a silhouette drawn before all of them is painted over
+          by all of them. Drawn here it rises above the NEXT plate's edge and
+          is buried below it, which is the composition
+          blueberry_artkit-env-backdrop draws.
         */}
-        {terraceBands(metrics.spans).map((band) => (
-          <path
-            key={band.key}
-            className="path-terrace"
-            /* The value step this plate lands on, cycling every four. Adjacent
-               plates are never the same fill, which is the whole of what makes
-               the hills read as TERRACED: the plate in front is a different
-               body from the plate behind, and the top edge is the cut between
-               them rather than a contour line ruled on flat ground.
-               Deterministic in the plate's position, never random. */
-            data-step={band.step}
-            d={terracePath(band.top, band.bottom, width, Math.round(band.top / 97))}
-          />
-        ))}
+        {bands.map((band) => {
+          // At most one summit per plate: the ladder's pitch is well under a
+          // unit's height, so two units' apexes cannot share a plate.
+          const ridge = ridges.find((entry) => entry.apexY >= band.top && entry.apexY < band.bottom);
+          return (
+            <Fragment key={band.key}>
+              <path
+                className="path-terrace"
+                /* The value step this plate lands on, cycling every four.
+                   Adjacent plates are never the same fill, which is the whole
+                   of what makes the hills read as TERRACED: the plate in front
+                   is a different body from the plate behind, and the top edge
+                   is the cut between them rather than a contour line ruled on
+                   flat ground. Deterministic in the plate's position, never
+                   random. */
+                data-step={band.step}
+                d={terracePath(band.top, band.bottom, width, terraceProfile(band.unitIndex, band.index))}
+              />
+              {ridge === undefined ? null : <path className="path-ridge" d={ridgePath(ridge, width)} />}
+            </Fragment>
+          );
+        })}
         {/*
           THE CREST, drawn as a FILLED MOUND rather than as a dashed arc.
 
@@ -871,25 +938,46 @@ export default function PathScene({
       </g>
 
       {/*
-        The margin doodles: a molecule watermark per unit on one flank, a
-        cloud on the other every second unit. Deterministic from the spans,
-        clamped inside the scene so a phone's narrow flanks show what fits
-        rather than clipping mid-shape. They ride at the ground's rate,
-        unmasked: the lens lightens the ground, it does not erase the drawings.
+        THE PROPS, hung off the TERRACE LADDER rather than off the units.
+
+        This is the other half of "does not flow". Two to three props per
+        230px plate, on flanks that alternate plate to plate, means the eye
+        crosses the track on the way down and the arrangement never restarts
+        at a banner. sceneProps.propsForBand is the whole table and it takes
+        the plate's index and the unit's character, so the RHYTHM is the
+        track's and the CAST is the unit's: crossing into unit 4 changes which
+        watermark family stands on the flanks and how often glassware and
+        weather appear, without a single new drawing.
+
+        SIZE COMES FROM ONE PLACE. drawScale and propExtent are both in
+        sceneProps, so the size a prop is drawn at and the size the keep-out
+        test measures cannot drift apart. They had: the cloud was tested as 92
+        wide and drawn 54, which is the "small" half of the owner's note.
+
+        They ride at the ground's rate, unmasked: the lens lightens the
+        ground, it does not erase the drawings.
       */}
       <g className="path-layer path-layer--marks">
-        {metrics.spans.flatMap((span, index) =>
-          propsForUnit(index).map((placement, slot) => {
-            const point = placePropPx(placement, width, span.top, span.bottom, PROP_MARGIN_PX);
-            const key = `${span.unitId}-${slot}`;
-            // Composed, never scattered: a prop that would land on a chip or
-            // a signpost is not drawn at all. See propClear.
-            if (!propClear(placement.kind, point, placement.scale, metrics.keepOut)) return null;
-            if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={placement.scale} />;
-            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={placement.scale * 1.35} />;
-            return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={placement.scale} />;
-          }),
-        )}
+        {bands.flatMap((band) => {
+          const character = unitCharacter(band.unitIndex);
+          return propsForBand(band.index, character).map((placement, slot) => {
+            const extent = propExtent(placement);
+            // The margin is the prop's OWN half width plus a little air, so a
+            // prop at the far end of a phone's narrow flank sits AT the page
+            // edge rather than being cut by it.
+            const point = placePropPx(placement, frame, band.top, band.bottom, extent.w + PROP_EDGE_PX);
+            const key = `${band.key}-${slot}`;
+            // Composed, never scattered: a prop that would land on reading is
+            // never drawn, and the one FILLED prop also keeps off the chips.
+            // See propClear for why an outlined watermark may pass behind one.
+            const keepOut = placement.kind === "cloud" ? [...metrics.keepOutText, ...metrics.keepOutChips] : metrics.keepOutText;
+            if (!propClear(placement, point, keepOut)) return null;
+            const scale = drawScale(placement);
+            if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={scale} />;
+            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={scale} />;
+            return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={scale} />;
+          });
+        })}
       </g>
       <g className="path-layer path-layer--paper">
         {/*
@@ -928,46 +1016,22 @@ export default function PathScene({
       </g>
 
       {/*
-        THE TRAIL: the winding drawn ribbon connecting the chips, derived from
-        their measured centres (trail.ts). Edges first, then fills, so
-        consecutive segments join seamlessly instead of each segment's edge
-        overpainting its neighbour's fill. The loop detours are dotted and
-        never green; the done stretches ride the fill-on-edge rule pathway.css
-        documents. No parallax: the trail is pinned to the track it connects.
-      */}
-      {(() => {
-        const segments = trailSegments(metrics.trail);
-        const roads = segments.filter((segment) => !segment.loop);
-        const loops = segments.filter((segment) => segment.loop);
-        return (
-          <g className="path-trail">
-            {/* The detour, rim then fill on the same shape, the way the road
-                is drawn: the rim carries the graphics floor so the fill can
-                be the pale periwinkle the references draw. */}
-            {loops.map((segment, index) => (
-              <path key={`loop-edge-${index}`} className="path-trail__loop-edge" d={segment.d} />
-            ))}
-            {loops.map((segment, index) => (
-              <path key={`loop-${index}`} className="path-trail__loop" d={segment.d} />
-            ))}
-            {roads.map((segment, index) => (
-              <path
-                key={`edge-${index}`}
-                className={segment.done ? "path-trail__edge path-trail__edge--done" : "path-trail__edge"}
-                d={segment.d}
-              />
-            ))}
-            {roads.map((segment, index) => (
-              <path
-                key={`fill-${index}`}
-                className={segment.done ? "path-trail__fill path-trail__fill--done" : "path-trail__fill"}
-                d={segment.d}
-              />
-            ))}
-          </g>
-        );
-      })()}
+        THE TRAIL HAS LEFT THIS FILE, owner bug of 2026-09-04, reported twice:
+        "every time I scroll the path lags behind the buttons."
 
+        It was drawn here, on a sticky viewport-sized surface, and re-placed
+        every frame from a scroll listener. The compositor scrolls the chips
+        on its own thread and a scroll callback repaints after it, so the
+        ribbon was AT LEAST ONE FRAME BEHIND BY CONSTRUCTION. That is not a
+        number anyone can tune: scroll-linked JavaScript repaint cannot beat
+        compositor scrolling.
+
+        It now lives in the unit sections, in the same scrolling layer as the
+        chips it connects, one small SVG per unit rather than one 14500px
+        layer (the S2 round recorded what a full-height layer does to the
+        renderer). See UnitTrail.tsx. The layers that remain in this file are
+        BACKGROUND, and a background is allowed to lag.
+      */}
       {/*
         THE PER-CHECKPOINT FLASK LAYER IS GONE, folded into the placement
         table above. It was the only prop in the scene placed by a rule of its

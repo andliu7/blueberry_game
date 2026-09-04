@@ -237,17 +237,48 @@ export const PLACEMENT_TIME_BUDGET_SECONDS = TIME_BUDGET_SECONDS;
 export const PLACEMENT_QUESTION_CAP = QUESTION_CAP;
 
 /**
- * The placement reference frame is a 2x2 grid of option chips. That layout
- * only reads when there are exactly four options and each is a short label;
- * a long option in a half-width chip wraps into porridge, so anything else
- * renders as a single column.
+ * THE PLACEMENT'S ANSWER LAYOUT IS THE 2x2, AND THE ONLY THING THAT DECIDES IT
+ * IS HOW MANY OPTIONS THERE ARE.
+ *
+ * blueberry_r9-onboard-placement is what MANIFEST.md names as the lock on
+ * "real chemistry as a 2x2 of structures", and a four-option question that
+ * renders as a stack of wide prose rows is not that picture. The earlier rule
+ * here added a second condition, that every option also be at most 24
+ * characters, on the reasoning that a long option in a half width tile wraps
+ * into porridge.
+ *
+ * MEASURED AGAINST THE REAL CORPUS, THAT RULE INVERTED THE DESIGN. Of the 25
+ * four-option sets in SEED_CORPUS only 9 clear 24 characters, so sixteen of
+ * them, including the very first question the walk serves, fell out of the
+ * composition the goal image locks. A layout rule that fires on a sixth of its
+ * own data is not a fallback, it is the default wearing a fallback's clothes.
+ *
+ * The wrapping worry was real and it is answered in the tile rather than here:
+ * the grid tile is TALL (onboarding.css scopes a taller minimum to
+ * `.ob-options--grid`), so a long option has vertical room instead of being
+ * refused the layout. Three options in a 2x2 leaves a hole and five leaves a
+ * widow, so the count is still the condition; the length is not.
  *
  * NOT a hook, despite what the earlier draft of this file called it. It reads
  * no state and calls nothing; a `use` prefix on a pure predicate makes React's
  * rules-of-hooks lint and every reader believe something that is not true.
  */
 export function twoColumnGrid(options: readonly { readonly text: string }[]): boolean {
-  return options.length === 4 && options.every((option) => option.text.length <= 24);
+  return options.length === 4;
+}
+
+/**
+ * How long an option has to be before the tile drops it a type size.
+ *
+ * The 2x2 tile holds roughly this many characters at the caption's own size on
+ * a 390px screen; past it the words are set smaller so they still fit the tile
+ * rather than overflowing it. It is a RENDERING threshold and never a layout
+ * one: nothing is refused the grid for being long.
+ */
+export const TILE_DENSE_CHARS = 48;
+
+export function tileIsDense(text: string): boolean {
+  return text.length > TILE_DENSE_CHARS;
 }
 
 /* ------------------------------------------------------------------ */
@@ -278,10 +309,17 @@ export function goalChargeCost(tier: DailyGoalTier): number {
  *
  * docs/ECONOMY.md's mitigation set is load bearing per CLAUDE.md, and the part
  * of it this screen can honour is that a goal the student picks here must not
- * quietly be a goal the charge system will not let them reach. The goal step
- * shows the cost beside the cap so the trade is visible before it is made, and
- * this predicate is what a test asserts against so the offer cannot drift out
- * of reach when a table moves.
+ * quietly be a goal the charge system will not let them reach.
+ *
+ * THE GUARANTEE IS KEPT, NOT RECITED, and that changed on 2026-09-04. The goal
+ * step used to print the cost beside the cap ("16 of 30 charge") so the trade
+ * was visible before it was made. The simplicity ruling put that out of bounds:
+ * charge is this product's own jargon and the goal screen is the first place a
+ * student would meet it, so a number they cannot read is not a disclosure. The
+ * predicate stayed exactly where it was, and onboardingFlow.test.ts asserts it
+ * over every offered tier, so the offer still cannot drift out of reach when an
+ * economy table moves. What the student is owed is that the goal is reachable,
+ * not that they are shown the arithmetic proving it.
  */
 export function goalFitsOneCharge(tier: DailyGoalTier): boolean {
   return goalChargeCost(tier) <= CHARGE_CAP;
@@ -344,6 +382,42 @@ export function overviewBlocks(course: CourseId): readonly OverviewBlock[] {
   const topics = probeTopicIdsForCourse(course);
   if (topics.length === 0) return [];
   return [{ id: course, label: "The course", assumes: null, topics }];
+}
+
+/**
+ * How many topics one act block shows before it says "and N more".
+ *
+ * THE OVERVIEW IS A SUMMARY, NOT THE SYLLABUS. Organic Chemistry II's act 1 is
+ * sixteen topics and the four acts together are around forty, and rendering
+ * every one of them turned this screen into a scrolling wall of chips that a
+ * student swipes past. The 2026-09-04 simplicity ruling is about the framing
+ * rather than the content, so nothing here is hidden from the course; what
+ * changed is that a screen whose job is "here is your course" now shows the
+ * shape of it and says honestly how much more there is.
+ *
+ * Four, because four chips is the most that reliably fits above the fold
+ * beside the act's name on a 390px screen with four acts on it.
+ */
+export const OVERVIEW_TOPICS_SHOWN = 4;
+
+/**
+ * The topics one block shows, and how many it leaves unsaid.
+ *
+ * EVERY START TOPIC IS ALWAYS SHOWN, whatever its position in the act. The
+ * point of this screen is where the student lands, and a placement result
+ * hidden behind "and 12 more" is the one topic that must never be the one cut.
+ * Outline order is otherwise preserved, so the act still reads as it teaches.
+ */
+export function overviewTopicsShown(
+  block: OverviewBlock,
+  starts: readonly TopicId[],
+): { readonly shown: readonly TopicId[]; readonly hidden: number } {
+  const required = block.topics.filter((topic) => starts.includes(topic));
+  const room = Math.max(0, OVERVIEW_TOPICS_SHOWN - required.length);
+  const filler = block.topics.filter((topic) => !required.includes(topic)).slice(0, room);
+  const keep = new Set([...required, ...filler]);
+  const shown = block.topics.filter((topic) => keep.has(topic));
+  return { shown, hidden: block.topics.length - shown.length };
 }
 
 /** Which overview block a start topic falls in, so the screen can mark it. */

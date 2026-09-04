@@ -50,8 +50,8 @@ import {
 } from "@blueberry/curriculum";
 import { Berry } from "../mascot/Berry";
 import { ProblemView } from "../lesson/ProblemView";
-import { Action, Ask, ChipList, Frame, SkipAction } from "./Frame";
-import { twoColumnGrid, progressPercent } from "./flow";
+import { Action, ChipList, Frame, SkipAction } from "./Frame";
+import { tileIsDense, twoColumnGrid, progressPercent } from "./flow";
 import {
   CONTINUE,
   PLACEMENT_CHECK,
@@ -60,8 +60,10 @@ import {
   PLACEMENT_INTRO_ASK,
   PLACEMENT_REASON_ASK,
   PLACEMENT_SKIP_QUESTION,
+  PLACEMENT_SKIPPED_ASK,
   PLACEMENT_START,
   fill,
+  withoutMark,
 } from "./copy";
 import "./onboarding.css";
 
@@ -121,7 +123,20 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
         onBack={onBack}
         foot={<Action label={PLACEMENT_START} onPress={begin} />}
       >
-        <Ask line={PLACEMENT_INTRO_ASK} reducedMotion={reducedMotion} />
+        {/* THE CENTRED HERO, not the small [berry][bubble] row the question
+            steps use, and the reason is what this screen holds. A question
+            step's row is small because four chips sit under it; this screen
+            has nothing under it at all, and the row left three quarters of the
+            page empty above a lone button. Same two objects, composed for a
+            screen whose whole job is one sentence and one press. It is the
+            welcome beat's composition, which the goal images already draw for
+            exactly that case. */}
+        <div className="ob-welcome">
+          <div className="ob-welcome__hero">
+            <Berry behaviour="idle" mood="curious" reducedMotion={reducedMotion} sizePx={132} />
+            <p className="ob-bubble ob-welcome__bubble">{withoutMark(PLACEMENT_INTRO_ASK)}</p>
+          </div>
+        </div>
       </Frame>
     );
   }
@@ -138,7 +153,18 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
         onBack={onBack}
         foot={<Action label={CONTINUE} onPress={() => onDone(recommendation)} />}
       >
-        <Ask line={PLACEMENT_DONE_ASK} reducedMotion={reducedMotion} berryPx={92} />
+        {/* A student who skipped every question has no starting point to be
+            shown, and "that is your starting point" would then be a sentence
+            about nothing. The skipped line names what happens instead, plainly
+            and without treating the skipping as a failure. */}
+        <div className="ob-welcome">
+          <div className="ob-welcome__hero">
+            <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={132} />
+            <p className="ob-bubble ob-welcome__bubble">
+              {withoutMark(recommendation === null ? PLACEMENT_SKIPPED_ASK : PLACEMENT_DONE_ASK)}
+            </p>
+          </div>
+        </div>
       </Frame>
     );
   }
@@ -154,7 +180,12 @@ export function PlacementStep({ claimedCourse, reducedMotion, onBack, onDone }: 
         onBack={onBack}
         foot={<Action label={CONTINUE} onPress={() => onDone(state.recommendation)} />}
       >
-        <Ask line={PLACEMENT_DONE_ASK} reducedMotion={reducedMotion} berryPx={92} />
+        <div className="ob-welcome">
+          <div className="ob-welcome__hero">
+            <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={132} />
+            <p className="ob-bubble ob-welcome__bubble">{withoutMark(PLACEMENT_DONE_ASK)}</p>
+          </div>
+        </div>
       </Frame>
     );
   }
@@ -210,6 +241,18 @@ function Question({
 
   const reasons = answer.kind === "major_product" ? answer.reasons : null;
 
+  /*
+   * WHETHER THIS QUESTION GETS THE PICTURE-FIRST LAYOUT.
+   *
+   * blueberry_r9-onboard-placement draws a 2x2 of tiles, each one a drawn
+   * structure over a short caption, and that composition only holds when there
+   * are four options and each caption is a few words. An option that is a full
+   * sentence has no picture in it and no room for one, so it renders as the
+   * row it already is. Same predicate as the grid, because it is the same
+   * question asked once: is this option a NAME for something, or is it prose.
+   */
+  const tiled = twoColumnGrid(options ?? []);
+
   const ready =
     answer.kind === "multiple_choice"
       ? pick.optionId !== null
@@ -231,6 +274,12 @@ function Question({
     <Frame
       percent={percent}
       onBack={onBack}
+      /* THE X, NOT THE CHEVRON. blueberry_r9-onboard-placement draws an X at
+         the head of a placement question, and back from here does leave the
+         quiz rather than step one question inside it, so the mark and the act
+         agree. The screens before the stopwatch starts keep the chevron: back
+         from those really is one step of the flow. */
+      leading="leave"
       foot={
         options === null ? (
           <SkipAction label={PLACEMENT_SKIP_QUESTION} onPress={onSkip} />
@@ -238,12 +287,17 @@ function Question({
           <>
             <div className="ob-peek">
               <Action label={PLACEMENT_CHECK} disabled={!ready} onPress={check} />
+              {/* BIG, AND CROPPED BY THE SCREEN EDGE. The image draws Berry
+                  around 180px rising from BEHIND the CHECK button and running
+                  off the right of the screen. At 76px and fully inside the
+                  button he read as an icon printed on it. onboarding.css puts
+                  him past the button's right end and lets the page crop him. */}
               <Berry
                 className="ob-peek__berry"
                 behaviour="idle"
                 mood="curious"
                 reducedMotion={reducedMotion}
-                sizePx={76}
+                sizePx={168}
               />
             </div>
             <SkipAction label={PLACEMENT_SKIP_QUESTION} onPress={onSkip} />
@@ -251,7 +305,7 @@ function Question({
         )
       }
     >
-      <p className="ob-kicker">{counter}</p>
+      <p className="ob-kicker">{withoutMark(counter)}</p>
       <p className="ob-stem">{problem.prompt}</p>
 
       {options === null ? (
@@ -263,12 +317,13 @@ function Question({
           <ProblemView key={problem.id} problem={problem} locked={false} onSubmit={onSubmit} onSkip={onSkip} />
         </div>
       ) : (
-        <ChipList grid={twoColumnGrid(options)}>
+        <ChipList grid={tiled}>
           {options.map((option) => (
             <li key={option.id}>
               <Tile
                 picked={pick.optionId === option.id}
-                label={option.text}
+                caption={option.text}
+                pictureFirst={tiled}
                 onPick={() => onPick({ optionId: option.id, reasonId: pick.reasonId })}
               />
             </li>
@@ -278,13 +333,20 @@ function Question({
 
       {reasons === null || pick.optionId === null ? null : (
         <>
-          <p className="ob-substep">{PLACEMENT_REASON_ASK}</p>
+          <p className="ob-substep">{withoutMark(PLACEMENT_REASON_ASK)}</p>
+          {/* THE REASON HALF IS NEVER PICTURE-FIRST, and that is the rule
+              read correctly rather than an exemption from it. "Option cards
+              are pictures with captions" is about the THING being reasoned
+              about. A ranking argument is not a thing, it is a sentence, and
+              there is no structure that draws "the tertiary cation is more
+              stable", so the reasons stay text tiles at every length. */}
           <ChipList grid={twoColumnGrid(reasons)}>
             {reasons.map((reason) => (
               <li key={reason.id}>
                 <Tile
                   picked={pick.reasonId === reason.id}
-                  label={reason.text}
+                  caption={reason.text}
+                  pictureFirst={false}
                   onPick={() => onPick({ optionId: pick.optionId, reasonId: reason.id })}
                 />
               </li>
@@ -299,23 +361,72 @@ function Question({
 /**
  * One periwinkle answer tile.
  *
+ * WHAT THE GOAL IMAGE ASKS FOR, AND WHAT THIS CAN HONESTLY GIVE. Ruling 2 of
+ * 2026-09-04 says "the image comes first and the name comes second... OPTION
+ * CARDS ARE PICTURES WITH CAPTIONS, not captions with pictures", and
+ * blueberry_r9-onboard-placement draws it: four periwinkle tiles, each a drawn
+ * carbocation over the words Methyl, Primary, Secondary and Tertiary.
+ *
+ * THE OPTION DATA CARRIES NO PICTURE, AND THAT IS A BLOCKER RATHER THAN A
+ * CHOICE MADE HERE. `ChoiceOption` in packages/curriculum is `{ id, text }`
+ * and its own comment says so in as many words: "a structure is referred to by
+ * label here; rendering is Phase 4". `Problem` has no figure field either. No
+ * option and no problem anywhere in SEED_CORPUS carries a SMILES, an atom list
+ * or a figure, so there is nothing on this side of the boundary to draw. A
+ * structure derived from an option's words would be a structure this shell
+ * invented, and inventing chemistry in a shell is how a student is taught the
+ * wrong molecule. It is reported upward rather than worked around; the fix is
+ * a figure field on ChoiceOption and Problem, authored and reviewed in
+ * packages/curriculum, which this builder does not own.
+ *
+ * WHAT REPLACED THE PLACEHOLDER, and why the placeholder had to go. The
+ * previous pass drew a dashed frame containing a generic picture-frame glyph,
+ * identical on all four tiles, borrowing ruling 4's queued treatment. Ruling 4
+ * is about a pathway NODE with no authored content, and a critic was right
+ * that it is not a licence to ship a question whose visual is four copies of
+ * the same empty frame: four identical marks over four different answers teach
+ * a student nothing and cost the tile its whole face.
+ *
+ * So the tile draws the OPTION ITSELF as its subject: the words, set large and
+ * centred in the content face on the periwinkle field, which is the image's
+ * composition, weight and colour with the one thing missing that the data does
+ * not have. The tile is marked `data-visual="name"` so the gap is countable
+ * from outside rather than being visible only to whoever reads this comment,
+ * and it becomes `"figure"` on the day an option carries one.
+ *
  * Periwinkle because DESIGN-GOALS makes it the LESSON colour and this is the
- * first lesson-shaped thing a student touches; the picked treatment is a real
- * outline plus the violet edge, per the placement image, and not a blurred
- * glow. `data-stacking` is the sticker audit's opt-in for the stacked edge.
+ * first lesson-shaped thing a student touches. `data-stacking` is the sticker
+ * audit's opt-in for the stacked edge.
  */
 function Tile({
   picked,
-  label,
+  caption,
+  pictureFirst,
   onPick,
 }: {
   readonly picked: boolean;
-  readonly label: string;
+  /** The option's own words. */
+  readonly caption: string;
+  /** True in the 2x2, where the tile is tall and the words are its subject. */
+  readonly pictureFirst: boolean;
   readonly onPick: () => void;
 }) {
   return (
-    <button type="button" className="ob-tile" aria-pressed={picked} data-stacking="" onClick={onPick}>
-      <span className="ob-tile__art">{label}</span>
+    <button
+      type="button"
+      className="ob-tile"
+      aria-pressed={picked}
+      data-visual="name"
+      data-stacking=""
+      onClick={onPick}
+    >
+      <span
+        className="ob-tile__caption"
+        data-layout={pictureFirst ? "tile" : "row"}
+        data-dense={pictureFirst && tileIsDense(caption) ? "true" : "false"}
+      >
+        {caption}
+      </span>
     </button>
   );
 }

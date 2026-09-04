@@ -36,7 +36,7 @@
  */
 
 import { useMemo, useState, type ReactElement } from "react";
-import { topicDefinition, type Recommendation } from "@blueberry/curriculum";
+import { topicDefinition, type Recommendation, type TopicId } from "@blueberry/curriculum";
 import type { DailyGoalTier } from "@blueberry/economy";
 import { hrefForOnboarding, hrefForTab } from "../app/routes";
 import { navigate } from "../app/useHashRoute";
@@ -46,7 +46,6 @@ import { Action, Ask, Chip, ChipList, Frame, QuietAction, SkipAction } from "./F
 import { PlacementStep } from "./PlacementStep";
 import {
   EMPTY_ANSWERS,
-  GOAL_CHARGE_CAP,
   HEAR_CHOICES,
   ONBOARDING_GOAL_TIERS,
   START_CHOICES,
@@ -54,13 +53,13 @@ import {
   blockOfTopic,
   canContinue,
   claimedCourseForWhy,
-  goalChargeCost,
   goalLessonsPerDay,
   goalXp,
   isSkippable,
   nextStep,
   normalizeStep,
   overviewBlocks,
+  overviewTopicsShown,
   prevStep,
   progressPercent,
   resolveStart,
@@ -75,7 +74,8 @@ import {
   GOAL_ASK,
   GOAL_LABEL,
   GOAL_NOTE,
-  GOAL_PACING_LINE,
+  GOAL_PACING_MANY,
+  GOAL_PACING_ONE,
   GOAL_XP_LINE,
   HEAR_ASK,
   HEAR_LABEL,
@@ -85,6 +85,7 @@ import {
   INTRO_NOTE,
   OVERVIEW_ASK,
   OVERVIEW_ASSUMES_LABEL,
+  OVERVIEW_MORE,
   OVERVIEW_NOTE,
   OVERVIEW_TOPICS_LABEL,
   START_ASK,
@@ -98,6 +99,7 @@ import {
   WHY_ASK,
   WHY_LABEL,
   fill,
+  withoutMark,
 } from "./copy";
 import {
   EllipsisIcon,
@@ -141,6 +143,61 @@ const START_ICON: Readonly<Record<StartChoice, () => ReactElement>> = Object.fre
   placement: () => <ResumeIcon width="100%" height="100%" />,
   beginning: () => <RewindIcon width="100%" height="100%" />,
 });
+
+/**
+ * The second line on a goal chip: what the tier is worth, and what it costs in
+ * lessons. Both numbers are DERIVED from the economy tables by flow.ts and
+ * neither is typed anywhere.
+ *
+ * IT STRIPS THE GATE MARK FROM EACH HALF BEFORE JOINING, and that is the one
+ * subtle thing here. Every line in copy.ts is prefixed "[HUMAN GATE]", and the
+ * chip strips one leading mark when it renders. Joining two marked lines put a
+ * second mark in the MIDDLE of the sentence, where nothing was going to strip
+ * it, and a student read "10 XP a day - [HUMAN GATE] about 1 lessons". So the
+ * halves are unmarked here and the composed line arrives clean; the strings
+ * themselves still carry the mark and are still in ALL_DRAFT_LINES, which is
+ * what the gate and its test actually read.
+ */
+function goalMeta(tier: DailyGoalTier): string {
+  const lessons = goalLessonsPerDay(tier);
+  const pacing = lessons === 1 ? GOAL_PACING_ONE : fill(GOAL_PACING_MANY, { n: lessons });
+  return `${withoutMark(fill(GOAL_XP_LINE, { n: goalXp(tier) }))} - ${withoutMark(pacing)}`;
+}
+
+/**
+ * One act's topic chips: a few of them, the student's own landing topic always
+ * among them, and an honest count of the rest.
+ *
+ * The choosing is `overviewTopicsShown` in flow.ts rather than a slice here,
+ * because "always keep the start topic" is a rule with an edge case in it (a
+ * start topic past the cut, several start topics in one act) and a rule with
+ * an edge case belongs somewhere a test can drive it.
+ */
+function ActTopics({
+  block,
+  starts,
+}: {
+  readonly block: ReturnType<typeof overviewBlocks>[number];
+  readonly starts: readonly TopicId[];
+}) {
+  const { shown, hidden } = overviewTopicsShown(block, starts);
+  return (
+    <ul className="ob-act__topics">
+      {shown.map((topic) => (
+        <li
+          key={topic}
+          className="ob-act__topic"
+          data-start={starts.includes(topic) ? "true" : "false"}
+        >
+          {topicDefinition(topic).label}
+        </li>
+      ))}
+      {hidden === 0 ? null : (
+        <li className="ob-act__more">{withoutMark(fill(OVERVIEW_MORE, { n: hidden }))}</li>
+      )}
+    </ul>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /* The router                                                          */
@@ -269,13 +326,16 @@ export default function Onboarding({
           onBack={onBack}
           choices={ONBOARDING_GOAL_TIERS}
           label={(tier) => GOAL_LABEL[tier]}
-          meta={(tier) =>
-            `${fill(GOAL_XP_LINE, { n: goalXp(tier) })} - ${fill(GOAL_PACING_LINE, {
-              n: goalLessonsPerDay(tier),
-              c: goalChargeCost(tier),
-              cap: GOAL_CHARGE_CAP,
-            })}`
-          }
+          // TWO NUMBERS, BOTH DERIVED, AND NO CHARGE ARITHMETIC IN FRONT OF A
+          // STUDENT WHO HAS NOT MET CHARGE YET. An earlier draft printed
+          // "16 of 30 charge" here. The 2026-09-04 simplicity ruling puts that
+          // out of bounds: it is this product's own jargon on the screen
+          // before the student has seen a meter, and it is a second sentence
+          // in a chip. The GUARD did not move: flow.goalFitsOneCharge still
+          // holds every offered tier inside one full meter and a test asserts
+          // it, so the offer cannot drift out of reach. What changed is that
+          // the guarantee is kept rather than recited.
+          meta={(tier) => goalMeta(tier)}
           icon={(tier) => (
             <GoalBarsIcon width="100%" height="100%" filled={ONBOARDING_GOAL_TIERS.indexOf(tier) + 1} />
           )}
@@ -350,20 +410,31 @@ function Welcome({
     <Frame
       percent={percent}
       onBack={null}
+      /* THE HORIZON IS A BACKDROP, NOT A FLEX CHILD. See FrameProps.backdrop:
+         it has to sit outside the scrolling body to bleed off both screen
+         edges, and outside the flow so it can never push GET STARTED down. */
+      backdrop={<WelcomeHorizon className="ob-welcome__horizon" />}
       foot={
         <>
-          <Action label={WELCOME_START} onPress={onStart} />
+          <Action label={WELCOME_START} shape="stadium" onPress={onStart} />
           <QuietAction label={WELCOME_RETURNING} onPress={enterReturning} />
         </>
       }
     >
-      <div className="ob-welcome">
+      <div className="ob-welcome" data-hero="welcome">
         <div className="ob-welcome__hero">
-          <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={150} />
-          <p className="ob-bubble ob-welcome__bubble">{WELCOME_GREETING}</p>
+          {/* Waving, and looking at the student while he does it. See the note
+              on Ask in Frame.tsx: the welcome image draws open eyes too. */}
+          <Berry
+            className="ob-welcome__berry"
+            behaviour="wave"
+            mood="curious"
+            reducedMotion={reducedMotion}
+            sizePx={186}
+          />
+          <p className="ob-bubble ob-welcome__bubble">{withoutMark(WELCOME_GREETING)}</p>
         </div>
-        <p className="ob-promise">{WELCOME_PROMISE}</p>
-        <WelcomeHorizon className="ob-welcome__horizon" />
+        <p className="ob-promise">{withoutMark(WELCOME_PROMISE)}</p>
       </div>
     </Frame>
   );
@@ -407,10 +478,16 @@ function Bond({
     <Frame percent={percent} onBack={onBack} foot={<Action label={CONTINUE} onPress={onGo} />}>
       <div className="ob-welcome">
         <div className="ob-welcome__hero">
-          <Berry behaviour="wave" mood="happy" reducedMotion={reducedMotion} sizePx={150} />
-          <p className="ob-bubble ob-welcome__bubble">{INTRO_ASK}</p>
+          <Berry
+            className="ob-welcome__berry"
+            behaviour="wave"
+            mood="happy"
+            reducedMotion={reducedMotion}
+            sizePx={186}
+          />
+          <p className="ob-bubble ob-welcome__bubble">{withoutMark(INTRO_ASK)}</p>
         </div>
-        <p className="ob-note ob-note--centre">{INTRO_NOTE}</p>
+        <p className="ob-note ob-note--centre">{withoutMark(INTRO_NOTE)}</p>
       </div>
     </Frame>
   );
@@ -486,7 +563,7 @@ function ChoiceStep<T extends string>({
           </li>
         ))}
       </ChipList>
-      {note === null ? null : <p className="ob-note">{note}</p>}
+      {note === null ? null : <p className="ob-note">{withoutMark(note)}</p>}
     </Frame>
   );
 }
@@ -545,29 +622,19 @@ function Overview({
             <div className="ob-act__top">
               <span className="ob-act__label">{block.label}</span>
               <span className="ob-act__count">
-                {block.topics.length} {OVERVIEW_TOPICS_LABEL}
+                {block.topics.length} {withoutMark(OVERVIEW_TOPICS_LABEL)}
               </span>
             </div>
-            <ul className="ob-act__topics">
-              {block.topics.map((topic) => (
-                <li
-                  key={topic}
-                  className="ob-act__topic"
-                  data-start={starts.includes(topic) ? "true" : "false"}
-                >
-                  {topicDefinition(topic).label}
-                </li>
-              ))}
-            </ul>
+            <ActTopics block={block} starts={starts} />
             {block.assumes === null || !startBlocks.has(block.id) ? null : (
               <p className="ob-act__assumes">
-                {OVERVIEW_ASSUMES_LABEL}: {block.assumes}
+                {withoutMark(OVERVIEW_ASSUMES_LABEL)}: {block.assumes}
               </p>
             )}
           </li>
         ))}
       </ul>
-      <p className="ob-note">{OVERVIEW_NOTE}</p>
+      <p className="ob-note">{withoutMark(OVERVIEW_NOTE)}</p>
     </Frame>
   );
 }

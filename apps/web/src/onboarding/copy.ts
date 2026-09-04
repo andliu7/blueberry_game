@@ -18,6 +18,17 @@
  * the test that checks the voice contract reads one module rather than walking
  * JSX. The ids are stable; only the words move.
  *
+ * ONE SHORT QUESTION PER SCREEN, owner 2026-09-04, in docs/DESIGN-GOALS.md:
+ * "the onboarding questions are too complex. One short question per screen,
+ * plain words, no compound sentences, no chemistry vocabulary in the framing.
+ * The placement quiz is the only place a real chemistry question appears."
+ *
+ * The drafts below were rewritten to that ruling and it is not left to the
+ * gate to notice a regression: FRAMING_LINES at the foot of this file is the
+ * set of lines the ruling governs, and onboardingFlow.test.ts holds each one
+ * to a single sentence, a length ceiling and a jargon list. The lines it does
+ * NOT govern are named there too, with the reason for each.
+ *
  * VOICE, per CLAUDE.md: a coach on the student's side. Name what happens
  * plainly, treat every answer as a normal answer, make the next action feel
  * within reach. No scolding, no rhetorical questions, no faux patience. These
@@ -53,23 +64,22 @@ export const WELCOME_RETURNING = draft("I already have an account");
  * one thing to preserve is that neither line gives the student a task.
  */
 export const INTRO_ASK = draft("I will be right here the whole way.");
-export const INTRO_NOTE = draft("Nothing coming up is a test, and nothing is locked in.");
+export const INTRO_NOTE = draft("Nothing here is a test.");
 
-export const HEAR_ASK = draft("How did you hear about Blueberry?");
-export const HEAR_NOTE = draft("This one is only for us. Skip it if you would rather.");
+export const HEAR_ASK = draft("How did you hear about us?");
+export const HEAR_NOTE = draft("Skip this one if you like.");
 export const HEAR_SKIP = draft("Skip");
 
 export const HEAR_LABEL: Readonly<Record<HearChoice, string>> = Object.freeze({
-  friend: draft("A friend or classmate"),
+  friend: draft("A friend"),
   social: draft("Social media"),
   search: draft("Search"),
   professor: draft("My professor or TA"),
-  app_store: draft("The App Store"),
+  app_store: draft("The app store"),
   other: draft("Somewhere else"),
 });
 
 export const WHY_ASK = draft("What brings you to chemistry?");
-export const WHY_NOTE = draft("This picks where the placement starts. Nothing is locked in.");
 
 export const WHY_LABEL: Readonly<Record<WhyChoice, string>> = Object.freeze({
   orgo2_exam: draft("Orgo II exam prep"),
@@ -78,10 +88,8 @@ export const WHY_LABEL: Readonly<Record<WhyChoice, string>> = Object.freeze({
   curious: draft("Curiosity"),
 });
 
-export const PLACEMENT_INTRO_ASK = draft(
-  "Eight real questions, under three minutes. Skip any of them freely.",
-);
-export const PLACEMENT_START = draft("Start the placement");
+export const PLACEMENT_INTRO_ASK = draft("A few questions, so I know where to start you.");
+export const PLACEMENT_START = draft("Start");
 export const PLACEMENT_SKIP_QUESTION = draft("Skip this one");
 export const PLACEMENT_CHECK = draft("Check");
 /** The counter over the question. `%d` slots are filled by the view. */
@@ -89,23 +97,19 @@ export const PLACEMENT_COUNTER = draft("Question %n of %total");
 /** The second half of a major-product question: the ranking argument. */
 export const PLACEMENT_REASON_ASK = draft("And why does that one win?");
 export const PLACEMENT_DONE_ASK = draft("That is your starting point.");
-export const PLACEMENT_SKIPPED_ASK = draft(
-  "No placement, no problem. We will start you at the beginning.",
-);
+export const PLACEMENT_SKIPPED_ASK = draft("We will start you at the beginning.");
 
-export const OVERVIEW_ASK = draft("Here is the whole course, and where you land in it.");
-export const OVERVIEW_NOTE = draft(
-  "Every unit ends lower than it began. That is the energy diagram, and it is also the point.",
-);
+export const OVERVIEW_ASK = draft("Here is your course.");
+export const OVERVIEW_NOTE = draft("You can explore it in any order.");
 /** Beside each act block: what it assumes comes from the outline, not from here. */
 export const OVERVIEW_ASSUMES_LABEL = draft("Assumes");
 export const OVERVIEW_TOPICS_LABEL = draft("topics");
 export const OVERVIEW_START_HERE = draft("You start here");
+/** The tail of a shortened act list. `%n` is filled by the view. */
+export const OVERVIEW_MORE = draft("and %n more");
 
 export const GOAL_ASK = draft("How much chemistry a day?");
-export const GOAL_NOTE = draft(
-  "A full charge meter covers a day at every one of these. Mistakes never cost charge.",
-);
+export const GOAL_NOTE = draft("Mistakes never cost you anything.");
 export const GOAL_LABEL: Readonly<Record<DailyGoalTier, string>> = Object.freeze({
   casual: draft("Casual"),
   regular: draft("Regular"),
@@ -114,18 +118,31 @@ export const GOAL_LABEL: Readonly<Record<DailyGoalTier, string>> = Object.freeze
 });
 /** The `%n` slots are filled by the view from the economy tables, never typed here. */
 export const GOAL_XP_LINE = draft("%n XP a day");
-export const GOAL_PACING_LINE = draft("about %n a day, %c of %cap charge");
+
+/*
+ * THE PACING LINE COMES IN TWO, one for one lesson and one for more, and that
+ * is a plural bug fixed rather than a flourish. A single "about %n lessons"
+ * printed "about 1 lessons" on the casual tier, because the economy's casual
+ * goal happens to divide to exactly one node. English is not a slot language
+ * and no amount of formatter will make it one, so the two readings are two
+ * authored lines and the view picks between them on the number it already has.
+ * The gate rewrites both, and neither carries the noun in a slot.
+ */
+export const GOAL_PACING_ONE = draft("about one lesson a day");
+export const GOAL_PACING_MANY = draft("about %n lessons a day");
 
 export const START_ASK = draft("Where would you like to begin?");
-export const START_NOTE = draft("Either way the whole course stays open to browse.");
+export const START_NOTE = draft("You can change this later.");
 export const START_LABEL: Readonly<Record<StartChoice, string>> = Object.freeze({
-  placement: draft("Start where the placement put me"),
-  beginning: draft("Start at the very beginning"),
+  placement: draft("Where I tested"),
+  beginning: draft("Right at the start"),
 });
 export const START_FINISH = draft("Take me in");
 
 export const CONTINUE = draft("Continue");
 export const BACK_LABEL = draft("Go back");
+/** The placement's leading control. An X leaves the quiz; a chevron steps back. */
+export const LEAVE_LABEL = draft("Leave the quiz");
 export const PROGRESS_LABEL = draft("Getting set up");
 
 /**
@@ -161,7 +178,6 @@ export const ALL_DRAFT_LINES: readonly string[] = Object.freeze([
   HEAR_SKIP,
   ...Object.values(HEAR_LABEL),
   WHY_ASK,
-  WHY_NOTE,
   ...Object.values(WHY_LABEL),
   PLACEMENT_INTRO_ASK,
   PLACEMENT_START,
@@ -176,16 +192,155 @@ export const ALL_DRAFT_LINES: readonly string[] = Object.freeze([
   OVERVIEW_ASSUMES_LABEL,
   OVERVIEW_TOPICS_LABEL,
   OVERVIEW_START_HERE,
+  OVERVIEW_MORE,
   GOAL_ASK,
   GOAL_NOTE,
   ...Object.values(GOAL_LABEL),
   GOAL_XP_LINE,
-  GOAL_PACING_LINE,
+  GOAL_PACING_ONE,
+  GOAL_PACING_MANY,
   START_ASK,
   START_NOTE,
   ...Object.values(START_LABEL),
   START_FINISH,
   CONTINUE,
   BACK_LABEL,
+  LEAVE_LABEL,
   PROGRESS_LABEL,
 ]);
+
+/* ------------------------------------------------------------------ */
+/* The simplicity ruling, as data                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The FRAMING of a step: what Berry asks, and the quiet line under the chips.
+ *
+ * These are the lines the 2026-09-04 ruling governs. A student meeting this
+ * flow is stressed and arrived on purpose, so each one is a single short
+ * sentence in plain words, and the only chemistry word allowed in any of them
+ * is the name of the subject itself.
+ *
+ * FOUR KINDS OF LINE ARE DELIBERATELY NOT IN THIS LIST, and leaving each one
+ * out is a decision rather than an oversight:
+ *
+ *   WELCOME_GREETING, "Hi! I'm Berry.", is two beats because
+ *   blueberry_r9-onboard-welcome draws it as two, and it frames nothing: it
+ *   is a hello, and there is no question on that screen to keep short.
+ *
+ *   The CHOICE LABELS are answers, not framing. They are held short by the
+ *   chip that has to hold them, and one of them ("DAT / MCAT") is not a
+ *   sentence at all.
+ *
+ *   The ACTIONS (CONTINUE, START, SKIP) are verbs on buttons.
+ *
+ *   The OVERVIEW's act labels and "assumes" lines never appear here because
+ *   they are not in this file at all: they are read from the course outline
+ *   through packages/curriculum, and they are course CONTENT rather than the
+ *   words the product uses to ask a student something.
+ */
+export const FRAMING_LINES: readonly string[] = Object.freeze([
+  INTRO_ASK,
+  INTRO_NOTE,
+  HEAR_ASK,
+  HEAR_NOTE,
+  WHY_ASK,
+  PLACEMENT_INTRO_ASK,
+  PLACEMENT_REASON_ASK,
+  PLACEMENT_DONE_ASK,
+  PLACEMENT_SKIPPED_ASK,
+  OVERVIEW_ASK,
+  OVERVIEW_NOTE,
+  GOAL_ASK,
+  GOAL_NOTE,
+  START_ASK,
+  START_NOTE,
+]);
+
+/**
+ * The longest a framing line may be, in characters, once the gate mark is off.
+ *
+ * MEASURED, not chosen: the longest draft below is 46 characters, and 48 is
+ * that with one word of headroom. It is here so the ceiling is a number the
+ * owner can move at the gate rather than a number buried in an assertion.
+ */
+export const FRAMING_LINE_MAX_CHARS = 48;
+
+/**
+ * Words that are chemistry rather than English, and that the ruling keeps out
+ * of the framing.
+ *
+ * "chemistry" is not on this list and must not be added: it is the name of the
+ * subject the student came for, and both the welcome and the "what brings you"
+ * screens use it in the goal images themselves. What is banned is the
+ * vocabulary INSIDE the subject, which a student who has not started the
+ * course cannot be assumed to hold. "charge" is on the list twice over: it is
+ * both formal charge and this product's own pacing currency, and the goal
+ * screen is the first time a student would meet either.
+ */
+export const FRAMING_JARGON: readonly string[] = Object.freeze([
+  "carbocation",
+  "mechanism",
+  "electrophil",
+  "nucleophil",
+  "enolate",
+  "aromatic",
+  "stereochem",
+  "spectroscop",
+  "energy diagram",
+  "transition state",
+  "charge",
+  "mastery",
+  "placement",
+]);
+
+/**
+ * Strips the gate mark, so a length or sentence check measures the sentence.
+ *
+ * IT IS ALSO WHAT EVERY SCREEN RENDERS THROUGH, and that is worth reading
+ * carefully because it looks at first like the mark being hidden.
+ *
+ * The mark stays in the STRING, which is the thing the owner rewrites at the
+ * gate and the thing `ALL_DRAFT_LINES` holds every line to. What changed on
+ * 2026-09-04 is where it is DRAWN: inline on twenty lines it was not a mark,
+ * it was the loudest text on the screen. Every chip wrapped to two lines
+ * because of it, the mascot's question became a mascot's question about
+ * "[HUMAN GATE]", and a critic comparing the composition against
+ * blueberry_r9-onboard-question was comparing the wrong picture. It was also
+ * read out before every label by a screen reader.
+ *
+ * So the flow declares it ONCE, in the header, as `.ob-mark` in Frame.tsx, and
+ * each line renders as its sentence. The screen still says plainly that every
+ * word on it is a draft; it just says it once instead of twenty times.
+ */
+export function withoutMark(line: string): string {
+  return line.startsWith(HUMAN_GATE_MARK) ? line.slice(HUMAN_GATE_MARK.length).trim() : line;
+}
+
+/*
+ * THERE IS NO ON-SCREEN DRAFT BANNER ANY MORE, and the export that used to
+ * carry it is gone rather than left unused.
+ *
+ * It was the bare mark, drawn once per screen at the end of the header row.
+ * Measured against blueberry_r9-onboard-question it cost 79px plus its gaps
+ * out of a 358px header, which is why the progress bar rendered at 55 percent
+ * of the frame where all three goal images draw it at about 76, and none of
+ * the three images draws anything to the right of the bar. The declaration is
+ * not weaker for being off the screen: every line in this module is still
+ * built by `draft()`, still carries HUMAN_GATE_MARK inside the string, is
+ * still listed in ALL_DRAFT_LINES, and onboardingFlow.test.ts still fails the
+ * build if one slips out unmarked. The mark is a flag for the owner and for a
+ * critic reading the source; a student was paying for it in header width.
+ */
+
+/**
+ * How many sentences a line is. The ruling allows exactly one in the framing.
+ *
+ * Counts terminal marks rather than splitting, because a run of them ("...")
+ * is one ending and not three, and because a line that ends without one is a
+ * fragment rather than zero sentences.
+ */
+export function sentenceCount(line: string): number {
+  const matches = withoutMark(line).match(/[.?!]+/g);
+  return matches === null ? 1 : matches.length;
+}

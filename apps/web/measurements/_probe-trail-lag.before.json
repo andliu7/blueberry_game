@@ -1,0 +1,128 @@
+{
+  "phone": {
+    "layer": {
+      "error": "no chip or no ribbon"
+    },
+    "divergence": [
+      {
+        "scrollY": 0,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 146
+      },
+      {
+        "scrollY": 300,
+        "chips": 9,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 143.2
+      },
+      {
+        "scrollY": 700,
+        "chips": 9,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 143.2
+      },
+      {
+        "scrollY": 1400,
+        "chips": 5,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 155.6
+      },
+      {
+        "scrollY": 2800,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 114.5
+      },
+      {
+        "scrollY": 4200,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 151.9
+      },
+      {
+        "scrollY": 6000,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 125.3
+      }
+    ],
+    "writes": {
+      "scrolledToPx": 3400,
+      "trailGeometryWrites": 232,
+      "cssVariableWritesAnywhere": 332,
+      "scrollFps": 46.2,
+      "scrollWorstFrameMs": 50,
+      "scrollFramesOver20ms": 24
+    },
+    "flow": {
+      "error": "no walked stretch on screen"
+    },
+    "reduced": {
+      "error": "no walked stretch"
+    }
+  },
+  "desk": {
+    "layer": {
+      "error": "no chip or no ribbon"
+    },
+    "divergence": [
+      {
+        "scrollY": 0,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 138
+      },
+      {
+        "scrollY": 300,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 150.5
+      },
+      {
+        "scrollY": 700,
+        "chips": 10,
+        "settledWorstPx": 0,
+        "oneFrameAfterScrollWorstPx": 150.5
+      },
+      {
+        "scrollY": 1400,
+        "chips": 5,
+        "settledWorstPx": 0,
+        "oneFrameAfterScrollWorstPx": 173.5
+      },
+      {
+        "scrollY": 2800,
+        "chips": 11,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 110.3
+      },
+      {
+        "scrollY": 4200,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 155.7
+      },
+      {
+        "scrollY": 6000,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 153.7
+      }
+    ],
+    "writes": {
+      "scrolledToPx": 2960,
+      "trailGeometryWrites": 201,
+      "cssVariableWritesAnywhere": 288,
+      "scrollFps": 40.2,
+      "scrollWorstFrameMs": 50.1,
+      "scrollFramesOver20ms": 33
+    },
+    "flow": {
+      "error": "no walked stretch on screen"
+    },
+    "reduced": {
+      "error": "no walked stretch"
+    }
+  }
+}

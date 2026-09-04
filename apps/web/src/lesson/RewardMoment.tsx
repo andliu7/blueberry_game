@@ -52,14 +52,30 @@
  *                      caption beneath
  *   CLAIM              the goal green, full width
  *
- * WHERE THE IMAGE AND THE LAW DISAGREE, and it is one place. The image draws
- * an enormous number AND labels its left chip "185 XP earned", which is XP
- * twice. The round 2 law is the specific thing the S3 blind judge picked this
- * screen for over the bar, so the law wins and it is reported rather than
- * silently split: the hero IS the XP, and the chip pair is the two systems the
- * hero does not already carry, diamonds and the streak. Everything else about
- * those chips, the geometry, the edge, the flame, the caption under the
- * number, is the image's.
+ * WHERE THE IMAGE AND THE LAW DISAGREE, and it is one place, still open. The
+ * image draws an enormous number AND labels its left chip "185 XP earned",
+ * which is XP twice, and DESIGN-GOALS' Celebration row agrees with the image
+ * ("XP and streak as 3D chips"). The round 2 / S3 law is the specific thing
+ * the blind judge picked this screen for over the bar, and this round's brief
+ * restates it as binding, so the law is what the code follows: the hero IS the
+ * XP, and the chip pair is the two systems the hero does not already carry,
+ * diamonds and the streak. THAT IS AN ESCALATION, NOT A DECISION. A code
+ * comment is not where a conflict between an owner clause and an owner image
+ * gets settled, so it is reported for an owner ruling. Everything else about
+ * those chips, the geometry, the slab edge, the bolt, the flame and the
+ * caption under the number, is the image's.
+ *
+ * WHAT ATTEMPT 2 CHANGED, all of it measured against the committed image
+ * rather than argued: the ground is the product's own cream instead of the
+ * pink-grey --reward-ground; the hero number is roughly twice the height it
+ * was and drops its unit, because the reference's is a fifth of the screen and
+ * carries no word beside it; the confetti is a settled fan that is still there
+ * at 2500 ms and under reduced motion instead of a 900 ms transient; Bloom is
+ * staged full length with arms, legs, a leaf, a cast shadow and a wide visor
+ * instead of a head-only sphere in a sliced lab coat; the reason pills are
+ * uniform and unfilled; the chips lose their all-round navy outline, gain the
+ * bolt, and keep their dark slab in BOTH themes; and CLAIM is a 56 px CTA with
+ * real ground under it rather than a 44 px minimum flush to the screen edge.
  *
  * HOW THE SEQUENCE IS ORCHESTRATED. One clock, `useStageClock`, gives the
  * elapsed milliseconds since the screen appeared. Every beat below is a start
@@ -287,28 +303,83 @@ function sum(lines: readonly ReceiptLine[]): number {
   return lines.reduce((total, line) => total + line.amount, 0);
 }
 
-/** The burst: twenty CSS particles on token colours. No engine, no canvas. */
-const BURST = Array.from({ length: 20 }, (_, i) => {
-  const angle = (i / 20) * Math.PI * 2 + (i % 2 === 0 ? 0.12 : -0.08);
-  const distance = 130 + (i % 3) * 46;
+/**
+ * THE CONFETTI FAN, and it is a still life rather than a firework. That is a
+ * correction measured off the committed image, not a preference.
+ *
+ * The reference composes a wide multicoloured fan arcing above and around the
+ * number, and the fan is PRESENT IN THE STILL: it is part of the composition,
+ * not an effect that has already finished. Ours used to be a 900 ms transient
+ * whose keyframe ended at opacity 0, so the 2500 ms frame a critic actually
+ * judges carried no confetti at all, and reduced motion returned null. Both
+ * are one bug wearing two hats: the celebration's top third was empty in every
+ * frame anybody stops on.
+ *
+ * So each piece has a SETTLED position it travels to and stays at. The
+ * entrance animates from the centre of the pair outward and ends at opacity 1,
+ * and reduced motion renders the settled fan with no travel. Nothing here is
+ * information, so it is aria-hidden and none of it is a contrast pair.
+ *
+ * FORTY PIECES ON FIVE HUES, and neither number is arbitrary. Forty is the
+ * reference's own count; five is its palette: pink, sky, orange, yellow,
+ * violet. `--good` #065f46 is deliberately NOT in the set. It is a near-black
+ * green that reads as a hole punched in the paper rather than as paper, the
+ * image never uses it, and it was one of only four tones the old burst had.
+ * Four of the five are the product's own tokens; the pink is an ILLUSTRATION
+ * literal in the same category as the chest's gold and the mascot's frozen
+ * palette, because the product owns no pink token and a confetti piece carries
+ * no text, no state and no meaning.
+ *
+ * DETERMINISTIC, never Math.random: a capture script has to shoot this screen
+ * twice and get the same picture.
+ */
+const CONFETTI_PINK = "#f472a0";
+
+/** A stable spread in [0, 1) from an index. One line, no library, same every run. */
+function jitter(i: number, salt: number): number {
+  const x = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+const CONFETTI = Array.from({ length: 40 }, (_, i) => {
+  // The fan sweeps the upper arc, 190 to 350 degrees, so the pieces sit above
+  // and to the sides of the pair and none of them lands on Bloom's face.
+  const angle = ((190 + (i / 39) * 160 + jitter(i, 1) * 9) * Math.PI) / 180;
+  const radius = 30 + jitter(i, 2) * 26;
   return {
-    dx: Math.round(Math.cos(angle) * distance),
-    dy: Math.round(Math.sin(angle) * distance * 0.75) - 40,
-    delay: (i % 5) * 35,
-    tone: ["primary", "warn", "good", "diamond"][i % 4] as "primary" | "warn" | "good" | "diamond",
-    shape: i % 3 === 0 ? "round" : "bar",
+    // Percentages of the hero box, so the fan scales with the screen instead
+    // of being pinned to a pixel distance that is a halo on a phone and a
+    // freckle on a tablet.
+    x: 50 + Math.cos(angle) * radius,
+    y: 46 + Math.sin(angle) * radius * 0.92,
+    spin: Math.round(jitter(i, 3) * 340 - 170),
+    delay: Math.round(jitter(i, 4) * 420),
+    tone: ["pink", "diamond", "streak", "spark", "primary"][i % 5] as
+      | "pink"
+      | "diamond"
+      | "streak"
+      | "spark"
+      | "primary",
+    shape: i % 4 === 0 ? "round" : "bar",
   };
 });
 
-function Burst({ reducedMotion }: { readonly reducedMotion: boolean }) {
-  if (reducedMotion) return null;
+function Confetti({ reducedMotion }: { readonly reducedMotion: boolean }) {
   return (
-    <div className="reward-burst pointer-events-none absolute inset-0" aria-hidden>
-      {BURST.map((piece, i) => (
+    <div className="reward-confetti" aria-hidden data-still={reducedMotion ? "true" : "false"}>
+      {CONFETTI.map((piece, i) => (
         <span
           key={i}
-          className={`reward-spark reward-spark--${piece.tone} reward-spark--${piece.shape}`}
-          style={{ "--dx": `${piece.dx}px`, "--dy": `${piece.dy}px`, "--delay": `${piece.delay}ms` } as CSSProperties}
+          className={`reward-flake reward-flake--${piece.tone} reward-flake--${piece.shape}`}
+          style={
+            {
+              left: `${piece.x.toFixed(2)}%`,
+              top: `${piece.y.toFixed(2)}%`,
+              "--spin": `${piece.spin}deg`,
+              "--delay": `${piece.delay}ms`,
+              "--flake-pink": CONFETTI_PINK,
+            } as CSSProperties
+          }
         />
       ))}
     </div>
@@ -326,24 +397,255 @@ function DiamondIcon({ className = "h-6 w-6" }: { readonly className?: string })
 }
 
 /**
- * The streak card's flame is the product's ONE cartoon flame, HudIcons'
- * FlameMark, per DESIGN-GOALS' header ruling (the realistic comet fireball is
- * eliminated; the cartoonish flat flame carries the streak everywhere). The
- * header, the streak screen and this card now draw the same glyph, so the
- * number in the corner tomorrow is visibly the thing celebrated tonight.
- * Still scaled to the streak: taller and fuller the longer it has burned.
+ * THE LIGHTNING BOLT that hangs over the top edge of the left chip.
+ *
+ * It is the committed image's one boundary-breaking element: everything else
+ * on that screen sits inside its own box, and this one piece of the
+ * composition deliberately does not, which is what stops the chip pair reading
+ * as two rectangles parked side by side. Drawn in the streak family's own warm
+ * core, which is already the product's celebratory yellow.
+ *
+ * IT CARRIES NO DATA AND IT SAYS SO. In the reference the chip under it is
+ * labelled "185 XP", so the bolt is decoration there too: the words already
+ * say what the chip is. Ours is aria-hidden for the same reason, and it is
+ * anchored to the chip pair rather than to either system, so it does not move
+ * or change meaning when the left chip is the diamonds one.
  */
-function StreakFlame({ streak, lit }: { readonly streak: number; readonly lit: boolean }) {
+function BoltBadge() {
+  return (
+    <span className="reward-bolt" aria-hidden>
+      <svg viewBox="0 0 24 24" focusable="false">
+        <path d="M13.6 1.5 5.2 13.1h5.1L9.3 22.5l9.1-12.4h-5.6z" fill="var(--streak-core)" />
+        <path d="M13.6 1.5 10.3 13.1h-5.1z" fill="#000000" fillOpacity="0.12" />
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * THE THREE STREAK STATES, drawn, per blueberry_spec-meter-states_1788291102.png.
+ *
+ * The sheet draws three: LIT (an orange flame carrying the count), REST DAY
+ * (the same orange flame with a LEAF inside it), and FREEZE USED (an icy pale
+ * blue flame with an ICE CUBE inside it). HudIcons' `FlameMark` takes a single
+ * `lit: boolean` and has exactly two drawings, so the two saved states had no
+ * glyph anywhere in the product and this screen explained them in a sentence
+ * of grey type under an ordinary lit flame. A saved streak is the moment the
+ * mitigation set in ECONOMY.md exists for; drawing it as an unremarkable lit
+ * day is the one reading that makes the mitigation invisible.
+ *
+ * THE SILHOUETTE IS FlameMark's OWN, character for character, and that is the
+ * point rather than laziness: DESIGN-GOALS rules there is ONE cartoon flame in
+ * this product. What changes between the three states is the FILL and what is
+ * cut into the core, never the shape, so the header's flame, the streak
+ * screen's and this one are visibly the same object in three conditions.
+ *
+ * IT LIVES HERE BECAUSE HudIcons.tsx IS NOT THIS PIECE'S FILE. The permanent
+ * home for the two new states is `FlameMark`, which every surface already
+ * imports; that is reported rather than reached into, and this component is
+ * the worked drawing a mascot-or-chrome round can lift wholesale.
+ */
+export type FlameState = "lit" | "rest" | "freeze";
+
+const FLAME_BODY =
+  "M12.6 1.2c-.4 2.9-2 4.3-3.4 5.6C7.2 8.6 4.8 11 4.8 15.2 4.8 19.1 8 22.2 12 22.2s7.2-3.1 7.2-7c0-2.8-1.2-4.7-2.6-6.2-.2 1.5-1 2.6-2.1 3 1-3.6-.6-8.2-1.9-10.8z";
+const FLAME_CORE = "M12 10.4c1.9 1.9 3 3.4 3 5.1a3 3 0 0 1-6 0c0-1.6 1.1-3.2 3-5.1z";
+
+/** The icy flame's own pair. Illustration, no text on it, both themes. */
+const ICE_BODY = "#bfe4f7";
+const ICE_CORE = "#e8f6ff";
+const ICE_LINE = "#5b93b8";
+
+function StateFlame({ state, className = "" }: { readonly state: FlameState; readonly className?: string }) {
+  const icy = state === "freeze";
+  return (
+    <svg viewBox="0 0 24 24" className={className} data-flame={state} aria-hidden focusable="false">
+      <path
+        className="hud-flame-body"
+        d={FLAME_BODY}
+        fill={icy ? ICE_BODY : "var(--streak)"}
+        stroke={icy ? ICE_LINE : "none"}
+        strokeWidth={icy ? 1 : 0}
+      />
+      <path className="hud-flame-core" d={FLAME_CORE} fill={icy ? ICE_CORE : "var(--streak-core)"} />
+      {/* REST DAY: the leaf, cut into the core the way the sheet draws it, in
+          the flame's own deeper orange so it reads as a shape in the fire
+          rather than as a sticker on top of it. */}
+      {state === "rest" ? (
+        <path
+          d="M14.4 12.6c0 2.4-1.3 4.2-2.9 4.9-.6-1.7-.4-3.9.8-5.3.9-1.1 1.7-1.4 2.1-1.5.1.4.2 1 0 1.9z"
+          fill="var(--streak)"
+        />
+      ) : null}
+      {/* FREEZE USED: the ice cube, drawn as a cube rather than as a square,
+          because a square inside a flame reads as a missing glyph. */}
+      {state === "freeze" ? (
+        <g stroke={ICE_LINE} strokeWidth="0.9" strokeLinejoin="round" fill="#ffffff">
+          <path d="M12 12.1 15 13.4v3.1L12 17.8 9 16.5v-3.1z" />
+          <path d="M9 13.4 12 14.7l3-1.3M12 14.7v3.1" fill="none" />
+        </g>
+      ) : null}
+    </svg>
+  );
+}
+
+/**
+ * The streak chip's flame. The product's ONE cartoon flame, in whichever of
+ * the spec sheet's three states the receipt actually describes: a rest day and
+ * a freeze are not ordinary lit days and no longer render as one. Scaled to
+ * the streak, so it is taller and fuller the longer it has burned.
+ */
+function StreakFlame({ streak, lit, state }: { readonly streak: number; readonly lit: boolean; readonly state: FlameState }) {
   const size = 30 + Math.min(streak, 30) * 0.9;
   return (
     <span
       className="reward-flame-seat shrink-0"
       style={{ width: size, height: size } as CSSProperties}
       data-lit={lit ? "true" : "false"}
+      data-state={state}
       aria-hidden
     >
-      <FlameMark lit={lit} className="h-full w-full" />
+      {/* Unlit is still FlameMark's own drawing: nothing about the guttering
+          grey flame changed, and importing it keeps that one state shared. */}
+      {lit ? <StateFlame state={state} className="h-full w-full" /> : <FlameMark lit={false} className="h-full w-full" />}
     </span>
+  );
+}
+
+/**
+ * BLOOM, STAGED FOR THE CELEBRATION: the imported mark, given the pose the
+ * committed image draws, and nothing about the mark itself redrawn.
+ *
+ * WHAT THE IMAGE ACTUALLY DRAWS, looked at at 3x rather than remembered: a
+ * full-length berry mid-celebration. Arms thrown up and out with mitten hands,
+ * two splayed legs with oval feet, a green leaf off the calyx, a soft cast
+ * shadow on the ground under it, a plain blue body with no lab coat, and a
+ * WIDE clear goggle visor pushed up onto the forehead. What the build drew was
+ * a head-only sphere at rest with a two-lens spectacle frame at brow level and
+ * a white lab-coat hem sliced flat by the sphere's own bottom clip, which
+ * reads as a mascot cut off at the neck rather than as a character celebrating.
+ *
+ * WHY THE LIMBS ARE HERE AND NOT IN THE MASCOT PACKAGE. D4 says the mascot is
+ * imported and never redrawn, and it is not redrawn: `BlueberryMark` still
+ * draws every pixel of the body, the calyx, the face and the highlight, and
+ * `Berry` still runs the behaviour machine over it. This file adds a STAGE
+ * around that mark for one screen, in the mark's own 64-unit coordinate system
+ * so the limbs meet the body exactly, in the mark's own gradient end colour so
+ * they are the same berry. Limbs that belong in every pose belong in
+ * BlueberryMark, and that is reported; a celebration pose invented in a
+ * mascot-owned round would be the better permanent home for all of it.
+ *
+ * THE COSTUME IS DROPPED ON PURPOSE. `costume="labcoat"` is what supplied the
+ * goggles-up pose, and it also supplies the coat hem the critic named. The
+ * reference draws no coat and a much wider single visor, so the visor is drawn
+ * here and the costume is not asked for. DESIGN-GOALS' "goggles-up mascot" is
+ * satisfied by the drawn visor, and it is satisfied better: the two small
+ * lenses at brow level read as spectacles at 130 px, and this one reads as
+ * goggles pushed up.
+ */
+const BERRY_LIMB = "#2b2fb0";
+const BERRY_LIMB_DEEP = "#241f7a";
+const LEAF_GREEN = "#4caf50";
+const LEAF_VEIN = "#2f7d33";
+const VISOR_GLASS = "#cfeeff";
+const VISOR_FRAME = "#eaf7ff";
+const VISOR_LINE = "#1b2a6b";
+
+function CelebrationBloom({
+  mood,
+  behaviour,
+  behaviourKey,
+  sparkleKey,
+  reducedMotion,
+  sizePx,
+}: {
+  readonly mood: BerryMood;
+  readonly behaviour: BerryBehaviour;
+  readonly behaviourKey: number;
+  readonly sparkleKey: number;
+  readonly reducedMotion: boolean;
+  readonly sizePx: number;
+}) {
+  return (
+    <div className="reward-bloom-stage" style={{ "--bloom-size": `${sizePx}px` } as CSSProperties}>
+      {/* BEHIND the body: the ground shadow, the legs, the arms, the leaf.
+          One SVG on the mark's own 0 0 64 64 grid with overflow visible, so a
+          hand thrown above the head is not clipped and every joint lands on
+          the sphere by construction rather than by eye. */}
+      <svg className="reward-bloom-limbs" viewBox="0 0 64 64" aria-hidden focusable="false">
+        {/* The cast shadow. An ellipse on the ground under the feet, which is
+            what tells a reader the character is standing rather than floating. */}
+        <ellipse cx="32" cy="63" rx="15" ry="2.6" fill="#000000" opacity="0.1" />
+        {/* The legs: splayed, with oval feet, emerging from under the body. */}
+        <g stroke={BERRY_LIMB} strokeWidth="4.6" strokeLinecap="round" fill="none">
+          <path d="M27 52 L21.5 61" />
+          <path d="M37 52 L42.5 61" />
+        </g>
+        <g fill={BERRY_LIMB_DEEP}>
+          <ellipse cx="20.4" cy="61.6" rx="4.4" ry="2.4" transform="rotate(-8 20.4 61.6)" />
+          <ellipse cx="43.6" cy="61.6" rx="4.4" ry="2.4" transform="rotate(8 43.6 61.6)" />
+        </g>
+        {/* The arms: thrown up and out, mitten hands at the ends. The image's
+            pose exactly, and it is the pose that makes a still read as a
+            celebration rather than as a portrait. */}
+        <g stroke={BERRY_LIMB} strokeWidth="5" strokeLinecap="round" fill="none">
+          <path d="M13.5 34 Q6.5 27 5.5 17.5" />
+          <path d="M50.5 34 Q57.5 27 58.5 17.5" />
+        </g>
+        {/* The hands. A disc for the mitt and one short thumb stroke off it,
+            which is the whole difference between an open cheering hand and a
+            ball on the end of a stick. */}
+        <g fill={BERRY_LIMB}>
+          <circle cx="5.5" cy="17.5" r="3.6" />
+          <circle cx="58.5" cy="17.5" r="3.6" />
+        </g>
+        <g stroke={BERRY_LIMB} strokeWidth="2.4" strokeLinecap="round" fill="none">
+          <path d="M3.4 14.6 Q3.6 12 5.6 11.6" />
+          <path d="M60.6 14.6 Q60.4 12 58.4 11.6" />
+        </g>
+        {/* The leaf off the calyx, up and to the right, behind the head. */}
+        <g transform="rotate(-28 44 12)">
+          <ellipse cx="49" cy="10" rx="9.5" ry="4.6" fill={LEAF_GREEN} />
+          <path d="M40 10 H58" stroke={LEAF_VEIN} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
+        </g>
+      </svg>
+
+      <Berry
+        mood={mood}
+        behaviour={behaviour}
+        behaviourKey={behaviourKey}
+        sparkleKey={sparkleKey}
+        reducedMotion={reducedMotion}
+        sizePx={sizePx}
+      />
+
+      {/* IN FRONT: the goggle visor, pushed onto the forehead. One wide lens
+          with a frame, the way the reference draws it, sitting above the eyes
+          so it never touches the face and the mood survives it. */}
+      <svg className="reward-bloom-visor" viewBox="0 0 64 64" aria-hidden focusable="false">
+        <path
+          d="M11.5 20.5 Q9.5 16.5 15 15.2 M52.5 20.5 Q54.5 16.5 49 15.2"
+          fill="none"
+          stroke={VISOR_LINE}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <rect x="13" y="14.5" width="38" height="11.5" rx="5.6" fill={VISOR_GLASS} opacity="0.95" />
+        <rect
+          x="13"
+          y="14.5"
+          width="38"
+          height="11.5"
+          rx="5.6"
+          fill="none"
+          stroke={VISOR_FRAME}
+          strokeWidth="2.6"
+        />
+        <rect x="13" y="14.5" width="38" height="11.5" rx="5.6" fill="none" stroke={VISOR_LINE} strokeWidth="1.1" />
+        {/* One diagonal glint, the house volume cue on every glass surface here. */}
+        <path d="M19 24.5 L27 16" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" opacity="0.75" />
+      </svg>
+    </div>
   );
 }
 
@@ -359,17 +661,21 @@ function StreakFlame({ streak, lit }: { readonly streak: number; readonly lit: b
  *
  * THE NUMBER CHANGED WHEN THE COMPOSITION DID. Bloom was 200 px stacked ABOVE
  * the hero; he now stands BESIDE it, per the committed image, and the pair has
- * to fit one line on the narrowest phone we support. The hero number is
- * clamp(4.5rem, 22vw, 7rem), so three digits and the unit take roughly 0.58em
- * per digit; 30 vw leaves Bloom the rest of a 320 px screen with the stage's
- * padding still on it. He is smaller than he was and he is no longer competing
- * with the number for the same slot, which is the trade the image makes.
+ * to fit one line on the narrowest phone we support.
+ *
+ * 34 vw, MEASURED OFF THE IMAGE. Scaled to a 390 pt phone the reference's
+ * Bloom is about 133 px tall including the raised hands, and he OVERLAPS the
+ * number rather than standing clear of it: the right digit runs behind his
+ * body. So he does not have to be paid for out of the number's width, which is
+ * what the previous 30 vw budget assumed and what kept the hero small. The
+ * overlap is a negative margin in streak.css and the number is sized to the
+ * width it actually gets.
  */
 function useBloomSize(): number {
   const [size] = useState(() => {
-    if (typeof window === "undefined") return 132;
+    if (typeof window === "undefined") return 138;
     const desktop = window.matchMedia("(min-width: 768px)").matches;
-    return Math.round(Math.min(window.innerWidth * 0.3, desktop ? 168 : 140));
+    return Math.round(Math.min(window.innerWidth * 0.34, desktop ? 190 : 150));
   });
   return size;
 }
@@ -501,20 +807,24 @@ export function RewardMoment({
       }}
     >
 
-      {/* min-h-0 lets this column shrink inside the flex parent so CLAIM
-          never leaves the screen; overflow-y-auto is the safety net. */}
-      <div className="relative mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 md:px-6">
+      {/* THE COLUMN FILLS THE FRAME, and that is the fix for the dead ground
+          a capture measured at 208 px above the hero and 224 px between the
+          chips and CLAIM: roughly half a phone screen was empty because short
+          content was being centred inside flex-1. It is now a rhythm, spaced
+          with `justify-between` inside real vertical padding, so the confetti
+          sits near the top, the pair owns the middle, and the chips finish
+          just above CLAIM the way the image composes it. min-h-0 still lets
+          the column shrink so CLAIM never leaves the screen. */}
+      <div className="reward-column relative mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 md:px-6">
         {/* THE HERO CLUSTER, and it is the composition of the committed image
             rather than a stack: the enormous number and Bloom stand SIDE BY
-            SIDE on one baseline, the burst thrown from behind the pair, and
-            the headline reading underneath them. The number is the subject
-            and Bloom is beside it reacting, which is what makes a still of
-            this screen legible at a glance. --bloom-size rides the wrapper
-            because the diamond's catch point is derived from it in CSS: the
-            diamond has to clear the sphere, and the sphere's radius is the
-            only number that decides where "beside Bloom" is. */}
+            SIDE on one baseline with Bloom OVERLAPPING the last digit, the
+            confetti fan arcing above and around the pair, and the headline
+            reading underneath them. The number is the subject and Bloom is
+            beside it reacting, which is what makes a still of this screen
+            legible at a glance. */}
         <div className="reward-hero relative flex w-full shrink-0 items-end justify-center">
-          <Burst reducedMotion={reducedMotion} />
+          <Confetti reducedMotion={reducedMotion} />
           {/* Two elements, one job each, because they carry two animations and
               a single element can only run the last `animation` declared: the
               outer one fades the number in when counting starts, the inner one
@@ -524,11 +834,22 @@ export function RewardMoment({
               scripts read the moment's XP off exactly this element. */}
           <section
             className={`reward-hero-number ${show(beats.xpCountStart) ? "reward-fade-in" : "reward-fade-out"}`}
-            aria-label="XP earned"
+            aria-label={`${xpTotal} XP earned`}
           >
-            <div className="reward-xp-row flex items-end justify-center gap-2" data-landed={xpLanded ? "true" : "false"}>
+            {/* THE UNIT IS NOT DRAWN, and that is the image rather than an
+                omission. The reference's hero is a bare "42": the word XP
+                lives on the chip below it, and a hero big enough to be 22
+                percent of the screen simply has no room for a word beside it
+                on a 390 pt phone. `data-digits` is what lets the size step
+                down for a three or four digit total instead of wrapping, and
+                the aria-label above still says "XP" out loud, so nothing was
+                lost except a glyph the composition could not afford. */}
+            <div
+              className="reward-xp-row flex items-end justify-center"
+              data-landed={xpLanded ? "true" : "false"}
+              data-digits={String(xpTotal).length}
+            >
               <span className="reward-xp title-face font-semibold leading-none text-primary-ink tabular-nums">{xpShown}</span>
-              <span className="reward-xp-unit font-bold uppercase text-primary-ink">XP</span>
             </div>
           </section>
           <div
@@ -547,18 +868,14 @@ export function RewardMoment({
                 <DiamondIcon className="h-12 w-12" />
               </div>
             ) : null}
-            {/* GOGGLES UP, per the goals' celebration row and the committed
-                image. The goggles are the lab coat costume's own front piece
-                and they sit on the forehead whenever Bloom is not working
-                (BlueberryMark's `goggles` prop, driven by `working`), so the
-                celebration asks for the costume and gets the pose for free. */}
-            <Berry
+            {/* GOGGLES UP AND FULL LENGTH, per the goals' celebration row and
+                the committed image. See CelebrationBloom for what is staged
+                around the imported mark and why none of it is a redraw. */}
+            <CelebrationBloom
               mood={berry.mood}
               behaviour={berry.behaviour}
               behaviourKey={berry.key}
               sparkleKey={berry.sparkle}
-              costume="labcoat"
-              working={false}
               reducedMotion={reducedMotion}
               sizePx={bloomPx}
             />
@@ -595,14 +912,33 @@ export function RewardMoment({
             rather than a term, and it is drawn in the neutral so it cannot be
             read as part of the sum.
 
-            FLAWLESS IS A CHIP STATE, NOT A SECOND BADGE. It used to be both:
-            an uppercase FLAWLESS pill AND the "Flawless +5" receipt line a
-            finger's width below it, which is the same fact on screen twice,
-            the exact thing the round 2 hierarchy ruling cut the stats row for.
-            The scarcity now reads as the green fill on the line that earned
-            it, so the badge is still visibly rarer than its neighbours and the
-            screen says it once. */}
-        <ul className="reward-reasons mt-4" aria-label="How it adds up">
+            EVERY PILL IS THE SAME PILL, and that is a correction rather than a
+            preference. The image draws three uniform outlined pills on one row
+            and NOT ONE of them is filled. Ours filled two: Flawless took the
+            mint --good-soft and accuracy took the tan --muted, so a row whose
+            whole job is to read as one list of reasons read as three different
+            kinds of thing. Flawless is scarce because of the word on it and
+            because it is rarely there at all, which is scarcity a reader can
+            see without a second colour, and the fill it used to carry was also
+            the one place in the product where the goal green appeared as a
+            hairline: `color-mix(--good 45%)` over the mint composited to
+            roughly #76b49d, 2.12:1 on its own pill and under the 3:1 boundary
+            floor. Dropping the fill drops that hairline with it, which is what
+            makes feed.css's "nothing green is a hairline" true here too.
+
+            ONE ROW, HELD BY SIZE RATHER THAN BY DROPPING A TERM. The common
+            lesson pays two XP lines, so with accuracy that is exactly the
+            image's three. A flawless clear pays a third and a one-sitting run
+            a fourth, and `data-count` steps the type and the padding down so
+            four still fit a 390 pt phone rather than wrapping. Dropping a
+            line to make the row fit is not available: the round 2 law is that
+            the itemisation sums to the hero exactly, and a row that fits
+            because a term is missing is a screen that lies. */}
+        <ul
+          className="reward-reasons mt-4"
+          aria-label="How it adds up"
+          data-count={receipt.xp.length + (accuracy !== null ? 1 : 0)}
+        >
           {receipt.xp.map((line, i) => (
             <li
               key={`${line.label}-${i}`}
@@ -610,7 +946,7 @@ export function RewardMoment({
               data-flawless={FLAWLESS_LABELS.has(line.label) ? "true" : "false"}
             >
               <span className="font-medium">{line.label}</span>
-              {/* The amount is the page's ink, not the warn ramp: 12px text in
+              {/* The amount is the page's ink, not the warn ramp: small text in
                   a saturated hue is what rule 7 exists to catch. Weight
                   carries the emphasis instead. */}
               <span className="font-bold text-foreground tabular-nums">+{line.amount}</span>
@@ -637,15 +973,27 @@ export function RewardMoment({
             rather than adding a third, because a third chip is the dashboard
             this screen is not allowed to become.
 
-            WHICH TWO, and this is the one place the image and the law disagree.
-            The image labels its left chip "185 XP earned" while ALSO drawing an
-            enormous number above it. Ours cannot: the hero IS the XP, and the
-            round 2 law the S3 judge picked us for is that the hero appears once
-            and its itemisation sums to it exactly. So the pair is the two
-            systems the hero does not already carry, diamonds and the streak,
-            and the chip geometry, the edge and the flame are the image's. */}
+            WHICH TWO: AN OPEN CONFLICT, ESCALATED RATHER THAN SETTLED IN A
+            CODE COMMENT. DESIGN-GOALS' Celebration row says "XP and streak as
+            3D chips" and the committed image draws "185 XP earned" beside "14
+            day streak", so the clause and the image agree with each other and
+            disagree with what is on screen here. What they disagree with is
+            the round 2 / S3 law, restated in this round's brief as binding:
+            the hero number appears ONCE and its itemisation sums to it
+            exactly. An XP chip under an XP hero is that number twice, which is
+            the specific defect the S3 blind judge picked this screen for over
+            the bar. Both cannot hold, so the law is followed, the pair is the
+            two systems the hero does not already carry, and the conflict is
+            REPORTED to the owner for a ruling rather than resolved here. The
+            chip geometry, the edge, the bolt, the flame and the captions are
+            the image's in every other respect. */}
         {cardCount > 0 ? (
           <div className={`reward-chips mt-7 md:mt-8 ${cardCount === 2 ? "reward-chips--pair" : ""}`}>
+            {/* The bolt hangs off the FIRST chip's top edge, breaking its
+                boundary, which is the image's one such element. It is drawn
+                on the chips wrapper rather than inside a chip so it does not
+                move when the left chip is absent. */}
+            <BoltBadge />
             {hasDiamonds ? (
               /* The diamond receipt lines are the chip's accessible NAME and
                  are not printed on it: on screen they were three lines of grey
@@ -667,8 +1015,15 @@ export function RewardMoment({
                   >
                     <DiamondIcon className="h-8 w-8" />
                   </span>
+                  {/* THE NUMBER IS THE PAGE'S INK, not the system's. Both
+                      chips in the image draw their number in the page's dark
+                      ink and let the MARK beside it carry the hue; ours drew a
+                      blue number and a brown one, which is two more accents in
+                      a screen that already has a violet hero and a green CTA,
+                      and it is also the reading the type hierarchy wants,
+                      because the number is the loudest thing on the chip. */}
                   <span
-                    className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-chip__number text-diamond-ink ${diamondsCounting ? "reward-shine" : ""}`}
+                    className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-chip__number ${diamondsCounting ? "reward-shine" : ""}`}
                     aria-hidden
                   >
                     +{diamondsShown}
@@ -684,8 +1039,17 @@ export function RewardMoment({
                 aria-label="Streak"
               >
                 <div className="reward-chip__value">
-                  <StreakFlame streak={receipt.streak.current} lit={show(beats.streak)} />
-                  <span className="reward-chip__number text-warn-ink" aria-hidden>
+                  {/* WHICH OF THE SPEC SHEET'S THREE FLAMES, decided by the
+                      receipt rather than by this screen: the engine is the one
+                      that knows a rest day or a freeze held the day. */}
+                  <StreakFlame
+                    streak={receipt.streak.current}
+                    lit={show(beats.streak)}
+                    state={
+                      receipt.streak.savedBy === "rest_day" ? "rest" : receipt.streak.savedBy === "freeze" ? "freeze" : "lit"
+                    }
+                  />
+                  <span className="reward-chip__number" aria-hidden>
                     {receipt.streak.current}
                   </span>
                 </div>
@@ -709,12 +1073,25 @@ export function RewardMoment({
         ) : null}
       </div>
 
-      <div className="relative mx-auto w-full max-w-2xl shrink-0 p-4 pb-safe md:p-6">
+      {/* THE DOCK, and it does NOT use theme.css's `.pb-safe`. That helper is
+          `padding-bottom: env(safe-area-inset-bottom, 0px)`, and on any device
+          with no inset the fallback resolves to 0, which put CLAIM's bottom
+          edge flush against y = 844 on a 390x844 capture: a hero CTA touching
+          the screen edge. `.reward-dock` in streak.css floors it with a max()
+          so there is always real ground under the button and the inset still
+          wins where it is bigger. The helper itself has the same hole
+          everywhere else it is used, and theme.css is the integrator's file,
+          so that is reported rather than edited here. */}
+      <div className="reward-dock relative mx-auto w-full max-w-2xl shrink-0 px-4 md:px-6">
         {/* The green CLAIM. A fill-only use of the goal green: --progress under
             --progress-ink (7.17:1, measured in theme.css), the boundary drawn
             by --progress-edge because the fill itself is 1.60:1 on cream and
             may never be the thing that identifies the shape. Styled in
-            streak.css (.reward-claim), which this piece owns. */}
+            streak.css (.reward-claim), which this piece owns, where it is also
+            given the image's height: the reference's CLAIM is a chunky 56 px
+            CTA and ours was sitting at the bare 44 px hit-target floor, which
+            is the minimum for a control and the wrong size for the one thing
+            the screen is asking a student to press. */}
         <Press
           onPointerDown={(event) => {
             event.stopPropagation();

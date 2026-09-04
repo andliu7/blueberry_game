@@ -30,8 +30,8 @@
 
 import type { ReactNode } from "react";
 import { Berry } from "../mascot/Berry";
-import { BackIcon, CheckIcon } from "./icons";
-import { BACK_LABEL, PROGRESS_LABEL } from "./copy";
+import { BackIcon, CheckIcon, CloseIcon } from "./icons";
+import { BACK_LABEL, LEAVE_LABEL, PROGRESS_LABEL, withoutMark } from "./copy";
 import "./onboarding.css";
 
 /* ------------------------------------------------------------------ */
@@ -43,9 +43,35 @@ export interface FrameProps {
   readonly percent: number;
   /** Null on the first step, where there is nowhere back to. */
   readonly onBack: (() => void) | null;
+  /**
+   * WHICH MARK THE LEADING CONTROL DRAWS, and it is not a style choice.
+   * blueberry_r9-onboard-question draws a chevron and
+   * blueberry_r9-onboard-placement draws an X. A chevron says "one question
+   * back"; an X says "out of this". The placement is the only step a student
+   * may want to leave as a whole, so it is the only one that asks for "leave".
+   */
+  readonly leading?: "back" | "leave";
   readonly children: ReactNode;
   /** The pinned bottom band: the action, and any second action. */
   readonly foot: ReactNode;
+  /**
+   * A FULL BLEED DECORATION BEHIND THE PAGE, and it exists because a negative
+   * margin could not do the job.
+   *
+   * The welcome image draws the rise running off both screen edges with only
+   * its top curve visible. The previous pass tried that with
+   * `width: calc(100% + 2rem); margin-left: -1rem` on an element inside
+   * `.ob__body`, and it arrived as a rectangle with three hard edges: the body
+   * carries `overflow-y: auto` so its overflow-x computes to `auto` too, and
+   * the bleed was clipped at the content box. CSS has no way to overflow one
+   * axis of a scroll container.
+   *
+   * So the backdrop is a SIBLING of the scrolling body rather than a child of
+   * it, absolutely positioned against `.ob` (which never scrolls) and painted
+   * behind everything. Nothing about it is in flow, so it cannot push the
+   * action off the screen either.
+   */
+  readonly backdrop?: ReactNode;
 }
 
 /*
@@ -57,24 +83,48 @@ export interface FrameProps {
  * the same number twice. The pill in the image reads as the charge meter that
  * lives in the app header, and onboarding has no charge to show, so drawing a
  * pill there would be an empty chrome element pretending to be a meter.
+ *
+ * THERE IS NO [HUMAN GATE] STAMP EITHER, AND THAT IS A REVERSAL. A previous
+ * pass drew the mark once per screen at the end of the header row. Measured,
+ * it took 79px plus its gaps out of a 358px header, which is why the progress
+ * bar rendered at 55 percent of the frame instead of the ~76 percent all three
+ * goal images draw, and none of the three images draws anything at all to the
+ * right of the bar on the welcome or question screens. The gate declaration
+ * did not move out of the product, it moved out of the CHROME: every string in
+ * copy.ts still carries HUMAN_GATE_MARK, ALL_DRAFT_LINES still holds every one
+ * of them, and onboardingFlow.test.ts still fails if a line slips out unmarked.
+ * The mark is for the owner and for a critic reading the source, and it was
+ * costing the student the one element that appears on all seven steps.
  */
 
-export function Frame({ percent, onBack, children, foot }: FrameProps) {
+export function Frame({ percent, onBack, leading = "back", children, foot, backdrop }: FrameProps) {
   const clamped = Math.max(0, Math.min(100, percent));
+  const leave = leading === "leave";
   return (
     <div className="ob">
+      {backdrop === undefined ? null : <div className="ob__backdrop">{backdrop}</div>}
+      {/*
+        THE LEADING CONTROL IS A CHILD OF `.ob`, NOT OF THE HEADER ROW, and the
+        nesting is the whole point rather than an accident of markup. It is
+        absolutely positioned into the page GUTTER so it sits at the screen
+        edge beside the bar without taking any width out of it, and an absolute
+        box resolves against its nearest positioned ancestor: inside
+        `.ob__head` that would be the header's content box, which starts after
+        the gutter, and the control landed inside the column instead of beside
+        it. Out here `.ob` is the containing block and the gutter is reachable.
+      */}
+      <button
+        type="button"
+        className="ob-back"
+        data-empty={onBack === null ? "true" : "false"}
+        aria-label={withoutMark(leave ? LEAVE_LABEL : BACK_LABEL)}
+        aria-hidden={onBack === null || undefined}
+        tabIndex={onBack === null ? -1 : undefined}
+        onClick={() => onBack?.()}
+      >
+        {leave ? <CloseIcon width={22} height={22} /> : <BackIcon width={22} height={22} />}
+      </button>
       <div className="ob__head">
-        <button
-          type="button"
-          className="ob-back"
-          data-empty={onBack === null ? "true" : "false"}
-          aria-label={BACK_LABEL}
-          aria-hidden={onBack === null || undefined}
-          tabIndex={onBack === null ? -1 : undefined}
-          onClick={() => onBack?.()}
-        >
-          <BackIcon width={22} height={22} />
-        </button>
         {/*
           A real progressbar role, so the percent reaches a screen reader even
           though the goal images carry no numeral on the track. The welcome
@@ -86,7 +136,7 @@ export function Frame({ percent, onBack, children, foot }: FrameProps) {
         <div
           className="ob-bar"
           role="progressbar"
-          aria-label={PROGRESS_LABEL}
+          aria-label={withoutMark(PROGRESS_LABEL)}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(clamped)}
@@ -119,14 +169,20 @@ export interface AskProps {
 export function Ask({ line, reducedMotion, berryPx = 76 }: AskProps) {
   return (
     <div className="ob-ask">
+      {/* EYES OPEN. blueberry_r9-onboard-question draws Berry watching the
+          student with round open eyes, which is the `curious` mood; `happy`
+          renders the kind closed-eye smile, which reads as Berry pleased with
+          himself rather than Berry waiting for an answer. The mascot itself is
+          imported and never redrawn (D4), so matching the image is a matter of
+          asking it for the right face. */}
       <Berry
         className="ob-ask__berry"
         behaviour="idle"
-        mood="happy"
+        mood="curious"
         reducedMotion={reducedMotion}
         sizePx={berryPx}
       />
-      <p className="ob-bubble">{line}</p>
+      <p className="ob-bubble">{withoutMark(line)}</p>
     </div>
   );
 }
@@ -165,8 +221,8 @@ export function Chip({ picked, onPick, icon, label, meta = null }: ChipProps) {
     >
       {icon === undefined ? null : <span className="ob-chip__icon">{icon}</span>}
       <span className="ob-chip__label">
-        {label}
-        {meta === null ? null : <span className="ob-chip__meta">{meta}</span>}
+        {withoutMark(label)}
+        {meta === null ? null : <span className="ob-chip__meta">{withoutMark(meta)}</span>}
       </span>
       {picked ? <CheckIcon className="ob-chip__check" /> : null}
     </button>
@@ -186,13 +242,30 @@ export interface ActionProps {
   readonly label: string;
   /** CONTINUE is gated on a choice. Disabled is a state, never a hidden button. */
   readonly disabled?: boolean;
+  /**
+   * THE PRIMARY ACTION IS A ROUNDED RECTANGLE ALMOST EVERYWHERE, and a stadium
+   * on exactly one screen. blueberry_r9-onboard-question draws CONTINUE and
+   * blueberry_r9-onboard-placement draws CHECK as rectangles with a corner
+   * radius around 12 to 14 CSS pixels; only blueberry_r9-onboard-welcome draws
+   * GET STARTED as a full stadium. A previous pass used 9999px for all three,
+   * which matched one image out of three. The default is therefore the
+   * majority shape and the welcome beat opts into the other one.
+   */
+  readonly shape?: "rect" | "stadium";
   readonly onPress: () => void;
 }
 
-export function Action({ label, disabled = false, onPress }: ActionProps) {
+export function Action({ label, disabled = false, shape = "rect", onPress }: ActionProps) {
   return (
-    <button type="button" className="ob-cta" disabled={disabled} data-stacking="" onClick={onPress}>
-      {label}
+    <button
+      type="button"
+      className="ob-cta"
+      data-shape={shape}
+      disabled={disabled}
+      data-stacking=""
+      onClick={onPress}
+    >
+      {withoutMark(label)}
     </button>
   );
 }
@@ -206,7 +279,7 @@ export function Action({ label, disabled = false, onPress }: ActionProps) {
 export function SkipAction({ label, onPress }: { readonly label: string; readonly onPress: () => void }) {
   return (
     <button type="button" className="ob-skip" onClick={onPress}>
-      {label}
+      {withoutMark(label)}
     </button>
   );
 }
@@ -220,7 +293,7 @@ export function SkipAction({ label, onPress }: { readonly label: string; readonl
 export function QuietAction({ label, onPress }: { readonly label: string; readonly onPress: () => void }) {
   return (
     <button type="button" className="ob-quiet" onClick={onPress}>
-      {label}
+      {withoutMark(label)}
     </button>
   );
 }

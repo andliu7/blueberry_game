@@ -33,6 +33,7 @@ import { describe, expect, it } from "vitest";
 import {
   ACTS,
   QUESTION_CAP,
+  SEED_CORPUS,
   TIME_BUDGET_SECONDS,
   TOPICS,
   probeTopicIdsForCourse,
@@ -72,16 +73,24 @@ import {
   nextStep,
   normalizeStep,
   overviewBlocks,
+  overviewTopicsShown,
+  OVERVIEW_TOPICS_SHOWN,
   prevStep,
   progressPercent,
   resolveStart,
   stepIndex,
+  tileIsDense,
   twoColumnGrid,
   type FlowAnswers,
   type StepId,
 } from "../src/onboarding/flow";
 import {
   ALL_DRAFT_LINES,
+  FRAMING_JARGON,
+  FRAMING_LINES,
+  FRAMING_LINE_MAX_CHARS,
+  sentenceCount,
+  withoutMark,
   GOAL_LABEL,
   HEAR_LABEL,
   START_LABEL,
@@ -460,21 +469,118 @@ describe("the placement", () => {
     expect(PLACEMENT_TIME_BUDGET_SECONDS).toBeLessThanOrEqual(180);
   });
 
-  it("puts four short options in two columns and everything else in one", () => {
+  it("puts four options in two columns and every other count in one", () => {
     const four = [{ text: "Methyl" }, { text: "Primary" }, { text: "Secondary" }, { text: "Tertiary" }];
     expect(twoColumnGrid(four)).toBe(true);
     // Three options in a 2x2 leaves a hole; five leaves a widow.
     expect(twoColumnGrid(four.slice(0, 3))).toBe(false);
     expect(twoColumnGrid([...four, { text: "Allylic" }])).toBe(false);
-    // A long option in a half width chip wraps into porridge.
+  });
+
+  /*
+   * THE LENGTH CONDITION IS GONE, AND THIS TEST IS WHY IT WENT.
+   *
+   * The predicate used to demand four options AND every option at most 24
+   * characters, so a long option fell out of the 2x2 the goal image locks.
+   * Measured against the corpus the walk actually serves, that rule fired on a
+   * ninth of its own data: sixteen of the twenty five four-option sets in
+   * SEED_CORPUS carry at least one option over 24 characters, the first
+   * question the walk serves among them. A layout rule that refuses its own
+   * default is not a fallback.
+   *
+   * The wrapping worry it was answering is real and it is answered in the
+   * tile: the grid tile is tall, and past `TILE_DENSE_CHARS` the words drop a
+   * type size rather than the question dropping the layout.
+   */
+  it("keeps a long option in the 2x2 and sets it smaller instead", () => {
+    const long = "The tertiary carbocation, stabilised by hyperconjugation";
     expect(
-      twoColumnGrid([
-        { text: "The tertiary carbocation, stabilised by hyperconjugation" },
-        { text: "Primary" },
-        { text: "Secondary" },
-        { text: "Methyl" },
-      ]),
-    ).toBe(false);
+      twoColumnGrid([{ text: long }, { text: "Primary" }, { text: "Secondary" }, { text: "Methyl" }]),
+    ).toBe(true);
+    expect(tileIsDense(long)).toBe(true);
+    expect(tileIsDense("Tertiary")).toBe(false);
+  });
+
+  /*
+   * THE GOAL IMAGE'S COMPOSITION HELD AGAINST THE REAL DATA.
+   *
+   * blueberry_r9-onboard-placement is what MANIFEST.md names as the lock on
+   * "real chemistry as a 2x2", and the only way to know whether the built
+   * screen honours it is to ask the corpus rather than a fixture. Every
+   * four-option question in SEED_CORPUS must reach the grid, so a future
+   * change to the predicate that quietly re-narrows it fails here with a count
+   * rather than being discovered by a critic looking at a screenshot.
+   */
+  it("gives every four option question in the real corpus the 2x2", () => {
+    const sets: readonly { readonly text: string }[][] = SEED_CORPUS.flatMap((problem) => {
+      if (problem.answer.kind === "multiple_choice") return [[...problem.answer.options]];
+      if (problem.answer.kind === "major_product") {
+        return [[...problem.answer.candidates], [...problem.answer.reasons]];
+      }
+      return [];
+    });
+    const four = sets.filter((set) => set.length === 4);
+    expect(four.length).toBeGreaterThan(0);
+    expect(four.filter((set) => twoColumnGrid(set))).toHaveLength(four.length);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+
+/*
+ * THE OVERVIEW IS A SUMMARY, NOT THE SYLLABUS.
+ *
+ * Organic Chemistry II's act 1 is sixteen topics on its own, and rendering
+ * every topic of every act turned the achieve screen into a scrolling wall of
+ * chips. The cut is in flow.ts rather than in the component because it has an
+ * edge case in it: a student's landing topic may be past the cut, and that is
+ * the one topic the screen exists to show.
+ */
+describe("the overview shows the shape of the course, not all of it", () => {
+  it("never shows more than the cap, and counts the rest honestly", () => {
+    const blocks = overviewBlocks("orgo_2");
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      const { shown, hidden } = overviewTopicsShown(block, []);
+      expect(shown.length).toBeLessThanOrEqual(OVERVIEW_TOPICS_SHOWN);
+      expect(shown.length + hidden).toBe(block.topics.length);
+      // The order the act teaches in survives the cut.
+      expect(shown).toEqual(block.topics.filter((topic) => shown.includes(topic)));
+    }
+  });
+
+  it("always shows the topic the placement landed on, however deep it sits", () => {
+    const blocks = overviewBlocks("orgo_2");
+    // The deepest topic of the largest act: the case a plain slice would drop.
+    const largest = blocks.reduce((a, b) => (b.topics.length > a.topics.length ? b : a));
+    expect(largest.topics.length).toBeGreaterThan(OVERVIEW_TOPICS_SHOWN);
+    const deepest = largest.topics[largest.topics.length - 1]!;
+    const { shown, hidden } = overviewTopicsShown(largest, [deepest]);
+    expect(shown).toContain(deepest);
+    expect(shown.length).toBe(OVERVIEW_TOPICS_SHOWN);
+    expect(shown.length + hidden).toBe(largest.topics.length);
+  });
+
+  it("hides nothing from an act that already fits", () => {
+    const blocks = overviewBlocks("orgo_2");
+    const small = blocks.find((block) => block.topics.length <= OVERVIEW_TOPICS_SHOWN);
+    // act_0 is the two-topic spine, so this case is real and not hypothetical.
+    expect(small).toBeDefined();
+    const { shown, hidden } = overviewTopicsShown(small!, []);
+    expect(shown).toEqual(small!.topics);
+    expect(hidden).toBe(0);
+  });
+
+  it("keeps every start topic when several land in one act", () => {
+    const blocks = overviewBlocks("orgo_2");
+    const largest = blocks.reduce((a, b) => (b.topics.length > a.topics.length ? b : a));
+    const many = largest.topics.slice(-5);
+    const { shown, hidden } = overviewTopicsShown(largest, many);
+    for (const topic of many) expect(shown).toContain(topic);
+    // Required topics may exceed the cap. Showing the student's own landing
+    // topics beats holding the cap, so the cap yields and the count stays true.
+    expect(shown.length).toBe(many.length);
+    expect(shown.length + hidden).toBe(largest.topics.length);
   });
 });
 
@@ -508,6 +614,71 @@ describe("the copy, which is all placeholder", () => {
       expect(line.toLowerCase()).not.toContain("obviously");
       expect(line.toLowerCase()).not.toContain("simply");
     }
+  });
+
+  /* ---------------------------------------------------------------- */
+
+  /*
+   * ONE SHORT QUESTION PER SCREEN, owner 2026-09-04.
+   *
+   * "The onboarding questions are too complex. One short question per screen,
+   * plain words, no compound sentences, no chemistry vocabulary in the
+   * framing." These three tests are that ruling turned into a gate, because
+   * the failure mode it names is not a bug: the flow keeps working perfectly
+   * while the words quietly grow back into paragraphs, and nobody notices
+   * until the next time somebody looks at the screens.
+   *
+   * They govern FRAMING_LINES only. copy.ts names the four kinds of line
+   * deliberately left out and why each one is out.
+   */
+
+  it("asks one short question per screen, and never two sentences", () => {
+    expect(FRAMING_LINES.length).toBeGreaterThanOrEqual(15);
+    for (const line of FRAMING_LINES) {
+      // A compound sentence and a second sentence are the same defect seen
+      // from two sides, and the terminal mark catches both.
+      expect({ line, sentences: sentenceCount(line) }).toEqual({ line, sentences: 1 });
+      // The object wrapper is so a failure names the offending line rather
+      // than printing "expected 61 to be less than or equal to 48".
+      expect({
+        line,
+        overBy: Math.max(0, withoutMark(line).length - FRAMING_LINE_MAX_CHARS),
+      }).toEqual({ line, overBy: 0 });
+      // A fragment with no ending is not a short sentence, it is an unfinished
+      // one, and the gate should see the difference.
+      expect(/[.?!]$/.test(withoutMark(line))).toBe(true);
+    }
+  });
+
+  it("keeps chemistry vocabulary out of the framing", () => {
+    // "No chemistry vocabulary in the framing. The placement quiz is the only
+    // place a real chemistry question appears." The words of a placement
+    // question come from packages/curriculum and are not in this file at all,
+    // which is why every line here can be held to the rule without exception.
+    for (const line of FRAMING_LINES) {
+      for (const word of FRAMING_JARGON) {
+        expect({ line, word, present: line.toLowerCase().includes(word) }).toEqual({
+          line,
+          word,
+          present: false,
+        });
+      }
+    }
+  });
+
+  it("frames with lines that are themselves marked for the gate", () => {
+    // FRAMING_LINES is a view over the same drafts, never a second copy of
+    // them: a line that reached the screen through this list and not through
+    // ALL_DRAFT_LINES would be a line the gate never sees.
+    for (const line of FRAMING_LINES) expect(ALL_DRAFT_LINES).toContain(line);
+  });
+
+  it("counts a run of terminal marks as one ending", () => {
+    expect(sentenceCount("[HUMAN GATE] Here is your course.")).toBe(1);
+    expect(sentenceCount("[HUMAN GATE] One. Two.")).toBe(2);
+    expect(withoutMark("[HUMAN GATE] Here is your course.")).toBe("Here is your course.");
+    // A line that never went through draft() is measured as it stands.
+    expect(withoutMark("plain")).toBe("plain");
   });
 
   it("builds a marked line the same way every caller does", () => {

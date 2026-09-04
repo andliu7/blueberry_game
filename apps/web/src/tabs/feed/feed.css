@@ -11,6 +11,134 @@
    EVERY QUEST ROW CARRIES A BORDER, the structural-border rule: white on the
    warm cream ground is 1.10:1, so without the cut edge the card has no edge. */
 
+/* ------------------------------------------------------- the composed ground */
+
+/* The page is a positioning context so the backdrop can fill it, and the
+   backdrop is the page's own scroll height rather than the viewport's: the
+   placement table's `y` is a fraction of the TAB, so a prop at 0.93 belongs
+   under the last card and not off the bottom of the first screenful. */
+.feed-page {
+  position: relative;
+  isolation: isolate;
+}
+.feed-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.feed-column {
+  position: relative;
+  z-index: 1;
+}
+
+/* The band. A wash, not a surface: it carries no text of its own and every
+   card that crosses it is opaque, so its only job is to stop the lower half of
+   the page being an unbroken sheet of cream. The teal is the diamond family's
+   own hue at a wash weight, which is the one cool colour the product already
+   owns; a new hue in the wallpaper would be a sixth system nobody declared. */
+.feed-band {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.feed-band path {
+  fill: color-mix(in srgb, var(--diamond) 14%, transparent);
+}
+.dark .feed-band path {
+  fill: color-mix(in srgb, var(--diamond) 18%, transparent);
+}
+
+/* A prop's seat. `left` and `top` are the placement's own fractions and the
+   translate re-centres the drawing on that point, so a placement names where a
+   prop IS rather than where its top-left corner is. */
+.feed-prop-seat {
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%) scale(var(--prop-scale, 1));
+}
+
+/* THE PROP INK, and it is a literal here for a reason worth writing down.
+   These are pathway.css's own measured --path-prop values, copied rather than
+   referenced, because pathway.css ships inside the PATHWAY's lazy chunk: a
+   student who lands on #/feed first has never loaded it, and var(--path-prop)
+   would resolve to nothing and paint every prop black. Promoting the pair to
+   theme.css is the right permanent home and theme.css is the integrator's
+   file, so this is flagged rather than done here.
+
+   2.35:1 on the cream ground: decoration, deliberately under the 3:1 an
+   INTERFACE graphic owes, per the exemption pathway.css records beside the
+   same value. Nothing on this layer is a control or carries state. */
+.feed-backdrop {
+  --feed-prop: #b09a6d;
+  --feed-cloud-line: #7d6c4c;
+  --feed-cloud-fill: #ffffff;
+}
+.dark .feed-backdrop {
+  --feed-prop: #3a3f66;
+  --feed-cloud-line: #6f74a3;
+  --feed-cloud-fill: #1d2140;
+}
+/*
+ * SMALL AND GENUINELY FAINT, and both numbers are corrections measured off a
+ * capture rather than guesses.
+ *
+ * The first pass drew these at the pathway's own size and the pathway's own
+ * ink, which is right there and wrong here. The pathway has real MARGINS: its
+ * track column is narrow and the flanks either side are empty ground, so a
+ * 55 px flask sits in open space. The Feed's content column is FULL WIDTH on a
+ * phone (max-w-2xl with 16 px of padding is the whole of a 390 pt screen), so
+ * there is no margin for a prop to live in and every prop is behind an opaque
+ * card for most of its height. A big, firm outline in that position does not
+ * read as wallpaper, it reads as an object being SLICED by every card edge it
+ * passes under, which is worse than no background at all.
+ *
+ * So: roughly half the size, and half the weight again through opacity. At
+ * this value a prop crossing a card boundary is a texture rather than a cut
+ * drawing, and the BAND does the work of making the lower page a different
+ * place. Still decorative and still deliberately under the 3:1 an interface
+ * graphic owes, per the exemption above.
+ */
+.feed-prop {
+  display: block;
+  overflow: visible;
+  opacity: 0.5;
+}
+/* Outlined, faint by WEIGHT rather than by a colour nobody can find. */
+.feed-prop--flask,
+.feed-prop--chain {
+  fill: none;
+  stroke: var(--feed-prop);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.feed-prop--flask {
+  width: 1.9rem;
+  height: 2.1rem;
+  stroke-width: 2.4;
+}
+.feed-prop--chain {
+  width: 3.2rem;
+  height: 1.05rem;
+  stroke-width: 2;
+}
+/* The one FILLED prop, per the committed backdrop: white clouds over cream,
+   not outlines of clouds. White on cream is 1.10:1 on its own, so the shape
+   carries the terrace ink as its boundary and the two ride ONE path. */
+.feed-prop--cloud {
+  width: 2.8rem;
+  height: 1.5rem;
+  fill: var(--feed-cloud-fill);
+  stroke: var(--feed-cloud-line);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  opacity: 0.4;
+}
+
+/* ------------------------------------------------------------- the quests -- */
+
 .feed-quest {
   display: flex;
   align-items: center;
@@ -69,12 +197,20 @@
 
 /* The bar. Track ring in --hud-track (the same boundary the streak strip's
    empty squares use), fill in the goal green, chest riding the right end.
-   Padded on the right so the fill never runs under the chest at 100%. */
+   Padded on the right so the fill never runs under the chest at 100%.
+
+   THE TRACK IS THE PALE GREEN, not a neutral, which is what the committed
+   reference draws: the empty part of the bar is the same family as the full
+   part, so a bar reads as one object filling rather than as green creeping
+   over grey. --progress-soft #e6f7da against --progress #b3df92 is a clear
+   separation of value inside one hue, and the boundary ring is still what
+   identifies the track's shape, so nothing here asks the goal green to do a
+   job the fill-only rule forbids it. */
 .feed-quest-track {
   position: relative;
   height: 1rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--muted) 70%, var(--card));
+  background: var(--progress-soft);
   box-shadow: inset 0 0 0 2px var(--hud-track);
   margin-right: 1.15rem;
 }
@@ -126,23 +262,26 @@
   height: 2.25rem;
   flex-shrink: 0;
 }
-/* Where the cheer will live: the toast flask in a quiet outlined seat at the
-   row's end, the shape of the future control without pretending to be one.
-   It sits inside an aria-hidden placeholder row and is not focusable. */
+/* Where the cheer will live. NO RING AND NO FILL: the committed reference
+   draws a bare raised flask at the row's end, and the outlined disc this
+   carried was chrome invented for a control that is not open yet. It sits
+   inside an aria-hidden placeholder row and is not focusable, so drawing a
+   44 px pressable seat around it would have been a promise the screen cannot
+   keep. The flask is drawn larger instead, which is how the reference makes
+   it read at the end of a row. */
 .feed-toast-seat {
   display: flex;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  border: 2px solid var(--border);
-  background: var(--muted);
+  color: var(--foreground);
 }
 .feed-toast {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ------------------------------------------------------- reduced motion --- */

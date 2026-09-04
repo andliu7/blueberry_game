@@ -35,27 +35,20 @@
 import { useId, useMemo } from "react";
 import { Card, Pill } from "../../app/ui/Card";
 import { useProgress } from "../../app/hooks";
+import { FeedBackdrop } from "./FeedBackdrop";
 import { feedModel, type QuestModel } from "./feedModel";
 import "./feed.css";
 
-/* ------------------------------------------------------------- the glyphs -- */
-
 /**
- * The newspaper, DESIGN-GOALS' own icon for this tab. Exported for the
- * integrator's tab bar; drawn like HudIcons.tsx, a filled silhouette with the
- * cut-outs in the card's colour so it is one component in both themes.
+ * The tab-bar icon, re-exported so an older import of it from this module
+ * still resolves. THE TAB BAR MUST NOT USE THIS ONE: importing it from here is
+ * a static import of the lazy chunk, which a bundler answers by hoisting the
+ * whole Feed into the initial payload. Import from "./FeedIcon" instead; that
+ * file's header carries the reasoning.
  */
-export function NewspaperMark({ className = "" }: { readonly className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden focusable="false">
-      <path
-        d="M4 4.5A1.5 1.5 0 0 1 5.5 3h11A1.5 1.5 0 0 1 18 4.5V19a2 2 0 0 0 2-2V7.5h1A1 1 0 0 1 22 8.5V18a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V4.5z"
-        fill="currentColor"
-      />
-      <path d="M6 6h6v4H6zM14 6h2v1.6h-2zM14 8.4h2V10h-2zM6 12h10v1.6H6zM6 15h10v1.6H6z" fill="var(--card)" />
-    </svg>
-  );
-}
+export { NewspaperMark } from "./FeedIcon";
+
+/* ------------------------------------------------------------- the glyphs -- */
 
 /**
  * The quest flask, filling as progress. The liquid is a rect clipped to the
@@ -177,21 +170,47 @@ function BlackberryAvatar() {
   );
 }
 
-/** The toast-a-flask cheer: a raised, tipped flask with the cheer's fizz. */
+/**
+ * The toast-a-flask cheer: a raised, tipped flask with the cheer's fizz.
+ *
+ * IT IS THE QUEST FLASK, TIPPED, and that is the point rather than an economy
+ * of drawing: the committed reference draws one piece of glassware in this
+ * product and uses it twice on this screen, held upright to show a quest
+ * filling and raised at an angle to cheer. Same outlined vessel, same violet
+ * liquid, same lip; the rotation and the radiating cheer strokes are the whole
+ * difference. A second, differently drawn flask beside the first is how a
+ * vocabulary stops being one.
+ *
+ * THE FIZZ IS STROKES, NOT DOTS. The reference draws short lines radiating off
+ * the flask's shoulder, which is the comic-book mark for a thing being raised;
+ * three dots beside it read as bubbles escaping, which is the opposite motion.
+ */
 function ToastFlask() {
   return (
     <svg viewBox="0 0 24 24" className="feed-toast" aria-hidden focusable="false">
-      <g transform="rotate(-18 12 14)">
+      <g transform="rotate(20 12 15)">
+        {/* The vessel, outlined in the row's own ink so it reads on either
+            theme's card, with the liquid clipped inside it by construction:
+            the body is drawn twice, once filled violet and once as the
+            outline over it, so no clip path and no id are needed. */}
         <path
-          d="M10.8 6h2.4v3.8l3.9 6.5a1.5 1.5 0 0 1-1.3 2.2H8.2a1.5 1.5 0 0 1-1.3-2.2l3.9-6.5z"
+          d="M10.4 5.4h3.2v4.6l4.4 7.3a1.5 1.5 0 0 1-1.3 2.3H7.3a1.5 1.5 0 0 1-1.3-2.3l4.4-7.3z"
           fill="var(--primary)"
         />
-        <rect x="9.8" y="4.8" width="4.4" height="2" rx="1" fill="var(--primary)" />
+        <path
+          d="M10.4 5.4h3.2v4.6l4.4 7.3a1.5 1.5 0 0 1-1.3 2.3H7.3a1.5 1.5 0 0 1-1.3-2.3l4.4-7.3z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <rect x="9.2" y="3.9" width="5.6" height="2.2" rx="1.1" fill="currentColor" />
       </g>
-      <g fill="var(--streak-core)">
-        <circle cx="18.5" cy="5" r="1.2" />
-        <circle cx="21" cy="8" r="0.9" />
-        <circle cx="17" cy="9.2" r="0.7" />
+      {/* The cheer. Three short strokes off the raised shoulder, in the
+          streak family's warm core, which is the product's one celebratory
+          hue and is already what a lit flame is drawn in. */}
+      <g stroke="var(--streak-core)" strokeWidth="1.7" strokeLinecap="round">
+        <path d="M18.6 4.4 20.6 2.6M20.4 7.6 22.6 6.6M17.4 8.2 18.6 6.6" />
       </g>
     </svg>
   );
@@ -249,53 +268,64 @@ export default function FeedTab() {
 
   return (
     <div
-      className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6"
+      className="feed-page"
       data-feed-done={model.doneCount}
       data-feed-streak={model.snapshot.streak.todayCounted ? "true" : "false"}
     >
-      <section aria-label={`Daily quests, ${model.doneCount} of ${model.quests.length} done`}>
-        <h2 className="text-scale-lg font-bold">Daily Quests</h2>
-        <p className="mt-0.5 text-scale-xs text-muted-foreground">
-          Fresh each day, filled by whatever you play.
-        </p>
-        <ul className="mt-3 flex flex-col gap-2.5">
-          {model.quests.map((quest) => (
-            <QuestRow key={quest.id} quest={quest} />
-          ))}
-        </ul>
-      </section>
-
-      <section aria-label="Lab mates">
-        <h2 className="text-scale-lg font-bold">Lab mates</h2>
-        <Card className="mt-3">
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-scale-base font-semibold leading-tight">Your lab, cheering</h3>
-              <p className="text-scale-xs text-muted-foreground">Friends&apos; clears and unlocks land here</p>
-            </div>
-            <Pill>Phase 6 data</Pill>
-          </div>
-          {/* The section's SHAPE, with no invented people in it: berry avatar,
-              name, what they did, and the toast-a-flask cheer on the row's
-              end. Same honesty device as LeaderboardsTab's placeholder rows. */}
-          <ol className="mt-3 divide-y divide-border" aria-hidden>
-            {LAB_MATE_SHAPES.map(({ key, Avatar, width }) => (
-              <li key={key} className="flex items-center gap-3 py-2.5">
-                <Avatar />
-                <span className="skeleton h-4 flex-1 rounded-full" style={{ maxWidth: width }} />
-                <span className="feed-toast-seat">
-                  <ToastFlask />
-                </span>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-3 text-scale-sm text-muted-foreground">
-            Lab mates are other students, and other students live on the friends server, which
-            arrives in Phase 6. Nothing here is made up in the meantime: these rows are the shape
-            this takes, and the tipped flask is how you will toast a lab mate&apos;s clear.
+      {/* The composed ground, per BACKGROUND DOCTRINE and the committed
+          reference. Behind everything, decorative, and placed by a table
+          rather than scattered (backdropProps.ts). */}
+      <FeedBackdrop />
+      <div className="feed-column mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
+        <section aria-label={`Daily quests, ${model.doneCount} of ${model.quests.length} done`}>
+          <h2 className="text-scale-lg font-bold">Daily Quests</h2>
+          <p className="mt-0.5 text-scale-xs text-muted-foreground">
+            Fresh each day, filled by whatever you play.
           </p>
-        </Card>
-      </section>
+          <ul className="mt-3 flex flex-col gap-2.5">
+            {model.quests.map((quest) => (
+              <QuestRow key={quest.id} quest={quest} />
+            ))}
+          </ul>
+        </section>
+
+        <section aria-label="Lab mates">
+          <h2 className="text-scale-lg font-bold">Lab mates</h2>
+          <Card className="mt-3">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-scale-base font-semibold leading-tight">Your lab, cheering</h3>
+                <p className="text-scale-xs text-muted-foreground">Friends&apos; clears and unlocks land here</p>
+              </div>
+              <Pill>Phase 6 data</Pill>
+            </div>
+            {/* The section's SHAPE, with no invented people in it: berry avatar,
+                name, what they did, and the toast-a-flask cheer on the row's
+                end. Same honesty device as LeaderboardsTab's placeholder rows. */}
+            <ol className="mt-3 divide-y divide-border" aria-hidden>
+              {LAB_MATE_SHAPES.map(({ key, Avatar, width }) => (
+                <li key={key} className="flex items-center gap-3 py-2.5">
+                  <Avatar />
+                  <span className="skeleton h-4 flex-1 rounded-full" style={{ maxWidth: width }} />
+                  {/* No seat, no ring. The reference draws the cheer as a bare
+                      raised flask at the row's end; an outlined circle round it
+                      would be chrome invented for a control that is not open
+                      yet, and a 44 px target drawn on something unpressable is
+                      a promise the screen cannot keep. */}
+                  <span className="feed-toast-seat">
+                    <ToastFlask />
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-scale-sm text-muted-foreground">
+              Lab mates are other students, and other students live on the friends server, which
+              arrives in Phase 6. Nothing here is made up in the meantime: these rows are the shape
+              this takes, and the tipped flask is how you will toast a lab mate&apos;s clear.
+            </p>
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }

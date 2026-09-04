@@ -8,6 +8,16 @@
  * those bands is the step. That is why this file is a frame plus two chip
  * families rather than seven layouts.
  *
+ * THE COLUMN IS 76 PERCENT OF THE SCREEN, MEASURED OFF THE IMAGES. In
+ * blueberry_r9-onboard-question the progress bar, every chip and the CONTINUE
+ * button all span x 92 to 680 of a 768 wide render: one column, 76.5 percent
+ * of the frame, shared by every band. The previous pass ran the content to a
+ * 1rem gutter (91.8 percent) and put the back control and a draft stamp INSIDE
+ * the bar's row, which left the bar itself at 55 percent and reading as a
+ * stub. Both are fixed the same way: `--ob-gutter` sets one column for all
+ * three bands, and the leading control hangs in the gutter beside it rather
+ * than taking width out of it.
+ *
  * THE DEPTH IS STACKED, NEVER A SHADOW. docs/reference/design-goals/
  * BUTTON-MECHANICS.md: an EDGE slab under a FACE, a real OUTLINE on the face,
  * and the press moves the face DOWN ONTO the edge by transform so the control's
@@ -18,25 +28,43 @@
  * (measurements/sticker-audit.mjs, STACKING_ALLOW_SELECTOR). A blurred shadow
  * would be rule 3 and is nowhere in this file.
  *
+ * THE EDGE IS DARK AND THE HAIRLINE IS WARM, which is the image and not the
+ * previous pass. blueberry_r9-onboard-question draws an unpicked chip as a
+ * cream face with a thin WARM TAN hairline over a near-black slab; the
+ * previous pass ringed all four sides in --border #55597f and used the same
+ * mid slate-blue for the slab, so the chip read as boxed rather than as paper
+ * with an edge under it. --secondary carries the hairline and --chip-ink, which
+ * is the same near-black navy in both themes, carries every slab.
+ *
  * THE PRESS IS `:active`. It paints the frame the pointer lands, with no
  * JavaScript in the path, which is how the CLAUDE.md contract ("every control
  * acknowledges the press, before any work happens") is met inside 100 ms. Only
  * `transform` and `box-shadow`'s offset animate, so the acknowledgement is
  * compositor work and cannot be starved by a slow handler.
  *
- * COLOUR IS ALL TOKENS. The only literals here are the three disabled greys,
- * and they are lifted verbatim from cards/ui/cards.css with their measured
- * pairs, because that file's `--chip-off` family is scoped to its own root and
- * theme.css does not carry it yet. THAT IS A DUPLICATION AND IT IS RECORDED AS
- * ONE: the right home for those three values is theme.css, which the integrator
- * owns. Until they move, the two copies must be changed together.
+ * AND `:focus-visible` IS THE KEYBOARD'S HALF OF THAT CONTRACT. Every control
+ * in this file carries one. The previous pass had none at all: a keyboard user
+ * got the user agent's default ring drawn on top of a 2px border, which on the
+ * chips was not visible. The ring here is a second solid box-shadow layer at
+ * zero offset in --ring, so it composes with the stacked edge instead of
+ * replacing it and a focused chip still has its depth.
+ *
+ * COLOUR IS ALL TOKENS AND THERE ARE NO LITERALS LEFT IN THIS FILE. The three
+ * hexes a critic counted here (--ob-off, --ob-off-edge, --ob-chip-muted) are
+ * gone: the disabled greys are now --muted and --muted-foreground, which is
+ * what they were approximating, and the tile caption is --chip-ink because the
+ * tile's words are the answer rather than a label under a picture. The two
+ * values that genuinely have no home in theme.css yet, --ob-prop and
+ * --ob-prop-edge, are DERIVED from theme tokens with color-mix rather than
+ * typed, so they move when the theme moves. Their right home is still
+ * theme.css, which the integrator owns; that is reported rather than worked
+ * around.
  *
  * THE GOAL GREEN IS FILL ONLY. It appears in this file exactly once, as the
- * progress bar's fill. It is never text here, never a border, never a hairline.
- * The bar carries a 2px `--border` outline so the fill's boundary is legible
- * without asking #b3df92 to contrast against the track it sits in: at 1.06:1
- * against `--muted` it cannot, and the outline is the honest fix rather than
- * a brighter green. Same construction as beat-chrome.css's recipe strip.
+ * progress bar's fill, and this is now true of the file as written: the green
+ * border that sat on the overview's "you start here" pill is gone, replaced by
+ * --progress-ink, because a 2px green border on all four sides of a small pill
+ * is the hairline DESIGN-GOALS' fill-only rule names.
  */
 
 /* ------------------------------------------------------------------ */
@@ -44,20 +72,55 @@
 /* ------------------------------------------------------------------ */
 
 .ob {
-  /* The disabled-chip greys. See the header: a duplication of cards.css's
-     --chip-off family, measured there at 6.95:1 light and 8.18:1 dark for
-     the label, kept here only until theme.css carries them. */
-  --ob-off: #d1d5de;
-  --ob-off-edge: #bbbfc8;
-  --ob-off-ink: var(--muted-foreground);
+  /* THE ONE COLUMN. `max()` rather than a bare percentage so the gutter never
+     falls under the 46px a 44px control needs to sit in it: at 390px the
+     percentage wins and the column lands on the image's 76.5 percent, and on a
+     320px screen the rem wins and the leading control still fits. */
+  --ob-gutter: max(2.875rem, 11.7%);
 
-  /* The picked mark and outline. --primary-ink is theme.css's per-theme
+  /* THE PICKED MARK AND OUTLINE. --primary-ink is theme.css's per-theme
      "primary coloured TEXT and canvas marks" token, which is what a check
      glyph and a 3px outline both are: 7.16:1 light and 7.57:1 dark on the
      card, where bare --primary would measure 2.78:1 in the dark theme and
      fail the 3.0 floor a boundary owes. */
   --ob-pick-ink: var(--primary-ink);
   --ob-pick-edge: var(--primary-edge);
+
+  /* THE SLAB UNDER EVERY PRESSABLE. --chip-ink is #23264a in BOTH themes,
+     which is the near-black navy blueberry_r9-onboard-placement draws under
+     its tiles and close in value to the near-black brown the question image
+     draws under its chips. One token, both themes, no literal. */
+  --ob-edge-ink: var(--chip-ink);
+
+  /* THE HAIRLINE. The warm tan the images draw on the face of an unpicked
+     chip. The weight of the control is carried by the slab, not by this. */
+  --ob-hairline: var(--secondary);
+
+  /* THE PROGRESS TRACK. A pale neutral with no outline, per both images.
+     Derived from the card and the body ink so it stays a quiet neutral in
+     either theme rather than the tan --muted the previous pass used. */
+  --ob-track: color-mix(in srgb, var(--muted-foreground) 18%, var(--card));
+
+  /* THE WHITE PROPS OF THE WELCOME HORIZON, and their outline.
+
+     blueberry_r9-onboard-welcome draws the clouds and the rise as OPAQUE
+     WHITE with a clear soft outline, plainly readable against the cream. The
+     previous pass filled them with --card on --background, two percent of
+     luminance apart, and the whole composition was very nearly invisible.
+
+     Both are color-mix over tokens rather than hexes, which is what keeps them
+     honest at night: --primary-foreground is #ffffff in both themes, so the
+     prop stays a bright prop on a dark ground instead of inverting into a hole
+     in the page. The outline is measured: #7c7d80 in the light theme is 3.9:1
+     on the prop and 3.4:1 on the page, clear of the 3.0 a graphic owes, and
+     contrast-audit.mjs collapses a shape's fill and stroke to the better of
+     the two, so the white fill reads through this edge.
+
+     RECORDED AS THE ONE THING THIS FILE STILL OWNS THAT THEME.CSS SHOULD: a
+     prop face and a prop edge are page furniture, not an onboarding idea, and
+     the pathway's own background props want the same pair. */
+  --ob-prop: color-mix(in srgb, var(--primary-foreground) 75%, var(--card));
+  --ob-prop-edge: color-mix(in srgb, var(--muted-foreground) 60%, var(--secondary));
 
   /* THE EDGE IS 10px, MEASURED OFF THE GOAL IMAGE AND MATCHED TO PRECEDENT.
      blueberry_r9-onboard-question draws a chip face about 73 device-independent
@@ -69,6 +132,7 @@
   --ob-edge-size: 10px;
   --ob-travel: 6px;
 
+  position: relative;
   display: flex;
   flex-direction: column;
   /* A DEFINITE HEIGHT, not a minimum, and the difference is load bearing.
@@ -85,14 +149,39 @@
   width: 100%;
   margin: 0 auto;
   max-width: 30rem;
-  padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
-  gap: 1rem;
+  padding: 0.75rem var(--ob-gutter) calc(1rem + env(safe-area-inset-bottom, 0px));
+  gap: 0.75rem;
+  /* Crops the full bleed backdrop and the peeking mascot at the screen edge,
+     which is what makes both of them read as running off the page rather than
+     as illustrations sitting inside it. `.ob` never scrolls, so clipping it
+     costs nothing: the middle band has its own scroller. */
+  overflow: clip;
+}
+
+/* THE FULL BLEED DECORATION LAYER. A SIBLING of the scrolling body, not a
+   child of it, and that is the fix for a defect two passes carried.
+
+   The welcome image draws the rise running off both screen edges with only its
+   top curve visible. Drawing it inside `.ob__body` with
+   `width: calc(100% + 2rem); margin-left: -1rem` could never do that: the body
+   carries `overflow-y: auto`, which makes its overflow-x compute to `auto`
+   too, and the bleed was clipped at the content box into a rectangle with
+   three straight edges. CSS gives no way to overflow one axis of a scroll
+   container, so the layer moved out of it instead. */
+.ob__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 /* The middle band scrolls; the bar and the action never leave the screen.
    The images pin GET STARTED, CONTINUE and CHECK to the bottom edge on every
    screen, and a step whose options run long must not push the action off. */
 .ob__body {
+  position: relative;
+  z-index: 1;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -102,6 +191,8 @@
 }
 
 .ob__foot {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -111,19 +202,29 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* The header: back, bar, counter                                      */
+/* The header: one bar, the width of the column                        */
 /* ------------------------------------------------------------------ */
 
 .ob__head {
+  position: relative;
+  z-index: 2;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  min-height: 2.75rem;
 }
 
-/* 44 by 44 minimum, the Budgets floor, even though the glyph is 20px. */
+/* THE LEADING CONTROL HANGS IN THE GUTTER. 44 by 44, the Budgets floor, and
+   positioned against `.ob`'s own border box so it sits at the screen edge
+   beside the bar rather than taking width out of it. blueberry_r9-onboard-
+   placement draws its X in exactly that position; the question image draws
+   nothing at all beside the bar, which is what the bar being full column width
+   depends on. */
 .ob-back {
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 3;
+  left: 0.125rem;
+  top: 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -141,20 +242,34 @@
   transform: scale(0.9);
   color: var(--foreground);
 }
-/* The slot is held even on the first step, so the bar does not jump sideways
-   when the back control appears on step two. */
+.ob-back:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+  color: var(--foreground);
+}
+/* The slot is held even on the first step, so nothing shifts when the control
+   appears on step two. It hangs in the gutter, so there is no width to hold. */
 .ob-back[data-empty="true"] {
   visibility: hidden;
   pointer-events: none;
 }
 
+/* THE BAR. Full column width, a pale neutral track, NO OUTLINE, and about a
+   third of the height the previous pass gave it.
+
+   Both images draw a track with no visible ring at roughly 2.6 percent of the
+   frame width. The previous pass drew 18px (4.6 percent) on the tan --muted
+   inside a 2px --border ring, which made the bar the darkest object in the
+   header and the heaviest thing on the welcome screen. The ring existed to
+   give the green fill a legible boundary; the images solve that by making the
+   track a neutral the green plainly is not, which is what --ob-track does. */
 .ob-bar {
   flex: 1 1 auto;
   position: relative;
-  height: 1.125rem;
+  height: 0.75rem;
   border-radius: 9999px;
-  border: 2px solid var(--border);
-  background: var(--muted);
+  border: 0;
+  background: var(--ob-track);
   overflow: hidden;
 }
 
@@ -203,8 +318,8 @@
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
-  border-radius: 1.25rem;
-  border: 2px solid var(--border);
+  border-radius: 1.125rem;
+  border: 2px solid var(--ob-hairline);
   background: var(--card);
   color: var(--card-foreground);
   padding: 0.875rem 1rem;
@@ -225,7 +340,7 @@
 .ob-bubble::before {
   left: -0.625rem;
   border-width: 0.5rem 0.625rem 0.5rem 0;
-  border-color: transparent var(--border) transparent transparent;
+  border-color: transparent var(--ob-hairline) transparent transparent;
 }
 .ob-bubble::after {
   left: -0.3125rem;
@@ -271,54 +386,83 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 1.25rem;
-  padding-top: 2rem;
+  gap: 0.75rem;
 }
 
-/* THE HERO IS AN IN-FLOW ROW, and this is a case where the goal image loses to
-   something the image could not know about.
-
-   blueberry_r9-onboard-welcome draws Berry dead centre with the greeting
-   overlapping his upper right shoulder, and that composition only holds while
-   the greeting is three words long, which is what the draft says ("Hi! I'm
-   Berry!"). An earlier pass here reproduced it literally by taking the bubble
-   out of flow at `left: 55%`. Every string in this flow is a [HUMAN GATE]
-   placeholder that the owner rewrites, and the moment the line grew past a few
-   words the out-of-flow bubble grew DOWNWARD over Berry's face and over the
-   text beneath him, because nothing in flow knew it was there.
-
-   So the bubble stays in flow and the pair centres together, which is the same
-   [berry][bubble] row the shared frame lock (blueberry_r9-onboard-question)
-   uses on every other screen, only larger. THE DIVERGENCE IS THAT BERRY SITS
-   SLIGHTLY LEFT OF CENTRE rather than dead centre, and it is a deliberate
-   trade: a layout that cannot break under copy nobody has written yet is worth
-   more than a centred berry, and the composition is otherwise unchanged. If
-   the gate returns a greeting as short as the draft's, this reads as the image
-   draws it. */
-.ob-welcome__hero {
-  display: flex;
-  align-items: flex-start;
+/* A HERO SCREEN WITH NOTHING UNDER IT CENTRES ITSELF. The welcome beat is
+   anchored to the top because the horizon fills the bottom third beneath it;
+   the bonding beat and the placement's own two hero screens hold one sentence
+   and one button and nothing else, so leaving them top-anchored left three
+   quarters of the page empty under a lone berry. `data-hero="welcome"` is set
+   by the one screen that owns its lower third. */
+.ob-welcome:not([data-hero="welcome"]) {
   justify-content: center;
-  gap: 0.75rem;
+}
+
+/* THE HERO IS BERRY, CENTRED, WITH THE GREETING OVER HIS SHOULDER, which is
+   the welcome image's composition and not the row every other step uses.
+
+   THE BUBBLE GROWS UPWARD, AND THAT IS THE WHOLE REASON IT CAN BE OUT OF FLOW
+   AT ALL. An earlier pass tried the image's overlap literally, anchored by
+   `left` and `top`, and it broke the moment a placeholder line grew past a few
+   words: the bubble grew DOWNWARD over Berry's face and over the promise
+   beneath him, because nothing in flow knew it was there. The pass after that
+   gave up the composition and put the bubble back in the row, which cost the
+   screen the image's centred berry.
+
+   Anchoring by `bottom` fixes the failure rather than trading it away: the
+   bubble's bottom edge is pinned over Berry's upper right shoulder and any
+   extra line it grows takes room ABOVE it, where the header is the only thing
+   it can reach and there is 3rem of clearance for two more lines. So the
+   composition is the image's and it still cannot land on Berry's face. */
+.ob-welcome__hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
   width: 100%;
+  padding-top: 6rem;
+}
+
+/* THE STICKER RIM. blueberry_r9-onboard-welcome gives Berry a white die-cut
+   rim on this screen and no other. Four zero-blur drop-shadows in the prop
+   white, which is an OUTLINE that follows the silhouette (calyx included) and
+   not a shadow: rule 3 bans the blurred halo, and every offset here is a hard
+   edge at 0 blur. The mascot itself is imported and untouched, per D4. */
+.ob-welcome__berry {
+  flex: 0 0 auto;
+  filter: drop-shadow(3px 0 0 var(--ob-prop)) drop-shadow(-3px 0 0 var(--ob-prop))
+    drop-shadow(0 3px 0 var(--ob-prop)) drop-shadow(0 -3px 0 var(--ob-prop));
 }
 
 .ob-welcome__bubble {
-  flex: 0 1 auto;
-  max-width: 13rem;
-  margin-top: 1.25rem;
+  position: absolute;
+  left: 52%;
+  right: -1rem;
+  bottom: calc(100% - 8.75rem);
+  margin: 0;
   font-size: 1rem;
+  padding: 0.75rem 0.875rem;
 }
 
-/* Under about 22rem the row cannot hold a 150px berry and a bubble, so the
-   bubble drops beneath him. The tail goes with it: a tail pointing sideways at
-   nothing is worse than no tail. */
+/* The tail moves to the BOTTOM of this bubble, because this one grows upward
+   and its bottom left corner is the corner nearest Berry's shoulder. */
+.ob-welcome__bubble::before,
+.ob-welcome__bubble::after {
+  top: auto;
+  bottom: 0.875rem;
+}
+
+/* Under about 22rem the row cannot hold a 186px berry and a bubble beside it,
+   so the bubble drops beneath him and back into flow. The tail goes with it: a
+   tail pointing sideways at nothing is worse than no tail. */
 @media (max-width: 22rem) {
   .ob-welcome__hero {
     flex-direction: column;
     align-items: center;
+    padding-top: 1.5rem;
   }
   .ob-welcome__bubble {
+    position: static;
     max-width: none;
     margin-top: 0.75rem;
   }
@@ -328,14 +472,26 @@
   }
 }
 
-/* The horizon fills whatever is left under the promise, and never pushes the
-   action off the screen: it is the last flex child and it may shrink to
-   nothing on a short viewport. Decoration is the first thing to give way. */
+/* THE HORIZON FILLS THE LOWER THIRD AND BLEEDS OFF BOTH EDGES. It is inside
+   `.ob__backdrop`, so it is out of flow entirely and can never push the action
+   off a short screen: decoration is the first thing to give way, and here it
+   gives way by being behind rather than by shrinking. `aspect-ratio` matches
+   the SVG's own viewBox so `xMidYMax meet` neither crops the clouds nor
+   stretches the rise. */
 .ob-welcome__horizon {
-  width: 100%;
-  min-height: 0;
-  flex: 1 1 auto;
-  margin-top: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Wider than the column AND wider than the screen, so the rise runs off both
+     edges (`.ob` clips it) and the composition sits where the image puts it:
+     the clouds around 60 percent of the frame height rather than crushed into
+     the last fifth. */
+  left: -8%;
+  right: -8%;
+  width: 116%;
+  height: auto;
+  aspect-ratio: 390 / 340;
 }
 
 /* ------------------------------------------------------------------ */
@@ -357,17 +513,25 @@
   gap: 0.875rem;
 }
 
+/* THE CHIP IS TALLER AND NARROWER THAN THE PREVIOUS PASS DREW IT, and both
+   halves of that come off the image. blueberry_r9-onboard-question draws each
+   chip at 76.5 percent of the frame width and 11.2 percent of its height, a
+   face of about 95px at 390 by 844, so the four chips and the CTA fill the
+   screen with about a ninth of it left as air. The previous pass drew 91.8
+   percent wide and 72px tall and left 205px, a quarter of the viewport, of
+   empty ground under the last chip. The width is now the shared column; the
+   height is this. */
 .ob-chip {
   position: relative;
   display: flex;
   width: 100%;
-  min-height: 4.5rem;
+  min-height: 6.25rem;
   align-items: center;
   gap: 0.875rem;
   padding: 0.75rem 1rem;
   text-align: left;
-  border-radius: 1.25rem;
-  border: 2px solid var(--border);
+  border-radius: 1rem;
+  border: 2px solid var(--ob-hairline);
   background: var(--card);
   color: var(--card-foreground);
   font-size: 1.0625rem;
@@ -375,7 +539,7 @@
   line-height: 1.3;
   cursor: pointer;
   touch-action: manipulation;
-  box-shadow: 0 var(--ob-edge-size) 0 0 var(--border);
+  box-shadow: 0 var(--ob-edge-size) 0 0 var(--ob-edge-ink);
   transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -384,7 +548,14 @@
    not reflow under the thumb. */
 .ob-chip:active {
   transform: translateY(var(--ob-travel));
-  box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--border);
+  box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--ob-edge-ink);
+}
+
+.ob-chip:focus-visible {
+  outline: none;
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 var(--ob-edge-ink),
+    0 0 0 3px var(--ring);
 }
 
 /* PICKED. The image keeps the cream face and swaps the outline, the edge and
@@ -397,12 +568,22 @@
 .ob-chip[aria-pressed="true"]:active {
   box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--ob-pick-edge);
 }
+.ob-chip[aria-pressed="true"]:focus-visible {
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 var(--ob-pick-edge),
+    0 0 0 3px var(--ring);
+}
 
+/* THE ICON IS A STICKER AND KEEPS ITS OWN COLOURS, picked or not. See the
+   header of icons.tsx: the goal image's picked chip keeps its flask purple and
+   carries the pick in the outline, the edge and the check. `color` still
+   reaches the glyph because every sticker's OUTLINE is currentColor, so the
+   marks sit in the chip's ink and go violet with it. */
 .ob-chip__icon {
   flex: 0 0 auto;
   width: 2.25rem;
   height: 2.25rem;
-  color: var(--muted-foreground);
+  color: var(--card-foreground);
 }
 .ob-chip[aria-pressed="true"] .ob-chip__icon {
   color: var(--ob-pick-ink);
@@ -435,14 +616,13 @@
 /* Periwinkle, per DESIGN-GOALS: the chip family is the lesson colour and the
    placement question is the first lesson-shaped thing a student touches.
    --chip-ink on --chip-face is the family's measured pair, 6.43:1 both
-   themes. */
-/* HEIGHT FOLLOWS THE LAYOUT, because the two layouts hold different things.
-   blueberry_r9-onboard-placement draws a 2x2 of tall tiles, and they are tall
-   because each one carries a drawn structure above its caption. The single
-   column fallback (flow.twoColumnGrid: anything that is not four short
-   options) carries a sentence and nothing else, so a 136px square there is
-   a row of empty space that pushes CHECK off a 844px screen. The square is
-   scoped to the grid; the fallback is a row at the option chip's height. */
+   themes.
+
+   THE SLAB IS --ob-edge-ink, a near-black navy in both themes, which is what
+   gives the tiles their weight in blueberry_r9-onboard-placement. The previous
+   pass used --chip-edge #55628f, a mid slate-blue at roughly half that
+   contrast against the periwinkle face, and the tiles read as flat cards
+   rather than as keys. */
 .ob-tile {
   position: relative;
   display: flex;
@@ -453,8 +633,8 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem 0.75rem;
-  border-radius: 1.25rem;
-  border: 2px solid var(--chip-edge);
+  border-radius: 0.875rem;
+  border: 2px solid var(--ob-edge-ink);
   background: var(--chip-face);
   color: var(--chip-ink);
   font-size: 1rem;
@@ -463,46 +643,102 @@
   text-align: center;
   cursor: pointer;
   touch-action: manipulation;
-  box-shadow: 0 var(--ob-edge-size) 0 0 var(--chip-edge);
+  box-shadow: 0 var(--ob-edge-size) 0 0 var(--ob-edge-ink);
   transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ob-tile:active {
   transform: translateY(var(--ob-travel));
   background: var(--chip-face-press);
-  box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--chip-edge);
+  box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--ob-edge-ink);
 }
 
-/* PICKED. The image lightens the face and rings the tile. The ring is a second
-   solid box-shadow layer at zero offset, which is an OUTLINE and not a glow:
-   rule 3 bans the blurred halo and the goals ask for a real border. */
+.ob-tile:focus-visible {
+  outline: none;
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 var(--ob-edge-ink),
+    0 0 0 3px var(--ring);
+}
+
+/* PICKED, AND THE FACE IS WHAT CARRIES IT.
+
+   blueberry_r9-onboard-placement LIGHTENS the picked tile's face to a near
+   white periwinkle and rings it. The previous pass left the face at
+   --chip-face and added only the ring, putting the whole picked state in a 3px
+   outline; --chip-face-press was on `:active` alone, so the one moment the
+   tile changed colour was the moment the finger was on it and the lift
+   disappeared the instant it left. The lightened face is now the persistent
+   state and the ring rides with it.
+
+   The lighter face is mixed toward --primary-foreground, which is #ffffff in
+   both themes, so "lighter" means lighter at night too rather than merely
+   different. --chip-ink measures 10.1:1 on it. */
 .ob-tile[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--chip-face) 55%, var(--primary-foreground));
   border-color: var(--ob-pick-ink);
   box-shadow:
     0 var(--ob-edge-size) 0 0 var(--ob-pick-edge),
     0 0 0 3px var(--ob-pick-ink);
 }
 .ob-tile[aria-pressed="true"]:active {
+  background: color-mix(in srgb, var(--chip-face) 70%, var(--primary-foreground));
   box-shadow:
     0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--ob-pick-edge),
     0 0 0 3px var(--ob-pick-ink);
 }
-
-.ob-options--grid .ob-tile {
-  min-height: 8.5rem;
+.ob-tile[aria-pressed="true"]:focus-visible {
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 var(--ob-pick-edge),
+    0 0 0 3px var(--ob-pick-ink),
+    0 0 0 6px var(--ring);
 }
 
-.ob-tile__art {
+/* THE 2x2 TILE IS TALL. The image draws a face about 22 percent of the frame
+   height, which is what gives an option room to be more than two words. It is
+   also what let flow.twoColumnGrid drop its length condition: a long option
+   now has vertical room instead of being refused the layout the goal image
+   locks. */
+.ob-options--grid .ob-tile {
+  min-height: 11rem;
+}
+
+/* THE WORDS ARE THE TILE'S SUBJECT, and this is the divergence from the goal
+   image that PlacementStep.tsx records against the clause.
+
+   Ruling 2 of 2026-09-04 wants a drawn structure with its name under it, small
+   and in the muted ink. There is no structure to draw: ChoiceOption in
+   packages/curriculum is `{ id, text }` and Problem carries no figure, so
+   nothing in SEED_CORPUS has a picture in it. Rather than the four identical
+   dashed placeholder frames the previous pass drew, the tile sets the option's
+   own words large and centred in the content face, which is the image's
+   composition, weight and colour with the one thing missing that the data does
+   not have. The words are therefore the ANSWER and take --chip-ink, the body
+   ink, not the muted caption ink: a caption is quiet because a picture is
+   loud, and there is no picture yet to be quiet beside. */
+.ob-tile__caption {
+  color: var(--chip-ink);
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.ob-tile__caption[data-layout="tile"] {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.28;
+}
+
+/* A long option keeps the layout and drops a type size rather than overflowing
+   the tile. flow.tileIsDense holds the threshold so it is one number a test
+   can drive. */
+.ob-tile__caption[data-layout="tile"][data-dense="true"] {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ob-tile__caption[data-layout="row"] {
   font-size: 1.0625rem;
   font-weight: 700;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-/* The grid's tiles hold a short label under a structure, so they can afford
-   the larger face the image draws. The row fallback holds a full sentence. */
-.ob-options--grid .ob-tile__art {
-  font-size: 1.25rem;
 }
 
 .ob-stem {
@@ -524,6 +760,12 @@
 /* The action: CONTINUE, GET STARTED, CHECK                            */
 /* ------------------------------------------------------------------ */
 
+/* THE SHAPE IS A ROUNDED RECTANGLE BY DEFAULT AND A STADIUM ON ONE SCREEN.
+   blueberry_r9-onboard-question draws CONTINUE and
+   blueberry_r9-onboard-placement draws CHECK with a corner radius of roughly
+   12 to 14 CSS pixels; only blueberry_r9-onboard-welcome draws GET STARTED as
+   a full stadium. The previous pass used 9999px everywhere, which matched one
+   image out of three. */
 .ob-cta {
   position: relative;
   display: inline-flex;
@@ -532,7 +774,7 @@
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.25rem;
-  border-radius: 9999px;
+  border-radius: 0.875rem;
   border: 2px solid var(--primary-edge);
   background: var(--primary);
   color: var(--primary-foreground);
@@ -548,22 +790,43 @@
   margin-bottom: var(--ob-edge-size);
 }
 
+.ob-cta[data-shape="stadium"] {
+  border-radius: 9999px;
+}
+
 .ob-cta:active:not(:disabled) {
   transform: translateY(var(--ob-travel));
   box-shadow: 0 calc(var(--ob-edge-size) - var(--ob-travel)) 0 0 var(--primary-edge);
+}
+
+.ob-cta:focus-visible {
+  outline: none;
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 var(--primary-edge),
+    0 0 0 3px var(--ring);
 }
 
 /* THE DISABLED ACTION IS STILL PLAINLY A BUTTON, and unmistakably off.
    The S3 verdict named an ambiguous disabled CHECK as the thing the bar did
    better than us; this is that finding answered. It keeps its shape and its
    edge, loses the violet, and does not travel, because travelling is the
-   acknowledgement of an act that is not going to happen. */
+   acknowledgement of an act that is not going to happen.
+
+   The three literal greys that used to live here are gone: --muted and
+   --muted-foreground are what they were approximating, they measure 7.1:1
+   together in the light theme, and they are already the theme's own token for
+   "a surface that is switched off". */
 .ob-cta:disabled {
-  background: var(--ob-off);
-  color: var(--ob-off-ink);
-  border-color: var(--ob-off-edge);
-  box-shadow: 0 var(--ob-edge-size) 0 0 var(--ob-off-edge), 0 0 0 1px var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: color-mix(in srgb, var(--muted) 62%, var(--foreground));
+  box-shadow: 0 var(--ob-edge-size) 0 0 color-mix(in srgb, var(--muted) 62%, var(--foreground));
   cursor: not-allowed;
+}
+.ob-cta:disabled:focus-visible {
+  box-shadow:
+    0 var(--ob-edge-size) 0 0 color-mix(in srgb, var(--muted) 62%, var(--foreground)),
+    0 0 0 3px var(--ring);
 }
 
 /* SKIP IS AN OUTLINED PILL, NOT UNDERLINED TEXT, and the two are different
@@ -607,6 +870,10 @@
   transform: scale(0.97);
   background: var(--muted);
 }
+.ob-skip:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
 
 /* The returning student link under the CTA on the welcome beat: underlined
    text, per blueberry_r9-onboard-welcome, at a 44px tall hit target. */
@@ -631,21 +898,31 @@
   transform: scale(0.96);
   color: var(--foreground);
 }
+.ob-quiet:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+  color: var(--foreground);
+}
 
-/* The placement image puts Berry at the bottom right, peeking up over the
-   CHECK button. The wrapper is the positioning context and the berry is taken
-   out of flow, so it overlaps the action without stealing any of its width and
-   without ever covering the label: the button's text is centred and the berry
-   sits past its right end. `pointer-events: none` because a mascot that eats a
-   tap on the corner of the primary action is a 44px target lost. */
+/* BERRY PEEKS OVER THE CHECK BUTTON, BIG, AND THE SCREEN CROPS HIM.
+
+   blueberry_r9-onboard-placement draws him around 180px, rising from behind
+   the button and cut off by the right edge of the phone. The previous pass
+   drew 76px sitting fully inside the button's right end, which read as an icon
+   printed on the button rather than as a mascot leaning over it. He is pushed
+   past the column into the gutter and `.ob`'s `overflow: clip` does the rest.
+
+   `pointer-events: none` because a mascot that eats a tap on the corner of the
+   primary action is a 44px target lost. */
 .ob-peek {
   position: relative;
 }
 
 .ob-peek__berry {
   position: absolute;
-  right: -0.25rem;
-  bottom: 0;
+  right: -4.25rem;
+  bottom: -0.25rem;
   pointer-events: none;
   z-index: 1;
 }
@@ -663,8 +940,8 @@
    own ProblemView, which brings its own layout. The wrapper gives it the card
    the tiles would have occupied so the screen keeps its rhythm. */
 .ob-handoff {
-  border-radius: 1.25rem;
-  border: 2px solid var(--border);
+  border-radius: 1rem;
+  border: 2px solid var(--ob-hairline);
   background: var(--card);
   color: var(--card-foreground);
   padding: 1rem;
@@ -684,8 +961,8 @@
 }
 
 .ob-act {
-  border-radius: 1.25rem;
-  border: 2px solid var(--border);
+  border-radius: 1rem;
+  border: 2px solid var(--ob-hairline);
   background: var(--card);
   color: var(--card-foreground);
   padding: 0.875rem 1rem;
@@ -723,7 +1000,7 @@
 
 .ob-act__topic {
   border-radius: 9999px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--ob-hairline);
   background: var(--background);
   color: var(--muted-foreground);
   padding: 0.125rem 0.625rem;
@@ -731,12 +1008,29 @@
   font-weight: 600;
 }
 
-/* The one place the student's own position is marked. Goal green as a FILL
-   under dark ink, which is the only legal shape for it. */
+/* THE ONE PLACE THE STUDENT'S OWN POSITION IS MARKED. Goal green as a FILL
+   under dark ink, which is the only legal shape for it.
+
+   THE BORDER IS --progress-ink AND NOT --progress-edge, and that is the
+   fill-only rule applied to this file rather than recited by it. #3f8c28 on
+   all four sides of a small pill is a hairline, which DESIGN-GOALS names in as
+   many words: the goal green appears "never as text, never as a hairline". The
+   header of this file claimed the green appeared here exactly once and the
+   file as written did not honour it. It does now. */
 .ob-act__topic[data-start="true"] {
   background: var(--progress);
   color: var(--progress-ink);
-  border-color: var(--progress-edge);
+  border-color: var(--progress-ink);
+}
+
+/* The tail of a shortened act. Plain text rather than a chip, so it reads as a
+   count of what is not listed and never as one more topic to tap. */
+.ob-act__more {
+  align-self: center;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
 }
 
 .ob-act__assumes {

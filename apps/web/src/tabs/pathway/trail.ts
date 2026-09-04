@@ -35,6 +35,14 @@ export interface TrailPoint {
   readonly y: number;
   readonly lane: TrailLane;
   readonly done: boolean;
+  /**
+   * A UNIT GATE, which is the one anchor the progress flow may not run
+   * through. DESIGN-GOALS 2026-09-04: "The flow can run through several
+   * lesson nodes, never through a unit gate." A gate is a boundary rather
+   * than a lesson, so a stretch touching one changes colour where it stands
+   * instead of being travelled.
+   */
+  readonly gate?: boolean;
 }
 
 export interface TrailSegment {
@@ -42,6 +50,8 @@ export interface TrailSegment {
   readonly done: boolean;
   /** Loop detours render dimmed, like the lessons they lead to. */
   readonly loop: boolean;
+  /** Either endpoint is a unit gate, so this stretch never carries the flow. */
+  readonly gate: boolean;
 }
 
 /**
@@ -237,10 +247,25 @@ export function trailSegments(
         if (armPoints.length === 0) continue;
         const chain = [previous, ...armPoints, point];
         const done = chain.every((p) => p.done);
-        for (const d of armChain(chain, minGrip)) segments.push({ d, done, loop: false });
+        // The gate flag is PER SUB-SEGMENT, not per arm: an arm's last stretch
+        // is the one that lands on the gate, and the stretches above it are
+        // ordinary lesson-to-lesson road that the flow is allowed to travel.
+        armChain(chain, minGrip).forEach((d, index) => {
+          segments.push({
+            d,
+            done,
+            loop: false,
+            gate: chain[index]?.gate === true || chain[index + 1]?.gate === true,
+          });
+        });
       }
     } else {
-      segments.push({ d: cubic(previous, point, minGrip), done: previous.done && point.done, loop: false });
+      segments.push({
+        d: cubic(previous, point, minGrip),
+        done: previous.done && point.done,
+        loop: false,
+        gate: previous.gate === true || point.gate === true,
+      });
     }
     /*
       THE SPINE RUNS STRAIGHT PAST A SIDE LOOP, always. An application lesson
@@ -281,12 +306,51 @@ export function trailSegments(
             armChain([mouthTop, ...loops, mouthBottom], minGrip);
       // A loop detour never reads as progress: it is enrichment, off the
       // exam-weighted spine, and colouring it green would claim otherwise.
-      for (const d of legs) segments.push({ d, done: false, loop: true });
+      for (const d of legs) segments.push({ d, done: false, loop: true, gate: false });
     }
     pending = [];
   }
 
   return segments;
+}
+
+/**
+ * THE PROGRESS FLOW: which stretches the green TRAVELS along, and in what order.
+ *
+ * DESIGN-GOALS, owner 2026-09-04: "On finishing a node the green does not
+ * appear, it TRAVELS from the node just finished to the next one, along the
+ * trail. If several nodes complete at once the flow runs through all of them
+ * in sequence rather than snapping."
+ *
+ * So this is a pure diff between the done-set the renderer drew last time and
+ * the one it is about to draw. A stretch that has JUST become done gets a
+ * rank, and the ranks run in trail order starting at zero, which is what the
+ * renderer turns into a stagger: rank n starts one travel-duration after rank
+ * n-1, so a run of three completions plays as three legs of one journey.
+ * Everything else gets -1 and is painted in its final colour with no travel.
+ *
+ * Three stretches never carry the flow:
+ *   - a UNIT GATE stretch, because a gate is a boundary and is never skippable
+ *   - a LOOP detour, which is enrichment and is never coloured done at all
+ *   - a stretch with NO recorded history, which is the first paint of a page:
+ *     a student landing on the tab has not just finished anything, and
+ *     replaying their whole term as a light show would be a lie about when it
+ *     happened. An unknown index reads as "already there".
+ *
+ * Pure, so the sequencing is testable without a document or a clock.
+ */
+export function flowOrder(
+  segments: readonly TrailSegment[],
+  previousDone: readonly boolean[],
+): readonly number[] {
+  let rank = 0;
+  return segments.map((segment, index) => {
+    const wasDone = previousDone[index] ?? true;
+    if (!segment.done || wasDone || segment.loop || segment.gate) return -1;
+    const assigned = rank;
+    rank += 1;
+    return assigned;
+  });
 }
 
 /* -------------------------------------------------------------------------- */

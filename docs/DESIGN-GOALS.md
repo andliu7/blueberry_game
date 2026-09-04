@@ -168,6 +168,50 @@ document flow with its nodes. No global read, no rAF, no drift, and the backgrou
 layers can stay sticky because a background is allowed to lag; a line that connects buttons
 is not.
 
+## The pixel verdict of 2026-09-04, and the brief it becomes
+
+A critic built the app, screenshotted it, and compared it element by element against
+`units/unit01-path.jpg` and `unit02-path.jpg`. Verdict: RECOGNISABLY RELATED, not the same
+design. This is the list, and it is the next round's brief. Every line is measured.
+
+THE THREE THAT MAKE IT LOOK BROKEN RATHER THAN OFF-STYLE:
+
+1. A PURE BLACK `#000000` terrain silhouette paints roughly a third of the phone screen and
+   recurs on other scroll positions. Nothing in either reference is darker than mid-tan.
+   This is a broken fill, not a taste difference, and it is the first thing to fix
+2. THE TRAIL IS BLUE, NOT GREEN, AND 2.5x TOO THICK. Zero green pixels anywhere in the scene
+   across four scroll positions. The reference's whole colour story is a green path against
+   blue buttons; the build is blue on blue, so path and nodes dissolve into each other. The
+   reference trail is about 2 percent of screen width; the build is about 5
+3. THE SCENE IS STRIPPED. No clouds at all (0 near-white pixels against the reference's
+   764), no boulders, the gate arch at 14 percent of screen width instead of 42 and in the
+   wrong colour, and the mascot reduced from a 95px full-body character standing on the
+   ground to a 26px head floating and clipped by the viewport edge
+
+THE REST, each as element / reference / build:
+
+- NODE OUTLINE: the reference has NO outline ring on any node; the build wraps every node in
+  a 5px cream ring, which the eye reads first, so nodes read as flat outlined discs rather
+  than pressed buttons. The reference's depth is a solid 14px darker lower rim plus a soft
+  cast shadow on the ground
+- MOTIFS: four of eight nodes have completely empty faces; the motifs that exist are small
+  and low contrast, dark blue on blue. The reference debosses a bold high-contrast mark into
+  every face
+- LOCKED NODES: the reference shows NO padlock anywhere; future nodes are the same periwinkle
+  button carrying a real content motif. The build stamps padlocks on everything, turning the
+  screen into an inventory of things you cannot do
+- LABEL CARDS: reference is warm cream, fully rounded, no border, soft shadow, some with a
+  leading icon, always clear of the node. The build is near-white with a hard 1px border, no
+  shadow, no icons, and cards COLLIDE with node bodies and truncate with an ellipsis.
+  Truncated labels appear nowhere in the reference
+- FLASKS AND WATERMARKS: the reference ghosts them at a luminance delta of about 33 against
+  the ground; the build draws them at about 90, nearly 3x, so wallpaper reads as objects. One
+  molecule sits directly under the trail, where the reference always keeps watermarks off it
+- DENSITY: the reference fits nine nodes, eight labels, two clouds, two full-body mascots,
+  two flasks, three skeletons, boulders and a gate into one frame. The build has eight nodes
+  and then nothing, with large flat empty tan. The build reads as a diagram on a beige field;
+  the reference reads as a landscape
+
 ## Backgrounds vary by unit
 
 Owner 2026-09-03: more creative backgrounds, changing slightly unit to unit, the way

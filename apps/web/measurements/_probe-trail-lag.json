@@ -1,0 +1,156 @@
+{
+  "phone": {
+    "layer": {
+      "sharedAncestor": "section.path-unit",
+      "ribbonDepthToShared": 3,
+      "chipDepthToShared": 4,
+      "stickyAboveRibbon": [],
+      "stickyAboveChip": [],
+      "scroller": "documentElement"
+    },
+    "divergence": [
+      {
+        "scrollY": 0,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 300,
+        "chips": 9,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 700,
+        "chips": 9,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 1400,
+        "chips": 5,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0
+      },
+      {
+        "scrollY": 2800,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 4200,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 6000,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      }
+    ],
+    "writes": {
+      "scrolledToPx": 4160,
+      "trailGeometryWrites": 0,
+      "cssVariableWritesAnywhere": 408,
+      "scrollFps": 56.7,
+      "scrollWorstFrameMs": 33.4,
+      "scrollFramesOver20ms": 6
+    },
+    "flow": {
+      "animatedStretches": 5,
+      "frames": 55,
+      "averageFps": 60,
+      "medianFrameMs": 16.7,
+      "worstFrameMs": 17,
+      "framesOver20ms": 0
+    },
+    "reduced": {
+      "walkedStretches": 5,
+      "animationName": "none",
+      "strokeDasharray": "none",
+      "strokeDashoffset": "0px",
+      "runningAnimations": 0
+    }
+  },
+  "desk": {
+    "layer": {
+      "sharedAncestor": "section.path-unit",
+      "ribbonDepthToShared": 3,
+      "chipDepthToShared": 4,
+      "stickyAboveRibbon": [],
+      "stickyAboveChip": [],
+      "scroller": "documentElement"
+    },
+    "divergence": [
+      {
+        "scrollY": 0,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 300,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 700,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 1400,
+        "chips": 5,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 2800,
+        "chips": 11,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 4200,
+        "chips": 10,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      },
+      {
+        "scrollY": 6000,
+        "chips": 8,
+        "settledWorstPx": 0.1,
+        "oneFrameAfterScrollWorstPx": 0.1
+      }
+    ],
+    "writes": {
+      "scrolledToPx": 3640,
+      "trailGeometryWrites": 0,
+      "cssVariableWritesAnywhere": 356,
+      "scrollFps": 49.5,
+      "scrollWorstFrameMs": 33.5,
+      "scrollFramesOver20ms": 19
+    },
+    "flow": {
+      "animatedStretches": 5,
+      "frames": 55,
+      "averageFps": 60,
+      "medianFrameMs": 16.7,
+      "worstFrameMs": 16.8,
+      "framesOver20ms": 0
+    },
+    "reduced": {
+      "walkedStretches": 5,
+      "animationName": "none",
+      "strokeDasharray": "none",
+      "strokeDashoffset": "0px",
+      "runningAnimations": 0
+    }
+  }
+}

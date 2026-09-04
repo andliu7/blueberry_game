@@ -70,6 +70,7 @@ import {
   type PlayableLink as MapPlayableLink,
 } from "../../demo/pathwayMap";
 import PathScene from "./PathScene";
+import UnitTrail from "./UnitTrail";
 import { deriveMapPathway, statusOf, unitPassed, type MapPathwayStatus } from "./pathwayState";
 import { deriveFreeOrderStates } from "./topicPathway";
 import { HUB_CENTRE, petalPositions } from "./hubPlan";
@@ -1150,6 +1151,15 @@ function UnitGateNode({ passed, locked }: { readonly passed: boolean; readonly l
       aria-label={passed ? "Unit gate, passed" : "Unit gate. Clear the checkpoint to open the next unit."}
       data-trail="main"
       data-trail-done={passed ? "true" : "false"}
+      /*
+        A GATE IS NEVER SKIPPABLE, and this attribute is how the ribbon knows.
+        DESIGN-GOALS 2026-09-04: "The flow can run through several lesson
+        nodes, never through a unit gate." UnitTrail reads it, trail.ts carries
+        it onto the stretches that touch this arch, and flowOrder refuses to
+        give one of those a travel rank: a gate's stretch changes colour where
+        it stands.
+      */
+      data-trail-gate="true"
     >
       <svg viewBox="0 0 64 58" className="path-gatenode__arch" aria-hidden>
         <path className="path-gatenode__arch-face" d={arch} />
@@ -1386,11 +1396,26 @@ function OrgoMapTrack({
           return (
             <section
               key={unit.id}
-              className="flex flex-col gap-3"
+              className="path-unit flex flex-col gap-3"
               aria-label={unit.title}
               data-unit-id={unit.id}
               data-checkpoint={plan.checkpoint ? "true" : "false"}
             >
+              {/*
+                THE TRAIL IS INSIDE THE UNIT, and that is the fix for the lag
+                the owner reported twice. It used to be drawn by the sticky
+                PathScene and re-placed from a scroll listener, so it was one
+                frame behind the chips by construction. Here it is a child of
+                the same section as the chips, so the compositor moves both
+                together and there is nothing left to synchronise. UnitTrail's
+                header has the full reasoning; it must be the FIRST child,
+                because it measures its own parent and paints beneath its
+                siblings.
+              */}
+              <UnitTrail
+                stamp={`${unit.id}:${status.currentNodeId ?? "end"}:${status.doneCount}:${gatePassed ? "1" : "0"}`}
+                reducedMotion={reducedMotion}
+              />
               {/*
                 THE UNIT SIGNPOST IS A THIN VIOLET RULE ACROSS THE ROAD with
                 one short caps line over it, which is what

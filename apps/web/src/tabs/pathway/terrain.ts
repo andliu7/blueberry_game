@@ -431,77 +431,49 @@ export function groundPath(
 }
 
 /* -------------------------------------------------------------------------- */
-/* The terraces: the hills the goals ask for, as bands with one drawn edge.    */
+/* The terraces: one continuous landscape, not one strip per unit.             */
 /* -------------------------------------------------------------------------- */
 
 /**
- * One terrace band per unit: a filled band whose visible edge is its wavy TOP,
- * stepping down across the page, per docs/DESIGN-GOALS.md ("terraced hills
- * stepping down"). Each band is drawn OVER the one before it, so the only
- * stroke a reader ever sees is the top edge; the sides and bottom run past the
- * viewport and under the next band.
+ * THE LADDER IS CONTINUOUS AND THE UNITS RIDE ON IT, owner 2026-09-04: "the
+ * background is small and does not flow well ... each unit looks like a
+ * separate strip rather than one continuous world scrolling past."
  *
- * WHY FILL AND STROKE LIVE ON ONE PATH, and it is a contrast rule. The audit
- * collapses a shape's fill and its boundary to the better of the two, because
- * WCAG 1.4.11 asks whether a component is identifiable. A terrace's fill is
- * deliberately a hair off the page (a faint warm wash is the whole point of a
- * watermark landscape), so the EDGE is what identifies it, and the edge only
- * counts if it is the same path's stroke. A separate stroke path would leave
- * the fill an unidentifiable 1.1:1 rectangle, which is exactly what the audit
- * failed the first ridge for.
+ * The second half of that was arithmetic rather than taste. The first build
+ * cut the plates PER UNIT: `count = round(unitHeight / 230)` and then
+ * `step = unitHeight / count`, so the plate pitch was a different number in
+ * every unit (a 1180px unit gave 236px plates, a 1390px unit gave 232px, a
+ * short one gave 195px) and, worse, a plate edge landed EXACTLY on every unit
+ * boundary by construction. A reader scrolling past unit 3 into unit 4 saw the
+ * banner, a plate edge and a change of cadence arrive together, which is what
+ * a strip is.
  *
- * The steps use the golden-ratio spread rippleScale already provides, so no
- * two terraces have the same step heights and index i always draws the same
- * terrace: deterministic, like everything else in this file.
- */
-export const TERRACE_STEPS = 4;
-export const TERRACE_DROP_PX = 26;
-/** How far past the viewport's sides and the band's own span the fill runs. */
-export const TERRACE_BLEED_PX = 90;
-
-export function terracePath(top: number, bottom: number, width: number, seed: number): string {
-  const left = -TERRACE_BLEED_PX;
-  const right = width + TERRACE_BLEED_PX;
-  const depth = bottom - top + 600;
-  // Even seeds descend left to right, odd seeds right to left, so the run
-  // reads as switchbacks rather than as one long slope.
-  const forward = seed % 2 === 0;
-  const xs: number[] = [];
-  for (let i = 0; i <= TERRACE_STEPS; i += 1) {
-    const x = left + ((right - left) * i) / TERRACE_STEPS;
-    xs.push(forward ? x : right - (x - left));
-  }
-  let y = top;
-  let d = `M ${xs[0]!.toFixed(1)} ${y.toFixed(1)}`;
-  for (let i = 1; i <= TERRACE_STEPS; i += 1) {
-    const drop = TERRACE_DROP_PX * rippleScale(seed * TERRACE_STEPS + i);
-    const nextY = y + drop;
-    const fromX = xs[i - 1]!;
-    const toX = xs[i]!;
-    const mid = (fromX + toX) / 2;
-    // Horizontal tangents at both ends: each step is a shelf easing into the
-    // next, which is what makes the edge read as a terrace and not a ramp.
-    d += ` C ${mid.toFixed(1)} ${y.toFixed(1)}, ${mid.toFixed(1)} ${nextY.toFixed(1)}, ${toX.toFixed(1)} ${nextY.toFixed(1)}`;
-    y = nextY;
-  }
-  const floor = top + depth;
-  d += ` L ${xs[TERRACE_STEPS]!.toFixed(1)} ${floor.toFixed(1)} L ${xs[0]!.toFixed(1)} ${floor.toFixed(1)} Z`;
-  return d;
-}
-
-/**
- * The height one terrace plate wants, in scene pixels.
+ * So the ladder is laid once, down the whole track, at ONE pitch. A plate edge
+ * lands on a unit boundary only by coincidence, the cadence never changes, and
+ * a unit boundary is now nothing but a banner passing over land that carries
+ * on. What still varies per unit is the SILHOUETTE each plate wears and which
+ * props stand on it, which is the other half of the same owner note: crossing
+ * into unit 4 should feel like somewhere new without anything being redrawn.
  *
- * THE MEASUREMENT THIS COMES FROM. The scene drew ONE band per unit, and a
- * unit on this map is roughly 900 to 1400 scene pixels tall, so an 844pt
- * phone held less than one whole plate: a reader scrolling never saw two
- * values meet, and the terracing that exists in the data was invisible on
- * every single screen. blueberry_artkit-env-backdrop shows three to four
- * plate transitions in one phone-shaped frame, so the rhythm is the plate's,
- * not the unit's. 230px puts three and a half in an 844pt viewport and two
- * and a half beside a 640px desktop fold.
+ * The ladder runs past both ends of the track for the same reason LEAD_PX
+ * exists: a landscape has no first plate on screen.
  */
 export const TERRACE_BAND_PX = 230;
+/** How many plates the ladder lays past the first and the last unit. */
+export const TERRACE_LEAD_BANDS = 2;
+/** How far past the viewport's sides and the band's own span the fill runs. */
+export const TERRACE_BLEED_PX = 90;
+/**
+ * How far a plate's top edge rolls between its own crest and its own trough.
+ *
+ * Capped well under half the pitch on purpose: at more than that two
+ * neighbouring edges cross, and an edge that climbs above the edge behind it
+ * turns the stack of plates back into a set of overlapping shapes rather than
+ * a terrace. 34 against a 230 pitch is about a seventh.
+ */
+export const TERRACE_RELIEF_PX = 34;
+/** How far a plate's edge falls from one side of the page to the other. */
+export const TERRACE_TILT_PX = 30;
 
 /** One drawn terrace plate: where it starts, where it ends, which step it is. */
 export interface TerraceBand {
@@ -510,18 +482,27 @@ export interface TerraceBand {
   readonly bottom: number;
   /** 0..3, the value step. Adjacent bands are never the same. */
   readonly step: number;
+  /** Its place on the ladder, counted from the lead-in plate. */
+  readonly index: number;
+  /** The unit whose character this plate wears. See terraceProfile. */
+  readonly unitIndex: number;
+}
+
+/** Which unit a scene y falls in, clamped to the first and the last. */
+export function unitIndexAt(
+  spans: readonly { readonly top: number; readonly bottom: number }[],
+  y: number,
+): number {
+  if (spans.length === 0) return 0;
+  for (let i = 0; i < spans.length; i += 1) {
+    if (y < spans[i]!.bottom) return i;
+  }
+  return spans.length - 1;
 }
 
 /**
- * Unit spans to terrace plates, on the plate's own rhythm.
- *
- * A unit contributes at least one plate and one more for every further
- * TERRACE_BAND_PX of its height, so a long unit steps down several times on
- * the way through and a short one still gets a plate of its own. The step
- * index runs CONTINUOUSLY across the whole track rather than resetting per
- * unit, which is what guarantees two plates that touch are never the same
- * value: that is the entire mechanism by which a hillside reads as terraced
- * rather than as one flat field with lines ruled on it.
+ * The whole track's plates, laid at one pitch from before the first unit to
+ * after the last.
  *
  * Pure and deterministic in its input, so the landscape is the same on every
  * render at a given scroll and nothing here calls Math.random.
@@ -530,21 +511,202 @@ export function terraceBands(
   spans: readonly { readonly unitId: string; readonly top: number; readonly bottom: number }[],
   bandPx: number = TERRACE_BAND_PX,
 ): readonly TerraceBand[] {
+  if (spans.length === 0) return [];
+  const pitch = Math.max(1, bandPx);
+  const first = spans[0]!;
+  const last = spans[spans.length - 1]!;
+  const start = first.top - TERRACE_LEAD_BANDS * pitch;
+  const end = last.bottom + TERRACE_LEAD_BANDS * pitch;
+  const count = Math.max(1, Math.ceil((end - start) / pitch));
   const bands: TerraceBand[] = [];
-  let index = 0;
-  for (const span of spans) {
-    const height = Math.max(0, span.bottom - span.top);
-    const count = Math.max(1, Math.round(height / Math.max(1, bandPx)));
-    const step = height / count;
-    for (let i = 0; i < count; i += 1) {
-      bands.push({
-        key: `${span.unitId}-${i}`,
-        top: span.top + i * step,
-        bottom: span.top + (i + 1) * step,
-        step: index % 4,
-      });
-      index += 1;
-    }
+  for (let i = 0; i < count; i += 1) {
+    const top = start + i * pitch;
+    const bottom = top + pitch;
+    bands.push({
+      key: `terrace-${i}`,
+      top,
+      bottom,
+      step: i % 4,
+      index: i,
+      unitIndex: unitIndexAt(spans, (top + bottom) / 2),
+    });
   }
   return bands;
+}
+
+/**
+ * The shape one plate's top edge takes.
+ *
+ * `crests` and `tilt` come from the UNIT, so every plate inside a unit shares
+ * a skyline character and the character changes when the unit does. `phase`
+ * and `relief` come from the plate's place on the LADDER, so no two edges sit
+ * in register and the ridge line travels sideways as the page scrolls, which
+ * is what a landscape passing a window looks like. Nothing here is random and
+ * index i always gives the same edge.
+ */
+export interface TerraceProfile {
+  /** How many crests the edge carries across the page. 1, 2 or 3. */
+  readonly crests: number;
+  /** How far it rolls, in pixels. */
+  readonly relief: number;
+  /** Where the wave starts, 0..1 of one crest. */
+  readonly phase: number;
+  /** Which way the land falls, -1 for left-low and 1 for right-low. */
+  readonly tilt: number;
+}
+
+export function terraceProfile(unitIndex: number, bandIndex: number): TerraceProfile {
+  // The golden sequence again: a spread with no visible period, and stable in
+  // the index, which is what lets a capture of the third unit be the same
+  // picture every run.
+  const character = (unitIndex * GOLDEN) % 1;
+  return {
+    crests: 1 + Math.floor(character * 3),
+    relief: TERRACE_RELIEF_PX * rippleScale(bandIndex + unitIndex),
+    // The phase ADVANCES down the ladder rather than repeating: plate n + 1's
+    // ridge sits a third of a crest along from plate n's, so the skyline walks
+    // across the page as the reader scrolls instead of stacking in a column.
+    phase: (bandIndex * 0.37) % 1,
+    tilt: character < 0.5 ? -1 : 1,
+  };
+}
+
+/**
+ * One plate: a rolling top edge, and a body that runs past the page.
+ *
+ * The edge is a cosine of `crests` periods across the bleed width, plus a
+ * steady fall from one side to the other, drawn as cubic Hermite segments with
+ * the wave's OWN slope at every sample. Sampling the analytic tangent is what
+ * keeps a two-crest edge smooth at four samples per crest instead of needing
+ * twenty: the curve through the samples is the wave rather than an
+ * approximation of it.
+ *
+ * It replaces a four-step staircase that always descended, alternating
+ * direction by band. The staircase was the reason the plates read as strips
+ * laid on the page rather than as land: a staircase has a first step and a
+ * last step, and a hillside does not.
+ */
+export function terracePath(
+  top: number,
+  bottom: number,
+  width: number,
+  profile: TerraceProfile,
+): string {
+  const left = -TERRACE_BLEED_PX;
+  const right = width + TERRACE_BLEED_PX;
+  const span = Math.max(1, right - left);
+  const relief = Math.max(0, profile.relief);
+  const crests = Math.max(1, Math.round(profile.crests));
+  const tilt = profile.tilt * TERRACE_TILT_PX;
+  const at = (t: number) =>
+    top + tilt * t + (relief / 2) * (1 - Math.cos(2 * Math.PI * (crests * t + profile.phase)));
+  const slope = (t: number) =>
+    tilt + relief * Math.PI * crests * Math.sin(2 * Math.PI * (crests * t + profile.phase));
+  const samples = crests * 4;
+  const step = 1 / samples;
+  let d = `M ${left.toFixed(1)} ${at(0).toFixed(1)}`;
+  for (let i = 1; i <= samples; i += 1) {
+    const t0 = (i - 1) * step;
+    const t1 = i * step;
+    const x0 = left + span * t0;
+    const x1 = left + span * t1;
+    // Hermite to cubic: the control points sit a third of the segment along
+    // the tangent at each end.
+    const c1x = x0 + (span * step) / 3;
+    const c1y = at(t0) + (slope(t0) * step) / 3;
+    const c2x = x1 - (span * step) / 3;
+    const c2y = at(t1) - (slope(t1) * step) / 3;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${x1.toFixed(1)} ${at(t1).toFixed(1)}`;
+  }
+  const floor = top + (bottom - top) + 600;
+  d += ` L ${right.toFixed(1)} ${floor.toFixed(1)} L ${left.toFixed(1)} ${floor.toFixed(1)} Z`;
+  return d;
+}
+
+/* -------------------------------------------------------------------------- */
+/* The far ridge: the one thing that makes unit 4 look unlike unit 3.          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A broad rounded hill standing behind the plates, one per unit.
+ *
+ * blueberry_artkit-env-backdrop draws exactly this and the build had nothing
+ * like it: a soft mountain silhouette rising above a terrace edge, with the
+ * plates in front cutting it off at the waist. It is the cheapest possible
+ * answer to "crossing from Unit 3 to Unit 4 should feel like somewhere new" -
+ * the skyline is different, the prop family and the terrace language are
+ * untouched, and one filled path per unit costs nothing to paint.
+ *
+ * WHY IT IS DRAWN BETWEEN TWO PLATES rather than behind all of them. Every
+ * plate's body runs 600px past its own bottom, so at any y three plates cover
+ * the ground and the LAST one drawn is the one a reader sees. A ridge drawn
+ * before all of them would be covered by all of them. Drawn immediately after
+ * the plate its apex stands in, it shows above the NEXT plate's edge and is
+ * buried below it, which is the reference composition exactly.
+ *
+ * The apex is deliberately not centred: a hill on the axis of a track that
+ * runs down the middle of the page is a hill nobody sees.
+ */
+export interface Ridge {
+  readonly key: string;
+  /** Scene y of the summit. The plate that contains it draws the ridge after itself. */
+  readonly apexY: number;
+  /** Centre and half width as fractions of the scene, so one number fits every device. */
+  readonly centre: number;
+  readonly halfWidth: number;
+  readonly height: number;
+}
+
+/** How tall a far ridge stands, at the smallest and the largest. */
+export const RIDGE_MIN_PX = 96;
+export const RIDGE_MAX_PX = 178;
+
+/**
+ * One ridge per unit, placed from the unit's own span and its index.
+ *
+ * The apex sits in the middle two thirds of the unit rather than at its top,
+ * so the hill and the unit banner are never the same horizontal line: a
+ * silhouette that arrives with the banner reads as the banner's decoration,
+ * which is the strip effect again.
+ */
+export function unitRidges(
+  spans: readonly { readonly unitId: string; readonly top: number; readonly bottom: number }[],
+): readonly Ridge[] {
+  return spans.map((span, index) => {
+    const a = (index * GOLDEN) % 1;
+    const b = ((index + 1) * GOLDEN * 2) % 1;
+    const height = Math.max(1, span.bottom - span.top);
+    return {
+      key: span.unitId,
+      apexY: span.top + height * (0.34 + a * 0.34),
+      // Off the axis, and on alternating flanks, so consecutive units put
+      // their hill on opposite sides of the track.
+      centre: index % 2 === 0 ? 0.2 + a * 0.18 : 0.62 + a * 0.18,
+      halfWidth: 0.34 + b * 0.22,
+      height: RIDGE_MIN_PX + b * (RIDGE_MAX_PX - RIDGE_MIN_PX),
+    };
+  });
+}
+
+/**
+ * A ridge as a filled silhouette: two cubics up to the summit and down again,
+ * then straight past the fold.
+ *
+ * Its skirts meet the horizon with a horizontal tangent, so the hill grows out
+ * of the plate it stands on instead of being planted in it at an angle.
+ */
+export function ridgePath(ridge: Ridge, width: number): string {
+  const centre = ridge.centre * width;
+  const half = Math.max(40, ridge.halfWidth * width);
+  const left = centre - half;
+  const right = centre + half;
+  const base = ridge.apexY + ridge.height;
+  const apex = ridge.apexY;
+  const floor = base + 900;
+  return (
+    `M ${left.toFixed(1)} ${base.toFixed(1)}` +
+    ` C ${(left + half * 0.55).toFixed(1)} ${base.toFixed(1)}, ${(centre - half * 0.42).toFixed(1)} ${apex.toFixed(1)}, ${centre.toFixed(1)} ${apex.toFixed(1)}` +
+    ` C ${(centre + half * 0.42).toFixed(1)} ${apex.toFixed(1)}, ${(right - half * 0.55).toFixed(1)} ${base.toFixed(1)}, ${right.toFixed(1)} ${base.toFixed(1)}` +
+    ` L ${right.toFixed(1)} ${floor.toFixed(1)} L ${left.toFixed(1)} ${floor.toFixed(1)} Z`
+  );
 }

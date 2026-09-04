@@ -1164,14 +1164,49 @@
    * graphic needs, and the loop's own #6f8f57 rim is 3.12:1. Neither green
    * fill is asked to clear a floor it cannot, and no green is used as text.
    */
-  --path-trail-rest: #8ec06e;
-  --path-trail-rest-edge: #3f8c28;
-  /* The detour's own thinner, quieter ribbon, sampled at #c1d6ab: a route one
-     step back from the road, still green so it reads as part of the same
-     path world, dimmed the same way the chips strung on it are. */
-  --path-trail-loop: #c1d6ab;
-  /* The detour's rim, which is what identifies it: 3.12:1 on the cream. */
-  --path-trail-loop-edge: #6f8f57;
+  /*
+   * SUPERSEDED 2026-09-04 BY THE OWNER, and the reasoning above is kept
+   * rather than deleted because it was right about the IMAGE it sampled.
+   *
+   * DESIGN-GOALS, "The trail: colour, flow, and why it lags today": "THE
+   * TRAIL CARRIES PROGRESS AS COLOUR. Completed stretches are green;
+   * everything ahead is the plain violet family. The join between them is
+   * where the student is."
+   *
+   * Green everywhere, brightening behind you, cannot say that. Two greens a
+   * step apart is a change a reader has to look for, and the whole point of
+   * the clause is that the join is READABLE AT A GLANCE as the place the
+   * student stands. Violet is also already the identity colour of the chips
+   * the road connects ("Violet stays identity ... Green says you moved"), so
+   * the road ahead is drawn in the chip's own family and the walked stretch
+   * is the one thing on the tab wearing the progress green.
+   *
+   * MEASURED, because the rim is what carries the graphics floor and the
+   * fill rides on it (the contrast audit collapses a fill and its stroke to
+   * the better of the two, and says so):
+   *
+   *   #55628f rim on the cream ground #f1ede2   5.09:1, over the 3.0 floor
+   *   #6a719e detour rim on the same ground     4.02:1
+   *
+   * And on the terraces, because the road crosses them and a plate is a
+   * lighter ground than the page: at the deepest step (#e5d9bd) the road rim
+   * is 4.25:1 and the detour rim 3.35:1, both still over the floor. The
+   * walked stretch is unchanged and its own rim bottoms out at exactly 3.00
+   * there, which is where it already was.
+   *
+   * Neither violet fill is asked to clear a floor it cannot, and no green is
+   * used as text or as a hairline, so the FILL-ONLY rule is untouched.
+   */
+  --path-trail-rest: #a2b5fa;
+  --path-trail-rest-edge: #55628f;
+  /* The detour's own thinner, quieter ribbon: a route one step back from the
+     road, in the same violet family so it reads as part of the same path
+     world, dimmed the same way the chips strung on it are. It was a pale
+     green, which under the clause above would have claimed progress for
+     enrichment, and enrichment is never progress. */
+  --path-trail-loop: #c3caea;
+  /* The detour's rim, which is what identifies it: 3.98:1 on the cream. */
+  --path-trail-loop-edge: #6a719e;
 }
 .dark {
   /* See the light half: the flank is the page, not a wash on it. */
@@ -1208,13 +1243,16 @@
   /* The night road: 4.58:1 on the night ground, same argument as the light
      half. It lifts OFF the ground rather than sinking into it, because at
      night the ground is the dark surface and the ribbon is the object. */
-  /* Dark keeps the same two greens, one step deeper so the ribbon reads as a
+  /* Dark takes the same violet road, one step deeper so the ribbon reads as a
      road on the indigo night rather than as a glow strip. The rim inverts to
-     the lighter side, which is the rule the chips already follow in dark. */
-  --path-trail-rest: #5f8c47;
-  --path-trail-rest-edge: #93c47a;
-  --path-trail-loop: #4a6139;
-  --path-trail-loop-edge: #82a56c;
+     the LIGHTER side, which is the rule the chips already follow in dark, and
+     it is the stroke that carries the floor: #9ba8f5 is 7.61:1 on the night
+     ground #171a2e and 5.33:1 on the lightest night terrace, and the detour's
+     #8f93e0 is 6.06:1 and 4.25:1 on the same pair. */
+  --path-trail-rest: #4a54ab;
+  --path-trail-rest-edge: #9ba8f5;
+  --path-trail-loop: #3a4276;
+  --path-trail-loop-edge: #8f93e0;
 }
 
 .path-layer--ground {
@@ -1375,16 +1413,49 @@
 
 /*
  * THE TRAIL: the drawn winding ribbon connecting the nodes, derived by
- * PathScene from where the chips actually landed (trail.ts is the
+ * UnitTrail from where the chips actually landed (trail.ts is the
  * arithmetic). Two strokes per segment, and that is the fill-only rule made
  * drawable: the goal green is 1.60:1 as a line on cream, so a done stretch
  * is never a bare green stroke. It is a wide under-stroke in
  * --progress-edge (3.82:1 on cream) with the green riding on it as a
  * narrower fill, the same pay-for-the-fill-with-an-edge idiom the completed
- * chip uses. The not-done trail is the same road in the ribbon's own edge
- * ink with the card's surface riding on it.
+ * chip uses. The road ahead is the same shape in the violet family, its own
+ * rim carrying the graphics floor so its fill does not have to.
  */
 .path-trail {
+  pointer-events: none;
+  /* One leg of the progress flow. Duplicated as FLOW_LEG_MS in UnitTrail.tsx,
+     which owns only the timer that drops the class once the run has played;
+     see the note there for why a drift between the two is harmless. */
+  --flow-dur: 380ms;
+}
+
+/*
+ * THE LAYER, and it is the whole fix for the lag the owner reported twice.
+ *
+ * This box belongs to ONE unit section and scrolls with it, so the compositor
+ * moves the ribbon and the chips together and the trail cannot be a frame
+ * behind. Absolute, never sticky and never fixed: a sticky trail would leave
+ * the scrolling layer again and reintroduce exactly the bug this replaced,
+ * which is why pathwayTrailLayer.test.ts asserts the position value.
+ *
+ * z-index -1 puts it under the chips and under the signpost plate while
+ * staying inside .path-stage__content's stacking context, so it still paints
+ * ABOVE the sticky landscape. `top` and `height` are written inline by
+ * UnitTrail: the box reaches up past the section's own edge to meet the
+ * previous unit's gate, which is what keeps the road continuous across a unit
+ * boundary. `overflow: visible` because a round line cap on the first or last
+ * stretch sits a few pixels outside the viewBox.
+ */
+.path-unit {
+  position: relative;
+}
+.path-unit-trail {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+  overflow: visible;
   pointer-events: none;
 }
 /*
@@ -1414,6 +1485,72 @@
   /* The static soft glow on finished path segments: the completed-state
      language, and it does not pulse. */
   filter: drop-shadow(0 0 4px var(--progress-glow));
+}
+
+/*
+ * THE FLOW: the green TRAVELS, it does not appear.
+ *
+ * DESIGN-GOALS, owner 2026-09-04: "On finishing a node the green does not
+ * appear, it TRAVELS from the node just finished to the next one, along the
+ * trail. If several nodes complete at once the flow runs through all of them
+ * in sequence rather than snapping."
+ *
+ * HOW IT IS BUILT, and the choice is deliberate. The walked stretch is drawn
+ * as a SECOND pair of strokes laid over the road ahead, on the same path
+ * data. So revealing it is a dash offset running from one to zero, which is
+ * the green sweeping along a road that is already there, rather than a colour
+ * cross-fade that would light the whole stretch at once. The paths carry
+ * pathLength="1", so the dash unit is a fraction of each stretch's own length
+ * and a short leg and a long leg take the same time; a run of completions
+ * therefore reads as even steps rather than as an accelerating one.
+ *
+ * THE SEQUENCE is --flow-index, stamped by UnitTrail in trail order: leg n
+ * starts one duration after leg n-1, so several completions play as one
+ * journey through them.
+ *
+ * WHY dash offset AND NOT a clip or a mask: both of those repaint a filtered
+ * region every frame, and the done stroke carries a drop-shadow glow. The
+ * glow is suspended for the duration of the travel (filter: none below) and
+ * comes back when UnitTrail drops the class, so the animating frames paint a
+ * plain 8-over-11 stroke and nothing else. Two strokes on one small per-unit
+ * SVG is what keeps this inside the frame budget.
+ *
+ * THE PROPERTIES ARE ON THE GROUP, not on the two paths: stroke-dasharray and
+ * stroke-dashoffset inherit in SVG, so one animation drives the rim and the
+ * fill in lockstep and they cannot tear apart.
+ */
+.path-trail__done--flow {
+  --flow-index: 0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: path-trail-flow var(--flow-dur) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--flow-index) * var(--flow-dur));
+}
+.path-trail__done--flow .path-trail__fill--done {
+  filter: none;
+}
+@keyframes path-trail-flow {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/*
+ * UNDER REDUCED MOTION THE COLOUR CHANGES WITHOUT THE TRAVEL, which is the
+ * goals' own wording. UnitTrail already withholds the flow ranks when the app
+ * reports reduced motion, so this is the second belt: a viewer whose OS
+ * preference is set gets the end state on the first frame even if the class
+ * ever reached them. Not `animation: none` with the dash left at 1, which
+ * would erase the stretch entirely.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .path-trail__done--flow {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none;
+  }
 }
 /* The side loop's detour is DOTTED, not a road: an application lesson is
    optional and off the exam-weighted spine, and a dotted line is the
