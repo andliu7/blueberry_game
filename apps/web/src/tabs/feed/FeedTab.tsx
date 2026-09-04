@@ -97,16 +97,35 @@ function QuestFlask({ fraction, hue }: { readonly fraction: number; readonly hue
   );
 }
 
-/** The chest a quest bar runs into. Drawn state, not a payout: see feedModel. */
+/**
+ * The chest a quest bar runs into. Drawn state, not a payout: see feedModel.
+ *
+ * GOLD WITH A DARK OUTLINE, which is what the committed image draws and what
+ * the first pass got wrong: two flat browns read as a crate. The three hexes
+ * below are ILLUSTRATION colours, the same category as the mascot's frozen
+ * palette in MASCOT_PALETTE, not theme chrome: this object is a picture of a
+ * treasure chest and gold is the only thing it can be made of. Nothing here
+ * carries text, so nothing here is a contrast pair; the outline is what makes
+ * the shape legible on either theme's card, which is why it is drawn rather
+ * than implied.
+ */
+const CHEST_GOLD = "#f2b632";
+const CHEST_GOLD_DEEP = "#d18f16";
+const CHEST_OUTLINE = "#5f3c12";
+
 function ChestMark({ open }: { readonly open: boolean }) {
   return (
     <svg viewBox="0 0 24 24" className="feed-chest" data-open={open ? "true" : "false"} aria-hidden focusable="false">
-      {/* Lid and base in two browns of one family; the latch is cut out in the
-          card's colour so the shape is one component. */}
-      <path d="M3 10V8.5A4.5 4.5 0 0 1 7.5 4h9A4.5 4.5 0 0 1 21 8.5V10z" fill="#7a4a1f" />
-      <path d="M3 11h18v6.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z" fill="#9a6428" />
-      <rect x="10.4" y="8.6" width="3.2" height="5" rx="1.1" fill="var(--card)" />
-      <rect x="11.2" y="9.4" width="1.6" height="3.4" rx="0.8" fill="#7a4a1f" />
+      <g stroke={CHEST_OUTLINE} strokeWidth="1.5" strokeLinejoin="round">
+        {/* The lid, a half round; the base under it; one band across the seam. */}
+        <path d="M3.4 10.4V9A4.6 4.6 0 0 1 8 4.4h8A4.6 4.6 0 0 1 20.6 9v1.4z" fill={CHEST_GOLD} />
+        <path d="M3.4 11.6h17.2v5.6a2.4 2.4 0 0 1-2.4 2.4H5.8a2.4 2.4 0 0 1-2.4-2.4z" fill={CHEST_GOLD} />
+        <path d="M3.4 10.4h17.2v1.2H3.4z" fill={CHEST_GOLD_DEEP} />
+      </g>
+      {/* The latch, cut out in the card's colour so the shape is one component
+          in both themes, with the keyhole punched through it. */}
+      <rect x="10.2" y="8.8" width="3.6" height="5.4" rx="1.2" fill="var(--card)" stroke={CHEST_OUTLINE} strokeWidth="1.3" />
+      <circle cx="12" cy="11.5" r="0.85" fill={CHEST_OUTLINE} />
     </svg>
   );
 }

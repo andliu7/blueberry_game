@@ -32,12 +32,34 @@
  *
  * RESTATED WARM, per docs/DESIGN-GOALS.md Celebration and the committed
  * blueberry_r6-lesson-complete_1788286354.png: the two receipt cards read as
- * 3D chips with a thick darker bottom edge, the streak card carries the
+ * 3D chips with a thick darker bottom edge, the streak chip carries the
  * product's one cartoon flame (HudIcons' FlameMark, the same glyph as the
  * header and the streak screen), and Continue becomes CLAIM on the goal
  * green, a FILL under dark ink per the fill-only rule, every pairing measured
- * in theme.css rather than assumed. The chip-edge and claim styles live in
- * streak.css because this piece owns that file; theme.css is the integrator's.
+ * in theme.css rather than assumed. The chip, reason-pill and claim styles
+ * live in streak.css because this piece owns that file; theme.css is the
+ * integrator's.
+ *
+ * THE COMPOSITION IS THE COMMITTED IMAGE'S, top to bottom, and it is not the
+ * stack this screen used to be:
+ *
+ *   the hero cluster   the enormous number and Bloom side by side on one
+ *                      baseline, confetti thrown from behind the pair
+ *   the headline       "Lesson complete!", under them, not over them
+ *   the reason chips   one row of outlined pills: the receipt lines that sum
+ *                      to the hero, plus the accuracy reading
+ *   two 3D chips       thick darker bottom edge, mark and number on one line,
+ *                      caption beneath
+ *   CLAIM              the goal green, full width
+ *
+ * WHERE THE IMAGE AND THE LAW DISAGREE, and it is one place. The image draws
+ * an enormous number AND labels its left chip "185 XP earned", which is XP
+ * twice. The round 2 law is the specific thing the S3 blind judge picked this
+ * screen for over the bar, so the law wins and it is reported rather than
+ * silently split: the hero IS the XP, and the chip pair is the two systems the
+ * hero does not already carry, diamonds and the streak. Everything else about
+ * those chips, the geometry, the edge, the flame, the caption under the
+ * number, is the image's.
  *
  * HOW THE SEQUENCE IS ORCHESTRATED. One clock, `useStageClock`, gives the
  * elapsed milliseconds since the screen appeared. Every beat below is a start
@@ -331,14 +353,24 @@ function StreakFlame({ streak, lit }: { readonly streak: number; readonly lit: b
  * The reward moment is a fixed overlay that lives for two and a half seconds
  * and is dismissed; nobody rotates a phone inside it, so a listener would cost
  * a subscription and a re-render to serve a case that does not happen. Reading
- * matchMedia in a useState initialiser is the plain React idiom for "measure
+ * the viewport in a useState initialiser is the plain React idiom for "measure
  * the environment once at mount": the initialiser runs on the first render
- * only. The number matters because the bar gives its characters something like
- * two fifths of the phone's height, and the round 1 build gave Bloom 128 px,
- * which read as an icon rather than as a celebration.
+ * only.
+ *
+ * THE NUMBER CHANGED WHEN THE COMPOSITION DID. Bloom was 200 px stacked ABOVE
+ * the hero; he now stands BESIDE it, per the committed image, and the pair has
+ * to fit one line on the narrowest phone we support. The hero number is
+ * clamp(4.5rem, 22vw, 7rem), so three digits and the unit take roughly 0.58em
+ * per digit; 30 vw leaves Bloom the rest of a 320 px screen with the stage's
+ * padding still on it. He is smaller than he was and he is no longer competing
+ * with the number for the same slot, which is the trade the image makes.
  */
 function useBloomSize(): number {
-  const [size] = useState(() => (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches ? 224 : 200));
+  const [size] = useState(() => {
+    if (typeof window === "undefined") return 132;
+    const desktop = window.matchMedia("(min-width: 768px)").matches;
+    return Math.round(Math.min(window.innerWidth * 0.3, desktop ? 168 : 140));
+  });
   return size;
 }
 
@@ -469,52 +501,75 @@ export function RewardMoment({
       }}
     >
 
-      {/* min-h-0 lets this column shrink inside the flex parent so Continue
-          never leaves the screen; overflow-y-auto is the safety net. Bloom
-          owns the upper part of the phone the way the bar characters do,
-          and the number and the cards sit below. */}
+      {/* min-h-0 lets this column shrink inside the flex parent so CLAIM
+          never leaves the screen; overflow-y-auto is the safety net. */}
       <div className="relative mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 md:px-6">
-        {/* Bloom, the burst, and the diamond that lands beside it. The size
-            goes on the element as a custom property because the catch point
-            is derived from it in CSS: the diamond has to clear the sphere,
-            and the sphere's radius is the only number that decides where
-            "beside Bloom" is. */}
-        <div
-          className="reward-bloom relative flex shrink-0 flex-col items-center pt-4 pb-1"
-          style={{ "--bloom-size": `${bloomPx}px` } as CSSProperties}
-          data-landed={xpLanded ? "true" : "false"}
-        >
+        {/* THE HERO CLUSTER, and it is the composition of the committed image
+            rather than a stack: the enormous number and Bloom stand SIDE BY
+            SIDE on one baseline, the burst thrown from behind the pair, and
+            the headline reading underneath them. The number is the subject
+            and Bloom is beside it reacting, which is what makes a still of
+            this screen legible at a glance. --bloom-size rides the wrapper
+            because the diamond's catch point is derived from it in CSS: the
+            diamond has to clear the sphere, and the sphere's radius is the
+            only number that decides where "beside Bloom" is. */}
+        <div className="reward-hero relative flex w-full shrink-0 items-end justify-center">
           <Burst reducedMotion={reducedMotion} />
-          {hasDiamonds ? (
-            <div
-              ref={diamondRef}
-              className="reward-diamond absolute left-1/2 top-0 z-10"
-              data-stage={catchStage}
-              style={fly !== null ? ({ "--fly-dx": `${fly.dx}px`, "--fly-dy": `${fly.dy}px` } as CSSProperties) : undefined}
-              aria-hidden
-            >
-              <DiamondIcon className="h-12 w-12" />
+          {/* Two elements, one job each, because they carry two animations and
+              a single element can only run the last `animation` declared: the
+              outer one fades the number in when counting starts, the inner one
+              pops it when the count lands. */}
+          {/* The section and its label survive the move from a stacked block to
+              this row: they are the hero's accessible name, and the capture
+              scripts read the moment's XP off exactly this element. */}
+          <section
+            className={`reward-hero-number ${show(beats.xpCountStart) ? "reward-fade-in" : "reward-fade-out"}`}
+            aria-label="XP earned"
+          >
+            <div className="reward-xp-row flex items-end justify-center gap-2" data-landed={xpLanded ? "true" : "false"}>
+              <span className="reward-xp title-face font-semibold leading-none text-primary-ink tabular-nums">{xpShown}</span>
+              <span className="reward-xp-unit font-bold uppercase text-primary-ink">XP</span>
             </div>
-          ) : null}
-          <Berry
-            mood={berry.mood}
-            behaviour={berry.behaviour}
-            behaviourKey={berry.key}
-            sparkleKey={berry.sparkle}
-            reducedMotion={reducedMotion}
-            sizePx={bloomPx}
-          />
-          {firstDiamond && hasDiamonds && (catchStage === "held" || catchStage === "flying") ? (
-            <p className="reward-reveal absolute -bottom-1 whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.18em] text-diamond-ink">
-              Your first diamond
-            </p>
-          ) : null}
+          </section>
+          <div
+            className="reward-bloom relative shrink-0"
+            style={{ "--bloom-size": `${bloomPx}px` } as CSSProperties}
+            data-landed={xpLanded ? "true" : "false"}
+          >
+            {hasDiamonds ? (
+              <div
+                ref={diamondRef}
+                className="reward-diamond absolute left-1/2 top-0 z-10"
+                data-stage={catchStage}
+                style={fly !== null ? ({ "--fly-dx": `${fly.dx}px`, "--fly-dy": `${fly.dy}px` } as CSSProperties) : undefined}
+                aria-hidden
+              >
+                <DiamondIcon className="h-12 w-12" />
+              </div>
+            ) : null}
+            {/* GOGGLES UP, per the goals' celebration row and the committed
+                image. The goggles are the lab coat costume's own front piece
+                and they sit on the forehead whenever Bloom is not working
+                (BlueberryMark's `goggles` prop, driven by `working`), so the
+                celebration asks for the costume and gets the pose for free. */}
+            <Berry
+              mood={berry.mood}
+              behaviour={berry.behaviour}
+              behaviourKey={berry.key}
+              sparkleKey={berry.sparkle}
+              costume="labcoat"
+              working={false}
+              reducedMotion={reducedMotion}
+              sizePx={bloomPx}
+            />
+            {firstDiamond && hasDiamonds && (catchStage === "held" || catchStage === "flying") ? (
+              <p className="reward-reveal absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.18em] text-diamond-ink">
+                Your first diamond
+              </p>
+            ) : null}
+          </div>
         </div>
 
-        {/* Headline and its badge are one group, so they sit tight together
-            and the air goes BETWEEN groups. That is the whole hierarchy
-            device on this screen: four groups, big gaps between them, small
-            gaps inside them. */}
         {/*
           Foreground, not primary-ink. The round 2 judge picked this screen and
           still called the headline "the lowest-contrast text on the screen":
@@ -525,138 +580,126 @@ export function RewardMoment({
           finishes a lesson, so this surface had never been measured; the audit
           now seeds the moment too.
         */}
-        <h2 className="reward-headline title-face mt-6 text-center text-scale-2xl font-semibold leading-none text-foreground md:text-scale-display">
-          Lesson complete
+        <h2 className="reward-headline title-face mt-3 text-center text-scale-2xl font-semibold leading-none text-foreground md:text-scale-display">
+          Lesson complete!
         </h2>
-        {/* The badge and the accuracy chip share one row under the headline.
-            They are different facts: Flawless is the RECEIPT's scarce badge
-            (the engine decided it counted), accuracy is the session tally the
-            S3 judge asked for. The tally's "n of m" lives in the chip's
-            accessible name so the fact is spoken without being printed twice. */}
-        {flawless || accuracy !== null ? (
-          <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
-            {flawless ? (
-              <span className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-badge rounded-full px-3 py-1 text-scale-xs font-bold uppercase tracking-[0.16em]`}>
-                Flawless
-              </span>
-            ) : null}
-            {accuracy !== null ? (
-              <span
-                className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-accuracy rounded-full px-3 py-1 text-scale-xs`}
-                aria-label={`Accuracy ${accuracy} percent: ${correct} of ${attempted} right`}
-              >
-                <b className="font-bold tabular-nums" aria-hidden>
-                  {accuracy}%
-                </b>
-                <span className="font-medium" aria-hidden>
-                  {" "}
-                  accuracy
-                </span>
-              </span>
-            ) : null}
-          </div>
-        ) : null}
 
-        {/* The one large number: XP, the effort number. The only place XP
-            appears. Its receipt lines sit beneath as a chip row, one per
-            line, each landing on its own beat. */}
-        <section className="mt-7 flex w-full max-w-md flex-col items-center md:mt-8" aria-label="XP earned">
-          {/* Two elements, one job each, because they carry two animations and
-              a single element can only run the last `animation` declared: the
-              outer one fades the number in when counting starts, the inner one
-              pops it when the count lands. */}
-          <div className={show(beats.xpCountStart) ? "reward-fade-in" : "reward-fade-out"}>
-            <div className="reward-xp-row flex items-end justify-center gap-2" data-landed={xpLanded ? "true" : "false"}>
-              <span className="reward-xp title-face font-semibold leading-none text-primary-ink tabular-nums">{xpShown}</span>
-              <span className="reward-xp-unit font-bold uppercase text-primary-ink">XP</span>
-            </div>
-          </div>
-          {/* The chips are the receipt lines, not a second scoreboard: no
-              border, no card, a tinted wash, and they read as a caption to
-              the number they add up to. */}
-          <ul className="mt-3 flex flex-wrap items-center justify-center gap-1.5" aria-label="How it adds up">
-            {receipt.xp.map((line, i) => (
-              <li
-                key={`${line.label}-${i}`}
-                className={`${revealClass(beats.lineFirst + i * beats.lineStep)} reward-line inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-scale-xs`}
-              >
-                <span className="font-medium">{line.label}</span>
-                {/* The amount is the page's ink, not the warn ramp: the chip
-                    it sits in is already tinted and 12px text in a saturated
-                    hue is what rule 7 exists to catch. Weight carries the
-                    emphasis instead. */}
-                <span className="font-bold text-foreground tabular-nums">+{line.amount}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* THE REASON CHIPS, one row, under the headline exactly as the
+            committed image draws them: outlined pills on the sheet, uniform,
+            and no second scoreboard.
 
-        {/* At most two cards, side by side: diamonds and the streak. A
-            milestone takes over the streak card rather than adding a third. */}
+            THE ROUND 2 LAW LIVES HERE. Every chip carrying a +n is a receipt
+            line, and those lines sum to the hero number above with nothing
+            added and nothing dropped. The accuracy chip carries NO plus and no
+            XP: it is the S3 judge's honest performance measure, a reading
+            rather than a term, and it is drawn in the neutral so it cannot be
+            read as part of the sum.
+
+            FLAWLESS IS A CHIP STATE, NOT A SECOND BADGE. It used to be both:
+            an uppercase FLAWLESS pill AND the "Flawless +5" receipt line a
+            finger's width below it, which is the same fact on screen twice,
+            the exact thing the round 2 hierarchy ruling cut the stats row for.
+            The scarcity now reads as the green fill on the line that earned
+            it, so the badge is still visibly rarer than its neighbours and the
+            screen says it once. */}
+        <ul className="reward-reasons mt-4" aria-label="How it adds up">
+          {receipt.xp.map((line, i) => (
+            <li
+              key={`${line.label}-${i}`}
+              className={`${revealClass(beats.lineFirst + i * beats.lineStep)} reward-line`}
+              data-flawless={FLAWLESS_LABELS.has(line.label) ? "true" : "false"}
+            >
+              <span className="font-medium">{line.label}</span>
+              {/* The amount is the page's ink, not the warn ramp: 12px text in
+                  a saturated hue is what rule 7 exists to catch. Weight
+                  carries the emphasis instead. */}
+              <span className="font-bold text-foreground tabular-nums">+{line.amount}</span>
+            </li>
+          ))}
+          {accuracy !== null ? (
+            <li
+              className={`${show(beats.lineFirst) ? "reward-pop" : "reward-hidden"} reward-line reward-accuracy`}
+              aria-label={`Accuracy ${accuracy} percent: ${correct} of ${attempted} right`}
+            >
+              <b className="font-bold tabular-nums" aria-hidden>
+                {accuracy}%
+              </b>
+              <span className="font-medium" aria-hidden>
+                accuracy
+              </span>
+            </li>
+          ) : null}
+        </ul>
+
+        {/* AT MOST TWO 3D CHIPS, side by side, the pair the committed image
+            ends on: a thick darker bottom edge, the mark and the number on one
+            line, the caption under it. A milestone takes over the streak chip
+            rather than adding a third, because a third chip is the dashboard
+            this screen is not allowed to become.
+
+            WHICH TWO, and this is the one place the image and the law disagree.
+            The image labels its left chip "185 XP earned" while ALSO drawing an
+            enormous number above it. Ours cannot: the hero IS the XP, and the
+            round 2 law the S3 judge picked us for is that the hero appears once
+            and its itemisation sums to it exactly. So the pair is the two
+            systems the hero does not already carry, diamonds and the streak,
+            and the chip geometry, the edge and the flame are the image's. */}
         {cardCount > 0 ? (
-          <div className={`mt-8 grid w-full max-w-md gap-2.5 md:mt-9 md:gap-3 ${cardCount === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+          <div className={`reward-chips mt-7 md:mt-8 ${cardCount === 2 ? "reward-chips--pair" : ""}`}>
             {hasDiamonds ? (
-              /* The diamond receipt lines are the card's accessible NAME and
-                 are not printed on it. On screen they were three lines of grey
-                 type that repeated First clear and Flawless from the chips a
-                 finger's width above, which is the same thing being shown
-                 twice that the round 2 ruling cut the stats row for. The
-                 receipt is still animated: this number is its sum, counted. */
+              /* The diamond receipt lines are the chip's accessible NAME and
+                 are not printed on it: on screen they were three lines of grey
+                 type repeating First clear and Flawless from the chips above.
+                 The receipt is still animated, as the count. */
               <section
-                className={`${fadeClass(beats.diamondCard)} reward-card reward-card--diamond`}
+                className={`${fadeClass(beats.diamondCard)} reward-chip reward-chip--diamond`}
                 aria-label={`Diamonds earned: ${diamondTotal}. ${receipt.diamonds.map((line) => `${line.label} plus ${line.amount}`).join(", ")}`}
               >
-                <div className="reward-card__band">Diamonds</div>
-                <div className="reward-card__body">
-                  {/* The slot is on screen empty from the moment the card is,
+                <div className="reward-chip__value">
+                  {/* The slot is on screen empty from the moment the chip is,
                       so the diamond has somewhere visible to be going. It is
                       also the fly target the effect above measures, which is
                       why it renders before it is filled. */}
                   <span
                     ref={slotRef}
-                    className="reward-slot inline-flex h-7 w-7 items-center justify-center"
+                    className="reward-slot inline-flex h-8 w-8 items-center justify-center"
                     data-landed={catchStage === "landed" ? "true" : "false"}
                   >
-                    <DiamondIcon className="h-7 w-7" />
+                    <DiamondIcon className="h-8 w-8" />
                   </span>
                   <span
-                    className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} text-scale-xl font-bold text-diamond-ink tabular-nums ${diamondsCounting ? "reward-shine" : ""}`}
+                    className={`${diamondsShowNumber ? "reward-fade-in" : "reward-fade-out"} reward-chip__number text-diamond-ink ${diamondsCounting ? "reward-shine" : ""}`}
                     aria-hidden
                   >
                     +{diamondsShown}
                   </span>
                 </div>
+                <div className="reward-chip__caption">{diamondTotal === 1 ? "diamond" : "diamonds"}</div>
               </section>
             ) : null}
 
             {streakOn ? (
               <section
-                className={`${fadeClass(beats.streak)} reward-card ${milestone !== null ? "reward-card--milestone" : "reward-card--streak"}`}
+                className={`${fadeClass(beats.streak)} reward-chip ${milestone !== null ? "reward-chip--milestone" : "reward-chip--streak"}`}
                 aria-label="Streak"
               >
-                {/* The band says MILESTONE, not "7 day milestone", because
-                    the body underneath already says 7 and the same number
-                    twice inside one small card is the exact fault the round 2
-                    ruling was written about. The ring and the line below are
-                    what make this card mean more than yesterday's. */}
-                <div className="reward-card__band">
-                  {milestone !== null ? "Milestone" : receipt.streak.current === 1 ? "Streak started" : "Streak"}
-                </div>
-                <div className="reward-card__body">
+                <div className="reward-chip__value">
                   <StreakFlame streak={receipt.streak.current} lit={show(beats.streak)} />
-                  <span className="flex items-baseline gap-1 leading-none">
-                    <span className="text-scale-xl font-bold text-warn-ink tabular-nums">{receipt.streak.current}</span>
-                    <span className="text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      {receipt.streak.current === 1 ? "day" : "days"}
-                    </span>
+                  <span className="reward-chip__number text-warn-ink" aria-hidden>
+                    {receipt.streak.current}
                   </span>
                 </div>
+                {/* The caption says what the number is, once. A milestone chip
+                    says MILESTONE and lets the line below say which day it is,
+                    because the same number twice inside one small chip is the
+                    exact fault the round 2 ruling was written about. */}
+                <div className="reward-chip__caption">
+                  {milestone !== null ? "Milestone" : receipt.streak.current === 1 ? "day streak, started" : "day streak"}
+                </div>
                 {milestone !== null ? (
-                  <p className="px-2 pb-2 text-center text-scale-xs font-medium leading-snug text-foreground">
-                    {MILESTONE_LINE[milestone] ?? "Another milestone lit."}
-                  </p>
+                  <p className="reward-chip__note text-foreground">{MILESTONE_LINE[milestone] ?? "Another milestone lit."}</p>
                 ) : receipt.streak.savedBy !== undefined ? (
-                  <p className="px-2 pb-2 text-center text-scale-xs leading-snug text-muted-foreground">
+                  <p className="reward-chip__note text-muted-foreground">
                     {receipt.streak.savedBy === "rest_day" ? "A rest day held it. Streak safe." : "A freeze held it. Streak safe."}
                   </p>
                 ) : null}

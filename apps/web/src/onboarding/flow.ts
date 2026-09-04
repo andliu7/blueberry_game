@@ -15,13 +15,23 @@
  */
 
 import {
+  ACTS,
   TIME_BUDGET_SECONDS,
   QUESTION_CAP,
+  probeTopicIdsForCourse,
+  topicIdsForAct,
+  type ActId,
   type CourseId,
   type Recommendation,
   type TopicId,
 } from "@blueberry/curriculum";
-import { DAILY_GOAL_XP, type DailyGoalTier } from "@blueberry/economy";
+import {
+  CHARGE_CAP,
+  CHARGE_COST,
+  DAILY_GOAL_XP,
+  XP_NODE_FIRST_CLEAR,
+  type DailyGoalTier,
+} from "@blueberry/economy";
 
 /** Every student facing sentence in this flow is a draft carrying this mark. */
 export const HUMAN_GATE_MARK = "[HUMAN GATE]";
@@ -231,7 +241,187 @@ export const PLACEMENT_QUESTION_CAP = QUESTION_CAP;
  * only reads when there are exactly four options and each is a short label;
  * a long option in a half-width chip wraps into porridge, so anything else
  * renders as a single column.
+ *
+ * NOT a hook, despite what the earlier draft of this file called it. It reads
+ * no state and calls nothing; a `use` prefix on a pure predicate makes React's
+ * rules-of-hooks lint and every reader believe something that is not true.
  */
-export function useTwoColumnGrid(options: readonly { readonly text: string }[]): boolean {
+export function twoColumnGrid(options: readonly { readonly text: string }[]): boolean {
   return options.length === 4 && options.every((option) => option.text.length <= 24);
+}
+
+/* ------------------------------------------------------------------ */
+/* The daily goal, mapped onto charge pacing                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How many ordinary lessons a day a goal tier works out to.
+ *
+ * DERIVED, never typed: the numerator is the economy's own daily goal table
+ * and the denominator is what one reaction node pays on a first clear. If
+ * either table moves, this moves with it, which is the whole reason the goal
+ * step reads a function instead of a written sentence. A tier is rounded UP,
+ * because a goal you reach three quarters of the way through a lesson is a
+ * goal reached on the lesson you finished.
+ */
+export function goalLessonsPerDay(tier: DailyGoalTier): number {
+  return Math.ceil(DAILY_GOAL_XP[tier] / XP_NODE_FIRST_CLEAR.reaction);
+}
+
+/** What those lessons cost in charge. Entry cost per node, never per question. */
+export function goalChargeCost(tier: DailyGoalTier): number {
+  return goalLessonsPerDay(tier) * CHARGE_COST.reaction;
+}
+
+/**
+ * Whether one full meter covers a day at this tier.
+ *
+ * docs/ECONOMY.md's mitigation set is load bearing per CLAUDE.md, and the part
+ * of it this screen can honour is that a goal the student picks here must not
+ * quietly be a goal the charge system will not let them reach. The goal step
+ * shows the cost beside the cap so the trade is visible before it is made, and
+ * this predicate is what a test asserts against so the offer cannot drift out
+ * of reach when a table moves.
+ */
+export function goalFitsOneCharge(tier: DailyGoalTier): boolean {
+  return goalChargeCost(tier) <= CHARGE_CAP;
+}
+
+export const GOAL_CHARGE_CAP = CHARGE_CAP;
+
+/* ------------------------------------------------------------------ */
+/* The achieve overview                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One block of the overview step: an act of the course, with its topics.
+ *
+ * The content is docs/COURSE-OUTLINE-ORGO2.md section 2, but READ FROM THE
+ * DATA the outline was mined into rather than retyped here. ACTS carries the
+ * label and the "what this act assumes and never re-teaches" line; TOPICS
+ * carries the membership. A prose copy of either in this file would be a
+ * second source of truth that goes stale the first time a topic moves act.
+ */
+export interface OverviewBlock {
+  readonly id: string;
+  readonly label: string;
+  /** The outline's "assumes" line. Null for a course with no act structure. */
+  readonly assumes: string | null;
+  readonly topics: readonly TopicId[];
+}
+
+/** The acts, in course order. act_0 is the spine and is shown: it is lesson 1. */
+const ACT_ORDER: readonly ActId[] = Object.freeze(["act_0", "act_1", "act_2", "act_3"]);
+
+/**
+ * The overview for a course.
+ *
+ * Only `orgo_2` carries acts (see placement.ts), so every other course renders
+ * as one flat block of its own topics rather than as an empty screen. That
+ * fallback is not decoration: `claimedCourseForWhy` can hand the quiz `dat`,
+ * and a student who lands on the overview with a non-act course must still see
+ * what they are signing up for.
+ *
+ * THE FALLBACK READS `probeTopicIdsForCourse`, NOT `topicIdsForCourse`, and
+ * the difference is the whole reason this screen was blank for a DAT student.
+ * A review course HOMES no topic by design (placement.ts says so in as many
+ * words: "topicIdsForCourse returns [] for both, by design"), so asking which
+ * topics a review course owns is asking the wrong question. What it PROBES is
+ * every content course's topics in teaching order, which is exactly what the
+ * quiz walked to build the recommendation the student is now being shown. The
+ * overview must list the same topics the quiz asked about, or it is describing
+ * a different course from the one the student was placed into.
+ */
+export function overviewBlocks(course: CourseId): readonly OverviewBlock[] {
+  if (course === "orgo_2") {
+    return ACT_ORDER.map((act) => ({
+      id: act,
+      label: ACTS[act].label,
+      assumes: ACTS[act].assumes,
+      topics: topicIdsForAct(act),
+    })).filter((block) => block.topics.length > 0);
+  }
+  const topics = probeTopicIdsForCourse(course);
+  if (topics.length === 0) return [];
+  return [{ id: course, label: "The course", assumes: null, topics }];
+}
+
+/** Which overview block a start topic falls in, so the screen can mark it. */
+export function blockOfTopic(
+  blocks: readonly OverviewBlock[],
+  topic: TopicId,
+): string | null {
+  const found = blocks.find((block) => block.topics.includes(topic));
+  return found?.id ?? null;
+}
+
+/* ------------------------------------------------------------------ */
+/* The funnel qualities, named so they can be asserted                 */
+/* ------------------------------------------------------------------ */
+
+/*
+ * docs/THREE-TEACHERS.md names five qualities this funnel has to actually
+ * have. Four of them are properties of the STEP ORDER, which means they can be
+ * pinned by a test instead of surviving on a comment nobody reads. That is
+ * what this section is for: the qualities are data here, and
+ * onboardingFlow.test.ts asserts them.
+ */
+
+/**
+ * THE SCREEN THAT ONLY BONDS: "at least one onboarding screen teaches nothing
+ * and exists so the mascot is a relationship rather than a UI element".
+ * `intro` is that screen and the Bond component in Onboarding.tsx draws it.
+ */
+export const BONDING_STEP: StepId = "intro";
+
+/**
+ * Steps that ask the student to COMMIT something: an account, a payment, or an
+ * operating system permission.
+ *
+ * THIS LIST IS EMPTY, AND THAT IS THE DESIGN. Two qualities depend on it:
+ * "personalise before you commit", which wants the motivation and level
+ * questions to come before any ask, and "a real win before the ask", which
+ * wants a whole lesson finished before a paywall or an account screen. Neither
+ * is satisfied by promising to be careful later; both are satisfied by there
+ * being nothing of the kind inside onboarding at all. A student reaches the
+ * pathway having been asked for nothing.
+ *
+ * "PERMISSIONS ASKED LATE, never screen one, re-askable if declined" is the
+ * same rule seen from the other side. Notification permission is the one this
+ * product will eventually want, and the place for it is after the first lesson
+ * lands, not here. If a later phase adds it, adding the step id to this list
+ * is what keeps `commitmentFollowsPersonalising` honest, and leaving it out of
+ * the list is the failure this constant exists to catch.
+ */
+export const COMMITMENT_STEPS: readonly StepId[] = Object.freeze([]);
+
+/**
+ * The steps that learn something about the student: what they are here for,
+ * and what they already know. Both must precede every commitment step.
+ */
+export const PERSONALISING_STEPS: readonly StepId[] = Object.freeze(["why", "placement"]);
+
+/**
+ * Whether every commitment step still comes after every personalising one.
+ *
+ * Vacuously true today because `COMMITMENT_STEPS` is empty, and that is fine:
+ * the value of this predicate is the day it stops being vacuous. The moment a
+ * signup or a permission step is added in the wrong place, this returns false
+ * and a test says so, which is cheaper than rediscovering the quality from the
+ * artifact a year from now.
+ */
+export function commitmentFollowsPersonalising(): boolean {
+  const lastPersonalising = Math.max(...PERSONALISING_STEPS.map(stepIndex));
+  return COMMITMENT_STEPS.every((step) => stepIndex(step) > lastPersonalising);
+}
+
+/**
+ * THE GOAL IS CHOSEN, NOT ASSIGNED, which is the quality that makes a streak
+ * feel earned rather than imposed. Nothing preselects a tier: the goal step
+ * opens with no pick and CONTINUE is off until the student makes one. This
+ * reads the same empty answers the flow really starts from, so it cannot drift
+ * away from what the screen does.
+ */
+export function goalIsChosenNotAssigned(): boolean {
+  return EMPTY_ANSWERS.goal === null && !canContinue("goal", EMPTY_ANSWERS);
 }

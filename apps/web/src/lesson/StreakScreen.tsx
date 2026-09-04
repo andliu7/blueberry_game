@@ -137,14 +137,22 @@ function CheckMark({ className = "" }: { readonly className?: string }) {
   );
 }
 
-/** The rest day. A crescent: the app's own night off, drawn as a thing rather than a hole. */
-function MoonMark({ className = "" }: { readonly className?: string }) {
+/**
+ * The rest day. A LEAF, which is the vocabulary the committed states sheet
+ * draws (blueberry_spec-meter-states_1788291102.png: "rest day, streak safe"
+ * is a flame carrying a leaf). This used to be a crescent moon, which was a
+ * reasonable idea for a night off and was not the product's own word for it;
+ * the sheet is the spec and a second symbol for one state is how a vocabulary
+ * stops being one. Drawn as a thing rather than as a hole, same as before.
+ */
+function LeafMark({ className = "" }: { readonly className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden focusable="false">
       <path
-        d="M20.3 15.1A8.6 8.6 0 0 1 9.4 3.9a8.8 8.8 0 1 0 10.9 11.2z"
+        d="M20.4 3.6c0 8.6-3.6 13.4-9.2 13.4-2.2 0-3.9-.7-5-1.9 1.4-4.2 4.4-6.6 9.1-7.6-4.9.2-8.4 2.4-10.2 6.6C3.4 9.6 6.6 5.4 12.3 4.4c2.8-.5 5.5-.4 8.1-.8z"
         fill="currentColor"
       />
+      <path d="M4.6 20.4c.9-2.6 2.2-4.8 4-6.6l1.1 1.1c-1.6 1.6-2.8 3.5-3.6 5.9z" fill="currentColor" />
     </svg>
   );
 }
@@ -178,7 +186,7 @@ function CalendarMark({ className = "" }: { readonly className?: string }) {
 
 const DAY_GLYPH: Readonly<Record<StreakDayCell["kind"], ((props: { readonly className?: string }) => ReactElement) | null>> = {
   counted: CheckMark,
-  rest: MoonMark,
+  rest: LeafMark,
   freeze: FreezeMark,
   // A day that broke the run and a day still open both draw an empty ring. The
   // ring is the state; a cross or an exclamation in it would be the loss

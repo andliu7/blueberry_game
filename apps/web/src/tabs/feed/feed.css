@@ -21,22 +21,23 @@
   padding: 0.7rem 0.85rem 0.75rem 0.7rem;
 }
 
-/* The flask's seat: a soft tinted disc so the icon reads as a sticker on the
-   card rather than a floating glyph. The flask outline is the page's ink. */
+/* The flask sits DIRECTLY ON THE CARD, at the size the committed image draws
+   it: no tinted disc behind it. The disc was a seat for a small glyph, and the
+   image's flask is big enough to be its own object, outlined in the page's ink
+   the way every other vessel in this product is. Dropping the disc also drops
+   a surface nobody had measured a fill level against. */
 .feed-quest-flask {
   display: flex;
-  width: 3rem;
-  height: 3rem;
+  width: 2.9rem;
+  height: 2.9rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: var(--muted);
   color: var(--foreground);
 }
 .feed-flask {
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 100%;
+  height: 100%;
 }
 
 .feed-quest-body {
@@ -71,11 +72,11 @@
    Padded on the right so the fill never runs under the chest at 100%. */
 .feed-quest-track {
   position: relative;
-  height: 0.85rem;
+  height: 1rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--muted) 70%, var(--card));
   box-shadow: inset 0 0 0 2px var(--hud-track);
-  margin-right: 0.9rem;
+  margin-right: 1.15rem;
 }
 .feed-quest-fill {
   position: absolute;
@@ -95,10 +96,10 @@
 
 .feed-chest {
   position: absolute;
-  right: -0.9rem;
+  right: -1.15rem;
   top: 50%;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 2.15rem;
+  height: 2.15rem;
   transform: translateY(-50%);
 }
 /* The open chest pops once. State first, motion second: data-open is the

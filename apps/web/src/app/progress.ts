@@ -290,9 +290,35 @@ function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
   let next = snapshot;
 
   if (unlockAll && snapshot.course !== null) {
-    // Every node in the course universe reads as cleared, which is what the
-    // pathway derives reachability from, so every unit opens without the
-    // pathway itself knowing a flag exists.
+    // THE FIX THAT MAKES THIS ACTUALLY WORK, and the reason it did not before.
+    // The pathway does NOT read `lessons`. pathwayState.ts derives `cleared`
+    // from node_cleared EVENTS IN THE JOURNAL (see its switch on event.kind),
+    // and a unit is reachable only when the unit before it has no unfinished
+    // playable nodes. So filling `lessons` unlocked nothing and the owner
+    // asked three times before this was traced. The flag now appends the
+    // events the pathway actually reads, which is also the honest shape: a
+    // preview of the world where those events exist, rather than a special
+    // case wired into the pathway's own logic.
+    const at = BETA_COMPLETED_AT;
+    const tz = "UTC";
+    const synthetic: EconomyEvent[] = [];
+    for (const node of courseUniverse(snapshot.course)) {
+      synthetic.push({
+        kind: "node_cleared",
+        at,
+        tz,
+        nodeId: node.nodeId,
+        nodeKind: "concept",
+        flawless: false,
+        stepsInOneSitting: 1,
+        spine: true,
+        difficulty: node.difficulty,
+      });
+    }
+    next = { ...next, journal: [...synthetic, ...next.journal] };
+
+    // Kept as well: some surfaces read the lesson record rather than the
+    // journal, and the two must not disagree about what is finished.
     const lessons: Record<string, LessonRecord> = { ...snapshot.lessons };
     for (const node of courseUniverse(snapshot.course)) {
       // The record is keyed by topic; the universe carries node ids, which are

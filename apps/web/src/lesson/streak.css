@@ -525,24 +525,162 @@
    utilities because these rules are unlayered and Tailwind's utilities live
    in a layer. */
 
-/* The receipt cards read as 3D chips: the goals' thick darker bottom edge,
-   drawn as border, a cut rather than a shadow, so sticker rule 3 has nothing
-   to count. The edge is the accent every card variant already carries at 2px;
-   only the bottom thickens. */
-.reward-stage .reward-card {
-  border-bottom-width: 7px;
+/* ---------------------------------------------------------- the hero row -- */
+
+/* THE NUMBER AND BLOOM STAND SIDE BY SIDE, which is the committed image's
+   composition and the reason this block exists at all. The pair sits on one
+   baseline (items-end in the markup), and the two overlap slightly so they
+   read as one subject rather than as two columns: the mascot's drawn body
+   does not fill its own box, so a small negative inset closes the optical gap
+   without either element leaving the flow.
+
+   The burst is thrown from the CENTRE OF THE PAIR now rather than from behind
+   the mascot alone, because .reward-spark positions itself against its nearest
+   positioned ancestor and that ancestor is this row. */
+.reward-hero {
+  padding-top: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+.reward-hero-number {
+  position: relative;
+  z-index: 1;
+}
+.reward-hero .reward-bloom {
+  margin-left: -0.5rem;
+  /* The mascot is BEHIND the number where they overlap. The number is the
+     subject of this screen and nothing may cross in front of a digit. */
+  z-index: 0;
 }
 
-/* The accuracy chip. A reading, not a badge: neutral surfaces, the page's own
-   ink, sitting beside FLAWLESS without competing with it. 12px text is body
-   sized, so it is --foreground on --muted per rule 7, never a hue. */
-.reward-accuracy {
+/* --------------------------------------------------------- the reason row -- */
+
+/* One row of uniform outlined pills, the way the committed image draws them.
+   They wrap on a narrow phone rather than scrolling, because a chip a student
+   has to swipe to find is a term of the sum they will not see. */
+.reward-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+/* EVERY PILL CARRIES A REAL OUTLINE, and that is a correction rather than a
+   preference. The wash these chips used to carry is 12 percent of a hue over
+   the card, which on the celebration's cream sheet leaves an edge around
+   1.1:1: the pill had no cut, and the sticker audit's structural-border rule
+   exists for exactly that. The image draws an outline too, so the image and
+   the audit agree here. */
+.reward-stage .reward-line {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.1rem;
-  background: var(--muted);
-  color: var(--foreground);
+  gap: 0.35rem;
+  border-radius: 999px;
   border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 0.3rem 0.7rem;
+  font-size: var(--text-scale-xs);
+}
+/* FLAWLESS, the scarce badge, as a state of the line that earned it rather
+   than as a second pill saying the same word. --good-soft under --foreground
+   is the pairing the old badge already carried through the contrast gate. */
+.reward-stage .reward-line[data-flawless="true"] {
+  background: var(--good-soft);
+  border-color: color-mix(in srgb, var(--good) 45%, transparent);
+}
+/* The accuracy reading. Deliberately the ONE pill in the row with no plus and
+   no hue: it is a measure, not a term of the sum, and it may never be read as
+   one. 12px text is body sized, so it is --foreground on --muted per rule 7. */
+.reward-stage .reward-accuracy {
+  background: var(--muted);
+  border-color: var(--border);
+}
+
+/* ------------------------------------------------------------- the chips -- */
+
+/* THE 3D CHIP PAIR the image ends on. Depth by stacked edge, per
+   docs/reference/design-goals/BUTTON-MECHANICS.md: the thick bottom border IS
+   the edge slab, drawn as a cut rather than as a box-shadow, so sticker rule 3
+   has nothing to count and the chip reads as physical in both themes.
+
+   THE EDGE IS THE PAGE'S OWN INK IN LIGHT, which is what the image draws: a
+   near-navy slab under a cream face. A darker border can only raise the
+   boundary's contrast against both the face and the sheet, so it needs no new
+   pair measured. In dark the ink is the LIGHT member of the pair and an edge
+   drawn in it would glow, so the dark theme takes --border, the same boundary
+   token its cards already carry at a measured 3.27:1. */
+.reward-chips {
+  display: grid;
+  width: 100%;
+  max-width: 26rem;
+  gap: 0.7rem;
+}
+.reward-chips--pair {
+  grid-template-columns: 1fr 1fr;
+}
+.reward-chip {
+  --chip-accent: var(--primary);
+  --chip-edge: var(--foreground);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  border-radius: 1.25rem;
+  border: 2px solid var(--chip-accent);
+  border-bottom: 7px solid var(--chip-edge);
+  background: var(--card);
+  padding: 0.7rem 0.55rem 0.5rem;
+}
+.dark .reward-chip {
+  --chip-edge: var(--border);
+}
+.reward-chip--diamond {
+  --chip-accent: var(--diamond);
+}
+.reward-chip--streak {
+  --chip-accent: var(--warn);
+}
+/* A milestone does not get a chip of its own, because a third chip is the
+   dashboard this screen is not allowed to become. It takes over the streak
+   chip: same slot, louder, and louder by an OUTLINE rather than by recolouring
+   the surface, because a halo carries no text and can be as loud as it likes.
+   --streak-ink is the streak family's own ink and is 6.63:1 on the cream card,
+   where --warn's amber-700 is 4.56. */
+.reward-chip--milestone {
+  --chip-accent: var(--streak-ink);
+  outline: 4px solid color-mix(in srgb, var(--streak-ink) 34%, transparent);
+  outline-offset: 0;
+}
+.reward-chip__value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.reward-chip__number {
+  font-family: var(--font-display);
+  font-size: var(--text-scale-2xl);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* The caption is what the number IS, said once and said small. It is the
+   image's own device: the mark and the number on one line, the word under
+   them, so nothing on the chip has to repeat anything else. */
+.reward-chip__caption {
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+.reward-chip__note {
+  margin-top: 0.3rem;
+  font-size: var(--text-scale-xs);
+  line-height: 1.35;
+  text-align: center;
 }
 
 /* The cartoon flame's seat in the streak card. The glyph is HudIcons'

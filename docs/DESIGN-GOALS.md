@@ -99,6 +99,44 @@ against an image rather than this prose.
   with the real nodes. Cut from the prop family
 - ONE FIRE IN THE HEADER, the cartoonish flat flame. The comet fireball beside it is cut
 
+## Every question is visual first, owner 2026-09-04
+
+The strongest single rule to come out of looking at the built screens, and it applies to
+every beat type, every onboarding step and every card.
+
+- EVERY QUESTION CARRIES A VISUAL. A structure, a spectrum, a scheme, a mechanism frame.
+  This is chemistry: the thing being reasoned about is a picture, and a question that is
+  only prose has already lost the student. THE IR AND NMR QUESTIONS TOO: a spectroscopy
+  question shows the actual trace, not a description of it. A beat that cannot show
+  something is a beat that needs authoring, not a beat that ships as text
+- THE IMAGE COMES FIRST AND THE NAME COMES SECOND. Where a molecule has a name, the
+  structure is drawn and the name sits UNDER it, small and light (the muted ink, never the
+  body ink), because the name is a label on the thing rather than the thing. A student who
+  reads the name first has been taught to memorise a word; a student who sees the structure
+  first has been taught to read chemistry
+- OPTION CARDS ARE PICTURES WITH CAPTIONS, not captions with pictures. The same rule
+  applies to answer choices: the structure is the option, the name is its caption
+
+## Onboarding is simple, and the questions are short
+
+Owner 2026-09-04, looking at the built flow: the onboarding questions are too complex. One
+short question per screen, plain words, no compound sentences, no chemistry vocabulary in
+the framing. The placement quiz is the only place a real chemistry question appears, and
+even there the rule above holds: structure first, name under it, small and grey.
+
+## Fill in the blank is scratched, owner 2026-09-04
+
+Not deleted from the vocabulary, and not judged as a failure: withdrawn for now. Any beat
+that asks a student to type into a gap in a sentence comes out of the lesson template and
+out of the authoring queue until the owner reinstates it. Where a lesson used one, it uses
+a picture-first beat instead. Recorded with the date so nobody re-adds it as an oversight.
+
+## Every node carries its motif
+
+Owner 2026-09-04: implement the icons everywhere. A node with no playable content still
+shows what KIND it will be rather than an empty face, because an empty chip reads as broken
+rather than as unauthored. Queued authoring keeps its motif and takes the dashed treatment.
+
 ## Backgrounds vary by unit
 
 Owner 2026-09-03: more creative backgrounds, changing slightly unit to unit, the way
