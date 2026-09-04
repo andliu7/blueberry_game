@@ -431,7 +431,13 @@ const P3_STREAK_NODES = [
  */
 export function pathwaySeed() {
   const journal = [{ kind: "settings", at: exactDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }];
-  const walked = ["u1-allylic", "res-allyl-1", "u1-12v14", "seq-diene"];
+  // SPINE nodes only, and consecutively. The first attempt at this seed used
+  // res-allyl-1 and seq-diene, which are a resonance node and a sequence node:
+  // side content, not points on the main chain. The join is the last DONE point
+  // on a chain, so clearing a side node pushed the join past branch nodes the
+  // student had not touched and painted the road green underneath them. Four
+  // consecutive spine clears put the join exactly where the eye expects it.
+  const walked = ["u1-allylic", "u1-12v14", "u1-kvt", "u1-x2"];
   for (let i = 0; i < walked.length; i += 1) {
     journal.push({
       kind: "node_cleared",
