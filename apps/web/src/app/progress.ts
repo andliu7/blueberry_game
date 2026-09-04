@@ -52,6 +52,7 @@
 
 import type { CourseId, ProblemId, TopicId } from "@blueberry/curriculum";
 import { COURSE_UNIVERSE } from "./courseUniverse.generated";
+import { OPEN_COURSE_IDS } from "./courses";
 import { isBetaOn } from "./flags";
 import {
   deriveEconomy,
@@ -288,6 +289,20 @@ function applyBetaFlags(snapshot: ProgressSnapshot): ProgressSnapshot {
   if (!unlockAll && !infiniteCharge) return snapshot;
 
   let next = snapshot;
+
+  // BETA PICKS A COURSE, and this is the whole reason "none of the buttons
+  // work" was true on a fresh device. Everything below keys off the course:
+  // the universe, the pathway's nodes, the unlock events. On a device that has
+  // not finished onboarding the course is null, so the pathway rendered ZERO
+  // nodes, and a screen with no buttons is indistinguishable from a screen
+  // whose buttons are broken. Beta exists so the owner can walk the product
+  // without grinding, and a walk that dead-ends on an empty first screen is
+  // not that. OPEN_COURSE_IDS is the single list of what may be selected, so
+  // this takes its head rather than naming a course here and going stale.
+  if (unlockAll && next.course === null) {
+    const first = OPEN_COURSE_IDS[0];
+    if (first !== undefined) next = { ...next, course: first, onboardingDone: true };
+  }
 
   if (unlockAll && snapshot.course !== null) {
     // THE FIX THAT MAKES THIS ACTUALLY WORK, and the reason it did not before.
