@@ -100,6 +100,17 @@ else, with the demo file as its first fixture. The SQL migration is Phase 6 terr
 (server, RLS attack test per CLAUDE.md) and waits there; until then the scheduler runs
 against the local journal the way every other balance does.
 
+## 4c. Seven card ideas, from the Three Teachers review
+
+Recorded 2026-09-04, full detail in docs/THREE-TEACHERS.md. Each is generated from material
+the app already holds, which is why they are cheap: fork cards (which path wins, graded
+against the authored reactivity ladder), cloze-arrow cards (one arrow erased from a
+mechanism already graded), named-cause cards (a standing card per cause id the engine has
+handed back), occlusion spectra cards (mask one peak, matching the Detective costume),
+compare-contrast pairs (same substrate, two conditions), retrosynthesis reverse cards (the
+synthesis gap beat mirrored), and say-it cards (record yourself narrating, self graded, for
+the walking-to-class case). A queue, not scope, and they land after the Cards tab is judged.
+
 ## 5. Feedback specificity, reaffirmed and sharpened
 
 Owner: feedback must be tailored, specific, detailed to the situation, so users know
