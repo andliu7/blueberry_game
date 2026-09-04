@@ -1,0 +1,122 @@
+{
+ "landing": {
+  "scene": null,
+  "lifted": null,
+  "fanTop": null,
+  "fanBottom": null,
+  "tray": null,
+  "stack": null,
+  "stackKids": [],
+  "front": null,
+  "frontMask": null,
+  "hero": {
+   "bg": "rgb(92, 107, 184)",
+   "ink": "rgb(255, 255, 255)"
+  }
+ },
+ "tray": {
+  "scene": {
+   "y": 94,
+   "h": 636,
+   "w": 390,
+   "bottom": 730
+  },
+  "lifted": {
+   "y": 148,
+   "h": 128,
+   "w": 92,
+   "bottom": 276
+  },
+  "fanTop": 148,
+  "fanBottom": 438,
+  "tray": {
+   "y": 558,
+   "h": 136,
+   "w": 296,
+   "bottom": 694
+  },
+  "stack": {
+   "y": 514,
+   "h": 148,
+   "w": 213,
+   "bottom": 662
+  },
+  "stackKids": [
+   {
+    "y": 474,
+    "w": 173
+   },
+   {
+    "y": 482,
+    "w": 181
+   },
+   {
+    "y": 490,
+    "w": 189
+   },
+   {
+    "y": 498,
+    "w": 197
+   },
+   {
+    "y": 506,
+    "w": 205
+   },
+   {
+    "y": 514,
+    "w": 213
+   }
+  ],
+  "front": {
+   "y": 608,
+   "h": 86,
+   "w": 296,
+   "bottom": 694
+  },
+  "frontMask": "radial-gradient(66px 20px at 50% 0%, rgba(0, 0, 0, 0) 98%, r",
+  "hero": null
+ },
+ "review": [
+  {
+   "text": "10m",
+   "label": "Again, comes back in 10 min",
+   "face": "rgb(155, 168, 245)",
+   "w": 84,
+   "h": 56
+  },
+  {
+   "text": "10m",
+   "label": "Hard, comes back in 10 min",
+   "face": "rgb(219, 176, 81)",
+   "w": 84,
+   "h": 56
+  },
+  {
+   "text": "1d",
+   "label": "Good, comes back in 1 day",
+   "face": "rgb(126, 217, 87)",
+   "w": 84,
+   "h": 56
+  },
+  {
+   "text": "4d",
+   "label": "Easy, comes back in 4 days",
+   "face": "rgb(97, 178, 171)",
+   "w": 84,
+   "h": 56
+  }
+ ],
+ "composer": {
+  "save": {
+   "y": 644,
+   "h": 56,
+   "bottom": 700,
+   "face": "rgb(209, 213, 222)",
+   "shadow": "rgb(187, 191, 200) 0px 3px 0px 0px, rgb(85, 89, 127) 0px 0px 0px 1px"
+  },
+  "doodlesInScheme": 2,
+  "pencil": true,
+  "deckChipText": "",
+  "tabbarTop": 768
+ }
+}

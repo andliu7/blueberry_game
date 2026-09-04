@@ -44,11 +44,6 @@ export interface TrailSegment {
   readonly loop: boolean;
 }
 
-interface Chain {
-  readonly points: readonly TrailPoint[];
-  readonly loop: boolean;
-}
-
 /**
  * The smallest vertical tangent a full-size segment gets.
  *
@@ -65,6 +60,144 @@ function cubic(from: TrailPoint, to: TrailPoint, minGrip: number): string {
   return `M ${from.x.toFixed(1)} ${from.y.toFixed(1)} C ${from.x.toFixed(1)} ${(from.y + grip).toFixed(1)}, ${to.x.toFixed(1)} ${(to.y - grip).toFixed(1)}, ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
 }
 
+interface XY {
+  readonly x: number;
+  readonly y: number;
+}
+
+/**
+ * THE FORK ARM, and this function exists because the old one drew an X.
+ *
+ * The arms used to be the same vertical-tangent cubic the spine is drawn
+ * with, which meant each arm arrived at the unit gate from DIRECTLY ABOVE it.
+ * Two arms both arriving from directly above converge onto one vertical line
+ * and then the arch's two feet spread out below them, and the whole junction
+ * reads as a crossing: a critic reproduced it at 390 by 844 as "the left arm
+ * sweeps right, the right arm sweeps left" just above the Unit 1 arch.
+ * blueberry_branch-diamond draws the opposite: two arms BOWING OUTWARD and
+ * converging on the gate WITHOUT TOUCHING, each arriving on its own side.
+ *
+ * So an arm is one smooth chain with Catmull-Rom tangents, not a run of
+ * independent cubics. The tangent at the concept is vertical (the road leaves
+ * the fork heading down, as a road does); every interior tangent follows the
+ * chord through its neighbours, which is what bows the curve outward around
+ * the chips; and the tangent at the gate is the chord from the last chip,
+ * which points down and INWARD on that arm's own side. The two arms therefore
+ * approach the arch as a V rather than as a shared vertical, and they can
+ * only meet at the endpoint they share.
+ *
+ * Guarantee, and it is the one the critic's finding needs: the curve's x
+ * never leaves the interval spanned by its own control polygon on each
+ * segment (a Bezier lies inside its control hull), and both control points of
+ * every segment are built from points on one side of the centreline plus the
+ * shared endpoints, so a left arm cannot enter the right half except at the
+ * gate itself. armStaysOnItsSide in the tests asserts exactly that.
+ */
+function armChain(points: readonly XY[], minGrip: number): readonly string[] {
+  const out: string[] = [];
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const p1 = points[i]!;
+    const p2 = points[i + 1]!;
+    const span = Math.max(minGrip, Math.abs(p2.y - p1.y));
+    // The virtual neighbour outside each end. At the START of the whole chain
+    // it sits straight above p1, which is what pins the leaving tangent
+    // vertical; at the END it sits below p2 continuing the last chord, which
+    // keeps the arrival tangent parallel to that chord instead of snapping it
+    // vertical. Every gap in between reads its real neighbours, so the arm is
+    // one continuous curve even though it is emitted a gap at a time.
+    const p0 = i === 0 ? { x: p1.x, y: p1.y - span } : points[i - 1]!;
+    const p3 =
+      i + 2 < points.length
+        ? points[i + 2]!
+        : { x: p2.x + (p2.x - p1.x) * 0.5, y: p2.y + span * 0.5 };
+    // Catmull-Rom to Bezier, tension a sixth: the standard conversion, and
+    // the tension is what keeps the bow generous without overshooting a chip.
+    const c1 = { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 };
+    const c2 = { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 };
+    out.push(
+      `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`,
+    );
+  }
+  return out;
+}
+
+/**
+ * How far up and down the spine a side loop's mouth opens, in pixels.
+ *
+ * Small, because loops stack: unit 1 carries four enrichment nodes and their
+ * rows sit about 75px apart, so a mouth wider than a third of that pitch
+ * would make two neighbouring loops share a stretch of spine and read as one
+ * long braid rather than as two detours.
+ */
+export const LOOP_REACH_PX = 62;
+
+/**
+ * A SIDE LOOP: a trail that leaves the spine, goes round its node, and
+ * rejoins the spine below. It is a closed detour, which is the whole point.
+ *
+ * blueberry_r7-compiled-v2 draws the enrichment lesson bottom right as a thin
+ * solid trail budding off the road and closing back onto it. The build drew a
+ * dotted straight stub to a dead-end circle, four of them in a column, so the
+ * detour read as a dropped connection rather than as a route: there was no
+ * loop anywhere on the surface, and "dimmed SIDE LOOPS" is the goals' own
+ * vocabulary for this shape.
+ *
+ * The construction is one cubic whose two control points share an x. Such a
+ * cubic passes through x = (ax + bx + 6cx) / 8 at its midpoint, so solving
+ * that for cx puts the apex exactly on the node's centre, and when the two
+ * mouth anchors are symmetric about the node's y the apex lands at the node's
+ * y as well. The loop therefore goes THROUGH its chip by construction rather
+ * than near it, which is the trail-is-code rule applied to a detour.
+ */
+function loopPath(mouthTop: XY, node: XY, mouthBottom: XY): readonly string[] {
+  const cx = (8 * node.x - mouthTop.x - mouthBottom.x) / 6;
+  const p1 = { x: cx, y: mouthTop.y };
+  const p2 = { x: cx, y: mouthBottom.y };
+  // De Casteljau at t = 0.5. The two halves ARE the one curve, exactly, and
+  // the split point is the apex, so the out-leg and the back-leg meet on the
+  // chip's own centre and each can be drawn, hit-tested and reasoned about on
+  // its own without the loop ever ceasing to be a single smooth detour.
+  const mid = (a: XY, b: XY): XY => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  const q1 = mid(mouthTop, p1);
+  const h = mid(p1, p2);
+  const r2 = mid(p2, mouthBottom);
+  const q2 = mid(q1, h);
+  const r1 = mid(h, r2);
+  const apex = mid(q2, r1);
+  const draw = (a: XY, c1: XY, c2: XY, b: XY) =>
+    `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  return [draw(mouthTop, q1, q2, apex), draw(apex, r1, r2, mouthBottom)];
+}
+
+/**
+ * Where the spine stands at a given y, between two main anchors.
+ *
+ * The spine between two mains is the vertical-tangent cubic above, so this
+ * walks that cubic rather than the straight line: a loop whose mouth was
+ * placed on the chord would detach from the road wherever the road is bending,
+ * which is the same class of defect as a trail that diverges from its nodes.
+ * Bisection on t, because y(t) is monotone on a vertical-tangent cubic and
+ * twenty steps is under a thousandth of a pixel at any page height.
+ */
+function spineAt(from: XY, to: XY, minGrip: number, y: number): XY {
+  const grip = Math.max(minGrip, Math.abs(to.y - from.y) / 2);
+  const at = (t: number) => {
+    const mt = 1 - t;
+    return {
+      x: mt * mt * mt * from.x + 3 * mt * mt * t * from.x + 3 * mt * t * t * to.x + t * t * t * to.x,
+      y: mt * mt * mt * from.y + 3 * mt * mt * t * (from.y + grip) + 3 * mt * t * t * (to.y - grip) + t * t * t * to.y,
+    };
+  };
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 20; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (at(mid).y < y) lo = mid;
+    else hi = mid;
+  }
+  return at((lo + hi) / 2);
+}
+
 /**
  * Points, in document order, to drawable segments.
  *
@@ -77,7 +210,7 @@ export function trailSegments(
   points: readonly TrailPoint[],
   minGrip: number = TRAIL_GRIP_PX,
 ): readonly TrailSegment[] {
-  const chains: Chain[] = [];
+  const segments: TrailSegment[] = [];
   const mains = points.filter((point) => point.lane === "main");
   if (mains.length === 0) return [];
 
@@ -97,31 +230,62 @@ export function trailSegments(
     const arms = pending.filter((p) => p.lane === "left" || p.lane === "right");
     const loops = pending.filter((p) => p.lane === "loop");
     if (arms.length > 0) {
+      // THE DIAMOND. One smooth chain per arm, bowing outward and converging
+      // on the gate from its own side: see armChain for the X this replaces.
       for (const lane of ["left", "right"] as const) {
         const armPoints = arms.filter((p) => p.lane === lane);
-        if (armPoints.length > 0) chains.push({ points: [previous, ...armPoints, point], loop: false });
+        if (armPoints.length === 0) continue;
+        const chain = [previous, ...armPoints, point];
+        const done = chain.every((p) => p.done);
+        for (const d of armChain(chain, minGrip)) segments.push({ d, done, loop: false });
       }
     } else {
-      chains.push({ points: [previous, point], loop: false });
+      segments.push({ d: cubic(previous, point, minGrip), done: previous.done && point.done, loop: false });
     }
-    if (loops.length > 0) chains.push({ points: [previous, ...loops, point], loop: true });
+    /*
+      THE SPINE RUNS STRAIGHT PAST A SIDE LOOP, always. An application lesson
+      is optional and off the exam-weighted spine per CLAUDE.md, so the road
+      has to read as continuous behind it; the detour is drawn on top as its
+      own closed loop.
+
+      ONE DETOUR PER GAP, not one per chip, and that is this round's fix
+      against the critic's "four simultaneous forks at scrollY 0". A run of
+      four enrichment nodes drew four separate ovals off four stretches of
+      spine, which reads as four forks on one screen and breaks the goals'
+      "at most one fork visible per screen". A run is now a SINGLE dimmed
+      detour that leaves the spine once, threads every chip in the run, and
+      rejoins once, which is the one shape the goals' branch vocabulary has
+      for enrichment.
+    */
+    if (loops.length > 0) {
+      // The direct spine segment is ALREADY emitted above (the else branch),
+      // because a gap that carries only loops is not a fork and never
+      // suppressed its own connection. Pushing it again here drew the road
+      // twice, which is invisible on screen and one segment wrong in the
+      // model, and the model is what the F1 pill and the done-count read.
+      const first = loops[0]!;
+      const last = loops[loops.length - 1]!;
+      const gap = Math.abs(point.y - previous.y);
+      const reach = Math.min(LOOP_REACH_PX, Math.max(6, gap / 3));
+      const top = Math.min(Math.max(previous.y + 1, first.y - reach), point.y - 2);
+      const bottom = Math.max(Math.min(point.y - 1, last.y + reach), top + 1);
+      const mouthTop = spineAt(previous, point, minGrip, top);
+      const mouthBottom = spineAt(previous, point, minGrip, bottom);
+      const legs =
+        loops.length === 1
+          ? loopPath(mouthTop, first, mouthBottom)
+          : // ONE detour through every chip, not one detour per chip. armChain
+            // is the same Catmull-Rom chain the fork's arms use, so the curve
+            // passes through each enrichment chip by construction and leaves
+            // and rejoins the spine as a single smooth mouth.
+            armChain([mouthTop, ...loops, mouthBottom], minGrip);
+      // A loop detour never reads as progress: it is enrichment, off the
+      // exam-weighted spine, and colouring it green would claim otherwise.
+      for (const d of legs) segments.push({ d, done: false, loop: true });
+    }
     pending = [];
   }
 
-  const segments: TrailSegment[] = [];
-  for (const chain of chains) {
-    for (let i = 1; i < chain.points.length; i += 1) {
-      const from = chain.points[i - 1]!;
-      const to = chain.points[i]!;
-      segments.push({
-        d: cubic(from, to, minGrip),
-        // A loop detour never reads as progress: it is enrichment, off the
-        // exam-weighted spine, and colouring it green would claim otherwise.
-        done: !chain.loop && from.done && to.done,
-        loop: chain.loop,
-      });
-    }
-  }
   return segments;
 }
 

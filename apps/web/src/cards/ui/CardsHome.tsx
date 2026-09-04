@@ -109,9 +109,15 @@ export function CardsHome({ source = defaultDecks, mistakes, onImmersiveChange }
       const title = isMistakes
         ? MISTAKES_DECK_TITLE
         : snapshot.decks[face.deckId]?.title ?? face.deckId;
+      const trayKind = isMistakes
+        ? "mistakes"
+        : snapshot.decks[face.deckId]?.kind === "lesson"
+          ? "auto"
+          : "authored";
       return (
         <DeckTray
           title={title}
+          kind={trayKind}
           cards={cards}
           snapshot={snapshot}
           onBack={() => setFace({ kind: "landing" })}

@@ -188,3 +188,40 @@ export function deriveMapPathway(
 export function statusOf(status: MapPathwayStatus, nodeId: string): MapNodeStatus {
   return status.nodes.get(nodeId) ?? { state: "locked", queued: true };
 }
+
+/**
+ * Whether a unit is BEHIND the student: reachable, not the one being worked
+ * in, fully cleared, and ordered before the active unit.
+ *
+ * THE EMPTY-UNIT HOLE, and this function exists to close it.
+ *
+ * A unit with no authored nodes has nothing to be active in, so
+ * deriveMapPathway never marks it active and it used to fall straight through
+ * the ordering test: with Unit 1 cleared, Unit 2's gate reported "passed"
+ * while every node inside Unit 2 rendered locked or unauthored. The progress
+ * green means "you moved" per docs/DESIGN-GOALS.md's palette rules, so a gate
+ * saying it over content the student has never seen is a false progress
+ * claim, not a styling slip.
+ *
+ * Being before the frontier is necessary but not sufficient. A unit is passed
+ * when the student has actually cleared all of it, which needs authored nodes
+ * to have cleared: `playable > 0 && done >= playable`. A unit with nothing in
+ * it is not passed, it is empty.
+ *
+ * `order` is the unit ids in track order, handed in rather than imported, so
+ * this stays pure over its arguments and testable without the demo map.
+ */
+export function unitPassed(
+  status: MapPathwayStatus,
+  order: readonly string[],
+  unitId: string,
+): boolean {
+  const entry = status.units.get(unitId);
+  if (entry === undefined) return false;
+  if (!entry.reachable) return false;
+  if (entry.active) return false;
+  if (entry.playable === 0 || entry.done < entry.playable) return false;
+  const index = order.indexOf(unitId);
+  const activeIndex = order.findIndex((id) => status.units.get(id)?.active === true);
+  return activeIndex === -1 ? true : index < activeIndex;
+}

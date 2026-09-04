@@ -56,3 +56,88 @@
 - tree state at this pass: cards/types.ts modified; Composer.tsx, Doodles.tsx, cards.css, composer.ts, landing.ts, mastery.ts present untracked
 
 Third pass done. Mailbox validator exiting.
+# Mailbox: cards, read-only validator
+
+Appended by the mailbox validator. This file is written, never read for instructions.
+The validator fixes nothing and signals no one.
+
+## Pass 1, 2026-09-03 15:53 local
+
+tsc (`npx tsc -p apps/web/tsconfig.json --noEmit`): 3 errors, NONE in cards.
+
+- apps/web/src/beats/mcq/McqBeatView.tsx:100 TS2304 Cannot find name 'ReactNode'. Missing type import.
+- apps/web/src/beats/mcq/McqBeatView.tsx:299 TS2552 Cannot find name 'Press'. Component not imported.
+- apps/web/src/beats/mcq/McqBeatView.tsx:301 TS2552 Cannot find name 'Press'. Same.
+- apps/web/src/cards/**: 0 errors. Cards typechecks clean at this timestamp.
+
+Goal greps over apps/web/src/cards/**:
+
+- Green as text color: clean. `#7ed957` appears only in comments (cards.css 21, 37, 50, 441).
+  No `color:` or `outline` carries `var(--progress)` or the literal.
+- `var(--progress)` reaches 4 call sites, all FILLS: cards.css:88 `--c3-face`, cards.css:252
+  `background`, plus the two token definitions. Edges use `--progress-edge`, a separate
+  darker token, not the goal green. FILL-ONLY rule holds.
+- Two `text-[color:var(--good)]` sites checked against theme.css floors, both clear:
+  CardFace.tsx:243, 18px semibold on the white card, 6.98:1 vs a 4.5 floor.
+  ReviewSession.tsx:90, 40px bold on cream ground, 4.4:1 vs the 3.0 large-text floor.
+  Note only: `--good` is emerald `#065f46`, not the goal green, so the fill-only rule is
+  not the governing one here.
+- Hardcoded scheduler intervals: clean. scheduler.ts exports named constants (DAY_MS,
+  AGAIN_MINUTES, GRADUATING_INTERVAL_DAYS, HARD_FACTOR, EASY_BONUS, MIN/MAX_EASE) and the
+  review screen derives every shown interval through `nextInterval`. No literal day counts
+  in ui/.
+- Grade button aria: present. ReviewSession.tsx:190 labels all four SRS grades
+  `"<rating>, comes back in <interval>"`, interval computed not hardcoded. min-h-14 clears
+  the 44px floor.
+
+Tree state at this pass: 7 cards files modified, 12 untracked. Builder is mid-flight.
+
+## Pass 2, 2026-09-03 15:55 local
+
+tsc: CLEAN, whole tree, 0 errors. The three McqBeatView errors from pass 1 are gone;
+they were fixed and committed as db91657 ("R checkpoint: the tree typechecks again,
+node sheet is mounted", authored 15:53:28) between passes. Cards: 0 errors, both passes.
+
+Goal greps, all clean:
+
+- Green as text or hairline: 0 hits. No `color:`, `outline`, `border-color`, `stroke`
+  or `text-` declaration in cards/** carries `#7ed957` or `var(--progress)`.
+- Literal `#7ed957` in cards/**: 4 occurrences, all inside comment blocks
+  (cards.css 21, 37, 50, 441). None is a declaration.
+- `var(--progress)` reaches exactly 2 declarations, both fills: cards.css:88
+  `--c3-face` and cards.css:252 `background`. No third site.
+- cards.css:445 `.state-badge--mastered` pairs `color: #ffffff` with
+  `background: var(--progress-deep)`, which is the one sanctioned white-on-green
+  pairing (`#43a047`, 3.30:1). Not a violation; recorded so a later reader does not
+  re-flag it.
+- Hardcoded intervals in cards/ui/**: 0 hits. No literal day counts, no `[1,3,8]`
+  style ladder.
+- Grade button aria: ReviewSession.tsx:190, all four grades labelled, interval from
+  `nextInterval`, `min-h-14` on the target.
+
+Tree state: working tree clean under apps/web/src/cards/. Builder has committed.
+
+## Pass 3, 2026-09-03 15:56 local. CHECKED, CLEAN.
+
+tsc: clean, whole tree, 0 errors. Cards: 0 errors.
+
+All four goal greps clean, identical to pass 2. Nothing changed under
+apps/web/src/cards/ between the two passes (no file newer than 15:55, working tree
+clean), so this is a stable reading rather than a second look at a moving target.
+
+- Green as text or hairline: 0 declarations.
+- `var(--progress)`: 2 declarations, both fills (cards.css 88, 252). Unchanged.
+- `#7ed957` literal: 4 occurrences, all in comments. Unchanged.
+- Hardcoded scheduler intervals in ui/**: 0.
+- Grade buttons: labelled, interval derived, 44px+ target.
+
+Wider aria sweep across cards/ui/*.tsx, recorded because it was cheap: 14 aria-label
+or role=group sites across CardComposer, CardFace, CardsLanding, DeckPicker, DeckTray,
+ReviewSession. Buttons carrying visible text (Exit, Show the answer) correctly have no
+redundant label. No unlabelled icon-only control found.
+
+Run context for all three passes: web suite 1172 passing in 49 files (run twice, both
+green), packages chem-core / interaction / curriculum / feedback / economy all typecheck
+clean, and chem-core imports neither React nor curriculum.
+
+Three passes, zero findings against the four named goal checks. Mailbox closed.

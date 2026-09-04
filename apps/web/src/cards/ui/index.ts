@@ -118,17 +118,39 @@ export type { CardsHomeProps } from "./CardsHome";
 export { CardsLanding } from "./CardsLanding";
 export type { CardsLandingProps } from "./CardsLanding";
 
-export { Composer } from "./CardComposer";
+export { Composer, DEFAULT_DECK_TITLE } from "./CardComposer";
 export type { ComposerProps } from "./CardComposer";
 
-export { DeckTray } from "./DeckTray";
-export type { DeckTrayProps } from "./DeckTray";
+/* The measured fill-height hook the composer sizes its column with. Exported
+   because any surface whose last row has to stay above the tab bar wants it,
+   and copying a header height into a second file is how one of them goes
+   stale. See its own header. */
+export { BOTTOM_RESERVE_FALLBACK, MIN_FILL_HEIGHT, useFillHeight } from "./useFillHeight";
+export type { FillHeight } from "./useFillHeight";
 
-export { AutoBolt, DeckDoodle } from "./Doodles";
+export { DeckTray } from "./DeckTray";
+export type { DeckTrayProps, TrayKind } from "./DeckTray";
+
+export { AutoBolt, DeckDoodle, DOODLE_VARIANTS, TrayScene } from "./Doodles";
 export type { DeckDoodleProps } from "./Doodles";
 
 export {
+  PROP_EXTENT,
+  SCENE_ARC_TOP,
+  SCENE_FAN_TOP,
+  SCENE_HEIGHT,
+  SCENE_LIFT_COLUMN,
+  SCENE_PALETTE,
+  SCENE_PROPS,
+  SCENE_VIEWBOX,
+  SCENE_WIDTH,
+  propBox,
+} from "./scene";
+export type { PropBox, PropTone, SceneProp, ScenePropKind } from "./scene";
+
+export {
   DOODLE_COUNT,
+  distinctDoodles,
   MISTAKES_DECK_ID,
   MISTAKES_DECK_TITLE,
   doodleFor,
@@ -164,27 +186,40 @@ export {
 } from "./mastery";
 
 export {
+  FAN_CARD_BORDER,
   FAN_CARD_H,
+  FAN_CARD_PAD_X,
   FAN_CARD_W,
   FAN_DROOP_RATE,
   FAN_EDGE_GUTTER,
+  FAN_LIFT,
+  FAN_LIFT_SCALE,
   FAN_MAX,
+  FAN_NAME_OVERHANG,
   FAN_NAME_STRIP,
+  FAN_OVERLAP,
   FAN_REFERENCE_WIDTH,
   FAN_ROT_MAX,
   FAN_ROT_SPAN,
   FAN_X_STEP_MAX,
+  TRAY_ART,
   fanCapacity,
   fanCards,
   fanLayout,
   fanNameFloor,
+  fanNameShift,
   fanStep,
   nameWidthPx,
   rotatedHalfWidth,
+  trayCard,
+  trayDeckExposure,
   trayLabel,
   trayTitle,
 } from "./tray";
-export type { FanSlot } from "./tray";
+export type { FanSlot, TrayCardBox } from "./tray";
+
+export { TrayArt } from "./TrayArt";
+export type { TrayArtProps } from "./TrayArt";
 
 export { CARD_STATE_LABELS, cardSchedulerState } from "./cardState";
 export type { CardSchedulerState } from "./cardState";

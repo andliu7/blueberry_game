@@ -1,0 +1,278 @@
+{
+  "generated": "2026-09-03T20:21:41.023Z",
+  "config": {
+    "radiusFloorPx": 12,
+    "saturationMin": 0.3,
+    "surfaceMinFraction": 0.02,
+    "stackingAllowSelector": "[data-stacking]",
+    "displayFaces": [
+      {
+        "name": "Rounded display",
+        "needle": "rounded",
+        "floorPx": 16,
+        "note": "the chrome face, theme.css --font-display, class .title-face"
+      }
+    ],
+    "viewports": {
+      "phone": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 1
+      },
+      "desktop": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 1
+      }
+    }
+  },
+  "routes": [
+    "pathway"
+  ],
+  "elementsInspected": 676,
+  "driveRetries": [],
+  "violations": 0,
+  "byRule": {
+    "1-paper-canvas": [],
+    "2-no-gradients": [],
+    "3-no-shadows": [],
+    "3-fake-extrusion": [],
+    "4-outlines-structural": [],
+    "5-radius-floor": [],
+    "6-colour-as-surface": [],
+    "7-body-recedes": [],
+    "8-display-floor": [],
+    "9-palette-containment": [],
+    "10-reachability": []
+  },
+  "unresolved": [
+    {
+      "theme": "light",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "1-paper-canvas",
+      "element": "body",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
+      "count": 1,
+      "where": [
+        "body"
+      ]
+    },
+    {
+      "theme": "light",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "nav.tabbar.order-last.md:order-first",
+      "value": "4 bottom nav items",
+      "detail": "the bar is at the bottom at this viewport",
+      "count": 1,
+      "where": [
+        "nav.tabbar.order-last.md:order-first"
+      ]
+    },
+    {
+      "theme": "light",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "mascot",
+      "value": "1 instance(s)",
+      "detail": "counted as top-level berry roots, ghosts and costumes inside one root excluded",
+      "count": 1,
+      "where": [
+        "mascot"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "1-paper-canvas",
+      "element": "body",
+      "value": "#171a2e lightness 14 percent",
+      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "count": 1,
+      "where": [
+        "body"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "nav.tabbar.order-last.md:order-first",
+      "value": "4 bottom nav items",
+      "detail": "the bar is at the bottom at this viewport",
+      "count": 1,
+      "where": [
+        "nav.tabbar.order-last.md:order-first"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "phone",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "mascot",
+      "value": "1 instance(s)",
+      "detail": "counted as top-level berry roots, ghosts and costumes inside one root excluded",
+      "count": 1,
+      "where": [
+        "mascot"
+      ]
+    },
+    {
+      "theme": "light",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "1-paper-canvas",
+      "element": "body",
+      "value": "#fbf3e6 lightness 94 percent",
+      "detail": "a paper ground",
+      "count": 1,
+      "where": [
+        "body"
+      ]
+    },
+    {
+      "theme": "light",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "nav.tabbar.order-last.md:order-first",
+      "value": "4 items",
+      "detail": "not a bottom bar at this viewport, so the five-item ceiling does not apply here",
+      "count": 1,
+      "where": [
+        "nav.tabbar.order-last.md:order-first"
+      ]
+    },
+    {
+      "theme": "light",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "mascot",
+      "value": "1 instance(s)",
+      "detail": "counted as top-level berry roots, ghosts and costumes inside one root excluded",
+      "count": 1,
+      "where": [
+        "mascot"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "1-paper-canvas",
+      "element": "body",
+      "value": "#171a2e lightness 14 percent",
+      "detail": "a dark ground. The language calls a near-black canvas the failure shape, but light-first with dark as a choice is a recorded owner decision, so this is reported and not scored",
+      "count": 1,
+      "where": [
+        "body"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "nav.tabbar.order-last.md:order-first",
+      "value": "4 items",
+      "detail": "not a bottom bar at this viewport, so the five-item ceiling does not apply here",
+      "count": 1,
+      "where": [
+        "nav.tabbar.order-last.md:order-first"
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": "desktop",
+      "route": "pathway",
+      "rule": "10-reachability",
+      "element": "mascot",
+      "value": "1 instance(s)",
+      "detail": "counted as top-level berry roots, ghosts and costumes inside one root excluded",
+      "count": 1,
+      "where": [
+        "mascot"
+      ]
+    }
+  ],
+  "routeMetrics": [
+    {
+      "theme": "light",
+      "viewport": "phone",
+      "route": "pathway",
+      "chromeFillFraction": 0.05820402691700085,
+      "artFillFraction": 0.005004446637623416,
+      "totalFillFraction": 0.06320847355462426,
+      "firstScreenFraction": 0.06320847355462426,
+      "saturatedBorderElements": 7,
+      "pageArea": 329160,
+      "faceSizes": {
+        "Rounded display": {
+          "22": 1
+        }
+      },
+      "chrome": 20
+    },
+    {
+      "theme": "dark",
+      "viewport": "phone",
+      "route": "pathway",
+      "chromeFillFraction": 1.0314479470470288,
+      "artFillFraction": 0.005006317467680128,
+      "totalFillFraction": 1.036454264514709,
+      "firstScreenFraction": 1.036454264514709,
+      "saturatedBorderElements": 7,
+      "pageArea": 329160,
+      "faceSizes": {
+        "Rounded display": {
+          "22": 1
+        }
+      },
+      "chrome": 20
+    },
+    {
+      "theme": "light",
+      "viewport": "desktop",
+      "route": "pathway",
+      "chromeFillFraction": 0.020922254774305555,
+      "artFillFraction": 0.001301697632908195,
+      "totalFillFraction": 0.02222395240721375,
+      "firstScreenFraction": 0.02222395240721375,
+      "saturatedBorderElements": 7,
+      "pageArea": 1152000,
+      "faceSizes": {
+        "Rounded display": {
+          "18": 1,
+          "22": 1
+        }
+      },
+      "chrome": 31
+    },
+    {
+      "theme": "dark",
+      "viewport": "desktop",
+      "route": "pathway",
+      "chromeFillFraction": 1.008985595703125,
+      "artFillFraction": 0.0013011086200874363,
+      "totalFillFraction": 1.0102867043232124,
+      "firstScreenFraction": 1.0102867043232124,
+      "saturatedBorderElements": 7,
+      "pageArea": 1152000,
+      "faceSizes": {
+        "Rounded display": {
+          "18": 1,
+          "22": 1
+        }
+      },
+      "chrome": 31
+    }
+  ]
+}

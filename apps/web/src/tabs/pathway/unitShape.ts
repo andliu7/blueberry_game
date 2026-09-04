@@ -218,29 +218,84 @@ export function unitShape(unit: PathwayUnit): UnitShape {
  * off the page in document order and trail.ts consumes them without sorting,
  * so a loop chip emitted between two column chips becomes a detour that
  * leaves the spine and comes back, which is the goals' side-loop vocabulary.
- * Loops are spread as evenly as the column allows rather than dumped after
- * it, so no single detour collects eight chips.
+ *
+ * THE DETOUR IS SHORT AND THERE ARE FEW OF THEM, and both halves are this
+ * round's correction.
+ *
+ * Attempt 2 spread the loops one per column node, so unit 4 drew three ovals
+ * off three stretches of spine at once, unit 3 nine, and a critic measured
+ * "four simultaneous forks at scrollY 0 and 2800, and six at scrollY 4200"
+ * against the goals' "at most one fork visible per screen". Collapsing the
+ * whole unit onto ONE detour fixed the count and broke the shape instead:
+ * unit 3's nine enrichment nodes became a column of nine chips down one
+ * flank, because a phone has about 195px of half column, the spine already
+ * spends 112px of it, and 80px of remaining bow cannot make nine stacked
+ * chips read as a loop. Measured on the built page at 390 by 844.
+ *
+ * So a run is CAPPED at three, which is the count the per-unit references
+ * draw (one or two chips on a dimmed loop, never a list), and runs are
+ * spaced RUN_GAP column nodes apart so two mouths are most of a screen from
+ * each other. A unit with more enrichment than its column has room for puts
+ * the overflow on the main lane, still dimmed: the chip keeps saying
+ * "optional" in the one way the goals name (the authored dim), and what it
+ * gives up is being drawn off the road, which is the lesser loss against
+ * drawing a nine-chip list that is not one of the three shapes at all.
+ *
+ * WHY NOT THE FIRST OR LAST COLUMN NODE. A detour needs a spine node above
+ * it AND below it to have a mouth at either end, so the run positions are
+ * taken from [0, n-2] and never from the end.
  */
+/** The most chips one detour may carry. The references draw one or two. */
+export const RUN_MAX = 3;
+
+/** The fewest column nodes between two detour mouths. */
+export const RUN_GAP = 4;
+
 export interface WovenEntry {
   readonly node: PathwayNode;
   readonly lane: "main" | "loop";
+  /**
+   * Enrichment, whichever lane it ended up on. The dim follows the NODE and
+   * not the lane, because the overflow rides the main lane and is still
+   * optional: "dimmed" is how the track says so, per the goals, and a chip
+   * that lost its dim by being drawn on the road would be claiming to be
+   * exam-weighted spine content.
+   */
+  readonly dim: boolean;
 }
 
 export function weaveLoops(column: readonly PathwayNode[], loops: readonly PathwayNode[]): readonly WovenEntry[] {
-  if (loops.length === 0) return column.map((node) => ({ node, lane: "main" as const }));
-  if (column.length === 0) return loops.map((node) => ({ node, lane: "loop" as const }));
+  if (loops.length === 0) return column.map((node) => ({ node, lane: "main" as const, dim: false }));
+  if (column.length === 0) return loops.map((node) => ({ node, lane: "loop" as const, dim: true }));
+  // A detour needs a road to leave AND a road to come back to. One spine node
+  // gives it neither, so a single-node column's enrichment rides the main lane
+  // rather than being drawn as a mouth with one anchor (which trail.ts would
+  // have to drop, leaving the chips with no connector at all).
+  if (column.length < 2) {
+    return [
+      ...column.map((node) => ({ node, lane: "main" as const, dim: false })),
+      ...loops.map((node) => ({ node, lane: "main" as const, dim: true })),
+    ];
+  }
   const woven: WovenEntry[] = [];
-  // A detour hangs off the column node it follows, so the last column node
-  // always carries whatever loops are left over. Spacing is ceil so the
-  // early detours are the fuller ones and the spine never ends on a pile.
-  const per = Math.ceil(loops.length / column.length);
-  let cursor = 0;
+  // Where the detours hang. Positions come from [0, n-2] (a mouth needs a
+  // spine node below it as well as above it) at RUN_GAP spacing, so two
+  // detours are never adjacent and are most of a screen apart.
+  const mouths: number[] = [];
+  for (let i = 0; i + 1 < column.length && mouths.length * RUN_MAX < loops.length; i += RUN_GAP) {
+    mouths.push(i);
+  }
+  const onLoop = Math.min(loops.length, mouths.length * RUN_MAX);
   column.forEach((node, index) => {
-    woven.push({ node, lane: "main" });
-    const last = index === column.length - 1;
-    const take = last ? loops.length - cursor : Math.min(per, loops.length - cursor);
-    for (let i = 0; i < take; i += 1) woven.push({ node: loops[cursor + i]!, lane: "loop" });
-    cursor += take;
+    woven.push({ node, lane: "main", dim: false });
+    const slot = mouths.indexOf(index);
+    if (slot < 0) return;
+    for (const loop of loops.slice(slot * RUN_MAX, Math.min((slot + 1) * RUN_MAX, onLoop))) {
+      woven.push({ node: loop, lane: "loop", dim: true });
+    }
   });
+  // The overflow: enrichment a short column has no room to draw off the road.
+  // It rides the main lane, still dimmed. See the note above this function.
+  for (const loop of loops.slice(onLoop)) woven.push({ node: loop, lane: "main", dim: true });
   return woven;
 }

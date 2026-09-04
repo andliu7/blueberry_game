@@ -32,6 +32,7 @@ import { HUB_PLANS } from "../src/tabs/pathway/hubPlan";
 import {
   CONCEPT_REACH,
   MIN_DIAMOND_SPINE,
+  RUN_MAX,
   conceptIndex,
   unitShape,
   weaveLoops,
@@ -186,17 +187,34 @@ describe("weaveLoops, the detours through the column", () => {
     }
   });
 
-  it("spreads the detours instead of piling them: no run of loops longer than the spacing", () => {
+  /*
+   * TIGHTENED, not relaxed, and the reason is recorded because a changed
+   * assertion always deserves one.
+   *
+   * This used to bound a run by ceil(loops / column), which is the spacing
+   * the old weave happened to produce. That bound is DERIVED FROM THE
+   * IMPLEMENTATION, so it could not fail whatever the implementation did:
+   * unit 3, with nine enrichment nodes and a two-node column, satisfied it
+   * with a run of five. A critic then measured the real defect on the built
+   * page ("four simultaneous forks at scrollY 0 and 2800, and six at scrollY
+   * 4200") and the goals' own clause is an absolute one: "at most one fork
+   * visible per screen".
+   *
+   * So the bound is now the ABSOLUTE constant the layout is written against,
+   * RUN_MAX, which is 3 and is smaller than the old bound on every unit of
+   * the map. Nothing that passed before and should still pass now fails; unit
+   * 3's run of five, which passed before and should not have, now fails.
+   */
+  it("never lets one detour carry more than RUN_MAX chips, on any unit", () => {
     for (const shape of SHAPES) {
       if (shape.column.length === 0 || shape.loops.length === 0) continue;
-      const per = Math.ceil(shape.loops.length / shape.column.length);
       let run = 0;
       let worst = 0;
       for (const entry of weaveLoops(shape.column, shape.loops)) {
         run = entry.lane === "loop" ? run + 1 : 0;
         worst = Math.max(worst, run);
       }
-      expect(worst).toBeLessThanOrEqual(per);
+      expect(worst, shape.unitId).toBeLessThanOrEqual(RUN_MAX);
     }
   });
 });

@@ -76,6 +76,10 @@ export interface CardReadout {
   /**
    * Why the card is not pressable, in the coach's voice, or an empty string
    * when it is. Never scolds and never asks a question; the tests hold that.
+   *
+   * Practice draws this note as a line, because the reference's Practice card
+   * has a slot for it where START would be. Challenge does NOT: see the note
+   * in nodeSheetModel below and the composition note in NodeSheet.tsx.
    */
   readonly note: string;
 }
@@ -140,11 +144,20 @@ export function nodeSheetModel(node: SheetNode): NodeSheetModel {
   // The challenge is a timed re-run, so it asks for one clean clear first.
   // Not a lock the server needs to know about: it re-reads the same derived
   // state, so a cleared node journalled by the server enables it everywhere.
+  //
+  // THIS NOTE IS NEVER DRAWN ON THE CARD. It rides the card's accessible
+  // name and nothing else. The reference draws the resting Challenge card as
+  // the SAME cream card as Practice, 100 css px tall, with three visible
+  // things in it: the heading, the stopwatch and the double dagger. The
+  // fourth line the sheet used to render pushed the card to 121 px and
+  // dropped its heading to the muted ink, which made it a different surface
+  // family from the card beside it. So the wording below is written to be
+  // HEARD, in full sentences, rather than to fit a line of the card.
   const challengeEnabled = practiceEnabled && cleared;
   const challengeNote = challengeEnabled
     ? ""
     : practiceEnabled
-      ? "Opens after your first Practice clear."
+      ? "Opens after one clear."
       : "Opens with Practice.";
 
   const filled = difficultyFor(node);

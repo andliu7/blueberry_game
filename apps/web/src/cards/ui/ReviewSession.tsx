@@ -62,13 +62,26 @@ export interface ReviewSessionProps {
 
 /**
  * Each rating's chip, from the cards.css 3D chip family, per the committed
- * button-types sheet: four small grade chips, each a fill under its own
- * measured ink. Again is the QUIET one, never red: it is not an error, and
- * the reference sheet's red Again is the one part of that drawing the voice
- * rules overrule. Good is the goal-green GO fill under dark ink (the
- * fill-only rule's legal shape); Easy is the teal alt-route family. The old
- * inline tone map put white on --good, which measured 1.9:1 in the dark
- * theme; every pairing here is measured in cards.css's own header.
+ * button-types sheet: four small grade chips in a ramp, each a fill under its
+ * own measured ink, each carrying its own interval. Hard is amber, Good is
+ * the goal-green GO fill under dark ink (the fill-only rule's legal shape),
+ * Easy is the teal alt-route family.
+ *
+ * ROUND 3 MADE HARD AND EASY SOLID. They were --warn-soft-solid and
+ * --alt-route-soft, pale tints carrying their token's dark hue as TYPE, so
+ * the row alternated solid, pale, solid, pale and the two pale chips read as
+ * switched off beside their neighbours. The sheet draws four saturated fills
+ * of one weight; cards.css carries the sampled values and the measured inks.
+ *
+ * AGAIN IS THE ONE DIVERGENCE FROM THE SHEET AND IT IS DELIBERATE. The sheet
+ * draws it red; CLAUDE.md rules that red is for destructive acts and never
+ * for a student learning, and DESIGN-TOKENS' 2026-08-27 amendment says a
+ * retention surface never uses the error ramp. A student who feels judged for
+ * pressing Again presses Good instead, and the scheduler is then working from
+ * a lie, which is the one input this whole surface exists to collect. So
+ * Again takes the periwinkle chip family: still plainly live, still its own
+ * hue in a four-hue row, and no longer the --muted face it used to wear,
+ * which was also the DISABLED chip's face and read as switched off.
  */
 const RATING_CHIP: Readonly<Record<Rating, string>> = {
   again: "chip3d--quiet",
@@ -87,7 +100,12 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
   if (done) {
     return (
       <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 p-6 text-center">
-        <p className="title-face text-scale-display font-bold text-[color:var(--good)]">{summary.reviewed}</p>
+        {/* The session's one big number, in the page's own ink. It was green
+            type through --good, which DESIGN-GOALS' fill-only clause does not
+            allow whatever the shade: no goal image draws green type, and a
+            second darker green existing so that a number can be green is a
+            reinterpretation of the clause rather than a reading of it. */}
+        <p className="title-face text-scale-display font-bold text-foreground">{summary.reviewed}</p>
         <h1 className="title-face text-scale-2xl font-bold text-foreground">{summaryHeadline(summary)}</h1>
         <p className="text-scale-base leading-normal text-muted-foreground">{summaryLine(summary)}</p>
         <p className="text-scale-base font-semibold text-[color:var(--diamond)]">
@@ -179,22 +197,42 @@ export function ReviewSession({ cards, source = decks, onExit, onDone }: ReviewS
       />
 
       {state.revealed ? (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        /* Four in a row, as the committed button sheet draws them: the four
+           grades are ONE ramp and reading them as a ramp is the point, which a
+           2x2 block breaks into two pairs. At 320px each chip is 66px wide and
+           56px tall, clear of the 44px floor, and each still carries its own
+           interval. */
+        <div className="grid grid-cols-4 gap-2">
           {RATINGS.map((rating) => (
-            <button
-              key={rating}
-              type="button"
-              className={`chip3d ${RATING_CHIP[rating]} press flex min-h-14 flex-col items-center justify-center font-bold`}
-              /* The visible name alone would shift per card ("Good 8 days");
-                 this keeps the rating word first and the consequence named. */
-              aria-label={`${RATING_LABELS[rating]}, comes back in ${intervalLabel(nextInterval(reviewState, rating))}`}
-              onClick={() => press(rating)}
-            >
-              <span className="text-scale-base">{RATING_LABELS[rating]}</span>
-              <span className="text-scale-xs font-medium opacity-80">
-                {intervalLabel(nextInterval(reviewState, rating))}
+            /* THE INTERVAL IS INSIDE THE PILL AND THE WORD IS THE CAPTION
+               UNDER IT, which is the size hierarchy the committed button
+               sheet draws and round 2 had exactly backwards: the word sat in
+               the pill at the large scale with the interval tucked under it
+               inside the same chip, and nothing was written beneath the chip
+               at all. The sheet's reading is the better one on its own
+               merits too. Four chips in a ramp are told apart by colour and
+               by position; what a student is actually choosing between is
+               ten minutes and seven days, so the consequence is what belongs
+               at the size the eye lands on. */
+            <div key={rating} className="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                className={`chip3d chip3d--grade ${RATING_CHIP[rating]} press flex min-h-14 w-full items-center justify-center px-1 text-scale-lg font-bold tabular-nums`}
+                /* The visible text is now the interval alone, which shifts
+                   per card, so the label carries the rating word first and
+                   names the consequence in a sentence. */
+                aria-label={`${RATING_LABELS[rating]}, comes back in ${intervalLabel(nextInterval(reviewState, rating))}`}
+                onClick={() => press(rating)}
+              >
+                {intervalLabel(nextInterval(reviewState, rating), "short")}
+              </button>
+              {/* The caption. aria-hidden because the button above it already
+                  says the word in its own accessible name, and a screen
+                  reader that met both would hear "Good" twice. */}
+              <span className="text-scale-xs font-semibold text-muted-foreground" aria-hidden="true">
+                {RATING_LABELS[rating]}
               </span>
-            </button>
+            </div>
           ))}
         </div>
       ) : (

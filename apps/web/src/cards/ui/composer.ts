@@ -40,11 +40,23 @@ export const SIDE_LABELS: Readonly<Record<ReactionSide, string>> = Object.freeze
   product: "Product",
 });
 
-/** Placeholder copy per side. Concrete examples, so the empty state teaches. */
+/**
+ * Placeholder copy per side: THE EXAMPLE ITSELF, nothing around it.
+ *
+ * They used to be sentences ("What you start with. For example: cyclopentene
+ * + NBS"), which read well in a full-width field and clipped in a narrow one.
+ * The composer draws a reaction SCHEME now, per the committed image, so each
+ * side is a cell about a third of the frame wide, and a sentence in it is a
+ * sentence cut off mid-word. The example alone teaches the same thing, fits
+ * the box, and shows the shape of the answer rather than describing it, which
+ * is what the image's own drawn scheme does. Each cell's role is named beside
+ * it by the pill, by the preview under it and by the field's aria-label, so
+ * nothing is carried by the placeholder alone.
+ */
 export const SIDE_HINTS: Readonly<Record<ReactionSide, string>> = Object.freeze({
-  setup: "What you start with. For example: cyclopentene + NBS",
-  conditions: "Reagents, solvent, heat or light. For example: hv, heat",
-  product: "What forms. For example: 3-bromocyclopentene",
+  setup: "cyclopentene + NBS",
+  conditions: "hv, heat",
+  product: "3-bromocyclopentene",
 });
 
 export const EMPTY_SIDES: ReactionSides = Object.freeze({

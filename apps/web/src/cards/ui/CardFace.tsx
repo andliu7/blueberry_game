@@ -53,7 +53,7 @@ import { MoleculeSvg } from "../../render/svg/MoleculeSvg";
 import { structureOnCard } from "./cardStructure";
 import { SIDE_LABELS, SIDE_ORDER } from "./composer";
 import { CARD_STATE_LABELS, type CardSchedulerState } from "./cardState";
-import { StateBadge } from "./StateBadge";
+import { StateBadge, StateMarker } from "./StateBadge";
 import "./cards.css";
 
 /** The small label above the rule. Says where this card came from. */
@@ -182,8 +182,26 @@ export function CardFace({ card, revealed, onReveal, schedulerState }: CardFaceP
   // from; the fan's absolute positioning rules key off .fan__card alone, so
   // none of that reaches this tall face.
   const stateEdge = schedulerState === undefined ? "" : `fan__card--${schedulerState}`;
-  const shell = `card-slab relative flex min-h-[22rem] w-full flex-col gap-4 rounded-2xl border-2 border-border bg-card p-5 text-left ${stateEdge}`;
-  const badge = schedulerState === undefined ? null : <StateBadge state={schedulerState} />;
+  // The face is WARM IVORY, not white. All five committed goal images draw a
+  // card face a shade off the cream ground so the whole screen reads as one
+  // paper material; --card is #ffffff, which reads as a web card printed on a
+  // beige page. --cards-paper and its measured pairings are in cards.css. The
+  // 2px border stays: at 1.03:1 on the ground the paper cannot identify its
+  // own shape, which is the structural-border rule DESIGN-TOKENS already
+  // states, and the states sheet draws a border on every card it shows.
+  const shell = `card-slab relative flex min-h-[18rem] w-full flex-col gap-4 rounded-2xl border-2 border-border bg-[color:var(--cards-paper)] p-5 text-left ${stateEdge}`;
+  /* TWO MARKS, ONE STATE, and only one of them ever draws. StateBadge.tsx's
+     header carries the reasoning: the committed states sheet gives the corner
+     disc to due, mastered and suspended, and gives new and learning a mark on
+     the card's own bottom edge instead. Both are mounted and each renders
+     null outside its own set, so this file never has to restate the split. */
+  const badge =
+    schedulerState === undefined ? null : (
+      <>
+        <StateBadge state={schedulerState} />
+        <StateMarker state={schedulerState} />
+      </>
+    );
 
   if (sides !== undefined) {
     return (
@@ -240,7 +258,16 @@ export function CardFace({ card, revealed, onReveal, schedulerState }: CardFaceP
 
       {revealed ? (
         <div className="flex flex-col gap-3 border-t border-border pt-4">
-          <p className="whitespace-pre-line text-scale-lg font-semibold leading-snug text-[color:var(--good)]">
+          {/* THE ANSWER IS NOT GREEN TYPE. DESIGN-GOALS' fill-only clause says
+              the progress green appears only as a fill carrying dark ink or a
+              white mark on a large shape, never as text. theme.css introduces
+              a second, darker green (--good) specifically so that a number can
+              be green type, and using it here reinterprets the clause rather
+              than honouring it; no goal image shows green type anywhere. So
+              the revealed answer is the card's own ink, and what marks it as
+              the answer is the rule above it and the weight, which is how the
+              goal images separate a card's halves too. */}
+          <p className="whitespace-pre-line text-scale-lg font-semibold leading-snug text-card-foreground">
             {card.back}
           </p>
           {card.why.trim().length > 0 && (

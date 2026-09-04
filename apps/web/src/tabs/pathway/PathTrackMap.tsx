@@ -46,7 +46,6 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Berry } from "../../mascot/Berry";
 import { trackMapModel, type TrackMapNode } from "./trail";
 
 export interface TrackMapShape {
@@ -93,11 +92,9 @@ const DRAG_SLOP_PX = 6;
 export default function PathTrackMap({
   shape,
   units,
-  reducedMotion,
 }: {
   readonly shape: TrackMapShape;
   readonly units: readonly FastTravelUnit[];
-  readonly reducedMotion: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [travel, setTravel] = useState(0);
@@ -217,11 +214,6 @@ export default function PathTrackMap({
   };
 
   const model = trackMapModel(shape.nodes, PILL_W - 12, PILL_H - 16);
-  const berryPoint =
-    shape.currentIndex >= 0 && shape.currentIndex < model.points.length
-      ? model.points[shape.currentIndex]!
-      : null;
-
   return (
     <>
       <div
@@ -295,32 +287,28 @@ export default function PathTrackMap({
               />
             ))}
           </svg>
-          {berryPoint !== null ? (
-            <>
-              <div
-                className="path-trackmap__berry"
-                style={{ top: `${berryPoint.y + 8}px`, left: `${berryPoint.x + 6}px` }}
-              >
-                <Berry mood="happy" reducedMotion={reducedMotion} sizePx={20} />
-              </div>
-              {/*
-                THE DIALOGUE BUBBLE SHOWS AT EVERY WIDTH, including the 390pt
-                phone the committed reference is drawn as. The attempt-2 build
-                hid it below 1024px to keep it off the node labels, and the
-                critic was right that hiding a clause at the width the goal
-                image draws it is not a fix. It sits ABOVE the pill instead of
-                beside it (pathway.css), which is the one direction with no
-                content in it at any width, it is narrow enough to stay inside
-                the reserved rail gutter plus the flank, and it takes no
-                pointer events, so it can never eat a press meant for the
-                track behind it.
-              */}
-              <span className="path-trackmap__bubble" aria-hidden>
-                Pick up here!
-              </span>
-            </>
-          ) : null}
         </div>
+
+        {/*
+          THE BERRY IS NOT ON THE SCROLL TRACK, and that is the newest word
+          rather than an omission.
+
+          docs/DESIGN-GOALS.md, superseded same day 2026-09-03 by the owner
+          after seeing it built: "REMOVE THE HOVER REVEAL. The berry on the
+          scroll track and its hover or hold behaviour are cut. The track map
+          is either always visible or absent; it does not appear and disappear
+          under the pointer." Two clauses below it, the berry-as-thumb and the
+          dialogue bubble on the same reveal, are the superseded text the file
+          keeps on purpose so the next round does not rebuild them.
+
+          blueberry_r7-compiled-v2 draws the berry and its "Pick up here!"
+          bubble on this rail, and this is a knowing divergence from the
+          picture: the clause is two days newer than the capture and is
+          explicitly about this element, which is the ordering CLAUDE.md sets.
+          What survives is the berry marking where the student left off IN THE
+          WORLD, beside the current node, which is where every per-unit
+          reference in design-goals/units/ puts it.
+        */}
       </div>
 
       {open ? (

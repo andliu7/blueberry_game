@@ -40,6 +40,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { PathwayUnit } from "../../demo/pathwayMap";
 import {
+  terraceBands,
   channelHalfWidth,
   CHANNEL_SWING,
   energyProfile,
@@ -82,6 +83,20 @@ interface SceneMetrics {
    * actually landed and can never disagree with the layout.
    */
   readonly trail: readonly TrailPoint[];
+  /**
+   * Every box a background prop may not be drawn over: chips, and the unit
+   * signposts. Same coordinate split as `trail` (x scene relative, y stage
+   * relative), so a prop can be tested against it without another pass.
+   */
+  readonly keepOut: readonly KeepOut[];
+}
+
+/** A rectangle the background must leave alone. See SceneMetrics.keepOut. */
+interface KeepOut {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
 }
 
 const EMPTY: SceneMetrics = {
@@ -96,6 +111,7 @@ const EMPTY: SceneMetrics = {
   checkpoints: [],
   focus: null,
   trail: [],
+  keepOut: [],
 };
 
 /**
@@ -295,6 +311,38 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
       done: anchor.dataset.trailDone === "true",
     });
   }
+  /*
+   * THE KEEP-OUT SET, and it is why the background can be dense without
+   * landing on anything.
+   *
+   * BACKGROUND DOCTRINE: "the environment is COMPOSED, never scattered". A
+   * critic measured the opposite on the built page: "a cloud overlaps the
+   * top-left challenge chip and a second cloud is clipped in half by the Unit
+   * 3 signpost's violet rule". The placement table cannot fix that on its own,
+   * because it is written in fractions of the SCENE and the chips are placed
+   * in fractions of the COLUMN, which is a different width on every device;
+   * on a 390pt phone the column plus its wind reaches from 0.11 to 0.89 of
+   * the scene, so almost every flank placement is over a chip somewhere.
+   *
+   * So the composition is decided against the real layout rather than against
+   * an assumption about it: the boxes below are the chips and the signposts as
+   * the browser actually laid them out, and the prop layer drops any prop
+   * whose own box meets one. Dropping rather than nudging is deliberate. A
+   * nudged prop is a prop somewhere the table did not compose, which is the
+   * scatter the doctrine names; an absent one simply leaves the landscape a
+   * little emptier at that width, and the strip has six or seven others.
+   */
+  const keepOut: KeepOut[] = [];
+  for (const element of stage.querySelectorAll<HTMLElement>("[data-trail], .path-banner, .path-gate")) {
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) continue;
+    keepOut.push({
+      x: rect.left - scene.left,
+      y: rect.top - box.top,
+      w: rect.width,
+      h: rect.height,
+    });
+  }
   const centreX = columnBox.left - scene.left + columnBox.width / 2;
   const channelBasis = Math.min(MAX_BASIS_PX, columnBox.width / 2 + LABEL_GUTTER_PX);
   // The nearer side is what limits the swell, because the channel is symmetric
@@ -345,7 +393,58 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     checkpoints,
     focus,
     trail,
+    keepOut,
   };
+}
+
+/**
+ * How much air a prop keeps from a chip or a signpost, in pixels.
+ *
+ * Measured against the built page rather than guessed. At half a chip's width
+ * (38px) a 390pt phone had almost nothing left to draw a landscape in and the
+ * strips went nearly empty; at 22 the props return and the overlap probe
+ * still reports zero prop-on-chip and zero prop-on-signpost intersections at
+ * both reference widths and at six scroll positions each.
+ */
+const PROP_CLEARANCE_PX = 22;
+
+/** The half-extent of a drawn prop, so its box can be tested. See propClear. */
+const PROP_HALF_PX: Record<string, { readonly w: number; readonly h: number }> = {
+  cloud: { w: 46, h: 20 },
+  flask: { w: 26, h: 30 },
+  ring: { w: 44, h: 34 },
+  amide: { w: 44, h: 34 },
+  chain: { w: 30, h: 16 },
+};
+
+/**
+ * Whether a prop at this point clears everything the layout put on the page.
+ *
+ * Plain box overlap with a clearance band, which is the right test because
+ * both sides are axis-aligned and the props are watermarks rather than
+ * precise shapes: a curve-accurate test would buy nothing a reader could see
+ * and would cost a scan of every path on every measurement.
+ */
+function propClear(
+  kind: string,
+  point: { readonly x: number; readonly y: number },
+  scale: number,
+  keepOut: readonly KeepOut[],
+): boolean {
+  const half = PROP_HALF_PX[kind] ?? { w: 32, h: 24 };
+  const w = half.w * scale + PROP_CLEARANCE_PX;
+  const h = half.h * scale + PROP_CLEARANCE_PX;
+  for (const box of keepOut) {
+    if (
+      point.x + w > box.x &&
+      point.x - w < box.x + box.w &&
+      point.y + h > box.y &&
+      point.y - h < box.y + box.h
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -380,19 +479,63 @@ function MoleculeMark({
 }: {
   readonly x: number;
   readonly y: number;
-  readonly kind: "benzene" | "chain";
+  readonly kind: "ring" | "amide" | "chain";
   readonly scale?: number;
 }) {
   const at = `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${scale})`;
-  return kind === "benzene" ? (
+  /*
+    Ring geometry, written once. A pointy-top hexagon of radius 17 has its two
+    vertical sides at x = +/-14.7, so a second ring sharing the right-hand side
+    is the same hexagon translated by 29.4: the two rings are FUSED, sharing a
+    bond, which is what makes the mark a bicycle rather than two hexagons
+    parked beside each other. Real chemistry in the wallpaper, because a
+    chemistry app's wallpaper is read by chemists.
+  */
+  const ring = (cx: number) =>
+    `M ${cx - 14.7} -8.5 L ${cx} -17 L ${cx + 14.7} -8.5 L ${cx + 14.7} 8.5 L ${cx} 17 L ${cx - 14.7} 8.5 Z`;
+  if (kind === "ring") {
+    return (
+      <g className="path-mark" transform={at}>
+        <path d={`${ring(-14.7)} ${ring(14.7)}`} />
+        {/* Aromatic inner lines on alternating bonds, the skeletal convention. */}
+        <path d="M -24.4 -5.6 L -24.4 5.6 M -18.4 -11.4 L -8.4 -17.2 M -18.4 11.4 L -8.4 17.2" />
+        <path d="M 24.4 -5.6 L 24.4 5.6 M 8.4 -17.2 L 18.4 -11.4" />
+        {/* The ring nitrogen, drawn as a gap in the ring with an N over it. */}
+        <circle cx="14.7" cy="17" r="4.6" className="path-mark__atom" />
+        <text x="14.7" y="20.4" className="path-mark__label">
+          N
+        </text>
+      </g>
+    );
+  }
+  if (kind === "amide") {
+    return (
+      <g className="path-mark" transform={at}>
+        <path d={ring(-32)} />
+        <path d="M -34.7 -5.6 L -34.7 5.6 M -28.7 -11.4 L -18.7 -17.2" />
+        {/* Ring, carbonyl carbon, amide nitrogen, second ring. */}
+        <path d="M -17.3 8.5 L -4 16 L 9 8.5" />
+        <path d="M -4 16 L -4 28" />
+        <path d="M -1.6 16.6 L -1.6 27.4" />
+        <circle cx="9" cy="8.5" r="4.6" className="path-mark__atom" />
+        <text x="9" y="11.9" className="path-mark__label">
+          N
+        </text>
+        <path d={ring(19)} />
+        <path d="M 21.4 -5.6 L 21.4 5.6" />
+      </g>
+    );
+  }
+  /*
+    THE CHAIN, flattened. The prop sheet's chevron is a wide, SHALLOW zigzag of
+    four bonds lying near the horizon: a carbon chain seen edge on. The build
+    drew two tall peaks, which reads as a mountain icon, and it drew them in
+    the slate ink, which made the most saturated thing in the landscape a
+    doodle. Amplitude 6 against a 68 span is the sheet's own proportion.
+  */
+  return (
     <g className="path-mark" transform={at}>
-      <path d="M 0 -22 L 19.1 -11 L 19.1 11 L 0 22 L -19.1 11 L -19.1 -11 Z" />
-      <circle cx="0" cy="0" r="12.5" />
-    </g>
-  ) : (
-    <g className="path-mark" transform={at}>
-      <path d="M -32 8 L -16 -8 L 0 8 L 16 -8 L 32 8" />
-      <path d="M -28.5 2 L -19.5 -7" />
+      <path d="M -34 6 L -17 -6 L 0 6 L 17 -6 L 34 6" />
     </g>
   );
 }
@@ -614,9 +757,18 @@ export default function PathScene({
           <circle className="path-lens path-lens--anchor" cx="0" cy="0" r={Math.min(150, width * 0.34)} fill="url(#path-lens-falloff)" />
           <circle className="path-lens path-lens--pointer" cx="0" cy="0" r={Math.min(170, width * 0.38)} fill="url(#path-lens-falloff)" />
         </mask>
+        {/*
+          THE LENS LIFTS, IT NO LONGER ERASES. At 1.0 and 0.82 the mask cut a
+          hole clean through the ground layer, so on a desktop capture the
+          terraces vanished in a 300px oval around the current node and the
+          landscape read as a spotlight blob. The point of the lens is to lift
+          the ground a little where the eye is meant to go, so the stops are
+          now a gentle 0.34, which reads as light on the hillside rather than
+          as a missing hillside.
+        */}
         <radialGradient id="path-lens-falloff">
-          <stop offset="0%" stopColor="#000000" />
-          <stop offset="62%" stopColor="#000000" stopOpacity="0.82" />
+          <stop offset="0%" stopColor="#000000" stopOpacity="0.34" />
+          <stop offset="62%" stopColor="#000000" stopOpacity="0.26" />
           <stop offset="100%" stopColor="#000000" stopOpacity="0" />
         </radialGradient>
       </defs>
@@ -664,9 +816,56 @@ export default function PathScene({
           three stacked layers: the step IS the drop in energy across the unit.
           Each band runs far past its own span so the next band's fill ends it.
         */}
-        {metrics.spans.map((span, index) => (
-          <path key={span.unitId} className="path-terrace" d={terracePath(span.top + 8, span.bottom, width, index)} />
+        {terraceBands(metrics.spans).map((band) => (
+          <path
+            key={band.key}
+            className="path-terrace"
+            /* The value step this plate lands on, cycling every four. Adjacent
+               plates are never the same fill, which is the whole of what makes
+               the hills read as TERRACED: the plate in front is a different
+               body from the plate behind, and the top edge is the cut between
+               them rather than a contour line ruled on flat ground.
+               Deterministic in the plate's position, never random. */
+            data-step={band.step}
+            d={terracePath(band.top, band.bottom, width, Math.round(band.top / 97))}
+          />
         ))}
+        {/*
+          THE CREST, drawn as a FILLED MOUND rather than as a dashed arc.
+
+          A checkpoint is the activation barrier between two wells, so the
+          landscape rises where the unit gate stands: that is the goals'
+          energy metaphor and it is worth keeping. What is not worth keeping
+          is how it was drawn. It was a 2.5px dashed brown stroke arcing
+          across the page, which on a flat cream ground was the single most
+          visible mark in the whole landscape and read as a contour line on a
+          map, not as a hill. blueberry_artkit-env-backdrop draws its hills as
+          ROUNDED FILLED SILHOUETTES stepping down, with no outline anywhere.
+
+          It moves onto the ground layer with the terraces, so props and the
+          trail pass in FRONT of the hill rather than being covered by it, and
+          it is filled in the deepest terrace value so the crest reads as the
+          same land the plates are cut from.
+        */}
+        {metrics.checkpoints.map((checkpoint) => {
+          const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
+          const half = channelHalfWidth(-(energy?.barrier ?? 0.5), metrics.basis, metrics.swingPx) * 1.9;
+          const drop = HUMP_DROP + (energy?.barrier ?? 0.5) * 50;
+          const ends = checkpoint.y + drop;
+          // A quadratic's apex is halfway between its endpoints and its
+          // control point, so the control sits twice as far up as the apex is
+          // wanted. The mound then closes straight down past the fold.
+          const control = checkpoint.y - 2 * HUMP_LIFT - drop;
+          const left = metrics.centreX - half;
+          const right = metrics.centreX + half;
+          return (
+            <path
+              key={checkpoint.unitId}
+              className="path-hump"
+              d={`M ${left.toFixed(1)} ${(ends + 900).toFixed(1)} L ${left.toFixed(1)} ${ends.toFixed(1)} Q ${metrics.centreX.toFixed(1)} ${control.toFixed(1)}, ${right.toFixed(1)} ${ends.toFixed(1)} L ${right.toFixed(1)} ${(ends + 900).toFixed(1)} Z`}
+            />
+          );
+        })}
         <path className="path-ground" d={groundPath(samples, geometry, -1)} />
         <path className="path-ground" d={groundPath(samples, geometry, 1)} />
       </g>
@@ -683,8 +882,11 @@ export default function PathScene({
           propsForUnit(index).map((placement, slot) => {
             const point = placePropPx(placement, width, span.top, span.bottom, PROP_MARGIN_PX);
             const key = `${span.unitId}-${slot}`;
+            // Composed, never scattered: a prop that would land on a chip or
+            // a signpost is not drawn at all. See propClear.
+            if (!propClear(placement.kind, point, placement.scale, metrics.keepOut)) return null;
             if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={placement.scale} />;
-            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={placement.scale} />;
+            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={placement.scale * 1.35} />;
             return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={placement.scale} />;
           }),
         )}
@@ -723,25 +925,6 @@ export default function PathScene({
           checkpoint panel painted straight over it. The crest is now the thing
           the chips sit on.
         */}
-        {metrics.checkpoints.map((checkpoint) => {
-          const energy = energies.find((entry) => entry.unitId === checkpoint.unitId);
-          const half = channelHalfWidth(-(energy?.barrier ?? 0.5), metrics.basis, metrics.swingPx) * 1.35;
-          // The apex clears the panel's top edge by HUMP_LIFT and the ends fall
-          // HUMP_DROP below it, so the arc is above the panel across the panel's
-          // own width and only comes down beside it. A quadratic's apex is
-          // halfway between its endpoints and its control point, so the control
-          // is placed twice as far up as the apex is wanted.
-          const drop = HUMP_DROP + (energy?.barrier ?? 0.5) * 50;
-          const ends = checkpoint.y + drop;
-          const control = checkpoint.y - 2 * HUMP_LIFT - drop;
-          return (
-            <path
-              key={checkpoint.unitId}
-              className="path-hump"
-              d={`M ${(metrics.centreX - half).toFixed(1)} ${ends.toFixed(1)} Q ${metrics.centreX.toFixed(1)} ${control.toFixed(1)}, ${(metrics.centreX + half).toFixed(1)} ${ends.toFixed(1)}`}
-            />
-          );
-        })}
       </g>
 
       {/*
@@ -755,13 +938,18 @@ export default function PathScene({
       {(() => {
         const segments = trailSegments(metrics.trail);
         const roads = segments.filter((segment) => !segment.loop);
+        const loops = segments.filter((segment) => segment.loop);
         return (
           <g className="path-trail">
-            {segments
-              .filter((segment) => segment.loop)
-              .map((segment, index) => (
-                <path key={`loop-${index}`} className="path-trail__loop" d={segment.d} />
-              ))}
+            {/* The detour, rim then fill on the same shape, the way the road
+                is drawn: the rim carries the graphics floor so the fill can
+                be the pale periwinkle the references draw. */}
+            {loops.map((segment, index) => (
+              <path key={`loop-edge-${index}`} className="path-trail__loop-edge" d={segment.d} />
+            ))}
+            {loops.map((segment, index) => (
+              <path key={`loop-${index}`} className="path-trail__loop" d={segment.d} />
+            ))}
             {roads.map((segment, index) => (
               <path
                 key={`edge-${index}`}

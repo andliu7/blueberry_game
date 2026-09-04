@@ -30,6 +30,7 @@ import { decks as defaultDecks } from "../store";
 import { loadMistakes, type SavedMistake } from "../../tabs/trainer/mistakes";
 import { BlueberryMark } from "../../mascot/BlueberryMark";
 import {
+  distinctDoodles,
   heroModel,
   lessonDeckTiles,
   myDeckTiles,
@@ -69,14 +70,35 @@ export function CardsLanding({
   const queue = useMemo(() => reviewQueue(snapshot, journal, at), [snapshot, journal, at]);
   const grid = useMemo(() => myDeckTiles(snapshot, journal), [snapshot, journal]);
   const lessonRow = useMemo(() => lessonDeckTiles(snapshot), [snapshot]);
+  /**
+   * NO TWO SKETCHES ON ONE SCREEN ARE THE SAME. The committed landing draws a
+   * different structure on each of its four tiles; the round 2 build hashed
+   * the deck id straight to a sketch and drew the identical Br-branched one
+   * on "EAS Reactions" and "My mistakes". `distinctDoodles` keeps each deck's
+   * own hashed face wherever it can and resolves a collision deterministically
+   * from the list, so a tile still keeps its face across visits.
+   */
+  const gridSketches = useMemo(() => distinctDoodles(grid.map((t) => t.deckId)), [grid]);
+  const lessonSketches = useMemo(() => distinctDoodles(lessonRow.map((t) => t.deckId)), [lessonRow]);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
       {/* The hero. A chip, not a button: the green REVIEW fill inside it is
           the press target, and the number is the queue it starts. */}
       <section className="hero-chip relative flex flex-col items-center gap-1 px-6 py-6 text-center">
+        {/* ALL THREE HERO LINES ARE THE HERO'S OWN INK, and after round 3
+            that ink is WHITE. The committed landing draws "Due today", the
+            number and "cards ready to review" in white on the periwinkle
+            panel; round 2 drew all three in dark navy, which inverts the
+            panel's role and makes the one coloured shape on the screen read
+            as a light one. Nothing here names a colour: .hero-chip sets
+            --cards-hero-ink and every line inherits it, so the measured pair
+            is decided once, in cards.css, where the 4.94 is written down. */}
         <h1 className="title-face text-scale-lg font-bold">{hero.title}</h1>
-        <p className="title-face text-scale-display font-bold leading-none" aria-hidden="true">
+        {/* THE ONE BIG NUMBER, at the committed image's weight: the largest
+            glyph on the screen by a clear step, because it is the answer to
+            the only question this tab opens with. See .hero-number. */}
+        <p className="hero-number title-face font-bold" aria-hidden="true">
           {hero.due}
         </p>
         <p className="text-scale-sm font-semibold">
@@ -91,13 +113,41 @@ export function CardsLanding({
         >
           {hero.buttonLabel}
         </button>
-        {/* The mascot leans on the hero's right edge AT EVERY WIDTH: the
-            committed landing image is itself a phone frame and draws it
-            there, so hiding it below 640px was hiding it exactly where the
-            reference shows it. It hangs inside the hero's own footprint
-            (right: 0.25rem), so nothing overflows the frame at 320px. */}
-        <span className="pointer-events-none absolute right-1 -bottom-3" aria-hidden="true">
-          <BlueberryMark className="h-16 w-16" eyes mood={hero.due === 0 ? "happy" : "curious"} />
+        {/* THE MASCOT LEANS ON THE HERO'S RIGHT EDGE, which is the pose the
+            committed landing image draws and one DESIGN-GOALS asks for by
+            name ("peeking and leaning poses are wanted").
+
+            ROUND 3 MADE IT ACTUALLY BREAK THE OUTLINE. The critic measured
+            the round 2 berry as fully contained inside the hero's rounded
+            rectangle, touching neither the bottom nor the right edge, which
+            is what -bottom-6 right-0 comes to once BlueberryMark's own
+            viewBox padding is counted: the drawn berry fills about 72 percent
+            of its box, so its visible edge stopped short of a corner it was
+            nominally sitting on. At 128px, with the box pushed 36px below the
+            hero and 24px past its right edge, the berry's lower body and its
+            right side cross the outline the way the drawing's do, and the
+            drawn berry comes to roughly 55 percent of the hero's height,
+            which is the image's own proportion. .hero-chip carries
+            overflow: visible so the crossing is drawn rather than clipped,
+            and the 8px of horizontal overhang lands inside the page's own
+            16px padding, so nothing overflows at 320px.
+
+            WHAT IS STILL SHORT OF THE IMAGE, AND WHY IT IS NOT FIXED HERE.
+            The drawn berry has green leaves, arms and legs; BlueberryMark
+            draws a violet star calyx and no limbs. That art lives in
+            apps/web/src/mascot/BlueberryMark.tsx, which is shared by every
+            surface in the app and is not this piece's to edit during a
+            fan-out round, and DESIGN-GOALS' own rule is that the mascot is
+            IMPORTED, never redrawn: growing limbs on a copy inside cards/
+            would fork the character rather than close the gap. It is reported
+            as a blocker for the mascot's owner. The pose, the size and the
+            placement are the part this file can honestly supply, and they
+            are supplied. */}
+        <span
+          className="pointer-events-none absolute -bottom-9 -right-6 rotate-[8deg]"
+          aria-hidden="true"
+        >
+          <BlueberryMark className="h-32 w-32" eyes mood={hero.due === 0 ? "happy" : "curious"} />
         </span>
       </section>
 
@@ -117,9 +167,9 @@ export function CardsLanding({
           <p className="text-scale-sm text-muted-foreground">No decks yet.</p>
         ) : (
           <ul className="grid grid-cols-2 gap-3">
-            {grid.map((tile) => (
+            {grid.map((tile, index) => (
               <li key={tile.deckId}>
-                <DeckTileButton tile={tile} onOpen={onOpenDeck} />
+                <DeckTileButton tile={tile} sketch={gridSketches[index] ?? 0} onOpen={onOpenDeck} />
               </li>
             ))}
           </ul>
@@ -131,9 +181,14 @@ export function CardsLanding({
         <section className="flex flex-col gap-3">
           <h2 className="title-face text-scale-xl font-bold text-foreground">From your lessons</h2>
           <ul className="flex gap-3 overflow-x-auto pb-1">
-            {lessonRow.map((tile) => (
+            {lessonRow.map((tile, index) => (
               <li key={tile.deckId} className="w-44 shrink-0">
-                <DeckTileButton tile={tile} onOpen={onOpenDeck} compact />
+                <DeckTileButton
+                  tile={tile}
+                  sketch={lessonSketches[index] ?? 0}
+                  onOpen={onOpenDeck}
+                  compact
+                />
               </li>
             ))}
           </ul>
@@ -150,35 +205,46 @@ export function CardsLanding({
  */
 function DeckTileButton({
   tile,
+  sketch,
   onOpen,
   compact = false,
 }: {
   readonly tile: DeckTile;
+  /** From distinctDoodles: this tile's sketch, guaranteed unique on screen. */
+  readonly sketch: number;
   readonly onOpen: (deckId: DeckId) => void;
   readonly compact?: boolean;
 }) {
   return (
     <button
       type="button"
-      className={`chip3d chip3d--card press flex w-full flex-col items-center gap-1.5 p-4 text-center ${
+      className={`chip3d chip3d--card press relative flex w-full flex-col items-center gap-1.5 p-4 text-center ${
         compact ? "min-h-32" : "min-h-40"
       }`}
       onClick={() => onOpen(tile.deckId)}
     >
-      <span className="relative text-muted-foreground">
-        <DeckDoodle variant={tile.doodle} className={compact ? "h-8 w-10" : "h-10 w-12"} />
-        {tile.marker === "auto" && (
-          <span className="absolute -right-3 -top-1">
-            <AutoBolt />
-          </span>
-        )}
-        {tile.marker === "mistakes" && (
-          <span className="absolute -right-4 -top-2" aria-hidden="true">
-            <BlueberryMark className="h-6 w-6" eyes mood="focused" />
-          </span>
-        )}
+      {/* THE MISTAKES BERRY SITS IN THE TILE'S CORNER, which is exactly where
+          the committed landing image draws it, as a small sticker over the
+          tile's top-right edge, at 36px against the tile's 160. Round 3 took
+          it up from 28, which the critic measured as reading like a small
+          dot rather than a sticker sitting on the corner. The AUTO marker
+          does NOT: the same image
+          draws it as a bare yellow bolt INLINE with the deck's name, and the
+          card-states sheet draws the auto tray's bolt notched into the front
+          panel, so no ringed corner disc appears in either reference. Round 2
+          drew one, and that badge is gone. */}
+      {tile.marker === "mistakes" && (
+        <span className="absolute -right-2 -top-2" aria-hidden="true">
+          <BlueberryMark className="h-9 w-9" eyes mood="focused" />
+        </span>
+      )}
+      <span className="text-muted-foreground">
+        <DeckDoodle variant={sketch} className={compact ? "h-8 w-10" : "h-10 w-12"} />
       </span>
-      <span className="w-full truncate text-scale-base font-bold text-card-foreground">{tile.title}</span>
+      <span className="flex w-full items-center justify-center gap-1">
+        <span className="truncate text-scale-base font-bold text-card-foreground">{tile.title}</span>
+        {tile.marker === "auto" && <AutoBolt className="h-4 w-4 text-[color:var(--warn-ink-strong)]" />}
+      </span>
       <span className="text-scale-sm text-muted-foreground">
         {tile.count === 1 ? "1 card" : `${tile.count} cards`}
         {tile.marker === "auto" ? " · auto" : ""}

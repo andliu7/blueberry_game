@@ -488,3 +488,63 @@ export function terracePath(top: number, bottom: number, width: number, seed: nu
   d += ` L ${xs[TERRACE_STEPS]!.toFixed(1)} ${floor.toFixed(1)} L ${xs[0]!.toFixed(1)} ${floor.toFixed(1)} Z`;
   return d;
 }
+
+/**
+ * The height one terrace plate wants, in scene pixels.
+ *
+ * THE MEASUREMENT THIS COMES FROM. The scene drew ONE band per unit, and a
+ * unit on this map is roughly 900 to 1400 scene pixels tall, so an 844pt
+ * phone held less than one whole plate: a reader scrolling never saw two
+ * values meet, and the terracing that exists in the data was invisible on
+ * every single screen. blueberry_artkit-env-backdrop shows three to four
+ * plate transitions in one phone-shaped frame, so the rhythm is the plate's,
+ * not the unit's. 230px puts three and a half in an 844pt viewport and two
+ * and a half beside a 640px desktop fold.
+ */
+export const TERRACE_BAND_PX = 230;
+
+/** One drawn terrace plate: where it starts, where it ends, which step it is. */
+export interface TerraceBand {
+  readonly key: string;
+  readonly top: number;
+  readonly bottom: number;
+  /** 0..3, the value step. Adjacent bands are never the same. */
+  readonly step: number;
+}
+
+/**
+ * Unit spans to terrace plates, on the plate's own rhythm.
+ *
+ * A unit contributes at least one plate and one more for every further
+ * TERRACE_BAND_PX of its height, so a long unit steps down several times on
+ * the way through and a short one still gets a plate of its own. The step
+ * index runs CONTINUOUSLY across the whole track rather than resetting per
+ * unit, which is what guarantees two plates that touch are never the same
+ * value: that is the entire mechanism by which a hillside reads as terraced
+ * rather than as one flat field with lines ruled on it.
+ *
+ * Pure and deterministic in its input, so the landscape is the same on every
+ * render at a given scroll and nothing here calls Math.random.
+ */
+export function terraceBands(
+  spans: readonly { readonly unitId: string; readonly top: number; readonly bottom: number }[],
+  bandPx: number = TERRACE_BAND_PX,
+): readonly TerraceBand[] {
+  const bands: TerraceBand[] = [];
+  let index = 0;
+  for (const span of spans) {
+    const height = Math.max(0, span.bottom - span.top);
+    const count = Math.max(1, Math.round(height / Math.max(1, bandPx)));
+    const step = height / count;
+    for (let i = 0; i < count; i += 1) {
+      bands.push({
+        key: `${span.unitId}-${i}`,
+        top: span.top + i * step,
+        bottom: span.top + (i + 1) * step,
+        step: index % 4,
+      });
+      index += 1;
+    }
+  }
+  return bands;
+}

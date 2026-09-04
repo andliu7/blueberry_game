@@ -1,0 +1,164 @@
+{
+ "seam": {
+  "sheetBottom": 768,
+  "navTop": 767.81,
+  "navHeight": 76.19,
+  "gapPx": -0.19,
+  "inset": "calc(4.75rem + 0px)"
+ },
+ "seamPixels": {
+  "765": [
+   "ns-panel",
+   "ns-panel",
+   "ns-panel",
+   "ns-panel"
+  ],
+  "766": [
+   "ns-panel",
+   "ns-panel",
+   "ns-panel",
+   "ns-panel"
+  ],
+  "767": [
+   "ns-panel",
+   "ns-panel",
+   "ns-panel",
+   "ns-panel"
+  ],
+  "768": [
+   "ns-sheet",
+   "ns-sheet",
+   "ns-sheet",
+   "ns-sheet"
+  ]
+ },
+ "challengeCard": {
+  "practiceFill": "color(srgb 0.944941 0.926588 0.883765)",
+  "challengeFill": "color(srgb 0.944941 0.926588 0.883765)",
+  "sameFill": true,
+  "practiceHeadInk": "rgb(42, 42, 66)",
+  "challengeHeadInk": "rgb(42, 42, 66)",
+  "sameInk": true,
+  "practiceHeight": 107,
+  "challengeHeight": 100,
+  "challengeTextLines": []
+ },
+ "lip": {
+  "themeTokenDefined": "(not defined in theme.css)",
+  "lipResolved": "color(srgb 0.346196 0.219608 0.679843) = rgb(88, 56, 173)",
+  "faceResolved": "rgb(109, 63, 212) = rgb(109, 63, 212)",
+  "lipIsBlack": false,
+  "lipDarkerThanFace": true
+ },
+ "pips": [
+  {
+   "filled": true,
+   "bg": "color(srgb 0.520078 0.500235 0.51498)",
+   "border": "color(srgb 0.520078 0.500235 0.51498)",
+   "w": 16
+  },
+  {
+   "filled": true,
+   "bg": "color(srgb 0.520078 0.500235 0.51498)",
+   "border": "color(srgb 0.520078 0.500235 0.51498)",
+   "w": 16
+  },
+  {
+   "filled": false,
+   "bg": "rgb(224, 215, 195)",
+   "border": "color(srgb 0.520078 0.500235 0.51498)",
+   "w": 16
+  },
+  {
+   "filled": false,
+   "bg": "rgb(224, 215, 195)",
+   "border": "color(srgb 0.520078 0.500235 0.51498)",
+   "w": 16
+  }
+ ],
+ "glyph": {
+  "viewBox": "0 0 45 35",
+  "atomCount": 6,
+  "radii": [
+   5,
+   5,
+   5.5,
+   4.5,
+   6.5,
+   6
+  ],
+  "fills": [
+   "color(srgb 0.857726 0.78102 0.677176)",
+   "color(srgb 0.909294 0.853647 0.777569)",
+   "color(srgb 0.799843 0.772549 0.712)",
+   "color(srgb 0.835294 0.713725 0.582353)",
+   "color(srgb 0.668963 0.677384 0.793725)",
+   "color(srgb 0.691043 0.560709 0.701816)"
+  ],
+  "everyAtomHasRim": true,
+  "bondPath": "M16.5 21L5 14M16.5 21L14 30.5M16.5 21h14.5M31 19.5l4.5-14M31 19.5l9.5 10.5",
+  "box": {
+   "w": 36,
+   "h": 28
+  }
+ },
+ "guidebook": {
+  "figureBorder": "0px none rgb(42, 42, 66)",
+  "stripBorder": "0px none rgb(42, 42, 66)",
+  "calloutBorder": "0px none",
+  "figureFill": "rgb(255, 255, 255)",
+  "stripFill": "rgb(255, 255, 255)",
+  "stripHeight": 120.5,
+  "captionHeight": 19.6,
+  "artHeight": 62.9,
+  "captionLineCount": 1,
+  "structureCount": 5,
+  "arrowLabels": [
+   "1",
+   "2",
+   "2",
+   "3",
+   "3",
+   "4",
+   "4",
+   "5",
+   "+ by-product"
+  ],
+  "steps": [
+   "gb-prop__step-one",
+   "gb-prop__antenna",
+   "gb-prop__step-two",
+   "gb-prop__flasks",
+   "gb-prop__step-three"
+  ],
+  "flaskHasLiquid": true,
+  "flaskBubbles": 2,
+  "propColour": "rgb(224, 215, 195)",
+  "flaskColour": "color(srgb 0.897804 0.86698 0.79749)"
+ },
+ "targets": [
+  {
+   "sel": ".gb-back",
+   "w": 44,
+   "h": 44,
+   "ok": true
+  }
+ ],
+ "press": {
+  "lip": "4px",
+  "wellPaddingBottom": "4px",
+  "wellHasNoOffsetShadow": true,
+  "faceHeight": 44,
+  "faceTravelPx": 4,
+  "wellHeightBefore": 48,
+  "wellHeightAfter": 48,
+  "wellBottomBefore": 612,
+  "wellBottomAfter": 612,
+  "footprintUnchanged": true,
+  "hitTarget": {
+   "w": 110.8,
+   "h": 48,
+   "ok": true
+  }
+ }
+}

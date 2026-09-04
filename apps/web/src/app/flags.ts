@@ -88,7 +88,14 @@ function read(): ReadonlySet<string> {
   if (fromUrl !== null) return parseList(fromUrl);
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored !== null) return parseList(stored);
+    if (stored !== null) {
+      const parsed = parseList(stored);
+      // An EMPTY stored value must not beat the dev default. A device that once
+      // stored "" would otherwise be pinned to no flags forever, which is
+      // exactly the shape of the bug where the owner asked three times for
+      // infinite charge on localhost and kept not getting it.
+      if (parsed.size > 0) return parsed;
+    }
     return devDefaults();
   } catch {
     /* storage blocked: fall back to the dev default, which is empty in a build */
