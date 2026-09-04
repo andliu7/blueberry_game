@@ -1,0 +1,381 @@
+{
+  "reference": {
+    "unit01": {
+      "size": [
+        493,
+        742
+      ],
+      "darkestLum": 16.7,
+      "darkestHex": "#171005",
+      "veryDarkPct": 0.25,
+      "pureBlackPct": 0,
+      "greenPx": 27752,
+      "greenPct": 7.59,
+      "nearWhitePx": 3087,
+      "top": [
+        {
+          "hex": "#ececdc",
+          "pct": 29.6
+        },
+        {
+          "hex": "#ecece4",
+          "pct": 6.9
+        },
+        {
+          "hex": "#f4ecdc",
+          "pct": 4.9
+        },
+        {
+          "hex": "#fcf4ec",
+          "pct": 4.8
+        },
+        {
+          "hex": "#f4ece4",
+          "pct": 4.7
+        },
+        {
+          "hex": "#e4dccc",
+          "pct": 3.7
+        }
+      ]
+    },
+    "unit02": {
+      "size": [
+        493,
+        819
+      ],
+      "darkestLum": 7.5,
+      "darkestHex": "#03071a",
+      "veryDarkPct": 0.24,
+      "pureBlackPct": 0,
+      "greenPx": 24570,
+      "greenPct": 6.09,
+      "nearWhitePx": 4355,
+      "top": [
+        {
+          "hex": "#ece4d4",
+          "pct": 19.3
+        },
+        {
+          "hex": "#f4ece4",
+          "pct": 17.2
+        },
+        {
+          "hex": "#ecece4",
+          "pct": 10.5
+        },
+        {
+          "hex": "#ececdc",
+          "pct": 7
+        },
+        {
+          "hex": "#f4ecdc",
+          "pct": 4.5
+        },
+        {
+          "hex": "#fcf4ec",
+          "pct": 2.6
+        }
+      ]
+    }
+  },
+  "build": {
+    "y0": {
+      "size": [
+        390,
+        690
+      ],
+      "darkestLum": 11.6,
+      "darkestHex": "#0b0b14",
+      "veryDarkPct": 0.47,
+      "pureBlackPct": 0,
+      "greenPx": 8666,
+      "greenPct": 3.22,
+      "nearWhitePx": 734,
+      "top": [
+        {
+          "hex": "#fcf4e4",
+          "pct": 20.3
+        },
+        {
+          "hex": "#ece4cc",
+          "pct": 18
+        },
+        {
+          "hex": "#e4dcbc",
+          "pct": 15.3
+        },
+        {
+          "hex": "#f4f4e4",
+          "pct": 9.9
+        },
+        {
+          "hex": "#dcd4b4",
+          "pct": 5.9
+        },
+        {
+          "hex": "#f4ece4",
+          "pct": 3.6
+        }
+      ],
+      "inFrame": {
+        "props": 11,
+        "clouds": 2,
+        "boulders": 2,
+        "flasks": 3,
+        "marks": 4,
+        "chips": 6
+      }
+    },
+    "y500": {
+      "size": [
+        390,
+        690
+      ],
+      "darkestLum": 11.6,
+      "darkestHex": "#0b0b14",
+      "veryDarkPct": 0.44,
+      "pureBlackPct": 0,
+      "greenPx": 6269,
+      "greenPct": 2.33,
+      "nearWhitePx": 1247,
+      "top": [
+        {
+          "hex": "#ece4cc",
+          "pct": 24
+        },
+        {
+          "hex": "#f4ecdc",
+          "pct": 21.9
+        },
+        {
+          "hex": "#fcf4e4",
+          "pct": 16.3
+        },
+        {
+          "hex": "#f4f4e4",
+          "pct": 10.4
+        },
+        {
+          "hex": "#a4b4fc",
+          "pct": 2.8
+        },
+        {
+          "hex": "#ece4d4",
+          "pct": 1.4
+        }
+      ],
+      "inFrame": {
+        "props": 8,
+        "clouds": 2,
+        "boulders": 0,
+        "flasks": 3,
+        "marks": 3,
+        "chips": 7
+      }
+    },
+    "y1000": {
+      "size": [
+        390,
+        690
+      ],
+      "darkestLum": 43.7,
+      "darkestHex": "#2a2a42",
+      "veryDarkPct": 0.37,
+      "pureBlackPct": 0,
+      "greenPx": 0,
+      "greenPct": 0,
+      "nearWhitePx": 3490,
+      "top": [
+        {
+          "hex": "#e4dcbc",
+          "pct": 22.8
+        },
+        {
+          "hex": "#ece4cc",
+          "pct": 19.9
+        },
+        {
+          "hex": "#dcd4b4",
+          "pct": 10.5
+        },
+        {
+          "hex": "#fcf4e4",
+          "pct": 9.4
+        },
+        {
+          "hex": "#f4f4e4",
+          "pct": 7.3
+        },
+        {
+          "hex": "#8c94bc",
+          "pct": 6.4
+        }
+      ],
+      "inFrame": {
+        "props": 8,
+        "clouds": 3,
+        "boulders": 0,
+        "flasks": 3,
+        "marks": 2,
+        "chips": 6
+      }
+    },
+    "y1600": {
+      "size": [
+        390,
+        690
+      ],
+      "darkestLum": 43.7,
+      "darkestHex": "#2a2a42",
+      "veryDarkPct": 0.35,
+      "pureBlackPct": 0,
+      "greenPx": 0,
+      "greenPct": 0,
+      "nearWhitePx": 1698,
+      "top": [
+        {
+          "hex": "#e4dcbc",
+          "pct": 53.2
+        },
+        {
+          "hex": "#f4f4e4",
+          "pct": 7.3
+        },
+        {
+          "hex": "#8c94bc",
+          "pct": 6.2
+        },
+        {
+          "hex": "#f4ecdc",
+          "pct": 5.8
+        },
+        {
+          "hex": "#fcf4e4",
+          "pct": 4.8
+        },
+        {
+          "hex": "#e4d4bc",
+          "pct": 3.9
+        }
+      ],
+      "inFrame": {
+        "props": 11,
+        "clouds": 2,
+        "boulders": 2,
+        "flasks": 3,
+        "marks": 4,
+        "chips": 8
+      }
+    },
+    "y2200": {
+      "size": [
+        390,
+        690
+      ],
+      "darkestLum": 43.7,
+      "darkestHex": "#2a2a42",
+      "veryDarkPct": 0.41,
+      "pureBlackPct": 0,
+      "greenPx": 0,
+      "greenPct": 0,
+      "nearWhitePx": 1516,
+      "top": [
+        {
+          "hex": "#e4dcbc",
+          "pct": 49
+        },
+        {
+          "hex": "#ece4cc",
+          "pct": 10.2
+        },
+        {
+          "hex": "#f4f4e4",
+          "pct": 7.9
+        },
+        {
+          "hex": "#8c94bc",
+          "pct": 6.9
+        },
+        {
+          "hex": "#dcd4b4",
+          "pct": 4.8
+        },
+        {
+          "hex": "#e4d4bc",
+          "pct": 4.5
+        }
+      ],
+      "inFrame": {
+        "props": 10,
+        "clouds": 3,
+        "boulders": 2,
+        "flasks": 2,
+        "marks": 3,
+        "chips": 9
+      }
+    }
+  },
+  "dom": {
+    "viewportWidth": 390,
+    "trail": {
+      "edgeStroke": 8,
+      "edgeColour": "#55628f",
+      "fillStroke": 6,
+      "fillColour": "#a2b5fa",
+      "doneSegments": 6,
+      "doneColour": "#b3df92",
+      "widestPctOfScreen": 2.05
+    },
+    "node": {
+      "boxShadow": "rgba(60, 48, 24, 0.16) 0px 2px 2px 0px, rgba(60, 48, 24, 0.14) 0px 7px 12px 0px, rgba(126,",
+      "border": "2px solid rgb(63, 140, 40)",
+      "faceBorder": "2px solid rgb(63, 140, 40)",
+      "lip": "14px",
+      "count": 197,
+      "withMotif": 192,
+      "empty": 5,
+      "padlocks": 0
+    },
+    "labels": {
+      "count": 192,
+      "collidingWithChip": 0,
+      "collidingWithLabel": 0,
+      "offscreen": 0,
+      "truncated": 0
+    },
+    "gate": {
+      "boxWidthPx": 100,
+      "paintedWidthPx": 96,
+      "paintedPctOfScreen": 24.6,
+      "hasTextLabel": false
+    },
+    "berry": {
+      "boxWidthPx": 95,
+      "boxHeightPx": 95,
+      "drawnWidthPx": 71.3,
+      "left": 257.8,
+      "right": 352.8,
+      "clipped": false,
+      "overlapsOwnChip": false,
+      "inner": "svg"
+    },
+    "scene": {
+      "ridges": 15,
+      "ridgeFill": "rgb(222, 210, 179)",
+      "marks": 72,
+      "markStroke": "#ccbe9b",
+      "clouds": 56,
+      "boulders": 30,
+      "propsInFrame": 9,
+      "markStrokeLum": 190.4,
+      "terraceLums": [
+        243.3,
+        235.5,
+        226.5,
+        217.5
+      ],
+      "terraces": 94
+    }
+  }
+}

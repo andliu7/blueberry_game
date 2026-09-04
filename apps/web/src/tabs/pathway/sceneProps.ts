@@ -62,11 +62,21 @@
  *           flat. It is on the sheet, so it stays; what it is not is the
  *           two-peak mountain the build drew it as
  *
+ * BOULDERS, added 2026-09-04 on the pixel verdict: the reference "fits nine
+ * nodes, eight labels, two clouds, two full-body mascots, two flasks, three
+ * skeletons, BOULDERS and a gate into one frame" and the build had none. They
+ * are the one prop in the family that is a solid OBJECT sitting on the land
+ * rather than a drawing on it, which is why they are a cool grey and not a
+ * tan: sampled off unit01-path.jpg, the reference boulder is #a5a5a4 against
+ * an #e1d9ca ground, a luminance delta of 53 and 1.76:1.
+ *
  * NO FLAG. docs/DESIGN-GOALS.md, owner 2026-09-03: "the small flag on a pole
  * reads as a destination and competes with the real nodes. Cut from the prop
- * family." It is named here so nobody re-adds it as an oversight.
+ * family." unit01-path.jpg still draws one beside its boulders and it is NOT
+ * copied: the clause is newer than the image. Named here so nobody re-adds it
+ * as an oversight.
  */
-export type PropKind = "cloud" | "flask" | "ring" | "amide" | "chain";
+export type PropKind = "cloud" | "flask" | "boulder" | "ring" | "amide" | "chain";
 
 /** The molecule watermarks, which are the props a unit's character selects. */
 export type MarkKind = "ring" | "amide" | "chain";
@@ -102,6 +112,9 @@ export interface PropPlacement {
 export const PROP_HALF: Record<PropKind, { readonly w: number; readonly h: number }> = {
   cloud: { w: 27, h: 15 },
   flask: { w: 14, h: 17 },
+  // Two pebbles, the larger in front: the path data spans -22..22 across and
+  // -13..9 down, which is the low wide silhouette the reference draws.
+  boulder: { w: 22, h: 11 },
   ring: { w: 44, h: 24 },
   amide: { w: 47, h: 28 },
   chain: { w: 34, h: 10 },
@@ -116,8 +129,19 @@ export const PROP_HALF: Record<PropKind, { readonly w: number; readonly h: numbe
  * fourteenth. These numbers are the ratio between the two, rounded.
  */
 export const PROP_DRAW_SCALE: Record<PropKind, number> = {
-  cloud: 1.75,
+  /* 1.5, down from 1.75. The cloud is the one prop whose SIZE was what made
+     it undrawable: at 1.75 its half width plus the filled-prop clearance was
+     a 62px keep-out radius on a flank a 390pt phone measures in tens of
+     pixels, and every cloud in the scene was dropped. See PathScene's
+     FILLED_CLEARANCE_PX for the other half of that fix. */
+  /* 1.3, down again. The cloud is the one prop whose SIZE decides whether it
+     is drawn at all: it is filled, so it must clear the chips and the trail
+     outright, and on a 390pt phone a 40px half width plus its clearance
+     rarely fits the flank. At 1.3 the half width is 35 and the survival rate
+     roughly doubles, which is the difference between a sky and no sky. */
+  cloud: 1.3,
   flask: 1.95,
+  boulder: 1.5,
   ring: 1.25,
   amide: 1.2,
   chain: 1.6,
@@ -213,15 +237,64 @@ export function propsForBand(bandIndex: number, character: UnitCharacter): reado
       y: 0.46,
       scale: character.scale,
     },
+    /*
+      A SECOND WATERMARK, ON THE OTHER FLANK, EVERY BAND. This is the density
+      half of the pixel verdict: "the reference fits nine nodes, eight labels,
+      two clouds, two full-body mascots, two flasks, three skeletons, boulders
+      and a gate into one frame. The build has eight nodes and then nothing."
+      One watermark per 230px band is one per two thirds of a phone screen; the
+      reference carries three skeletons in one frame. It is the COMPANION
+      family and it sits at a different height, so the two never read as a
+      matched pair ruled across the page.
+    */
+    {
+      kind: band % 3 === 0 ? character.mark : character.companion,
+      side: far,
+      out: 0.5,
+      y: 0.14,
+      scale: character.scale * 0.82,
+    },
   ];
-  if (band % Math.max(2, character.glassEvery) === 0) {
-    out.push({ kind: "flask", side: far, out: 0.5, y: 0.74, scale: character.scale });
+  /*
+    GLASSWARE EVERY BAND, ON A FLANK THAT ALTERNATES ON THE BAND'S OWN
+    PARITY. The reference frame carries two flasks; the old cycle gave one
+    every second or third band and, because `near` also alternates, several
+    landed on the same flank in a row and read as a column of decals rather
+    than as objects on a landscape. Parity alone guarantees the zigzag.
+  */
+  const glassSide: -1 | 1 = band % 2 === 0 ? -1 : 1;
+  out.push({
+    kind: "flask",
+    side: glassSide,
+    out: band % Math.max(2, character.glassEvery) === 0 ? 0.5 : 0.66,
+    y: band % 2 === 0 ? 0.74 : 0.86,
+    scale: character.scale * (band % 2 === 0 ? 1 : 0.85),
+  });
+  /*
+    WEATHER IN THE SKY AND ROCKS ON THE GROUND, AND NEVER ON THE SAME FLANK.
+
+    Both are FILLED props, so two of them meeting is the one collision the
+    keep-out rules cannot resolve by occlusion, and a band is only 230px
+    tall: a boulder at y 0.94 of one band and a cloud at y 0.06 of the next
+    are 28px apart, which is how a grey rock came to be sitting in the sky
+    beside a cloud on the built page. So weather is pinned to the upper third
+    on the far flank and rock to the lower tenth on the near one, and they
+    can never be within a band's height of each other on the same side.
+  */
+  out.push({ kind: "cloud", side: far, out: 0.78, y: band % 2 === 1 ? 0.2 : 0.3, scale: character.scale * 0.9 });
+  // A second, smaller one lower down on the other flank every third band, so
+  // a frame usually holds two. The reference frame holds two.
+  if (band % 3 === 2) {
+    out.push({ kind: "cloud", side: near, out: 0.84, y: 0.6, scale: character.scale * 0.72 });
   }
-  if (band % Math.max(2, character.cloudEvery) === 1) {
-    // Weather sits high in the band and further out, because a cloud is the
-    // one FILLED prop and a filled shape near the track competes with the
-    // chips. See PathScene's keep-out split.
-    out.push({ kind: "cloud", side: far, out: 0.62, y: 0.16, scale: character.scale * 0.95 });
+  /*
+    ROCKS ARE RARE AND THEY STAND ON A STEP. Every fourth band, at y 0.98,
+    which is where the NEXT plate's top edge cuts across: the boulder then
+    reads as sitting on a horizon rather than floating mid-plate, which is
+    what it did at 0.9 and every third band on the built page.
+  */
+  if (band % 4 === 1) {
+    out.push({ kind: "boulder", side: near, out: 0.82, y: 0.98, scale: character.scale });
   }
   if (band % 5 === 3) {
     // The chevron lies near the horizon, low and flat, on the near flank

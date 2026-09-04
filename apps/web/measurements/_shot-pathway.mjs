@@ -10,7 +10,7 @@ import { readFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import puppeteer from "puppeteer-core";
-import { P3_SEED, P3_STORED, installSeed } from "./economy-moments.mjs";
+import { P3_STORED, installSeed, pathwaySeed } from "./economy-moments.mjs";
 
 const DIST = path.join(process.cwd(), "dist");
 const OUT = path.join(process.cwd(), "measurements", "_shots");
@@ -42,7 +42,7 @@ const scrolls = Number(process.env.SCROLLS ?? 3);
 for (const [label, width, height] of [["phone", 390, 844], ["desk", 1280, 900]]) {
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: 1 });
-  await installSeed(page, `http://localhost:${port}/`, P3_SEED, P3_STORED);
+  await installSeed(page, `http://localhost:${port}/`, pathwaySeed(), P3_STORED);
   await page.goto(`http://localhost:${port}/#/pathway`, { waitUntil: "networkidle0" });
   if (process.env.THEME === "dark") {
     await page.evaluate(() => localStorage.setItem("theme", "dark"));

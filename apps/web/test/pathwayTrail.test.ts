@@ -9,10 +9,10 @@
  *  - blueberry_branch-diamond_1788284291.png: the fork's arms leave the
  *    concept node and REJOIN at the unit gate; no direct spine connection
  *    crosses the diamond
- *  - the FILL-ONLY green (docs/DESIGN-GOALS.md): trail.ts only ever labels a
- *    stretch done when both endpoints are, so the green ends at the node the
- *    student stands on, and a loop detour is never done because enrichment
- *    is not progress
+ *  - the FILL-ONLY green (docs/DESIGN-GOALS.md): the green ends at the JOIN,
+ *    which is the last node on a chain the student has reached, so the road
+ *    behind them is walked and the road ahead is not, and a loop detour is
+ *    never done because enrichment is not progress
  *  - the track-map pill draws the unit's REAL shape: same wind function,
  *    completed stretch a literal prefix of the whole
  */
@@ -89,6 +89,56 @@ describe("trailSegments", () => {
       point(-40, 200, "main", false),
     ]);
     expect(segments.map((segment) => segment.done)).toEqual([true, false]);
+  });
+
+  /*
+   * THE JOIN, and this block is the fixture the "both endpoints" rule failed.
+   *
+   * Reactions inside a unit are freely orderable (docs/DESIGN-GOALS.md, owner
+   * 2026-09-01), so a real done-set is scattered rather than a prefix. This
+   * is the S2 seed's own unit 1, read off the built page: done, then four
+   * open lessons the student skipped past, then the node they are standing
+   * on. Under the pair rule not one stretch was green anywhere on a
+   * fourteen-unit track. Under the clause ("the join between them is where
+   * the student is") the whole road behind them is walked.
+   */
+  it("paints the road BEHIND the student green even where they skipped a lesson on it", () => {
+    const segments = trailSegments([
+      point(0, 0, "main", true),
+      point(40, 100, "main", false),
+      point(-40, 200, "main", false),
+      point(30, 300, "main", false),
+      point(-20, 400, "main", false),
+      point(0, 500, "main", true),
+      point(20, 600, "main", false),
+      point(-20, 700, "main", false),
+    ]);
+    expect(segments.map((segment) => segment.done)).toEqual([true, true, true, true, true, false, false]);
+  });
+
+  it("leaves a unit entirely ahead of the student violet from end to end", () => {
+    const segments = trailSegments([
+      point(0, 0, "main", false),
+      point(40, 100, "main", false),
+      point(-40, 200, "main", false),
+    ]);
+    expect(segments.every((segment) => !segment.done)).toBe(true);
+  });
+
+  it("greens the arm the student walked and leaves the other one violet", () => {
+    const segments = trailSegments([
+      point(0, 0, "main", true),
+      point(-60, 120, "left", true),
+      point(60, 120, "right", false),
+      point(0, 240, "main", false),
+    ]);
+    const left = segments.filter((_, index) => index < segments.length / 2);
+    const right = segments.filter((_, index) => index >= segments.length / 2);
+    // The walked arm is green as far as the student got and no further: the
+    // stretch onto the gate they have not passed stays violet.
+    expect(left.some((segment) => segment.done)).toBe(true);
+    expect(left.every((segment) => segment.done)).toBe(false);
+    expect(right.every((segment) => !segment.done)).toBe(true);
   });
 
   it("never colours a loop detour done, because enrichment is not progress", () => {

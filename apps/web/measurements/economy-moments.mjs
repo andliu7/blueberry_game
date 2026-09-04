@@ -414,6 +414,40 @@ const P3_STREAK_NODES = [
   "lesson:enols_and_enolates",
 ];
 
+/**
+ * THE PATHWAY'S OWN SEED, and it exists because of a measured blind spot.
+ *
+ * hudSeed clears five nodes, and every one of them lives in a DIFFERENT unit
+ * (aromaticity, aromatic_substitution, eas_directing_effects, carbonyl,
+ * enolates). A trail SEGMENT connects two adjacent nodes, so five scattered
+ * clears produce zero done segments, and a critic screenshotting the pathway
+ * measured 0.00 percent green and correctly called the trail blue. The trail
+ * was right; it had never once been given a state where green should appear.
+ *
+ * This seeds what the adopted reference actually depicts: a student partway
+ * through unit one, with CONSECUTIVE nodes behind them. That is the only state
+ * in which a walked stretch, its join, and the road ahead are all on screen at
+ * once, which is exactly what a blind pair has to show.
+ */
+export function pathwaySeed() {
+  const journal = [{ kind: "settings", at: exactDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }];
+  const walked = ["u1-allylic", "res-allyl-1", "u1-12v14", "seq-diene"];
+  for (let i = 0; i < walked.length; i += 1) {
+    journal.push({
+      kind: "node_cleared",
+      at: exactDaysAgo(4 - i),
+      tz: LOCAL_TZ,
+      nodeId: walked[i],
+      nodeKind: "reaction",
+      flawless: i % 2 === 0,
+      stepsInOneSitting: 1,
+      spine: true,
+      difficulty: 3,
+    });
+  }
+  return [...hudSeed(), ...journal];
+}
+
 export function hudSeed() {
   const journal = [{ kind: "settings", at: exactDaysAgo(6), tz: LOCAL_TZ, dailyGoal: "regular" }];
   for (let i = 0; i < P3_STREAK_NODES.length; i += 1) {

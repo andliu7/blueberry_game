@@ -91,17 +91,36 @@
   --node-size: 4.75rem;
   /* The face's HEIGHT: the squash that turns a circle into a button top. */
   --node-face-h: 3.4rem;
-  /* The wall, and therefore also the exact distance the press travels. */
-  --node-lip: 12px;
+  /*
+   * THE WALL, and therefore also the exact distance the press travels.
+   *
+   * 14px, up from 12. The pixel verdict of 2026-09-04 asked for "a solid
+   * darker lower rim about 14px deep plus a soft cast shadow on the ground",
+   * and with the cream keyline deleted the rim is now the only thing saying
+   * the chip is a physical object, so it carries the depth on its own.
+   */
+  --node-lip: 14px;
+  /*
+   * THE CAST SHADOW ON THE GROUND. Offset down and blurred, never spread: a
+   * spread shadow is a ring, and a ring around this chip is exactly what was
+   * just removed. Two stops, a tight contact shadow and a wider soft one,
+   * which is how a real object meets a surface.
+   */
+  --node-cast: 0 2px 2px rgb(60 48 24 / 0.16), 0 7px 12px rgb(60 48 24 / 0.14);
   --node-face: var(--chip-face);
   --node-face-press: var(--chip-face-press);
   --node-edge: var(--chip-edge);
   --node-line: var(--chip-edge);
   --node-ink: var(--chip-ink);
   /* The engraved motif's two tones. See .path-node__motif: the cut is a
-     darker tone of the chip's own colour (3.41:1 on the rest face,
-     measured) and the lip is the light on the far wall of the groove. */
-  --node-engrave: #4d5985;
+     darker tone of the chip's own colour and the lip is the light on the far
+     wall of the groove. DEEPENED on the pixel verdict of 2026-09-04, which
+     read the motifs as "small and low contrast, dark blue on blue" against a
+     reference that "debosses a bold high-contrast mark into every face".
+     Measured: #2f3a68 on the rest face #a2b5fa is 5.46:1, up from #4d5985's
+     3.41:1, and still a tone of the chip's own colour rather than a fifth
+     ink, which is what keeps it a cut and not a decal. */
+  --node-engrave: #2f3a68;
   --node-lip-light: rgb(255 255 255 / 0.62);
   position: relative;
   display: block;
@@ -120,14 +139,31 @@
   user-select: none;
   cursor: pointer;
   /*
-   * THE STICKER KEYLINE. blueberry_r7-states-sheet draws every chip with a
-   * white cut line around its whole silhouette, which is what lifts it off
-   * whatever terrace it lands on without adding a second dark rim. It is a
-   * spread box-shadow rather than an outline so :focus-visible's outline
-   * still has the property to itself, and every state that sets its own
-   * box-shadow restates this ring first.
+   * THE STICKER KEYLINE IS GONE, and its going is the whole of the node fix.
+   *
+   * It was `0 0 0 3px var(--card)`, a 3px cream spread ring, and with the
+   * well's own 2px border that is the 5px cream outline the pixel critic
+   * measured and named: "the reference has NO outline ring on any node; the
+   * build wraps every node in a 5px cream ring, which the eye reads first, so
+   * nodes read as flat outlined discs rather than pressed buttons."
+   *
+   * The clause it was written for was real (blueberry_r7-states-sheet draws a
+   * sticker cut) and the newer word overrules it: docs/reference/design-goals/
+   * units/unit01-path.jpg and unit02-path.jpg are the ADOPTED node, per the
+   * owner's 2026-09-03 ruling, and neither draws a ring on any chip.
+   *
+   * WHAT CARRIES THE DEPTH INSTEAD is what the references actually draw, and
+   * it is two things rather than a keyline. A SOLID DARKER LOWER RIM, which
+   * this chip already had in its well (--node-lip, 14px now, measured off the
+   * reference below), and a SOFT CAST SHADOW ON THE GROUND under it. A cast
+   * shadow reads as the chip standing ON the landscape; a cream ring reads as
+   * the chip cut OUT of it, which is why the eye found the ring first.
+   *
+   * The shadow is offset DOWN and blurred, never spread, so it can never
+   * become a ring by another name. Every state that sets its own box-shadow
+   * restates this first.
    */
-  box-shadow: 0 0 0 3px var(--card);
+  box-shadow: var(--node-cast);
 }
 
 /* The face: the button top, and the one thing that moves. It fills the well's
@@ -226,7 +262,7 @@
   --node-line: var(--progress-edge);
   --node-ink: var(--progress-ink);
   box-shadow:
-    0 0 0 3px var(--card),
+    var(--node-cast),
     0 0 20px 6px var(--progress-glow);
 }
 /*
@@ -268,7 +304,7 @@
  */
 .path-node--current {
   box-shadow:
-    0 0 0 3px var(--card),
+    var(--node-cast),
     0 0 22px 7px var(--path-halo);
   animation: path-halo 1.9s ease-in-out infinite;
 }
@@ -276,12 +312,12 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 3px var(--card),
+      var(--node-cast),
       0 0 22px 7px var(--path-halo);
   }
   50% {
     box-shadow:
-      0 0 0 3px var(--card),
+      var(--node-cast),
       0 0 30px 13px var(--path-halo-soft);
   }
 }
@@ -303,35 +339,54 @@
   --node-ink: var(--chip-ink);
 }
 /*
- * LOCKED IS FLAT AND COOL, and both words are corrections.
+ * LOCKED IS THE SAME BUTTON, DIMMED. Rewritten on the pixel verdict of
+ * 2026-09-04, and this is the second half of deleting the padlock.
  *
- * blueberry_r7-states-sheet draws locked as a pale COOL grey disc with a
- * light grey padlock and almost no wall: the chip has visibly been pressed
- * flat, which is the whole statement. Attempt 2 drew #ddd8cf, a WARM beige
- * out of the terrace family, carrying the full 12px wall and a brown-grey
- * outline, so it read as a raised stone button on a stone landscape rather
- * than as a flattened one among periwinkle ones. A critic named exactly that.
+ * WHAT THE ADOPTED DESIGNS DRAW. docs/reference/design-goals/units/
+ * unit01-path.jpg and unit02-path.jpg draw every node ahead of the student as
+ * the SAME periwinkle button carrying its real content motif. There is no
+ * padlock in either image and no grey chip in either image. The verdict is
+ * explicit that this is the intent rather than an omission: "Locked state is
+ * conveyed by the treatment, not by stamping a lock over the content."
+ *
+ * WHAT WAS HERE, and why it read as an inventory. The face was a cool grey
+ * #e6e9ef with a grey padlock, taken from blueberry_r7-states-sheet, which is
+ * an older word than the per-unit designs the owner adopted on 2026-09-03. On
+ * the real track that made 184 of 197 chips grey padlocks and turned screens
+ * two through four into a list of things a student cannot do.
+ *
+ * SO LOCKED TAKES THE DIM TREATMENT, which this file already authors for the
+ * side loops and the authoring queue, and which is the ONE desaturation in
+ * the vocabulary. That is deliberate: dim now means "not your work right now"
+ * across all three cases rather than three tones meaning three shades of the
+ * same thing, which is the "no sixth face" rule this block has been corrected
+ * for twice.
+ *
+ * IT IS NEVER COLOUR ALONE, and it is now better on that axis than the
+ * padlock was. The chip is a real button that declines the press: it carries
+ * aria-disabled, and its accessible name is "Opens when the unit before it is
+ * done", which is a sentence a screen reader says. A padlock is a picture
+ * nobody announces.
  *
  * FLAT WITHOUT CHANGING THE SILHOUETTE. The wall colour equals the face, so
- * there is no lip to catch the light and the chip reads as unpressable. The
- * geometry is untouched: --node-lip stays 12px, so a locked chip is the same
+ * there is no lip to catch the light and the chip reads as unpressable, and
+ * the geometry is untouched: --node-lip stays, so a locked chip is the same
  * height as every other chip ("all nodes the same size" is a clause) and the
  * trail anchor does not move when a unit opens.
  *
- * COOL, NOT WARM. #e6e9ef is the grey the states sheet draws, and being cool
- * it separates from the warm terraces behind it instead of camouflaging into
- * them. Measured on the cream ground (#fbf3e6): the cut edge #7b8290 is
- * 3.51:1, over the 3.0 an interface component needs, and the padlock #767d8b
- * is 3.39:1 on its own face. Authored tokens, never a CSS filter, per the S2
- * floor: the contrast audit reads computed colours and a filter would make it
- * measure a pair that is not on screen.
+ * Measured, and authored as real values rather than a CSS filter per the S2
+ * floor: --node-line #4f5688 is 5.95:1 on the cream page, so the cut edge
+ * still identifies the chip, and the engrave tone below carries the motif at
+ * 4.55:1 on the dim face.
  */
 .path-node--locked {
-  --node-face: #e6e9ef;
-  --node-face-press: #e6e9ef;
-  --node-edge: #e6e9ef;
-  --node-line: #7b8290;
-  --node-ink: #767d8b;
+  --node-face: #8e95bf;
+  --node-face-press: #8e95bf;
+  --node-edge: #8e95bf;
+  --node-line: #4f5688;
+  --node-ink: #23264a;
+  --node-engrave: #262c52;
+  --node-lip-light: rgb(255 255 255 / 0.5);
   /* NOT not-allowed. The chip is a real button that declines the action and
      explains why in its accessible name, so the cursor says "pressable" and
      the press acknowledgement says "heard you"; a barred cursor over a
@@ -375,7 +430,9 @@
   --node-edge: #4f5688;
   --node-line: #4f5688;
   --node-ink: #23264a;
-  --node-engrave: #3d4470;
+  /* Deepened with the rest face, same clause: #262c52 on the dim face
+     #8e95bf is 4.55:1, up from #3d4470's 3.18:1. */
+  --node-engrave: #262c52;
   --node-lip-light: rgb(255 255 255 / 0.5);
 }
 /* The dash is on the WELL only. Dashing the face too made the chip read as a
@@ -394,18 +451,28 @@
   --node-line: #9a5410;
   --node-ink: #ffffff;
 }
-/* The dark theme's rest face is #9ba8f5, on which the light theme's cut tone
-   measures 3.02:1: over the floor, but by two hundredths. One step deeper
-   restores the margin without changing the language. */
+/* The dark theme's rest face is #9ba8f5, and the cut goes deeper here for the
+   same reason it did in light: the verdict asked for a bold mark, not a
+   legible one. #242c52 on #9ba8f5 measures 5.83:1. */
 .dark .path-node {
-  --node-engrave: #3f4a73;
+  --node-engrave: #242c52;
 }
+/*
+ * Locked at night takes the same dim treatment as it does in daylight, and
+ * the ENGRAVE HAS TO INVERT WITH THE FACE. Without the line below the light
+ * theme's #262c52 cut is inherited onto a #363b52 night face and measures
+ * 1.22:1: a motif nobody can see, which is the very thing deleting the
+ * padlock was meant to fix. #b0b7cf measures 4.16:1 on it, and the inversion
+ * is the rule every other mark in dark already follows.
+ */
 .dark .path-node--locked {
-  --node-face: #363b52;
-  --node-face-press: #363b52;
-  --node-edge: #363b52;
+  --node-face: #3b4059;
+  --node-face-press: #3b4059;
+  --node-edge: #3b4059;
   --node-line: #8c93ad;
-  --node-ink: #99a0b8;
+  --node-ink: #ccd1e9;
+  --node-engrave: #b0b7cf;
+  --node-lip-light: rgb(0 0 0 / 0.28);
 }
 /* One dim tone in dark too, for the same reason: dim and queued are one
    treatment, so they cannot compose into a face the states sheet does not
@@ -643,11 +710,16 @@
   position: relative;
   transform: translateX(calc(var(--wind) * var(--wind-step)));
 }
-/* The START tag floats above the current node, so that row alone gets the
-   headroom for it; every other row stays on the tight pitch. */
+/* The START tag floats above the current node and Berry stands beside it at
+   full body, so that row alone gets the headroom for both; every other row
+   stays on the tight pitch. A 95px character standing on the chip's base
+   line rises about 27px past the chip's top, which is inside the 46 the
+   pill already reserves. The FOOT grew instead: the current row is the one
+   row whose name card hangs underneath (see NodeLabel's call site), and 44px
+   is a two-line card plus its gap. */
 .path-row--current {
   padding-top: 46px;
-  padding-bottom: 16px;
+  padding-bottom: var(--path-label-drop);
 }
 /*
  * THE DIMMED SIDE LOOP, docs/DESIGN-GOALS.md's third branch shape.
@@ -788,41 +860,143 @@
  * a real border like every card in this app (white on cream is 1.10:1, so the
  * structural-border rule in theme.css applies), body ink at 10.65:1 on it.
  *
- * Three lines and then it clips, deliberately. The accessible name on the
- * chip carries the title in full and the node sheet prints it in full on the
- * first tap, so a clip costs nothing a reader cannot recover, and an
- * unbounded card would eventually reach the row below it.
+ * THE CLIP IS GONE, pixel verdict of 2026-09-04: "cards COLLIDE with node
+ * bodies and truncate with an ellipsis. Truncated labels appear nowhere in
+ * the reference." Measured on the built page before the change: 31 of 207
+ * cards were clipping, and the clause is the right way round, because a
+ * label that does not fit is a LAYOUT that is wrong rather than a label that
+ * is too long. So the three-line clamp is deleted and the room is computed
+ * instead: see --label-room below.
+ *
+ * THE BORDER IS GONE TOO, and a soft shadow replaces it. The reference's card
+ * (docs/reference/design-goals/units/unit02-path.jpg, the "Heterocycles" card
+ * enlarged with measurements/_probe-ref-card.mjs) is a warm cream rounded
+ * rectangle with NO stroke anywhere on it and a soft shadow below and right.
+ * A 1.5px --border on a near-white card is what made these read as boxes.
+ *
+ * The structural-border rule in theme.css is not being dodged: that rule
+ * exists so a card is identifiable against the surface it sits on, and this
+ * card now carries a cast shadow doing exactly that job. Measured, the same
+ * way the chip's cast shadow is: --card #f6f2e7 on the lightest plate
+ * #f9f3e6 is 1.02:1, which is why the shape needs a boundary at all, and the
+ * shadow is a real painted boundary rather than a hairline one.
+ *
+ * THE CORNER IS 12px, on a card that is about 25px tall on a phone. Measured
+ * off the reference at 6x: its card is 38 image pixels tall with a 9 pixel
+ * corner, a ratio of 0.24, which on our 25px card is 6px; 12 is the same
+ * language a touch more generous, and it is what "fully rounded" reads as on
+ * a card that is sometimes two lines. It is deliberately NOT a 999px pill:
+ * the reference's own two-line cards are not stadiums.
  */
 .path-label {
   position: absolute;
   top: 50%;
   z-index: 2;
   box-sizing: border-box;
-  max-width: 13.5rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 10px;
+  /*
+   * HOW MUCH ROOM THERE ACTUALLY IS, rather than one number for every row.
+   *
+   * The chip swings --wind steps off the centreline, so the flank the card
+   * hangs on is a different width on every row: a chip at +1.7 leaves 240px
+   * to its left on a 390pt phone and a chip at +0.3 leaves 130. A single
+   * max-width has to be the SMALLEST of those to be safe, which is what made
+   * the wide rows clip a title they had room for.
+   *
+   * half the column, plus the swing, minus half a chip, minus the gap, minus
+   * the page's own edge padding. The floor is 8rem so a card is never a
+   * one-word-per-line ribbon; --path-label-side is +1 for a card on the left
+   * (which gains room as the chip swings right) and -1 for one on the right.
+   */
+  --label-room: max(
+    8rem,
+    calc(min(50vw, 14rem) + var(--path-label-side, 1) * var(--wind, 0) * var(--wind-step, 0px) - 2.375rem - 0.6rem - 0.5rem)
+  );
+  max-width: var(--label-room);
+  padding: 0.25rem 0.55rem;
+  border-radius: 12px;
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: none;
+  /*
+   * THE SHADOW IS THE BOUNDARY, and it is measured rather than assumed.
+   *
+   * theme.css carries a structural-border rule ("white on cream is 1.10:1, so
+   * a card carries a border"), and this card is the one place in the tab that
+   * does not follow it. That is the pixel verdict's instruction in as many
+   * words: "warm cream, fully rounded, NO BORDER STROKE, soft shadow", and
+   * the enlarged reference card (measurements/_probe-ref-card.mjs on
+   * unit02-path.jpg) has no stroke on it anywhere and a clear shadow below.
+   *
+   * THE DIVERGENCE IS REPORTED WITH ITS NUMBERS rather than waved through.
+   * The card surface is 1.05:1 on the page in light and 1.18:1 in dark, so
+   * the plate does not separate itself and the shadow is what draws its
+   * edge. The alphas below are the strongest that still read as a shadow
+   * rather than as a smudge, measured by measurements/_probe-path-pairs.mjs.
+   *
+   * WHAT DOES NOT MOVE: the reading. --foreground on --card is 12.45:1 in
+   * light and 11.84:1 in dark, well over the 4.5 body floor, and the text is
+   * the content here. WCAG 1.4.11 scopes to interface components and to
+   * graphics required to understand content; a plate behind a fully legible
+   * label is neither, which is the same argument the terrace plates make.
+   */
+  box-shadow: 0 1px 2px rgb(52 41 18 / 0.18), 0 4px 10px rgb(52 41 18 / 0.2);
   color: var(--foreground);
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.25;
   text-align: left;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  /* No clamp and no hidden overflow: nothing on this tab truncates. */
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   pointer-events: none;
+}
+/*
+ * THE LEADING ICON, where the reference has one. unit01-path.jpg puts a
+ * stopwatch before "X2 addition to dienes", a lightbulb before "1,2- vs
+ * 1,4--Addition", a play triangle before "Allylic halogenation" and the
+ * mechanism arrow before "Kinetic vs thermodynamic control": the card
+ * carries the same motif its chip does, so the kind is readable from the
+ * name as well as from the face.
+ *
+ * It is the BODY ink rather than the engrave tone, because here it is a mark
+ * on a card and not a cut in a chip: --foreground on --card is 10.65:1.
+ */
+.path-label__icon {
+  flex: 0 0 auto;
+  width: 0.95rem;
+  height: 0.95rem;
+  overflow: visible;
+  /* currentColor and NOT none, which is the same painting the engraved motif
+     gets on the chip. Most motif paths carry `fill="none"` as an attribute and
+     override this; the ones that do not are the shapes whose ATOMS are solid
+     (the hub's ball and stick, the video triangle), and with `fill: none` the
+     hub lost its four balls and its centre and rendered as a bare x. */
+  fill: currentColor;
+  stroke: currentColor;
+  opacity: 0.75;
+}
+.path-label__text {
+  min-width: 0;
+}
+/* At night a warm shadow disappears into an indigo page, so the card's edge
+   is drawn in black instead. Measured the same way; see the light rule. */
+.dark .path-label {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 4px 10px rgb(0 0 0 / 0.45);
 }
 /* Beside the chip, on the side it swung away from. The translate is what puts
    the card's own middle on the chip's, without a flex context to do it. */
+/* The icon LEADS on both flanks, which is what unit01-path.jpg draws: the
+   stopwatch is at the head of "X2 addition to dienes" on the left flank and
+   the lightbulb at the head of "1,2- vs 1,4--Addition" on the right one. It
+   is a leading icon, not a mark on the side nearest the chip. */
 .path-label--left {
+  --path-label-side: 1;
   right: calc(100% + 0.6rem);
   transform: translateY(-50%);
-  text-align: right;
+  text-align: left;
 }
 .path-label--right {
+  --path-label-side: -1;
   left: calc(100% + 0.6rem);
   transform: translateY(-50%);
 }
@@ -836,10 +1010,12 @@
   top: calc(100% + 0.4rem);
   left: 50%;
   transform: translateX(-50%);
-  max-width: 9.5rem;
+  /* A fork cell is half a column, so this card's room is the cell's own
+     width and not the flank's. It does not clamp either: nothing on this
+     tab truncates. */
+  max-width: min(9.5rem, 44vw);
   text-align: center;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  justify-content: center;
 }
 /* The guidebook link on the generic track's signpost: a 44px round press,
    the touch floor, sitting at the rule's right end rather than inside the
@@ -1019,12 +1195,49 @@
      carry meaning (chips, trail, gate, track map) all keep their floors.
      Recorded here rather than left implicit, because a critic should be able
      to see the exemption was reasoned. */
-  /* Owner 2026-09-03: the scene should read like the approved images, where the
-     glassware and watermarks are visible ink rather than a rumour. #c9b993 was
-     1.66:1 on the new ground and vanished. This is 2.35:1: still decoration,
-     still under the 3.0 an INTERFACE component owes (these are not
-     interactive), and now actually a drawing. */
-  --path-prop: #b09a6d;
+  /*
+   * GHOSTED TO THE REFERENCE'S OWN DELTA, 2026-09-04, and this is a number
+   * rather than a preference.
+   *
+   * Pixel verdict: "the reference ghosts them at a luminance delta of about
+   * 33 against the ground; the build draws them at about 90, nearly 3x, so
+   * wallpaper reads as objects." Both halves were re-measured here rather
+   * than taken on trust. measurements/_probe-ref-ghost.mjs reads the adopted
+   * designs at their flask and molecule watermarks and reports deltas of
+   * 33.8, 40.0 and 22.9, so 33 is the middle of the real range. The build's
+   * #b09a6d has a channel luminance of 155 against plates at 218 to 243: a
+   * delta of 63 to 88.
+   *
+   * #ccbe9b is 190.5, which puts it 27 to 44 off the plates it actually
+   * lands on and about 33 off the two commonest. Still decoration, still
+   * deliberately under the 3.0 an INTERFACE component owes: nothing on this
+   * layer is a control, carries state, or is needed to understand the page,
+   * and WCAG 1.4.11 scopes to graphics required for understanding. The props
+   * that DO carry meaning (chips, trail, gate, track map) keep their floors
+   * and the contrast audit is what measures those.
+   *
+   * The 2026-09-03 note this replaces was right that #c9b993 "vanished", and
+   * it over-corrected: the answer to a watermark nobody can see is a bigger
+   * and more confident DRAWING, which is what the density and scale work in
+   * sceneProps did, not a darker ink.
+   */
+  --path-prop: #ccbe9b;
+  /*
+   * THE BOULDER, and it is the one landscape prop that is not a tan.
+   *
+   * Sampled off unit01-path.jpg with measurements/_probe-ref-boulder.mjs: the
+   * reference boulder is #a5a5a4 on an #e1d9ca ground, a channel-luminance
+   * delta of 53 and 1.76:1. It is a cool grey because a boulder is an OBJECT
+   * standing on the land and not a drawing on it, and the cool separates it
+   * from the warm plates without joining the periwinkle the controls own.
+   * The value IS the reference's, so ours measures the reference's ratio
+   * against the plate a boulder stands on: 1.76:1 on --path-terrace-3, which
+   * is the deep near ground the placement table puts it at (band y 0.94).
+   * The far pebble is one step lighter, which is the only depth cue the pair
+   * needs.
+   */
+  --path-boulder: #a5a5a4;
+  --path-boulder-far: #b7bcbc;
   /* The current node's bloom, per the states sheet's blurred violet halo.
      Two stops so the pulse is a swell rather than a flash. */
   --path-halo: rgb(139 92 246 / 0.5);
@@ -1052,17 +1265,31 @@
    * card in this app carries a border on) and the arch keeps the spec's light
    * face. The keyline is 4.88:1 on the cream.
    */
-  --path-gate-arch: #cfc9bf;
-  --path-gate-arch-line: #6f6a60;
-  --path-gate-arch-locked: #ddd8cf;
-  /* The sunken double dagger, VIOLET FAMILY per the owner's 2026-09-03 gate
-     clause, measured against the arch face it is cut into rather than against
-     the page: #5c5a86 on #cfc9bf is 3.91:1, over the 3.0 an identifiable
-     graphic needs, and #6b6885 on the locked arch is 3.75:1. The lip is the
-     light catching the far wall of the groove, so it is white at low alpha
-     and carries no floor of its own. */
-  --path-gate-mark: #5c5a86;
-  --path-gate-mark-locked: #6b6885;
+  /*
+   * THE ARCH IS PERIWINKLE, superseding the grey. See UnitGateNode: the
+   * owner's 2026-09-03 ruling adopts unit02-path.jpg's arch by name and that
+   * arch is the node blue, not blueberry_spec-node-types' grey band.
+   *
+   * Two bands. The pale face is the chip's own #a2b5fa at 1.80:1 on the
+   * cream, and the KEYLINE is what carries the floor at 5.38:1, which is the
+   * fill-and-stroke-on-one-shape argument this file makes everywhere. The
+   * inner band is a deeper step of the same hue; it also carries the keyline,
+   * so it is identifiable against the page rather than only against the band
+   * it sits inside (1.50:1, which would not have been enough on its own).
+   */
+  --path-gate-arch: #a2b5fa;
+  --path-gate-arch-inner: #7f92d8;
+  --path-gate-arch-line: #55628f;
+  --path-gate-arch-locked: #c3c8e4;
+  --path-gate-arch-inner-locked: #a9b0d0;
+  /* The double dagger, VIOLET FAMILY per the owner's 2026-09-03 gate clause.
+     It now stands in the arch's OPENING rather than cut into its crown, so it
+     is measured against the page the opening shows: #33385c on the lightest
+     plate is 10.20:1, and it clears 3.76:1 even where the inner band passes
+     behind it. The lip is the light catching the far wall of the groove, so
+     it is white at low alpha and carries no floor of its own. */
+  --path-gate-mark: #33385c;
+  --path-gate-mark-locked: #5b6188;
   --path-gate-lip: rgb(255 255 255 / 0.75);
   /* THE TERRACES, the goals' "terraced hills stepping down". The fill is a
      hair off the warm cream page on purpose (a watermark landscape is the
@@ -1127,6 +1354,29 @@
   --path-terrace-1: #f3ebda;
   --path-terrace-2: #ece2cb;
   --path-terrace-3: #e5d9bd;
+  /*
+   * THE FAR RIDGE, AND IT IS THE FIX FOR A THIRD OF THE PHONE SCREEN.
+   *
+   * `.path-ridge` had NO RULE IN THIS FILE. PathScene draws it as a bare
+   * <path>, and an SVG shape with no fill declared takes the SVG initial
+   * value, which is BLACK. So the silhouette that is meant to be a hill
+   * behind the terraces painted #000000 over roughly 8 percent of every
+   * frame and 32 percent of the phone screen at some scroll positions.
+   * Measured before the fix: pure-black pixels were 8.11 percent of the
+   * scene at scroll 0 and 5.68 percent at scroll 1000, against zero in
+   * either committed reference.
+   *
+   * It is a fifth member of the terrace ramp rather than a colour of its
+   * own, because that is what it IS: the same land, one plate further
+   * back. Measured: #ded2b3 is 1.36:1 on --path-terrace-0, and the ramp
+   * plus one more plate of its own size is 1.39:1, so the ridge lands
+   * inside the family with a step to spare rather than beside it.
+   * Nothing in docs/reference/design-goals/units/ is darker than mid-tan,
+   * and test/pathwayScenePaint.test.ts derives that ceiling from these
+   * four tokens and fails on any landscape fill past it, which is what
+   * stops a bare fill returning silently.
+   */
+  --path-ridge: #ded2b3;
   /*
    * THE TRAIL IS GREEN, and this is the round's one deliberate palette move.
    *
@@ -1212,7 +1462,12 @@
   /* See the light half: the flank is the page, not a wash on it. */
   --path-shade: transparent;
   --path-edge: #6f74a3;
-  --path-prop: #3a3f66;
+  /* The night half of the same ghosting. The night plates run 27 to 53 in
+     channel luminance and the ink is LIGHTER than the ground here, so 33
+     above the middle plate is about 75: #434c74 measures 76.4. */
+  --path-prop: #434c74;
+  --path-boulder: #454d55;
+  --path-boulder-far: #3a4149;
   --path-halo: rgb(143 147 224 / 0.5);
   --path-halo-soft: rgb(143 147 224 / 0.2);
   --path-start-fill: #2a2352;
@@ -1221,9 +1476,11 @@
   --path-hub-well: #4a54ab;
   --path-ring-track: #6f74a3;
   --path-gate-line: #6f74a3;
-  --path-gate-arch: #4d5273;
-  --path-gate-arch-line: #a7adcd;
-  --path-gate-arch-locked: #3d4160;
+  --path-gate-arch: #4a54ab;
+  --path-gate-arch-inner: #39418a;
+  --path-gate-arch-line: #9ba8f5;
+  --path-gate-arch-locked: #3a3f66;
+  --path-gate-arch-inner-locked: #2e3253;
   /* In dark the arch is the dark shape and the cut is the LIGHT one, the same
      inversion theme.css makes for the chips: #c6cbe8 on #4d5273 is 4.62:1. */
   --path-gate-mark: #c6cbe8;
@@ -1240,6 +1497,9 @@
   --path-terrace-1: #1d2139;
   --path-terrace-2: #242a48;
   --path-terrace-3: #2d3459;
+  /* The far ridge at night: one step further UP the night ramp, for the
+     same reason the light ramp steps down. See --path-ridge above. */
+  --path-ridge: #343c66;
   /* The night road: 4.58:1 on the night ground, same argument as the light
      half. It lifts OFF the ground rather than sinking into it, because at
      night the ground is the dark surface and the ribbon is the object. */
@@ -1356,6 +1616,16 @@
 .path-terrace {
   stroke: none;
 }
+/*
+ * THE FAR RIDGE. It had no rule at all, so it painted the SVG initial fill,
+ * which is black; see --path-ridge for the measurement. It is the same land
+ * as the plates, one value further back, with no outline, exactly as the
+ * plates carry none.
+ */
+.path-ridge {
+  fill: var(--path-ridge);
+  stroke: none;
+}
 .path-terrace[data-step="0"] {
   fill: var(--path-terrace-0);
 }
@@ -1410,6 +1680,19 @@
 .dark .path-cloud {
   fill: var(--path-terrace-fill);
 }
+/*
+ * The boulders. Fill only and no outline, the way the reference draws them
+ * and the way the clouds already are: a filled silhouette IS its own
+ * boundary when it is 2:1 against what it stands on, which the measurement
+ * in --path-boulder records. Two pebbles, the far one a step lighter.
+ */
+.path-boulder {
+  fill: var(--path-boulder);
+  stroke: none;
+}
+.path-boulder--far {
+  fill: var(--path-boulder-far);
+}
 
 /*
  * THE TRAIL: the drawn winding ribbon connecting the nodes, derived by
@@ -1459,15 +1742,25 @@
   pointer-events: none;
 }
 /*
- * ONE RIBBON, WITH A RIM. The widths are 15 and 12, so the rim shows 1.5px
- * either side: enough to be an edge, not enough to be a second line. At 14
- * over 10 with a white fill the eye read the two rims as the drawing and the
- * fill as the gap between them, which is the ladder the critic measured.
+ * ONE RIBBON, WITH A RIM, AND IT IS A STEM RATHER THAN A ROAD.
+ *
+ * THE WIDTH IS MEASURED OFF THE ADOPTED DESIGN, not chosen. Scanned across
+ * docs/reference/design-goals/units/unit02-path.jpg with
+ * measurements/_probe-ref-trail.mjs: the drawn trail is a 13px run on a 594px
+ * phone screen, which is 2.19 percent of screen width. That file is the clean
+ * ruler of the two because its nodes are periwinkle, so every green run in it
+ * is trail; unit01's completed nodes are green too and inflate the median.
+ *
+ * 8px on a 390pt phone is 2.05 percent, which lands on the reference with the
+ * rim included. It was 11 (2.82 percent), and at that weight the ribbon read
+ * as a road the chips were parked on rather than as a stem they are threaded
+ * onto. The rim shows 1px either side: enough to be an edge, not enough to be
+ * a second line.
  */
 .path-trail__edge {
   fill: none;
   stroke: var(--path-trail-rest-edge);
-  stroke-width: 11;
+  stroke-width: 8;
   stroke-linecap: round;
 }
 .path-trail__edge--done {
@@ -1476,11 +1769,11 @@
 .path-trail__fill {
   fill: none;
   stroke: var(--path-trail-rest);
-  stroke-width: 8;
+  stroke-width: 6;
   stroke-linecap: round;
 }
 .path-trail__fill--done {
-  stroke-width: 8;
+  stroke-width: 6;
   stroke: var(--progress);
   /* The static soft glow on finished path segments: the completed-state
      language, and it does not pulse. */
@@ -1573,18 +1866,20 @@
 /* The detour is drawn the way the road is, rim then fill on one shape, so
    its fill can be the pale periwinkle the references draw while the rim is
    what clears the 3.0 an identifiable graphic needs. Thinner than the road
-   (5.5 over an 8 rim against the road's 8 over 11), because a detour is an
-   aside and must not out-weigh the spine it leaves. */
+   (4 over a 6 rim against the road's 6 over 8), because a detour is an
+   aside and must not out-weigh the spine it leaves. Both pairs came down
+   together when the spine was measured against unit02-path.jpg; the RATIO
+   between them is the thing this clause is about and it is unchanged. */
 .path-trail__loop-edge {
   fill: none;
   stroke: var(--path-trail-loop-edge);
-  stroke-width: 8;
+  stroke-width: 6;
   stroke-linecap: round;
 }
 .path-trail__loop {
   fill: none;
   stroke: var(--path-trail-loop);
-  stroke-width: 5.5;
+  stroke-width: 4;
   stroke-linecap: round;
 }
 
@@ -1616,12 +1911,32 @@
   align-items: center;
   gap: 18px;
 }
+/*
+ * ROOM FOR THE CARD THAT HANGS UNDERNEATH.
+ *
+ * A .path-label--under is absolutely positioned, so it costs the layout
+ * nothing and reaches as far down as its own text does. That is what the
+ * pixel verdict measured as "cards COLLIDE with node bodies": on the built
+ * page 27 cards met a chip, and every one of them was an under card reaching
+ * into the block BELOW it, a fork cell or the unit gate. None of them was a
+ * card meeting its own chip.
+ *
+ * So the container reserves the card's height instead. --label-drop is that
+ * height: 0.4rem of gap plus three lines of 0.72rem text at 1.25 leading plus
+ * the card's own 0.5rem of padding, which is the tallest a card can be now
+ * that nothing clamps. Declared once and used by both blocks that carry an
+ * under card, so the two cannot drift.
+ */
+:root {
+  --path-label-drop: 62px;
+}
 .path-fork__cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   max-width: 10rem;
+  padding-bottom: var(--path-label-drop);
 }
 /* The current-state headroom, the same 52px .path-row--current reserves.
    The attempt-2 critic captured the START pill (bottom: calc(100% + 16px))
@@ -1652,22 +1967,31 @@
  * arch". The spec draws one solid unbroken band, so the arch is one closed
  * path with a fill and a keyline. Nothing can show through a fill.
  *
- * GREY IN EVERY STATE, per the spec: grey is what says "this is a boundary,
- * not a lesson". The build painted a passed gate in the progress green, so a
- * boundary claimed "you moved" in the colour reserved for cleared work.
- * --path-gate-arch is 3.24:1 on the cream, so the arch is an identifiable
- * graphic on its own, and the keyline is what gives it a cut edge.
+ * NEVER GREEN IN ANY STATE, and that half of the old clause stands. The build
+ * once painted a passed gate in the progress green, so a boundary claimed
+ * "you moved" in the colour reserved for cleared work. A passed gate changes
+ * its accessible name and nothing else.
  *
- * THE MARK IS CUT INTO IT rather than hung beside it, with the same two-layer
- * engrave the node motifs use. See UnitGateNode: the white disc the dagger
- * used to float in was an ornament, which the owner's 2026-09-03 gate clause
- * rules out in as many words ("one clean mark, sunken, violet family, no
- * ornament").
+ * THE GREY IS SUPERSEDED. It came from blueberry_spec-node-types; the owner's
+ * 2026-09-03 ruling adopts unit02-path.jpg's arch by name and that arch is
+ * the node periwinkle in two concentric bands. See the token block and
+ * UnitGateNode for the measurement and the divergence.
+ *
+ * THE MARK IS STILL ONE CLEAN SUNKEN DAGGER with the same two-layer engrave
+ * the node motifs use, which is the owner's 2026-09-03 gate clause ("one
+ * clean mark, sunken, violet family, no ornament"). What moved is WHERE: out
+ * of the crown's masonry and into the opening, where the reference draws it.
+ */
+/*
+ * THE GATE, SIZED OFF THE ADOPTED DESIGN. See UnitGateNode for the scan: the
+ * reference arch is 22.7 percent of screen width and this one is 100px on a
+ * 390pt phone, which is 25.6 percent with the shadow's room included. It was
+ * 84px around a band that painted about 16 percent.
  */
 .path-gatenode {
   position: relative;
-  width: 84px;
-  height: 76px;
+  width: 100px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1677,19 +2001,39 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
+}
+/*
+ * TWO CONCENTRIC BANDS IN THE NODE PERIWINKLE, which is what
+ * unit02-path.jpg draws. Each band is one shape carrying both its fill and
+ * its keyline, so the contrast audit collapses them to the better of the two
+ * (the argument every card in this app carries a border on): the pale
+ * periwinkle fill is 1.9:1 on the cream and the keyline --path-gate-arch-line
+ * is 5.44:1, so the arch is identifiable on the page while keeping the
+ * reference's face.
+ *
+ * The cast shadow is the chips' own, so the gate stands on the landscape the
+ * same way they do. It replaces the white halo the arch used to wear, which
+ * was the same cream keyline the chips have now lost and for the same reason.
+ */
+.path-gatenode__arch-face,
+.path-gatenode__arch-inner {
+  stroke: var(--path-gate-arch-line);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
 }
 .path-gatenode__arch-face {
   fill: var(--path-gate-arch);
-  stroke: var(--path-gate-arch-line);
-  stroke-width: 2.4;
-  stroke-linejoin: round;
-  /* The sticker cut edge every other node type carries, drawn as a white
-     halo behind the band so the arch lifts off whatever terrace it lands on
-     without a second dark rim. */
-  filter: drop-shadow(0 0 0 var(--card)) drop-shadow(0 0 2.5px var(--card));
+  filter: drop-shadow(0 2px 3px rgb(60 48 24 / 0.22));
+}
+.path-gatenode__arch-inner {
+  fill: var(--path-gate-arch-inner);
 }
 .path-gatenode--locked .path-gatenode__arch-face {
   fill: var(--path-gate-arch-locked);
+}
+.path-gatenode--locked .path-gatenode__arch-inner {
+  fill: var(--path-gate-arch-inner-locked);
 }
 /*
  * The double dagger, SUNKEN into the crown. The same cut language as the
@@ -1735,14 +2079,31 @@
  * half-column the wind leaves, and it is decorative, so a collision would
  * cost a pixel and never a tap.
  */
+/*
+ * IT STANDS ON THE GROUND, and that is the fix for "a 26px head floating in
+ * the air and clipped by the viewport edge".
+ *
+ * `bottom: 0` puts the character's feet on the chip's own base line, which
+ * IS the ground in this landscape: the chip is a key pressed into the page
+ * and its lower rim is where it meets the paper. It used to be `top: 50%`
+ * with a -58 percent translate, which centres a figure on the chip's middle
+ * and reads as hovering.
+ *
+ * The side is chosen in PathwayTab from the row's wind, so the 95px figure
+ * always stands on the flank that has 240px rather than the one that has 45.
+ */
 .path-berry {
   position: absolute;
-  left: calc(100% + 0.55rem);
-  top: 50%;
-  transform: translateY(-58%);
+  bottom: 0;
   pointer-events: none;
   z-index: 3;
   line-height: 0;
+}
+.path-berry--right {
+  left: calc(100% + 0.55rem);
+}
+.path-berry--left {
+  right: calc(100% + 0.55rem);
 }
 
 /*

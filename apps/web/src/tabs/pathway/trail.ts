@@ -24,8 +24,34 @@
  * 1.60:1 as a line on cream), so a done stretch is never a bare green
  * hairline: the renderer draws every segment as a wide under-stroke in the
  * edge colour with the fill colour riding on it, and this module only says
- * WHICH stretches are done. A segment is done when both of its endpoints
- * are, so the green ends at the node the student is standing on.
+ * WHICH stretches are done.
+ *
+ * THE JOIN, not the pair, and this is a correction of 2026-09-04.
+ * docs/DESIGN-GOALS.md's trail clause reads: "Completed stretches are green;
+ * everything ahead is the plain violet family. THE JOIN BETWEEN THEM IS WHERE
+ * THE STUDENT IS." One join, singular. The rule this file used to apply was
+ * "both endpoints done", which produces a join per completed pair, and on the
+ * real unlock policy that is a different picture entirely: reactions inside a
+ * unit are FREELY ORDERABLE (docs/DESIGN-GOALS.md, owner 2026-09-01), so a
+ * student's done-set is scattered rather than a prefix, and a pair rule paints
+ * green only where two finished lessons happen to be adjacent.
+ *
+ * Measured on the built page before the change, with the S2 seed standing on
+ * unit 1: the unit's anchors ran done, open, open, open, open, CURRENT, so
+ * not one pair was adjacent and the whole fourteen-unit track rendered ZERO
+ * done stretches. Both adopted references draw the trail behind the student
+ * green from the top of the screen down.
+ *
+ * So a stretch is done when it lies BEHIND THE JOIN: within each chain, the
+ * join is the last point on it that is done, and every stretch up to and
+ * including that point is walked road. That is the clause read literally, it
+ * reproduces the references, and it is strictly weaker in no case: a chain
+ * whose done points are already a prefix (the common one, and the one the
+ * existing fixtures pin) gives exactly the same answer as the pair rule.
+ *
+ * A fork's two arms are two chains, so a done arm is green and the arm the
+ * student did not take stays violet. A loop detour is never done at all,
+ * because enrichment is off the exam-weighted spine and is not progress.
  */
 
 export type TrailLane = "main" | "left" | "right" | "loop";
@@ -224,6 +250,16 @@ export function trailSegments(
   const mains = points.filter((point) => point.lane === "main");
   if (mains.length === 0) return [];
 
+  /**
+   * THE JOIN: the last point on a chain the student has walked to.
+   *
+   * -1 when the chain carries no done point at all, which is a unit entirely
+   * ahead of the student, and every stretch in it then stays violet.
+   */
+  const joinOf = (chain: readonly TrailPoint[]): number =>
+    chain.reduce((at, entry, index) => (entry.done ? index : at), -1);
+  const spineJoin = joinOf(mains);
+
   let mainIndex = -1;
   let pending: TrailPoint[] = [];
   for (const point of points) {
@@ -246,14 +282,17 @@ export function trailSegments(
         const armPoints = arms.filter((p) => p.lane === lane);
         if (armPoints.length === 0) continue;
         const chain = [previous, ...armPoints, point];
-        const done = chain.every((p) => p.done);
+        // An arm is its own chain, so it has its own join: the arm the student
+        // walked goes green as far as they got, and the arm they did not take
+        // stays violet even though both close on the same gate.
+        const armJoin = joinOf(chain);
         // The gate flag is PER SUB-SEGMENT, not per arm: an arm's last stretch
         // is the one that lands on the gate, and the stretches above it are
         // ordinary lesson-to-lesson road that the flow is allowed to travel.
         armChain(chain, minGrip).forEach((d, index) => {
           segments.push({
             d,
-            done,
+            done: index + 1 <= armJoin,
             loop: false,
             gate: chain[index]?.gate === true || chain[index + 1]?.gate === true,
           });
@@ -262,7 +301,9 @@ export function trailSegments(
     } else {
       segments.push({
         d: cubic(previous, point, minGrip),
-        done: previous.done && point.done,
+        // Behind the join, so the road the student has already walked is
+        // green whether or not they took every lesson on it. See the header.
+        done: mainIndex <= spineJoin,
         loop: false,
         gate: previous.gate === true || point.gate === true,
       });

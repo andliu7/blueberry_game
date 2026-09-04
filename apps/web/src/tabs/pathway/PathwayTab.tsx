@@ -221,14 +221,31 @@ export function unitName(title: string): string {
 }
 
 /**
- * The glyph on the face, per the committed states sheet
- * (blueberry_r7-states-sheet): rest and current faces are BLANK, completed
- * carries a check, locked a lock. The check is dark progress ink, not white,
- * because white on #7ed957 measures 1.76:1, under the 3.0 graphics floor;
- * measured, not assumed, per the fill-only rule. Review is the one state the
- * sheet does not draw (it is this app's spaced-repetition seam), and it
- * carries a circular refresh arrow in the same dark ink so state is never
- * colour alone.
+ * The glyph on the face for the two states that overrule the type motif.
+ *
+ * THE PADLOCK IS DELETED, and this is the pixel verdict of 2026-09-04:
+ * "the reference shows NO padlock anywhere; future nodes are the same
+ * periwinkle button carrying a real content motif. The build stamps padlocks
+ * on everything, turning the screen into an inventory of things you cannot
+ * do." Measured on the built page before the change: 184 of 197 chips on the
+ * Orgo II track wore a lock, and screens two through four were almost
+ * nothing else.
+ *
+ * It is a supersession of blueberry_r7-states-sheet's locked face, not an
+ * oversight. Locked is still one of the five states and it still reads as
+ * locked: the face is DIMMED (the desaturated periwinkle the side loops and
+ * the authoring queue already use), the chip declines the press, and its
+ * accessible name says "Opens when the unit before it is done". So the state
+ * is carried by the TREATMENT plus a real sentence rather than by a stamp
+ * over the content, which is what the clause asks for and is also the
+ * stronger accessibility answer: a padlock is a picture nobody announces.
+ *
+ * What survives: completed carries a check, review carries the refresh. The
+ * check is dark progress ink, not white, because white on the goal green
+ * measures 1.76:1, under the 3.0 graphics floor; measured, not assumed, per
+ * the fill-only rule. Review is the one state the sheet does not draw (it is
+ * this app's spaced-repetition seam) and takes a circular refresh arrow in
+ * the same dark ink, so state is never colour alone.
  */
 function NodeGlyph({ state }: { readonly state: NodeState }) {
   switch (state) {
@@ -245,16 +262,10 @@ function NodeGlyph({ state }: { readonly state: NodeState }) {
           <path d="M17.4 3.6v3.6h-3.6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
-    case "locked":
-      return (
-        <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
-          <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" />
-          <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-        </svg>
-      );
     default:
-      // Rest and current: a blank face, per the sheet. Current is carried by
-      // the halo and the START pill, which are shapes rather than colours.
+      // Rest, current AND LOCKED: the face belongs to the type motif. Current
+      // is carried by the halo and the START pill, locked by the dimmed
+      // treatment; both are shapes and tones rather than a stamp on the work.
       return null;
   }
 }
@@ -541,13 +552,12 @@ function Chip({
       ? {}
       : { "data-trail": lane, "data-trail-done": trailDone(state) ? "true" : "false" };
   /*
-    The three states that carry a mark of their own, per
-    blueberry_r7-states-sheet: done wears the check, locked the padlock, and
-    review this app's own refresh. Rest and current carry no state mark, which
-    is the slot the engraved type motif fills.
+    The TWO states that carry a mark of their own: done wears the check and
+    review this app's own refresh. Rest, current and LOCKED carry no state
+    mark, which is the slot the engraved type motif fills. See NodeGlyph for
+    why the padlock went and what carries locked instead.
   */
-  const stateGlyph =
-    state === "done" || state === "review" || state === "locked" ? <NodeGlyph state={state} /> : null;
+  const stateGlyph = state === "done" || state === "review" ? <NodeGlyph state={state} /> : null;
   const face = (
     <>
       {/*
@@ -641,10 +651,31 @@ function Chip({
  * title and the detail. A visible label that is also announced makes a screen
  * reader say every lesson name twice.
  */
-function NodeLabel({ label, side }: { readonly label: string; readonly side: "left" | "right" | "under" }) {
+function NodeLabel({
+  label,
+  side,
+  icon = null,
+}: {
+  readonly label: string;
+  readonly side: "left" | "right" | "under";
+  /**
+   * The leading mark, where the reference draws one. unit01-path.jpg puts a
+   * stopwatch, a lightbulb, a play triangle and the mechanism arrow at the
+   * head of four of its eight cards, always the same motif the chip itself
+   * carries, so a student reads the KIND off the name as well as off the
+   * face. Null on the cards that name a thing rather than a lesson (the unit
+   * gate), which is what the reference does too.
+   */
+  readonly icon?: NodeBadge | null;
+}) {
   return (
     <span className={`path-label path-label--${side}`} aria-hidden>
-      {withBreakHints(label)}
+      {icon === null ? null : (
+        <svg viewBox="0 0 24 24" className="path-label__icon" aria-hidden>
+          {motifShape(icon)}
+        </svg>
+      )}
+      <span className="path-label__text">{withBreakHints(label)}</span>
     </span>
   );
 }
@@ -723,8 +754,28 @@ function TrackSlab({
           a second announcement would be noise.
         */}
         {state === "current" ? (
-          <span className="path-berry" aria-hidden>
-            <Berry mood="happy" reducedMotion={reducedMotion} sizePx={44} />
+          /*
+            WHICH SIDE, and it is the same rule the name card follows: the
+            side the chip swung AWAY from is the side with room on it. At the
+            widest wind a 390pt phone leaves 45px beside the chip on the near
+            flank and 240 on the far one, so a 95px character has exactly one
+            place it can stand without being cut by the viewport, and that is
+            what the reference draws too (unit01-path.jpg's START chip sits
+            left of centre with Berry on its right).
+          */
+          <span className={`path-berry path-berry--${wind >= 0 ? "left" : "right"}`} aria-hidden>
+            {/*
+              95px, up from 44. Pixel verdict of 2026-09-04: the reference
+              draws "a 95px full-body character standing on the ground" and
+              the build had reduced it to "a 26px head floating and clipped by
+              the viewport edge". 44 was the box; the drawn berry inside it is
+              about 0.72 of that, which is where the critic's 26 came from.
+              At 95 the drawn character is about 68px, which is the reference.
+              The mascot itself is imported and never redrawn, per
+              docs/INHERITED-DECISIONS.md D4, so the size and where it stands
+              are the only things this file gets to decide.
+            */}
+            <Berry mood="happy" behaviour="leanIn" reducedMotion={reducedMotion} sizePx={95} />
           </span>
         ) : null}
         <Chip
@@ -740,7 +791,15 @@ function TrackSlab({
           sheetNode={sheetNode}
           gateNode={gateNode}
         />
-        <NodeLabel label={label} side={wind >= 0 ? "left" : "right"} />
+        {/*
+          THE CURRENT ROW NAMES ITSELF UNDERNEATH, because Berry is standing
+          where the card would go. unit01-path.jpg draws exactly this: every
+          other node carries its card beside it and the START node carries
+          "Kinetic vs thermodynamic control" UNDER it, with the mascot in the
+          space the card vacated. Berry stands on the chip's own ground line
+          and the card hangs below that line, so the two cannot meet.
+        */}
+        <NodeLabel label={label} side={state === "current" ? "under" : wind >= 0 ? "left" : "right"} icon={badge} />
       </div>
     </li>
   );
@@ -772,7 +831,14 @@ function TrackNode({
       detail={detail}
       href={clickable ? href : null}
       wind={trackWind(index)}
-      badge={null}
+      /*
+        A TOPIC ROW STILL SAYS WHAT KIND OF WORK IT IS. The generic course
+        track has no playable link to read a kind off, but "every node carries
+        its motif" (DESIGN-GOALS, owner 2026-09-04) is about the empty face,
+        not about the map: a blank chip reads as broken on this track too. A
+        topic row is concept work, which is what a course topic opens into.
+      */
+      badge="concept"
       dim={false}
       queued={node.problemCount === 0}
       onOpenNode={onOpenNode}
@@ -909,11 +975,37 @@ function hrefForPlayable(link: MapPlayableLink): string {
  * side loop, which is a second, independent channel. So the motif now always
  * reports the kind, exactly as DESIGN-GOALS asks: colour says state, badge says
  * kind, dimming says optional, and no one of them is overloaded.
+ *
+ * EVERY NODE CARRIES ITS MOTIF, AND THIS FUNCTION NEVER RETURNS NULL.
+ * docs/DESIGN-GOALS.md, owner 2026-09-04: "A node with no playable content
+ * still shows what KIND it will be rather than an empty face, because an
+ * empty chip reads as broken rather than as unauthored. Queued authoring
+ * keeps its motif and takes the dashed treatment." It used to return null for
+ * an unauthored node, and the pixel critic counted the cost: four of the
+ * eight faces on the first screen were blank.
+ *
+ * An unauthored node still knows what it IS, because its kind is authored
+ * even when its content is not, and the KIND is the honest thing to report:
+ *
+ *   gate, boss   a checkpoint. The stopwatch, which is what unit 2 is: six
+ *                nodes of kind "gate", none of them a lesson
+ *   branch       a named reaction off the spine. The curved arrow, because a
+ *                named reaction is arrow work
+ *   spine        a lesson. The lightbulb, the neutral "there is something to
+ *                learn here"
+ *
+ * NONE of those says optional, which is the rule this function was written
+ * for and which the first draft of this change broke: mapping branch to the
+ * application FLAG would have made "is this on the exam" a property of the
+ * motif again. Optional stays the dimmed treatment's job.
+ *
+ * It is a statement about the slot rather than a promise about a file, which
+ * is the same thing unitShape.ts's videoHookOf says about the video badge.
  */
-function badgeForMapNode(node: MapNode, videoHookId: string | null, _enrichment = false): NodeBadge | null {
+function badgeForMapNode(node: MapNode, videoHookId: string | null, _enrichment = false): NodeBadge {
   if (node.id === videoHookId) return "video";
-  if (node.kind === "boss") return "challenge";
-  if (node.playable === undefined) return null;
+  if (node.kind === "boss" || node.kind === "gate") return "challenge";
+  if (node.playable === undefined) return node.kind === "branch" ? "mechanism" : "concept";
   return node.playable.kind === "beat" ? "concept" : "mechanism";
 }
 /**
@@ -980,8 +1072,15 @@ function ForkChip({
             fork's concept or an arm, and the mascot marks where the student
             left off wherever that is. See the note on .path-berry. */}
         {status.state === "current" ? (
-          <span className="path-berry" aria-hidden>
-            <Berry mood="happy" reducedMotion={reducedMotion} sizePx={44} />
+          /*
+            A FORK CELL IS HALF A COLUMN, so the side with room is the side
+            the cell opens onto rather than the side a wind step points at.
+            Left cell, mascot on the left; right cell, mascot on the right;
+            the concept above the split is centred and takes the right. The
+            size is TrackSlab's 95 either way: one mascot, one scale.
+          */
+          <span className={`path-berry path-berry--${lane === "left" ? "left" : "right"}`} aria-hidden>
+            <Berry mood="happy" behaviour="leanIn" reducedMotion={reducedMotion} sizePx={95} />
           </span>
         ) : null}
         <Chip
@@ -998,7 +1097,7 @@ function ForkChip({
           sheetNode={sheetNodeFor(node, status.state, clickable && node.playable !== undefined ? hrefForPlayable(node.playable) : null)}
           gateNode={mapGateNode(node, clickable)}
         />
-        <NodeLabel label={node.title} side="under" />
+        <NodeLabel label={node.title} side="under" icon={badge} />
       </div>
 
     </div>
@@ -1131,17 +1230,52 @@ function HubFlower({
  */
 function UnitGateNode({ passed, locked }: { readonly passed: boolean; readonly locked: boolean }) {
   /*
-    The arch outline, as one closed path. Outer wall from the left foot up
-    over the crown and down to the right foot, then back up the inside and
-    across the mouth. Band thickness is a constant 12 units, because the outer
-    and inner arcs differ in radius by exactly that.
+    THE ARCH, REDRAWN AGAINST THE ADOPTED DESIGN, 2026-09-04.
+
+    WHAT unit02-path.jpg ACTUALLY DRAWS, read off the image at 6x with
+    measurements/_probe-ref-card.mjs and scanned for its width with
+    measurements/_probe-ref-gate.mjs: a wide half-round arch in the NODE
+    PERIWINKLE, built from TWO CONCENTRIC BANDS (a thick light one outside, a
+    thinner deeper one inside), short flat feet standing on the ground, a
+    large dark glyph centred in the OPENING under the crown, and no text
+    anywhere near it.
+
+    THE SIZE IS MEASURED. The reference arch is 135 pixels wide on a 594 pixel
+    phone screen, which is 22.7 percent of screen width. Ours painted at about
+    16 percent, inside an 84px box that was mostly padding. The band now spans
+    its own box, and the box is 100px on a 390pt phone: 25.6 percent, which is
+    the reference plus the hair the drop shadow needs.
+
+    IT IS PERIWINKLE NOW AND IT WAS GREY. The grey came from
+    blueberry_spec-node-types ("grey says boundary, not lesson"), which the
+    owner's 2026-09-03 ruling superseded by name: "THE UNIT GATE is the simple
+    arch of unit02-path.jpg". That arch is the node blue. Reported as the
+    divergence it is rather than resolved silently.
+
+    Two closed paths rather than one, because two bands is what the image
+    draws. Each is a half annulus: out along the ground, up the outside, over
+    the crown, down to the ground, then back up the inside.
   */
-  const arch = "M8 54V28a24 24 0 0 1 48 0v26H44V28a12 12 0 0 0-24 0v26Z";
-  /* The double dagger: one stem, two crossbars, cut into the crown. */
+  const band = (outer: number, inner: number, foot: number) =>
+    `M${50 - outer} ${foot}V52a${outer} ${outer} 0 0 1 ${outer * 2} 0v${foot - 52}h${-(outer - inner)}V52a${inner} ${inner} 0 0 0 ${-inner * 2} 0v${foot - 52}Z`;
+  const outerBand = band(48, 34, 56);
+  const innerBand = band(34, 25, 56);
+  /*
+    THE DOUBLE DAGGER, MOVED INTO THE MOUTH AND GROWN.
+
+    It used to sit at y 12 to 26 of a 58-unit box, which is INSIDE the crown's
+    band: a mark cut into the masonry. The reference puts its glyph in the
+    OPENING, on the ground the trail runs through, centred on the trail's own
+    x, at roughly a sixth of the arch's width. That is what this is now.
+
+    docs/DESIGN-GOALS.md is explicit that the glyph is a proper double dagger
+    drawn once and never the hashtag the draft rendered, and it is vector and
+    never the character, per CLAUDE.md's icon rule.
+  */
   const dagger = (
     <>
-      <path d="M32 12.5v13.5" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-      <path d="M27.4 16.2h9.2M27.4 22.2h9.2" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <path d="M50 30v22" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      <path d="M42.5 36.5h15M42.5 45.5h15" strokeWidth="3.4" strokeLinecap="round" fill="none" />
     </>
   );
   return (
@@ -1161,9 +1295,10 @@ function UnitGateNode({ passed, locked }: { readonly passed: boolean; readonly l
       */
       data-trail-gate="true"
     >
-      <svg viewBox="0 0 64 58" className="path-gatenode__arch" aria-hidden>
-        <path className="path-gatenode__arch-face" d={arch} />
-        <g className="path-gatenode__mark-lip" transform="translate(0 1.1)">
+      <svg viewBox="0 0 100 58" className="path-gatenode__arch" aria-hidden>
+        <path className="path-gatenode__arch-face" d={outerBand} />
+        <path className="path-gatenode__arch-inner" d={innerBand} />
+        <g className="path-gatenode__mark-lip" transform="translate(0 1.4)">
           {dagger}
         </g>
         <g className="path-gatenode__mark">{dagger}</g>
@@ -1599,15 +1734,20 @@ function OrgoMapTrack({
               <div className="path-gate mx-auto flex w-full max-w-md flex-col items-center" aria-label="Unit gate">
                 <UnitGateNode passed={gatePassed} locked={gateLocked} />
                 {/*
-                  The gate is named like every other node on the track, per
-                  blueberry_branch-diamond ("Unit test" over its gate). It
-                  hangs UNDER the arch rather than over it, which is the one
-                  place this diverges from that image and it is a geometry
-                  reason: the diamond's two arms converge into the space
-                  directly above the arch, so a card there would sit on the
-                  junction the fork exists to draw.
+                  NO CARD UNDER THE ARCH, pixel verdict of 2026-09-04: the
+                  gate is drawn "with a large dark glyph centred in the
+                  opening, straddling the trail, and NO TEXT LABEL UNDER IT".
+                  Neither adopted per-unit design names its gate.
+
+                  The name is not lost, it moved to where a name belongs on a
+                  graphic: the arch carries role="img" and an aria-label that
+                  says "Unit gate. Clear the checkpoint to open the next
+                  unit." A card said less and said it twice, because the
+                  cards beside it were reading as lesson names and this one
+                  was not a lesson. The older clause it replaces is
+                  blueberry_branch-diamond's "Unit test" caption; the
+                  per-unit designs are the newer adopted word.
                 */}
-                <NodeLabel label="Unit gate" side="under" />
               </div>
             </section>
           );

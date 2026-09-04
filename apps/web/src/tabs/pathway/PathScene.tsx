@@ -97,6 +97,12 @@ interface SceneMetrics {
    * an outlined watermark is allowed to pass behind one.
    */
   readonly keepOutChips: readonly KeepOut[];
+  /**
+   * The ribbon's own corridor between consecutive chips. EVERY prop avoids
+   * this one, outlined or filled: a molecule skeleton lying under the road
+   * is the one thing the pixel verdict named by name.
+   */
+  readonly keepOutTrail: readonly KeepOut[];
 }
 
 /** A rectangle the background must leave alone. See SceneMetrics.keepOut. */
@@ -120,6 +126,7 @@ const EMPTY: SceneMetrics = {
   focus: null,
   keepOutText: [],
   keepOutChips: [],
+  keepOutTrail: [],
 };
 
 /**
@@ -364,6 +371,47 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     const rect = boxOf(element);
     if (rect !== null) keepOutChips.push(rect);
   }
+  /*
+   * THE TRAIL'S OWN CORRIDOR, and it is new on 2026-09-04.
+   *
+   * Pixel verdict: "Keep watermarks OFF the trail; one currently sits
+   * directly under it." Nothing in the keep-out list said so. The chips were
+   * kept clear and the RIBBON BETWEEN THEM was not, which on a winding track
+   * is most of its length.
+   *
+   * The corridor is exact rather than approximate, and that is worth one
+   * sentence because it is the reason a bounding box is enough here. Every
+   * stretch is trail.ts's `cubic`, whose two control points share the x of
+   * their own endpoint, so a Bezier's convex hull property puts the whole
+   * curve inside the x-range of the two chip centres. The box between two
+   * consecutive anchors therefore CONTAINS the ribbon, and a prop that
+   * clears the box clears the ribbon.
+   *
+   * It is measured off the chips rather than read from UnitTrail on purpose:
+   * the trail lives in the unit sections now (see UnitTrail's header) and a
+   * background layer asking a scrolling layer for geometry is the coupling
+   * that round was removing. The anchors are the shared source of truth.
+   */
+  const keepOutTrail: KeepOut[] = [];
+  for (let i = 1; i < keepOutChips.length; i += 1) {
+    const from = keepOutChips[i - 1]!;
+    const to = keepOutChips[i]!;
+    const ax = from.x + from.w / 2;
+    const ay = from.y + from.h / 2;
+    const bx = to.x + to.w / 2;
+    const by = to.y + to.h / 2;
+    // A unit boundary can put two anchors a screen apart; a corridor drawn
+    // across that gap would be a wall down the page rather than a road, and
+    // the ribbon there is a lead-in the next section draws. LEAD_MAX_PX in
+    // UnitTrail is the same 420.
+    if (Math.abs(by - ay) > 420) continue;
+    keepOutTrail.push({
+      x: Math.min(ax, bx) - TRAIL_CORRIDOR_PX,
+      y: Math.min(ay, by) - TRAIL_CORRIDOR_PX,
+      w: Math.abs(bx - ax) + TRAIL_CORRIDOR_PX * 2,
+      h: Math.abs(by - ay) + TRAIL_CORRIDOR_PX * 2,
+    });
+  }
   const centreX = columnBox.left - scene.left + columnBox.width / 2;
   const channelBasis = Math.min(MAX_BASIS_PX, columnBox.width / 2 + LABEL_GUTTER_PX);
   // The nearer side is what limits the swell, because the channel is symmetric
@@ -415,19 +463,51 @@ function measure(svg: SVGSVGElement, stage: HTMLElement): SceneMetrics {
     focus,
     keepOutText,
     keepOutChips,
+    keepOutTrail,
   };
 }
 
 /**
- * How much air a prop keeps from a chip or a signpost, in pixels.
+ * How much air an OUTLINED prop keeps from the trail corridor, in pixels.
  *
- * Measured against the built page rather than guessed. At half a chip's width
- * (38px) a 390pt phone had almost nothing left to draw a landscape in and the
- * strips went nearly empty; at 22 the props return and the overlap probe
- * still reports zero prop-on-chip and zero prop-on-signpost intersections at
- * both reference widths and at six scroll positions each.
+ * Measured against the built page rather than guessed, and it has come down
+ * twice for the same reason. At half a chip's width (38px) a 390pt phone had
+ * almost nothing left to draw a landscape in; at 22 the props returned but
+ * the trail corridor added on 2026-09-04 took the room back, and one frame
+ * carried two props against the reference frame's eight.
+ *
+ * 8 is the honest number for the device. A 390pt phone drawing a column that
+ * winds 224px wide has about 70px of flank on each side; a molecule skeleton
+ * is 110px across; the only way it stands there at all is at the page edge
+ * with a small margin, which is exactly where unit01-path.jpg draws its
+ * flasks (partly cut by the screen edge). What the margin still buys is that
+ * a watermark never TOUCHES the ribbon, which is the rule that matters.
  */
-const PROP_CLEARANCE_PX = 22;
+const PROP_CLEARANCE_PX = 8;
+
+/**
+ * How far a prop keeps from the drawn ribbon, in pixels.
+ *
+ * Half the trail's painted width is 4px, so this is the line plus a real
+ * margin: enough that a watermark reads as beside the road rather than as
+ * touching it, small enough that a phone's narrow flanks still have places
+ * to put one.
+ */
+const TRAIL_CORRIDOR_PX = 16;
+
+/**
+ * How far a FILLED prop keeps from a chip, in pixels.
+ *
+ * Smaller than PROP_CLEARANCE_PX and that is a fix rather than a slackening.
+ * A cloud's own half width is about 40px, and adding 22 on top of it made a
+ * 62px keep-out radius around a shape that has to live on a 390pt phone's
+ * flank; measured on the built page, EVERY cloud in the scene was dropped
+ * (zero near-white pixels across four scroll positions, against 3087 in
+ * unit01-path.jpg's frame). The rule that matters is still enforced: a
+ * filled prop never OVERLAPS a chip. What it no longer does is demand a
+ * margin the device does not have.
+ */
+const FILLED_CLEARANCE_PX = 6;
 
 /**
  * THE SECOND HALF-EXTENT TABLE IS GONE, and its going is a bug fix.
@@ -454,10 +534,11 @@ function propClear(
   placement: PropPlacement,
   point: { readonly x: number; readonly y: number },
   keepOut: readonly KeepOut[],
+  clearance: number = PROP_CLEARANCE_PX,
 ): boolean {
   const half = propExtent(placement);
-  const w = half.w + PROP_CLEARANCE_PX;
-  const h = half.h + PROP_CLEARANCE_PX;
+  const w = half.w + clearance;
+  const h = half.h + clearance;
   for (const box of keepOut) {
     if (
       point.x + w > box.x &&
@@ -560,6 +641,30 @@ function MoleculeMark({
   return (
     <g className="path-mark" transform={at}>
       <path d="M -34 6 L -17 -6 L 0 6 L 17 -6 L 34 6" />
+    </g>
+  );
+}
+
+/**
+ * The low boulders on the near ground.
+ */
+function BoulderMark({ x, y, scale }: { readonly x: number; readonly y: number; readonly scale: number }) {
+  /*
+    TWO PEBBLES, THE LARGER IN FRONT, which is the cluster unit01-path.jpg
+    draws on its low ground. Filled and unoutlined, like the clouds and unlike
+    the watermarks, because a boulder is an OBJECT standing on the land rather
+    than a drawing on it: sampled off that image it is a cool grey at 1.76:1
+    against the ground beside it, which is what separates it from the tans
+    without joining the periwinkle family the controls own.
+
+    Rounded, low and wide. A tall rock reads as a monolith and starts
+    competing with the chips for "thing on the path"; the reference's are
+    squat and sit half in the ground.
+  */
+  return (
+    <g transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${scale})`}>
+      <path className="path-boulder path-boulder--far" d="M -22 8 a 11 9 0 0 1 6 -12 a 9 8 0 0 1 15 3 a 8 7 0 0 1 -3 9 z" />
+      <path className="path-boulder" d="M -4 9 a 12 10 0 0 1 7 -13 a 10 9 0 0 1 17 4 a 9 8 0 0 1 -3 9 z" />
     </g>
   );
 }
@@ -970,10 +1075,46 @@ export default function PathScene({
             // Composed, never scattered: a prop that would land on reading is
             // never drawn, and the one FILLED prop also keeps off the chips.
             // See propClear for why an outlined watermark may pass behind one.
-            const keepOut = placement.kind === "cloud" ? [...metrics.keepOutText, ...metrics.keepOutChips] : metrics.keepOutText;
-            if (!propClear(placement, point, keepOut)) return null;
+            /*
+              WHAT A PROP MUST CLEAR, and it is not the same list for all of
+              them, because the reasons are not the same.
+
+              THE TRAIL IS ABSOLUTE FOR EVERY PROP. Pixel verdict of
+              2026-09-04: "keep watermarks OFF the trail; one currently sits
+              directly under it". The ribbon is a LINE OVER the ground, not a
+              surface: a skeleton under it shows either side and reads as a
+              smudge on the road. This rule is new; nothing said it before.
+
+              A FILLED PROP additionally clears the chips and the reading.
+              Two stickers meeting is a collision whichever is on top, and a
+              white cloud behind a chip reads as a rendering fault.
+
+              AN OUTLINED WATERMARK MAY PASS BEHIND OPAQUE THINGS, and the
+              name cards are opaque: `background: var(--card)` with no alpha.
+              So is a chip. The old rule kept watermarks off the CARDS as well
+              as the trail, and the reason recorded for it does not survive
+              contact with an opaque card: terrain.ts's worry is that "an SVG
+              mark under a text box is not that box's ancestor, so a pair the
+              audit reports as passing could be composed on something else",
+              which is a hazard only where the text sits on the MARK. Text on
+              an opaque card is composed on the card, and the card's own
+              contrast is measured where it is composed.
+
+              It is also what starved the landscape, and that was measured:
+              with the cards in every outlined prop's keep-out list, a 390pt
+              phone frame carried TWO props. The reference frame carries a
+              gate, two clouds, two flasks, three skeletons and boulders. A
+              phone that draws a full-width winding column and a card on every
+              node has no open ground left to be strict with.
+            */
+            const filled = placement.kind === "cloud" || placement.kind === "boulder";
+            const keepOut = filled
+              ? [...metrics.keepOutText, ...metrics.keepOutTrail, ...metrics.keepOutChips]
+              : metrics.keepOutTrail;
+            if (!propClear(placement, point, keepOut, filled ? FILLED_CLEARANCE_PX : PROP_CLEARANCE_PX)) return null;
             const scale = drawScale(placement);
             if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={scale} />;
+            if (placement.kind === "boulder") return <BoulderMark key={key} x={point.x} y={point.y} scale={scale} />;
             if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={scale} />;
             return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={scale} />;
           });
