@@ -24,6 +24,22 @@ const singleFile = process.env.BLUEBERRY_SINGLE_FILE === "1";
 
 export default defineConfig({
   base: "./",
+  /**
+   * `npm run dev` opens the DEVICE HARNESS, not the bare app.
+   *
+   * Owner direction: the repo should open the phone version, with the website
+   * version a setting away. iOS is the primary target per CLAUDE.md's
+   * deployment section, so the phone is the surface that should be in front of
+   * whoever starts the server, and device.html's View control switches to the
+   * full-browser pane and remembers the choice. `/` still serves the app
+   * directly for anyone who wants it, and nothing about the build changes:
+   * this is a dev-server convenience and it is not read at build time.
+   *
+   * host: true binds every interface rather than loopback. Without it Vite
+   * listens on [::1] only, which is why the LAN URL it prints was unreachable
+   * from a phone on the same network.
+   */
+  server: { open: "/device.html", host: true },
   plugins: [react(), tailwindcss()],
   build: {
     manifest: !singleFile,

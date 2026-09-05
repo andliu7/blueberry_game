@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Blueberry device harness</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <!--
   A DEV TOOL, not a product surface, and the difference matters.
 
@@ -102,6 +103,12 @@
     background: rgba(255,255,255,.75); z-index: 3; pointer-events: none;
   }
   .hint { color: var(--muted); font-size: 12px; padding: 0 20px 30px; text-align: center; }
+  /* In full-browser view the device and zoom pickers describe nothing, and a
+     control that cannot affect what you are looking at is noise. */
+  body.is-web label:has(#model),
+  body.is-web label:has(#zoom),
+  body.is-web label:has(#ref),
+  body.is-web #swap { display: none; }
   .missing {
     display: grid; place-items: center; height: 100%; color: #6c6880;
     font-size: 13px; text-align: center; padding: 24px; background: #f6f2e7;
@@ -111,6 +118,12 @@
 <body>
 <header>
   <h1>Blueberry device harness</h1>
+  <label>View
+    <select id="view">
+      <option value="phone">Phone frame</option>
+      <option value="web">Full browser</option>
+    </select>
+  </label>
   <label>Device
     <select id="model">
       <option value="393,852,island,47,59">iPhone 15 / 16 Pro (393x852)</option>
@@ -145,7 +158,7 @@
 </header>
 
 <div class="stage" id="stage"></div>
-<p class="hint">
+<p class="hint" id="hint">
   The left pane is the real app in a real viewport, so what you see is what a phone renders.
   The right pane is the adopted design at the same device size, for comparing without going from memory.
 </p>
@@ -156,6 +169,19 @@
   const zoomEl = document.getElementById("zoom");
   const routeEl = document.getElementById("route");
   const refEl = document.getElementById("ref");
+  const viewEl = document.getElementById("view");
+
+  // THE VIEW IS REMEMBERED. Owner direction: the repo should open the phone
+  // version, with the website version a setting away. localStorage is the right
+  // store for it because the choice is per person and per browser, it is a
+  // convenience rather than state anything else reads, and it must survive a
+  // reload without a server. Wrapped because a private window can throw on
+  // access rather than merely returning null.
+  const VIEW_KEY = "blueberry.harness.view";
+  try {
+    const saved = localStorage.getItem(VIEW_KEY);
+    if (saved === "phone" || saved === "web") viewEl.value = saved;
+  } catch (e) { /* storage blocked; the default stands */ }
   let swapped = false;
 
   // The adopted designs are copied into public/refs, so this ONE path works in
@@ -194,7 +220,30 @@
   function render() {
     const [w, h, cutout, radius, safeTop] = modelEl.value.split(",");
     const zoom = Number(zoomEl.value);
+    const web = viewEl.value === "web";
     stage.innerHTML = "";
+    document.body.classList.toggle("is-web", web);
+    document.getElementById("hint").textContent = web
+      ? "The app in this window's own viewport. Media queries, safe areas and touch all resolve as they do on a desktop, which is a different question from the phone pane rather than a wider version of it."
+      : "The left pane is the real app in a real viewport, so what you see is what a phone renders. The right pane is the adopted design at the same device size, for comparing without going from memory.";
+
+    // FULL BROWSER. The app in the window's own viewport, no frame, no cutout,
+    // which is the desktop surface CLAUDE.md says deploys on push and is what
+    // the gauntlet judges against the bars. It is a different QUESTION from the
+    // phone pane, not a wider version of it: media queries, safe areas and
+    // touch all resolve differently, so the harness shows one or the other
+    // rather than pretending a scaled phone answers both.
+    if (web) {
+      const frame = document.createElement("iframe");
+      frame.src = "./" + (routeEl.value || "");
+      frame.title = "Blueberry app, full browser";
+      frame.style.cssText = "width:100%;height:calc(100dvh - 120px);border:0;background:#fff;border-radius:10px";
+      const col = document.createElement("div");
+      col.style.cssText = "width:100%;padding:0 4px";
+      col.append(frame);
+      stage.append(col);
+      return;
+    }
 
     const frame = document.createElement("iframe");
     frame.width = w; frame.height = h;
@@ -239,6 +288,10 @@
     }
   }
 
+  viewEl.onchange = function () {
+    try { localStorage.setItem(VIEW_KEY, viewEl.value); } catch (e) { /* fine */ }
+    render();
+  };
   modelEl.onchange = render;
   zoomEl.onchange = render;
   refEl.onchange = render;

@@ -4,6 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Blueberry Mechanisms</title>
+
+    <!--
+      HOME SCREEN AND TAB IDENTITY. The app had none of this: no favicon, no
+      apple-touch-icon, no manifest. CLAUDE.md's deployment section says the
+      home screen name is "Blueberry" and that iOS is the primary target, and
+      an install with no icon does not honour that. The icons are rasterized
+      from BlueberryMark, the mark the Cards screen already draws, so this is
+      the product's own art and not something new invented for a header.
+
+      apple-mobile-web-app-status-bar-style is "default" ON PURPOSE, and it is
+      the one line here worth arguing about. "black-translucent" pulls the page
+      up under the status bar, which is what makes env(safe-area-inset-top)
+      report 59px on an island phone, and it is the setting a full bleed design
+      wants. It also forces the status bar's clock and battery to render WHITE,
+      and this app's ground is #f1ede2 cream. White on cream is unreadable, so
+      that setting would trade a legible clock for a visual effect. With
+      "default" iOS reserves the island band itself and lays the app out below
+      it, which is the same outcome .pt-safe was written to guarantee and is
+      why that rule costs nothing here: env() resolves to 0 and the header
+      keeps only its own half rem. The rule still earns its place in Safari,
+      in landscape, and if a dark full bleed screen ever wants the other
+      setting.
+    -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#f6f2e7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Blueberry" />
     <script>
       // Pre-paint theme script, inherited pattern from the sibling repo with the
       // default FLIPPED per the owner divergence in docs/DESIGN-TOKENS.md: this
