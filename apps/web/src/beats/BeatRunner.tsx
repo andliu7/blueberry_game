@@ -31,15 +31,33 @@
  * that swaps `node` without a key still gets a fresh run rather than the
  * previous node's progress under the new lesson.
  *
- * WHAT THIS DELIBERATELY DOES NOT DO. It does not invent content: a node
- * with nothing authored renders the honest empty screen, exactly as before.
- * It does not write progress. And its reward slot is the run's own modest
- * receipt, not the economy celebration: RewardMoment plays receipts the
- * progress store committed, this runner banks nothing, and a celebration
- * about numbers nobody banked would be a lie with confetti on it.
+ * WHAT THIS DELIBERATELY DOES NOT DO. It does not invent content: a node with
+ * nothing authored renders the honest empty screen, exactly as before.
+ *
+ * IT DOES BANK, AND THAT IS A CORRECTION. This header used to say "it does not
+ * write progress", and reasoned that a celebration about numbers nobody banked
+ * would be a lie with confetti on it. The reasoning was right and the
+ * conclusion was backwards. The consequence, measured on 2026-09-05 by
+ * finishing #/lesson/u1-kvt at 1 of 1 and diffing localStorage: the stored
+ * progress was byte-identical afterwards. No lesson recorded, no diamonds, no
+ * streak, the pathway header still reading 0 of 86, the node still open, the
+ * trail never turning green. `clearNode` had ZERO callers anywhere in the app
+ * while `startNode` was already spending charge to enter, so the Path tab, the
+ * product's first destination, took payment and banked nothing.
+ *
+ * So the fix is not to keep refusing the celebration. It is to make the
+ * banking real, which makes the celebration true. The run reports one
+ * `node_cleared` when it reaches the reward phase, once, and the reward slot
+ * shows the diamonds the store actually returned rather than a number this
+ * component made up.
+ *
+ * WHY THE IMPORT IS DYNAMIC. app/progress touches `document` at module scope
+ * and the web suite runs in node with no DOM, which is the same measured
+ * reason LessonGems.tsx records for lazy-loading its balance. A static import
+ * here would redden every test that mounts a runner.
  */
 
-import { Suspense, lazy, useMemo, useRef, useState, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { clearsBeat, type BeatResult, type MasteryLevel } from "./types";
 import { mcqBeatsForNode } from "./mcq";
@@ -48,6 +66,7 @@ import { sortContentById } from "./sort";
 import { synthesisGapsForNode } from "./synthesis";
 import { ToolRail } from "../app/ui/ToolRail";
 import { Berry } from "../mascot/Berry";
+import { pathwayNode } from "../demo/pathwayMap";
 import { ChipPress } from "./ChipPress";
 import { ExitMark, GemMark } from "./chromeIcons";
 import { RecipeStrip } from "./RecipeStrip";
@@ -118,6 +137,16 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
   // A ref, not state: recording it must not re-render mid-animation, and
   // nothing draws from it.
   const stepResult = useRef<BeatResult | null>(null);
+  /**
+   * The diamonds the store actually paid for this run, or null before it has
+   * been asked. Not computed here: CLAUDE.md's rule is that every number in
+   * the HUD and the reward moment is READ from deriveEconomy, never recomputed
+   * by the surface that shows it, because two formulas drift and the student
+   * sees a different figure in two places.
+   */
+  const [banked, setBanked] = useState<number | null>(null);
+  /** Which node this runner has already banked, so a re-render cannot double pay. */
+  const bankedFor = useRef<string | null>(null);
 
   // See the header: adjust-state-during-render, so a swapped node never plays
   // the previous node's run.
@@ -126,7 +155,50 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
     setRun(plan === null ? null : startRun(plan));
     setMcqFraction(0);
     stepResult.current = null;
+    setBanked(null);
   }
+
+  /**
+   * Bank the clear, once, when the run reaches its reward phase.
+   *
+   * ABOVE the early return on purpose: a hook after a conditional return is
+   * the one thing React's rules forbid outright, so this reads `run?.phase`
+   * and does nothing until there is a run in the reward phase.
+   *
+   * The ref is keyed by NODE rather than being a boolean, so that swapping to
+   * another node inside the same mounted runner can bank that one too, while
+   * any number of re-renders of the same finished run cannot pay twice. The
+   * store is idempotent about replays on its own terms (clearNode returns 0
+   * diamonds the second time), but relying on that would still append a second
+   * node_cleared event to an append-only journal, and the journal is the thing
+   * every balance is derived from.
+   *
+   * The pathway's own vocabulary for a node is spine/branch/gate/boss, while
+   * the economy's NodeKind is concept/reaction/branch/... Those are different
+   * vocabularies and this is the seam between them: a beat is journalled as a
+   * "concept" clear, which is the convention PathwayTab.tsx:866 already states
+   * for a lesson node, and the pathway's spine-ness rides along as the `spine`
+   * option the economy pays on.
+   */
+  useEffect(() => {
+    if (run?.phase !== "reward") return;
+    if (bankedFor.current === node) return;
+    bankedFor.current = node;
+    const flawless = !run.recycled && run.clearedBeats === run.totalBeats;
+    const spine = pathwayNode(node)?.kind === "spine";
+    let live = true;
+    void import("../app/progress").then(({ progress }) => {
+      const diamonds = progress.clearNode(node, "concept", {
+        flawless,
+        stepsInOneSitting: run.totalBeats,
+        spine,
+      });
+      if (live) setBanked(diamonds);
+    });
+    return () => {
+      live = false;
+    };
+  }, [run?.phase, run?.recycled, run?.clearedBeats, run?.totalBeats, node]);
 
   if (plan === null || run === null) {
     return (
@@ -300,7 +372,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
         ) : null}
 
         {run.phase === "reward" ? (
-          <RewardSlot run={run} reducedMotion={reducedMotion} onExit={onExit} />
+          <RewardSlot run={run} banked={banked} reducedMotion={reducedMotion} onExit={onExit} />
         ) : null}
       </Suspense>
       </div>
@@ -358,10 +430,13 @@ function LessonHeader({
  */
 function RewardSlot({
   run,
+  banked,
   reducedMotion,
   onExit,
 }: {
   readonly run: LessonRun;
+  /** Diamonds the store actually paid, or null while the clear is still landing. */
+  readonly banked: number | null;
   readonly reducedMotion: boolean;
   readonly onExit: () => void;
 }) {
@@ -385,6 +460,21 @@ function RewardSlot({
             ? `, and brought back ${run.recycleCleared} of the ${run.recycleTotal} that slipped past the first time.`
             : "."}
         </p>
+        {/* THE NUMBER THE STORE PAID, not one this screen worked out. It
+            appears only once the clear has actually landed, which is why it
+            is null-checked rather than defaulted to 0: "+0 diamonds" while a
+            dynamic import is still in flight would be a wrong number shown
+            confidently, and a moment later it would change under the reader.
+            Nothing is claimed here either; the clear is already banked by the
+            time this renders, so this is a receipt and not a button. */}
+        {banked !== null && banked > 0 ? (
+          <p className="lesson-banked">
+            <GemMark />
+            <span>
+              +{banked} {banked === 1 ? "diamond" : "diamonds"}
+            </span>
+          </p>
+        ) : null}
         {stillRough > 0 ? (
           <p className="text-scale-sm text-muted-foreground">
             {stillRough === 1 ? "One is" : `${stillRough} are`} still settling. That is what the next visit is for,

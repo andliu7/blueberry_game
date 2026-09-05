@@ -942,3 +942,19 @@ main:has(> * > .lesson-frame) {
   position: relative;
   z-index: 2;
 }
+
+/* The diamonds a finished run actually banked. A receipt line, so it sits at
+   the reward card's own rhythm rather than shouting: the big number on this
+   screen is the fraction cleared, and a second large figure beside it would
+   make the reader choose which one the screen is about. */
+.lesson-banked {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--diamond, var(--check-face)) 18%, transparent);
+  color: var(--diamond-ink, var(--check-edge));
+  font-size: var(--text-scale-sm);
+  font-weight: 700;
+}

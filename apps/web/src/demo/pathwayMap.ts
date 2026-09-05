@@ -362,3 +362,21 @@ export function coverage(): { readonly playable: number; readonly total: number;
   }
   return { playable, total, spinePlayable, spineTotal };
 }
+
+/**
+ * One node by id, or null.
+ *
+ * Exists because a surface that CLEARS a node has to know two things the node
+ * id alone does not carry: whether it is on the spine, which the economy pays
+ * differently, and its title for a receipt. BeatRunner is the first caller.
+ * Linear scan over roughly 200 nodes, run once when a lesson ends, so an index
+ * would be a cache with an invalidation bug and no measurable win.
+ */
+export function pathwayNode(id: string): PathwayNode | null {
+  for (const unit of PATHWAY_UNITS) {
+    for (const node of unit.nodes) {
+      if (node.id === id) return node;
+    }
+  }
+  return null;
+}
