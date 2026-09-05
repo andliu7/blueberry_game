@@ -166,10 +166,28 @@ export const P2_SEEDS = {
  * authored distractors, so the wrong moment shows a Tier 2 card rather than
  * the Tier 3 tail.
  */
+/*
+  RETARGETED 2026-09-05, from gas laws to pKa, and the reason is a course gate
+  rather than a preference. These were the three gas-law answers (2.00 atm,
+  5.60 L, 0.400 atm) reached through an onboarding lesson. gas_laws lives in
+  gen_chem_1, isCourseOpen(gen_chem_1) is false, and a closed course renders
+  its honest coming treatment rather than a lesson, so the topic is not
+  reachable at all: measured, it draws "Being authored / General Chemistry I".
+
+  These are pka_and_acidity's own authored numerics, read from
+  packages/curriculum/src/corpus/pkaAcidity.ts: the phenol rung at about 10
+  with the carboxylic-acid rung 5 as its authored distractor, and the proton
+  transfer Keq at 1e6. Both carry NO UNIT, which is why typeAnswer now treats
+  the unit as optional.
+
+  ONLY TWO, and that is a real limitation rather than an oversight: the combo
+  moment wants a run of three and this topic has two numeric problems. combo is
+  expected to remain unreached until a served topic carries three, and that is
+  reported rather than papered over.
+*/
 export const INTRO = [
-  { value: "2.00", unit: "atm", wrong: "0.500" },
-  { value: "5.60", unit: "L", wrong: "22.4" },
-  { value: "0.400", unit: "atm", wrong: "0.800" },
+  { value: "10", unit: "", wrong: "5" },
+  { value: "1e6", unit: "", wrong: "1e5" },
 ];
 
 /**
@@ -281,8 +299,13 @@ export async function typeAnswer(page, value, unit) {
   await page.waitForSelector('input[aria-label="Numeric answer"]', { timeout: 10_000 });
   await page.click('input[aria-label="Numeric answer"]');
   await page.type('input[aria-label="Numeric answer"]', value);
-  await page.click('input[aria-label="Unit"]');
-  await page.type('input[aria-label="Unit"]', unit);
+  // THE UNIT IS OPTIONAL. Not every authored numeric carries one: a pKa rung
+  // and an order-of-magnitude Keq are bare numbers, and typing into a field a
+  // question does not ask for is how a correct answer grades wrong.
+  if (unit) {
+    await page.click('input[aria-label="Unit"]');
+    await page.type('input[aria-label="Unit"]', unit);
+  }
 }
 
 /**
