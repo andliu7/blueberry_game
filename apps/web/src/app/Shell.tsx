@@ -45,6 +45,7 @@ import { TabSkeleton } from "./ui/Skeleton";
 import { BootReady } from "./Loader";
 import { useReducedMotion } from "./hooks";
 import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
+import { CourseChip } from "./ui/CourseChip";
 import { Hud } from "./ui/Hud";
 import { NotOpenYet } from "./ui/NotOpenYet";
 import { ToolRail } from "./ui/ToolRail";
@@ -208,7 +209,24 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
         ))}
       </nav>
 
-      <div className={`flex min-h-dvh min-w-0 flex-1 flex-col md:pb-0 ${immersive ? "pb-4" : "pb-24"}`}>
+      {/* overflow-x-clip, and `clip` rather than `hidden` on purpose.
+
+            The peeking stickers are MEANT to hang off the right edge: the
+            pathway's berry sits at 342->437 in a 393px viewport and the Cards
+            berry at 265->409, both by design and both liked by name. What was
+            not by design is that nothing clipped them, so the document's
+            scrollWidth ran to 440 and Chrome's mobile emulation answered by
+            widening the layout viewport to 440 to fit it. Every screen was
+            then being laid out 47px wider than the phone it was drawn for,
+            which is why a bottom sheet measured 440px wide and ran off the
+            right edge.
+
+            `hidden` would fix the overflow and break the header, because an
+            ancestor with overflow hidden becomes the scroll container and a
+            `sticky` child then sticks to THAT rather than to the viewport.
+            `overflow-x: clip` clips without creating a scroll container, which
+            is the entire reason the value exists. */}
+        <div className={`flex min-h-dvh min-w-0 flex-1 flex-col overflow-x-clip md:pb-0 ${immersive ? "pb-4" : "pb-24"}`}>
         {/* No `border-b`. The header's bottom edge is the daily goal meter the
             HUD draws, and a border a pixel above a track is a seam rather than
             a design. See hud.css, "the daily goal edge". */}
@@ -221,7 +239,7 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
             they are 3.87 and 3.72 as graphics with their ink variants over 4.5
             as text. Coloured ink lives on a card in this palette; the page is a
             ground, not a surface to write on. */}
-        <header className="pt-safe sticky top-0 z-10 flex items-center justify-between gap-1.5 bg-card px-2 pb-5 sm:gap-3 sm:px-4 md:px-6">
+        <header className="pt-safe sticky top-0 z-10 flex items-center justify-between gap-1 bg-card px-1.5 pb-5 sm:gap-3 sm:px-4 md:px-6">
           {/* TOOLS ON THE LEFT, SCORES ON THE RIGHT. The blind critic's finding
               on the P3 round was that the header's left half held chrome at the
               same size and weight as the readouts, so the row had seven equal
@@ -248,7 +266,12 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
               flex row whose children may shrink below their content is a row
               that overlaps, and this one has to be unable to. */}
           <div className="flex min-w-0 items-center gap-1.5">
-            <h1 className="hidden truncate pr-1 text-scale-lg font-semibold text-foreground md:block">{label}</h1>
+            <h1 className="hidden truncate pr-1 text-scale-lg font-semibold text-foreground lg:block">{label}</h1>
+            {/* THE COURSE, NOT THE APP'S NAME. See CourseChip.tsx. The page
+                label beside it moved from `md` to `lg` because the two say
+                overlapping things at a glance and the course is the one a
+                student cannot work out from the lit tab underneath. */}
+            <CourseChip />
             <div className="hidden shrink-0 sm:block">
               <LanguageButton onOpen={() => setLanguageOpen(true)} />
             </div>

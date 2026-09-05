@@ -930,7 +930,14 @@ body {
    keeps its own 0.5rem of breathing room on top of whatever the device asks
    for, so the row never sits flush against the cutout either. */
 .pt-safe {
-  padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+  /* --safe-top lets a HARNESS tell the truth. env() only reports a real inset
+     on a device in a fullscreen or standalone context; inside the device.html
+     iframe it resolves to 0, so the frame drew an island sitting on top of a
+     header that the harness swore was clear. A harness that lies about the one
+     thing it exists to check is worse than no harness. device.html now injects
+     --safe-top per model, real devices still fall through to env(), and a
+     desktop browser gets neither and pays nothing. */
+  padding-top: calc(var(--safe-top, env(safe-area-inset-top, 0px)) + 0.5rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -113,11 +113,11 @@
   <h1>Blueberry device harness</h1>
   <label>Device
     <select id="model">
-      <option value="393,852,island,47">iPhone 15 / 16 Pro (393x852)</option>
-      <option value="390,844,notch,47">iPhone 12 / 13 / 14 (390x844)</option>
-      <option value="375,812,notch,44">iPhone X / 13 mini (375x812)</option>
-      <option value="430,932,island,52">iPhone 15 Pro Max (430x932)</option>
-      <option value="412,915,none,40">Pixel 6a (412x915)</option>
+      <option value="393,852,island,47,59">iPhone 15 / 16 Pro (393x852)</option>
+      <option value="390,844,notch,47,47">iPhone 12 / 13 / 14 (390x844)</option>
+      <option value="375,812,notch,44,44">iPhone X / 13 mini (375x812)</option>
+      <option value="430,932,island,52,59">iPhone 15 Pro Max (430x932)</option>
+      <option value="412,915,none,40,24">Pixel 6a (412x915)</option>
     </select>
   </label>
   <label>Zoom
@@ -192,7 +192,7 @@
   }
 
   function render() {
-    const [w, h, cutout, radius] = modelEl.value.split(",");
+    const [w, h, cutout, radius, safeTop] = modelEl.value.split(",");
     const zoom = Number(zoomEl.value);
     stage.innerHTML = "";
 
@@ -200,6 +200,21 @@
     frame.width = w; frame.height = h;
     frame.src = "./" + (routeEl.value || "");
     frame.title = "Blueberry app";
+    // TELL THE APP WHAT THE CUTOUT COSTS. env(safe-area-inset-top) is 0 inside
+    // an iframe no matter what device we are drawing around it, so the frame
+    // used to paint an island over a header the app believed was clear. The
+    // iframe is same-origin, so injecting the inset the real device reports is
+    // both possible and the only way this pane is honest. theme.css reads
+    // --safe-top first and falls back to env() on a real phone.
+    frame.addEventListener("load", function () {
+      try {
+        var d = frame.contentDocument;
+        if (!d) return;
+        var st = d.createElement("style");
+        st.textContent = ":root{--safe-top:" + safeTop + "px}";
+        d.head.appendChild(st);
+      } catch (e) { /* cross-origin, nothing to do */ }
+    });
     const live = column(w + " x " + h + " CSS px, live app", deviceEl(frame, w, h, cutout, radius));
 
     const cols = [live];

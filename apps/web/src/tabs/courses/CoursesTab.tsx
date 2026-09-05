@@ -40,6 +40,25 @@ export const COURSE_LABEL: Record<CourseId, string> = {
   mcat: "MCAT preparation",
 };
 
+/**
+ * The name a course goes by in the HEADER, where 393px of row is shared with
+ * two tools and three readouts.
+ *
+ * "Organic Chemistry II" is 20 characters and measured 138px in the display
+ * face, which is more than the whole tool rail. This is the name a student
+ * would say out loud anyway, so it is not a truncation of the real one, it is
+ * the real one at conversational length. COURSE_LABEL stays the formal name
+ * and is what the sheet, the Me tab and the course list all show.
+ */
+export const COURSE_SHORT: Record<CourseId, string> = {
+  gen_chem_1: "Gen Chem I",
+  gen_chem_2: "Gen Chem II",
+  orgo_1: "Orgo I",
+  orgo_2: "Orgo II",
+  dat: "DAT",
+  mcat: "MCAT",
+};
+
 export const COURSE_BLURB: Record<CourseId, string> = {
   gen_chem_1: "Stoichiometry, gas laws, thermochemistry, and the habits of a correct number.",
   gen_chem_2: "Kinetics, equilibrium, acids and bases, titration curves, electrochemistry.",
@@ -65,7 +84,7 @@ export const COURSE_BLURB: Record<CourseId, string> = {
  * Chemistry II" would be six shapes a student has to learn before the list is
  * faster than the words already were.
  */
-const COURSE_MARK: Record<CourseId, string> = {
+export const COURSE_MARK: Record<CourseId, string> = {
   gen_chem_1: "G1",
   gen_chem_2: "G2",
   orgo_1: "O1",

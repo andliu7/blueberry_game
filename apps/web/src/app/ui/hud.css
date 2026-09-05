@@ -216,6 +216,27 @@
   color: var(--good-ink);
 }
 
+/* THE WORD GOES ON A PHONE, AND ONLY THE WORD. Measured, not preferred: at
+   393px the header now carries six 44px controls (course chip, two tools,
+   three readouts) which want 377px of control plus gaps in a 393px row, and
+   the probe found the search button painted 20px under the diamond readout.
+   Shell.tsx recorded this same collision once before ("six 44px controls do
+   not fit in 390px"). Shrinking a control is not available; mobile-ui states
+   44px as a hard floor.
+
+   Charge was made DOMINANT by the P3 round-two judge, and that verdict rested
+   on five signals: a number at twice the neighbours' size, a tinted fill, a
+   coloured 2px edge, an inset meter, and a word. Four of the five survive
+   here untouched. The word is the only one that is purely additive rather
+   than comparative, and at 45px it is the difference between a row that reads
+   and a row that overlaps. The label is not lost to a screen reader either:
+   the button's aria-label still says Charge. */
+@media (width < 40rem) {
+  .hud-charge-word {
+    display: none;
+  }
+}
+
 /* --------------------------------------------------------- the flame ---- */
 /*
  * Guttering, not disabled. docs/ECONOMY.md's mitigation set argues against
