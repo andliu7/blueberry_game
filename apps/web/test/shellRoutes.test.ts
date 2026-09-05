@@ -25,6 +25,8 @@
  * says so.
  */
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   ALL_TABS,
@@ -161,5 +163,43 @@ describe("one course is open", () => {
     for (const course of ["gen_chem_1", "gen_chem_2", "orgo_1", "dat", "mcat"] as const) {
       expect(isCourseOpen(course)).toBe(false);
     }
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* A trainer deep link never leaves the document                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The pathway's mechanism nodes used to link as "?reaction=x#/trainer". A
+ * query string BEFORE the hash is part of the document URL, so following one
+ * is a full navigation: measured on the pathway as one mainFrame navigation, a
+ * window sentinel lost, and about two seconds of the front-door loader
+ * replaying where the mechanism should be. Every "?hunt=" and "?sequence="
+ * node on the map did it, which is every mechanism in the product.
+ *
+ * The fix is to carry the parameter inside the hash. This reads the source
+ * rather than calling hrefForPlayable, which is module-private to PathwayTab
+ * and would need that whole component imported into a DOM-less suite to reach.
+ * Coarse in the safe direction: it looks for the exact shape of the defect, a
+ * template literal whose query sits ahead of its hash.
+ */
+describe("the pathway's trainer deep link", () => {
+  const pathway = readFileSync(
+    fileURLToPath(new URL("../src/tabs/pathway/PathwayTab.tsx", import.meta.url)),
+    "utf8",
+  );
+
+  it("puts the query inside the hash, not before it", () => {
+    expect(pathway).toMatch(/`#\/trainer\?\$\{param\}=/);
+  });
+
+  it("no longer builds a link whose query precedes the hash", () => {
+    expect(pathway).not.toMatch(/`\?\$\{param\}=[^`]*#\/trainer`/);
+  });
+
+  it("parseHash reads a tab through a hash query, which is what makes that safe", () => {
+    expect(parseHash("#/trainer?reaction=williamson")).toEqual({ kind: "tab", tab: "trainer", rest: [] });
+    expect(parseHash("#/lesson/u1-kvt?x=1")).toEqual({ kind: "lesson", node: "u1-kvt" });
   });
 });

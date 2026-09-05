@@ -935,7 +935,11 @@ function hrefForPlayable(link: MapPlayableLink): string {
   // own route, and BeatRunner picks the surface once the node id arrives.
   if (link.kind === "beat") return `#/lesson/${encodeURIComponent(link.id)}`;
   const param = link.kind === "reaction" ? "reaction" : link.kind === "sequence" ? "sequence" : "hunt";
-  return `?${param}=${encodeURIComponent(link.id)}#/trainer`;
+  // INSIDE the hash, not before it. "?reaction=x#/trainer" changes
+  // location.search, which is a document navigation: the whole app reloaded and
+  // replayed its front-door loader for about two seconds every time a student
+  // opened a mechanism. See hashParam in app/routes.ts for the measurement.
+  return `#/trainer?${param}=${encodeURIComponent(link.id)}`;
 }
 
 /**

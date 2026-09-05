@@ -182,6 +182,38 @@ export function parseHash(hash: string): Route {
   return { kind: "tab", tab: "pathway", rest: [] };
 }
 
+/**
+ * A query parameter carried INSIDE the hash, as in "#/trainer?reaction=seq-eas".
+ *
+ * WHY THE HASH AND NOT location.search. A deep link written as
+ * "?reaction=seq-eas#/trainer" changes location.search, and changing the search
+ * string is a DOCUMENT NAVIGATION: the page reloads, every module re-evaluates,
+ * and the front-door loader replays. Measured on the pathway: one mainFrame
+ * navigation, a sentinel set before the press gone afterwards, and roughly two
+ * seconds of "FINDING YOUR PLACE" where the mechanism should be. Every "?hunt="
+ * and "?sequence=" node on the map did this, which is every mechanism in the
+ * product.
+ *
+ * Putting the parameter after the hash makes the same link a hash change, which
+ * is what this app's router already listens for. parseHash has always done
+ * `.split("?")[0]`, so a query inside the hash was already tolerated by the
+ * route parser; nothing had used it.
+ *
+ * Reads the hash first and falls back to the real search string, so links a
+ * student already has in their history keep working. That fallback is the whole
+ * reason this is a function rather than an inline URLSearchParams call.
+ */
+export function hashParam(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash;
+  const q = hash.indexOf("?");
+  if (q !== -1) {
+    const found = new URLSearchParams(hash.slice(q + 1)).get(name);
+    if (found !== null) return found;
+  }
+  return new URLSearchParams(window.location.search).get(name);
+}
+
 export function hrefForTab(tab: TabId, ...rest: readonly string[]): string {
   return `#/${[tab, ...rest].map(encodeURIComponent).join("/")}`;
 }

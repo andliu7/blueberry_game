@@ -137,8 +137,41 @@ export const BEAT_KINDS: readonly BeatKind[] = Object.freeze([
   "synthesis",
 ]);
 
-/** The two the trainer already plays today. Listed so a coverage report can say so. */
-export const BUILT_BEAT_KINDS: readonly BeatKind[] = Object.freeze(["mechanism", "resonance"]);
+/**
+ * The kinds a student can actually reach today. Listed so a coverage report
+ * can say so, and kept honest by test/beatCoverage.test.ts.
+ *
+ * It said ["mechanism", "resonance"] and called them "the two the trainer
+ * already plays" long after four more shipped, so every coverage number
+ * derived from it would have under-reported the product by two thirds. A
+ * constant that describes the build is a constant that goes stale silently;
+ * the test beside it now reads BeatRunner and TrainerTab and fails if this
+ * list and those files disagree.
+ *
+ * TRACE IS DELIBERATELY ABSENT AND IS NOT A TYPO. `trace` has 88 authored
+ * items, a complete TraceBeatView, and a barrel that exports it, and NOTHING
+ * IMPORTS IT: planLesson never schedules a trace step and BeatRunner has no
+ * branch that renders one. So it is built content a student cannot reach.
+ * DEFAULT_LEVELS below has it serving L0 to L3, the widest ladder of any kind,
+ * which makes the gap worth closing rather than deleting. It is recorded here
+ * rather than quietly counted as shipped.
+ */
+export const BUILT_BEAT_KINDS: readonly BeatKind[] = Object.freeze([
+  "mechanism",
+  "resonance",
+  "mcq",
+  "match",
+  "sort",
+  "synthesis",
+]);
+
+/**
+ * Authored and unreachable. See the note on BUILT_BEAT_KINDS.
+ *
+ * This exists so the gap is a value a report can print rather than a sentence
+ * in a comment nobody runs.
+ */
+export const AUTHORED_UNREACHABLE_BEAT_KINDS: readonly BeatKind[] = Object.freeze(["trace"]);
 
 /**
  * Which rungs each kind can serve, from the ladder spec.

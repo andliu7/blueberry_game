@@ -68,7 +68,7 @@ import { RESONANCE_HUNT } from "../../demo/resonance";
 import { TRAINER_SEQUENCES } from "../../demo/sequences";
 import { ProblemBrowser } from "./ProblemBrowser";
 import type { PlayableLink } from "../../demo/pathwayMap";
-import { hrefForLesson } from "../../app/routes";
+import { hashParam, hrefForLesson } from "../../app/routes";
 import { navigate } from "../../app/useHashRoute";
 
 const Scene3D = lazy(() => import("../../render/three/Scene3D"));
@@ -165,9 +165,31 @@ const SHOW_STATS = params.get("stats") === "1";
  */
 const EXPOSE_TARGETS = params.get("targets") === "1";
 /** Deep links, for captures, sharing, and the pathway map's nodes. */
-const START_REACTION = params.get("reaction");
-const START_SEQUENCE = params.get("sequence");
-const START_HUNT = params.get("hunt");
+/**
+ * The deep link, read WHEN ASKED rather than when this module loads.
+ *
+ * These were three module-scope constants, which is the other half of the
+ * reload bug: even with a hash-only link the trainer would have kept showing
+ * the mechanism from whichever URL happened to load the bundle, because the
+ * values were frozen at import. A function reads the live location every time,
+ * and hashParam checks the hash first and the legacy search string second so
+ * links already in a student's history still resolve.
+ */
+function deepLinkSelection(): Selection | null {
+  const reaction = hashParam("reaction");
+  if (reaction !== null && TRAINER_REACTIONS.some((entry) => entry.id === reaction)) {
+    return { kind: "reaction", id: reaction };
+  }
+  const sequence = hashParam("sequence");
+  if (sequence !== null && TRAINER_SEQUENCES.some((entry) => entry.id === sequence)) {
+    return { kind: "sequence", id: sequence, stepIndex: 0 };
+  }
+  const hunt = hashParam("hunt");
+  if (hunt !== null && RESONANCE_HUNT.some((entry) => entry.id === hunt)) {
+    return { kind: "resonance", id: hunt };
+  }
+  return null;
+}
 
 declare global {
   interface Window {
@@ -221,12 +243,31 @@ export function TrainerTab({ reducedMotion, tutorial = false, onSolved }: Traine
   // The tutorial is authored against the SN2 step and stays pinned to it;
   // everywhere else the student picks from the registry, the sequences or
   // the resonance hunt.
-  const [selection, setSelection] = useState<Selection>(() => {
-    if (START_REACTION !== null && TRAINER_REACTIONS.some((entry) => entry.id === START_REACTION)) return { kind: "reaction", id: START_REACTION };
-    if (START_SEQUENCE !== null && TRAINER_SEQUENCES.some((entry) => entry.id === START_SEQUENCE)) return { kind: "sequence", id: START_SEQUENCE, stepIndex: 0 };
-    if (START_HUNT !== null && RESONANCE_HUNT.some((entry) => entry.id === START_HUNT)) return { kind: "resonance", id: START_HUNT };
-    return { kind: "reaction", id: FIRST_REACTION.id };
-  });
+  const [selection, setSelection] = useState<Selection>(
+    () => deepLinkSelection() ?? { kind: "reaction", id: FIRST_REACTION.id },
+  );
+
+  /**
+   * Follow a deep link that arrives while the trainer is ALREADY on screen.
+   *
+   * Going from the pathway to a mechanism mounts this component fresh, so the
+   * initialiser above covers the common path. Going from one mechanism to
+   * another does not: the route is still "trainer", React keeps the instance,
+   * and only the hash moves. Without this the student would press a different
+   * node and stay on the one they were already doing.
+   *
+   * It only ever applies a link that RESOLVES, so a hash carrying no deep link
+   * (the plain "#/trainer" of the tab bar) leaves the student's own pick alone
+   * rather than snapping them back to the first reaction.
+   */
+  useEffect(() => {
+    const follow = () => {
+      const next = deepLinkSelection();
+      if (next !== null) setSelection(next);
+    };
+    window.addEventListener("hashchange", follow);
+    return () => window.removeEventListener("hashchange", follow);
+  }, []);
   const playable = resolveSelection(tutorial ? { kind: "reaction", id: FIRST_REACTION.id } : selection);
 
   const canvasRef = useRef<HTMLElement | null>(null);
