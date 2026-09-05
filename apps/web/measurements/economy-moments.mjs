@@ -38,12 +38,33 @@ export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /**
  * The lesson the moments are reached through.
  *
- * `?serveAll=1` lifts the SERVED_KINDS gate in src/tabs/courses/CoursesTab.tsx
- * so the intro lesson opens on gas laws, whose three authored numeric questions
- * are the shortest real path to a run of three. The hook changes which authored
- * problems are served, never how one is graded or what Bloom does about it.
+ * `?serveAll=1` lifts the SERVED_KINDS gate, now in
+ * src/tabs/courses/courseCopy.ts, so a topic with authored NUMERIC questions
+ * opens. Those are what driveFeedback types into, and they are the shortest
+ * real path to a run of three. The hook changes which authored problems are
+ * served, never how one is graded or what Bloom does about it.
+ *
+ * REPAIRED 2026-09-05, and the recorded diagnosis was wrong. Both STATUS.md
+ * and the R run's blocker said the lesson now "serves a different beat", so
+ * the driver was typing into an input that had moved. It had not moved. This
+ * constant read "?serveAll=1#/start/lesson", and `start` is the ONBOARDING
+ * head in app/routes.ts, so the URL never opened a lesson at all: it landed on
+ * an onboarding screen whose only control is CONTINUE, and typeAnswer then
+ * waited ten seconds for a numeric input that was never going to appear.
+ * Measured on the running build before and after, by loading both URLs and
+ * asking for the selector: #/start/lesson has no inputs; this topic reports
+ * ["Numeric answer", "Unit"].
+ *
+ * The query sits BEFORE the hash here on purpose, unlike the trainer deep link
+ * fixed the same day. SERVE_ALL is read once at module scope from
+ * location.search, and every caller reaches this through a fresh page.goto, so
+ * a full document load is exactly what is wanted.
+ *
+ * It is repaired OUTSIDE a judged round. CLAUDE.md forbids fixing an
+ * instrument in the round that reports its number; it does not forbid fixing
+ * one that cannot report at all, and this is the window where that is honest.
  */
-export const LESSON_HASH = "?serveAll=1#/start/lesson";
+export const LESSON_HASH = "?serveAll=1#/courses/orgo_2/pka_and_acidity";
 
 /** An instant at local noon `daysAgo` days before today. Noon keeps it inside the day in any offset. */
 export function noonDaysAgo(daysAgo) {
