@@ -2164,12 +2164,16 @@ export const MOMENTS = {
  * Every id in app/routes.ts is here, INCLUDING the three that left the bar and
  * the two that became header tools, because a route that resolves is a route a
  * student can be looking at, and an unaudited surface is one that is failing a
- * rule nobody has measured. "cards" and "me" are the two new ones.
+ * rule nobody has measured. "cards" and "me" were the two new ones then;
+ * "feed" is the new one of 2026-09-05, added in the same turn as the routes.ts
+ * row that made it reachable, because a tab wired without being added here is a
+ * surface the audits do not know exists.
  */
 export const TAB_ROUTES = [
   "trainer",
   "pathway",
   "cards",
+  "feed",
   "me",
   "courses",
   "search",

@@ -77,6 +77,9 @@ const ROUTES = [
   { name: "pathway-ready", hash: "#/pathway", journal: p5ReadySeed(), stored: P5_STORED },
   { name: "trainer", hash: "#/trainer", journal: P3_SEED, stored: P3_STORED },
   { name: "cards", hash: "#/cards", journal: P3_SEED, stored: P3_STORED },
+  // The fifth bar item, wired 2026-09-05. Its quest rows and its disabled
+  // cheer button are controls, so they are held to the same 44px floor.
+  { name: "feed", hash: "#/feed", journal: P3_SEED, stored: P3_STORED },
   { name: "me", hash: "#/me", journal: P3_SEED, stored: P3_STORED },
   { name: "courses", hash: "#/courses", journal: P3_SEED, stored: P3_STORED },
   { name: "periodic", hash: "#/periodic", journal: P3_SEED, stored: P3_STORED },

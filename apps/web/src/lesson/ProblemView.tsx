@@ -209,7 +209,7 @@ function OptionTiles({
 }) {
   const [picked, setPicked] = useState<string | null>(null);
   return (
-    <ul className="option-tiles min-h-0 flex-1 overflow-y-auto" role="list">
+    <ul className="option-tiles shrink-0" role="list">
       {options.map((option) => {
         const figure = optionFigureFor(problemId, option.id);
         const active = picked === option.id;

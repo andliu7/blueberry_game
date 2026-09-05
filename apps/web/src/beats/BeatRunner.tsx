@@ -86,6 +86,7 @@ const SortBeatView = lazy(() => import("./sort/SortBeatView").then((m) => ({ def
 const SynthesisGapBeat = lazy(() =>
   import("./synthesis/SynthesisGapBeat").then((m) => ({ default: m.SynthesisGapBeat })),
 );
+const LessonGems = lazy(() => import("./LessonGems"));
 
 export interface BeatRunnerProps {
   /** The pathway node the student tapped, for example "u3-directing". */
@@ -160,6 +161,22 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
   // (progressSlot), so each screen keeps exactly one bar and one exit, in
   // the committed lesson frame's shape: X, the recipe strip, the counters.
   const inMcq = step?.beat.kind === "mcq" || run.phase === "recycle";
+  // The header's counter. LAZY, and LessonGems.tsx's header records the
+  // measured reason: its balance comes from app/progress, whose import chain
+  // touches `document` at module scope, and the web suite runs in node with
+  // no DOM. The fallback is the gem alone rather than a blank gap, so the row
+  // never changes width while the module arrives.
+  const currency = (
+    <Suspense
+      fallback={
+        <span className="lesson-currency" aria-hidden>
+          <GemMark />
+        </span>
+      }
+    >
+      <LessonGems />
+    </Suspense>
+  );
   const strip = (
     <RecipeStrip
       segments={segments}
@@ -193,7 +210,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
           scrolls internally and the row has to sit above that scroller
           rather than above the sheet; they are handed the same strip. */}
       {!inMcq ? (
-        <LessonHeader onExit={onExit} strip={strip} />
+        <LessonHeader onExit={onExit} strip={strip} currency={currency} />
       ) : null}
 
       {/* THE STAGE. One surface plays here at a time and it fills what is
@@ -222,6 +239,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
             onExit={onExit}
             reducedMotion={reducedMotion}
             progressSlot={strip}
+            currencySlot={currency}
             onProgress={(progress) => setMcqFraction(progress.clearedFraction)}
             onDone={(results) =>
               advanceStep(results.filter((r) => clearsBeat(r)).length, results.length, missedMcqIdsFrom(results))
@@ -270,6 +288,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
             onExit={onExit}
             reducedMotion={reducedMotion}
             progressSlot={strip}
+            currencySlot={currency}
             onProgress={(progress) => setMcqFraction(progress.clearedFraction)}
             onDone={(results) => {
               setMcqFraction(0);
@@ -303,7 +322,15 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
  * THE COUNT IS A DRAWN GEM AND A NUMBER. Both frames pair the number with an
  * icon; a bare numeral does not say what it counts.
  */
-function LessonHeader({ onExit, strip, gems }: { readonly onExit: () => void; readonly strip: ReactNode; readonly gems?: number }) {
+function LessonHeader({
+  onExit,
+  strip,
+  currency,
+}: {
+  readonly onExit: () => void;
+  readonly strip: ReactNode;
+  readonly currency: ReactNode;
+}) {
   return (
     <div className="mx-auto flex w-full max-w-xl shrink-0 items-center gap-3 px-4 pt-3 pb-1 md:px-6">
       <button
@@ -316,12 +343,7 @@ function LessonHeader({ onExit, strip, gems }: { readonly onExit: () => void; re
         <ExitMark />
       </button>
       <div className="min-w-0 flex-1">{strip}</div>
-      {gems !== undefined ? (
-        <span className="lesson-currency" aria-label={`${gems} gems`}>
-          <GemMark />
-          {gems}
-        </span>
-      ) : null}
+      {currency}
     </div>
   );
 }

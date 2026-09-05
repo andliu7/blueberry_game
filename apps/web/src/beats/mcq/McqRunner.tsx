@@ -89,6 +89,17 @@ export interface McqRunnerProps {
    */
   readonly progressSlot?: ReactNode;
   /**
+   * The header's currency counter, from the same owner as `progressSlot`.
+   *
+   * WHY IT ARRIVES FROM ABOVE. The lesson's header has to be ONE row that
+   * does not change shape between screens, and the runner is only one of the
+   * surfaces that draws it. A per-beat diamond value is not that counter:
+   * both committed lesson frames pair their number with a drawn icon and the
+   * number is a BALANCE, the thing the student is carrying, not the payout
+   * for the question on screen.
+   */
+  readonly currencySlot?: ReactNode;
+  /**
    * Fired on every committed answer and on the advance past it, with the
    * run's progress, so the owner of `progressSlot` can fill the strip's
    * current segment to its fraction.
@@ -108,6 +119,7 @@ export function McqRunner({
   reducedMotion = false,
   now = () => new Date(),
   progressSlot,
+  currencySlot,
   onProgress,
 }: McqRunnerProps) {
   const source = beats ?? mcqBeatsForNode(node);
@@ -194,6 +206,7 @@ export function McqRunner({
       reported={isReported(session)}
       {...(showHowTo !== undefined ? { showHowTo } : {})}
       {...(progressSlot !== undefined ? { progressSlot } : {})}
+      {...(currencySlot !== undefined ? { currencySlot } : {})}
       reducedMotion={reducedMotion}
     />
   );

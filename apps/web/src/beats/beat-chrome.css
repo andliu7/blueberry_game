@@ -77,10 +77,30 @@
   min-height: 0;
 }
 
+/* THE GUTTERED SURFACES MAY NOT SHRINK BELOW THEIR OWN CONTENT. The sort
+   ladder, the match board and the synthesis gap are plain flex columns with
+   no inner scroller: given `flex-shrink: 1` inside a runner that now has a
+   definite height, flexbox squeezed the whole column and its children drew
+   on top of each other. Measured on the oxidation ladder at 390 by 844: the
+   CHECK row overlapped the card pool above it. `flex-shrink: 0` keeps them
+   at their natural height and the stage above scrolls instead. The MCQ sheet
+   is deliberately not in this rule: it OWNS a scroller and a sticky action
+   bar, and it has to shrink for those to work. */
+.beat-runner__stage--gutter > * {
+  flex: 1 0 auto;
+}
+
 /* The gutter for the surfaces that do not bring their own. See the comment
    at the stage's markup in BeatRunner.tsx for which those are and why the
    class is conditional. */
 .beat-runner__stage--gutter {
+  /* THE SCROLLER FOR THE SURFACES THAT DO NOT BRING ONE. The runner owns a
+     definite height now (see .beat-runner), so a surface taller than the
+     screen would be CLIPPED rather than scrolled if nothing here scrolled.
+     The MCQ sheet is excluded because it carries its own inner scroller
+     under its own sticky action bar, and two nested scrollers on one screen
+     is how a phone loses a fling. */
+  overflow-y: auto;
   width: 100%;
   max-width: 36rem; /* max-w-xl, the width the header row above already uses */
   margin-inline: auto;
@@ -132,8 +152,15 @@
      own rim rather than as a glow. */
   --check-rim: color-mix(in srgb, var(--check-edge) 55%, var(--check-face));
 
-  /* claim: the sheet's #a8e9a9, which is --progress carrying dark ink. */
-  --claim-rim: color-mix(in srgb, var(--progress-edge) 45%, var(--progress));
+  /* claim: the sheet's #a8e9a9, which is --progress carrying dark ink. Its
+     outline is --progress-edge itself rather than a 45 percent mix of it,
+     which measured 1.53:1 against the face it sat on: an outline nobody can
+     see is not the outline BUTTON-MECHANICS rule 3 asks for. At full
+     strength it is 2.78:1 on the face, which reads as the chip's own rim.
+     This is a darker tone of the chip's OWN colour and not a green line on
+     cream, so it is not the case FILL-ONLY forbids; the rule's measured
+     objection is 1.60:1 green on the page ground. */
+  --claim-rim: var(--progress-edge);
 
   /* disabled: the sheet draws #d1d5de with a #c0c4cf lip, a COOL grey-blue.
      --muted is the warm tan of the page paper and reads as a hole in the
@@ -620,6 +647,37 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* The curriculum lesson fills its mount                                */
+/*                                                                      */
+/* THIS IS A BRIDGE, AND IT IS WRITTEN DOWN AS ONE. LessonPlayer's own  */
+/* header already records the root cause and reported it: the shell's   */
+/* `main` is `display: block` (classes `min-h-0 flex-1`), so the         */
+/* lesson column's `flex-1` is inert there and `min-h-full` resolves     */
+/* against a parent whose SPECIFIED height is auto. Measured: the        */
+/* column came out 497px inside a 670px main, so the lesson's CHECK sat  */
+/* wherever the content happened to end with bare cream under it,        */
+/* while both committed frames fix CHECK at the bottom of the frame.     */
+/*                                                                      */
+/* THE REAL FIX IS ONE CLASS IN A FILE THIS BUILDER DOES NOT OWN: `main` */
+/* needs `flex flex-col` beside the `min-h-0 flex-1` it already carries. */
+/* It has been reported twice and has not landed, and a lesson that      */
+/* ships with its action button floating in the middle of the page is a  */
+/* worse outcome than a scoped rule that only ever matches while a       */
+/* lesson is mounted. `:has` makes it exactly that scoped: no other tab  */
+/* contains a .lesson-frame, so no other tab can be touched by it.       */
+/*                                                                      */
+/* DELETE THIS BLOCK the moment `main` becomes a flex column. It is a    */
+/* bridge, it is dated, and leaving it after that would be two files     */
+/* owning one layout.                                                    */
+/* ------------------------------------------------------------------ */
+
+main:has(> .lesson-frame),
+main:has(> * > .lesson-frame) {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------ */
 /* The curriculum lesson's action bar                                   */
 /*                                                                      */
 /* PINNED, because both committed lesson frames fix CHECK at the bottom */
@@ -700,7 +758,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  align-self: center;
+  /* LEFT, not centred: the berry stands on the right end of the action row
+     below and a centred line ran straight under its feet. */
+  align-self: flex-start;
+  margin-right: 5rem;
   min-height: 2.75rem;
   padding: 0 0.75rem;
   border: 0;
@@ -856,6 +917,16 @@
   top: 0.375rem;
   right: 0.375rem;
   margin-left: 0;
+}
+
+/* THE WORD PILL IS SMALLER ON A TILE THAN ON A ROW, because a tile is 174px
+   wide on a phone and the row is 358. At the row's size the pill reached
+   past the middle of a tile and drew straight across the structure's own
+   label. Same words, same colour, one step down in size: the caption of a
+   caption. */
+.option-tile .option-mark--chosen {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.625rem;
 }
 
 /* THE PEEKING BERRY PEEKS FROM BEHIND, which is what peeking means.

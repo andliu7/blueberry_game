@@ -46,7 +46,8 @@ import {
 } from "@blueberry/curriculum";
 import { Press } from "../app/ui/Press";
 import { Card } from "../app/ui/Card";
-import { ExitMark, GemMark } from "../beats/chromeIcons";
+import { ExitMark } from "../beats/chromeIcons";
+import LessonGems from "../beats/LessonGems";
 import { RecipeStrip } from "../beats/RecipeStrip";
 import { problemRecipeSegments } from "../beats/template";
 import { SchemeCard } from "./SchemeCard";
@@ -386,7 +387,7 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
     // around, because the alternative is hardcoding the header and tab bar
     // heights into a calc() here, which breaks silently the next time the
     // shell chrome changes.
-    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col gap-3 px-4 pt-3 pb-4 md:px-6 md:pt-4">
+    <div className="lesson-frame mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col gap-3 px-4 pt-3 pb-0 md:px-6 md:pt-4">
       {/* THE RECIPE STRIP replaces the bare percentage bar that used to sit
           here. A percentage says how far; the committed spec
           (blueberry_spec-question-badges_*.png) says a lesson shows its BEAT
@@ -417,10 +418,13 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
             blueberry_r9-lesson-mechanism with a drawn flask and flame; both
             count a CURRENCY. This slot used to read "3/7", which is the
             recipe strip's own job said again in digits beside it. */}
-        <span className="lesson-currency" aria-label={`${snapshot.economy.diamonds.balance} gems`}>
-          <GemMark />
-          {snapshot.economy.diamonds.balance}
-        </span>
+        {/* ONE COUNTER, ONE IMPLEMENTATION. beats/LessonGems.tsx is the same
+            component the beat runner's header draws, and its own header
+            records why the balance is derived with the course rather than
+            read off the plain snapshot: without the course as the mastery
+            denominator this slot showed 0 while the shell's HUD, twenty
+            pixels above it, showed 2025. */}
+        <LessonGems />
       </header>
 
       {/* THE HOOK SLOT IS EMPTY RATHER THAN FAKED, which is the rule

@@ -41,6 +41,20 @@
   gap: var(--space-4, 1rem);
 }
 
+/* THE COMMIT ROW IS PINNED, per both committed lesson frames, which fix the
+   action at the bottom of the frame with the content scrolling behind it.
+   The ladder is the tallest surface in the runner and its CHECK was landing
+   wherever the card pool happened to end. Sticky rather than fixed, so it is
+   bounded by the surface it belongs to and never floats over another one. */
+.sort-beat__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(to top, var(--background) 78%, transparent);
+}
+
 .sort-beat__prompt {
   font-size: 1.125rem;
   font-weight: 600;

@@ -14,18 +14,25 @@
  *
  * THE THREE STATES THE PIECE IS, and the fourth that has to exist:
  *
- *   ready  The cost is DRAWN as the pips that are about to go, and written once
- *          underneath. Pressing Start commits: the doomed pips extinguish right
- *          to left, Bloom's halo thins to the new level, the number counts down,
- *          and only then does the route change. The animation is the receipt.
- *   empty  Bloom flat grey and sleepy, the meter dark with the next point
- *          visibly filling, when it lands and when the meter is full again, and
+ *   ready  The cost is DRAWN on the meter as the stretch about to go, and
+ *          written once underneath. Pressing Start commits: the ghost retreats
+ *          into the fill, the chip carrying the number goes with it, Bloom's
+ *          halo thins to the new level, and only then does the route change.
+ *          The animation is the receipt.
+ *   empty  Bloom flat grey and sleepy, the meter empty with a clock standing in
+ *          it, when the next point lands and when the meter is full again, and
  *          the free way out as the PRIMARY action, because it is true.
- *   exam   The meter is REPLACED by a band that says there is no meter. Drawing
- *          it full would still be drawing a meter, and the claim is that this
+ *   exam   The meter is REPLACED by a badge that names the window. Drawing it
+ *          full would still be drawing a meter, and a meter a student can still
+ *          see is a meter a student still counts; the claim is that this
  *          fortnight has none.
  *   free   Review, tutorial and intro cost nothing, ever. The meter is drawn
  *          untouched and the sheet says why it is free in that kind's own words.
+ *
+ * THE METER ITSELF IS charge/ChargeMeter.tsx, built to the committed states
+ * sheet `docs/reference/design-goals/blueberry_spec-meter-states_1788291102.png`
+ * and shared with the header. This file decides WHAT is being spent and holds
+ * the commit; the meter decides nothing and draws the four pictures.
  *
  * EVERY NUMBER IS READ. docs/ECONOMY.md, Anti-abuse: "The client animates what
  * the server concluded." The cost comes from `chargeCostFor` in the economy
@@ -40,7 +47,7 @@
  * route changes immediately: the settled frame is the destination.
  */
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { deriveEconomy, type EconomySnapshot } from "@blueberry/economy";
 import { Berry } from "../mascot/Berry";
 import { DiamondMark } from "../app/ui/HudIcons";
@@ -48,6 +55,8 @@ import { economyOptions, progress } from "../app/progress";
 import { useProgress } from "../app/hooks";
 import { navigate } from "../app/useHashRoute";
 import { hrefForReview } from "../app/routes";
+import { ChargeMeter } from "./ChargeMeter";
+import { chargeMeterModel, type ChargeMeterModel } from "./chargeMeterModel";
 import { chargeGateModel, type ChargeGateModel, type ChargeGateNode } from "./chargeGateModel";
 import "./charge.css";
 
@@ -141,83 +150,6 @@ function CheckMark({ className = "" }: { readonly className?: string }) {
   );
 }
 
-/**
- * The meter, drawn as its units, with three kinds of pip.
- *
- * The header's coach mark already draws thirty pips with the next one filling;
- * this is that row with one thing added, and the addition is the whole piece:
- * the pips that are ABOUT to be spent are drawn differently from the ones that
- * are staying. A student can see which end of the meter is leaving before they
- * commit, which a single bar cannot say at any width.
- *
- * On commit the leaving pips go out from the right, 30 ms apart, so the meter
- * visibly drains rather than jumping to a smaller number between two frames.
- *
- * `aria-hidden` with the count on the wrapper: a screen reader wants "22 of 30
- * charge, 8 leaving", not thirty list items.
- */
-function ChargeStrip({ model, phase }: { readonly model: ChargeGateModel; readonly phase: Phase }) {
-  const { before, after, cap, refill } = model;
-  const pips = [];
-  for (let i = 0; i < cap; i += 1) {
-    const leaving = i >= after && i < before;
-    const lit = i < before && !(leaving && phase === "spending");
-    // The one point on its way back, in the empty state only. It is filled to
-    // however far the wall clock has carried it.
-    const next = refill !== null && i === before && refill.nextFraction > 0;
-    pips.push(
-      <span
-        key={i}
-        className={`charge-pip${lit ? " is-lit" : ""}${leaving ? " is-leaving" : ""}${next ? " is-next" : ""}`}
-        style={
-          {
-            "--i": i,
-            // Rightmost leaves first, so the row drains toward the number that
-            // is left rather than eating into it.
-            "--out": Math.max(0, before - 1 - i),
-            "--next": refill === null ? 0 : refill.nextFraction.toFixed(3),
-          } as CSSProperties
-        }
-      />,
-    );
-  }
-  const label =
-    model.cost > 0 && model.state === "ready"
-      ? `${before} of ${cap} charge, ${model.cost} leaving`
-      : `${before} of ${cap} charge`;
-  return (
-    <span className="charge-strip" role="img" aria-label={label}>
-      {pips}
-    </span>
-  );
-}
-
-/**
- * What stands where the meter stood, inside the exam window.
- *
- * docs/ECONOMY.md switches Charge off completely for the fortnight before the
- * exam and calls that "the whole ethical argument for the mechanic in one
- * gesture". A meter drawn full is still a meter, and a student reading one
- * still counts. So the row of units is not rendered at all: a solid band in the
- * app's own purple takes its place, which is a different KIND of object rather
- * than a fuller version of the same one.
- */
-function ExamBand() {
-  return (
-    <span className="charge-exam-band" role="img" aria-label="Charge is off until your exam">
-      <span className="charge-exam-glyph" aria-hidden>
-        ∞
-      </span>
-      {/* A METER'S READOUT, not a sentence. The band stands in the meter's
-          slot, so it says what the meter would have said, in the uppercase
-          tracked register the HUD's own "CHARGE" caption uses and no button in
-          this app uses. The sentence about the exam is the headline
-          underneath; saying it here as well put it on the card twice. */}
-      <span className="charge-exam-word">Unlimited</span>
-    </span>
-  );
-}
-
 export interface ChargeGateProps {
   /** The node being entered, or null when the sheet is closed. */
   readonly node: ChargeGateNode | null;
@@ -238,11 +170,33 @@ export function ChargeGate({ node, onClose, reducedMotion }: ChargeGateProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   /** The model at the instant of the commit, so the animation's endpoints hold still. */
   const [frozen, setFrozen] = useState<ChargeGateModel | null>(null);
+  const [frozenMeter, setFrozenMeter] = useState<ChargeMeterModel | null>(null);
   const timer = useRef<number | null>(null);
 
   const economy = useLiveEconomy(node !== null && phase === "idle");
   const live = useMemo(() => (node === null ? null : chargeGateModel(economy, node)), [economy, node]);
+  /**
+   * The meter, and the SPEND IS ONLY PASSED WHEN IT CAN ACTUALLY HAPPEN.
+   *
+   * `cost` is what the node prices at, which is not the same question as what
+   * is about to leave: in the empty state the cost is larger than the balance,
+   * and handing that to the meter would draw every point a student has left as
+   * leaving, which is both wrong and the exact anxiety this surface is written
+   * against. So the ghost appears in `ready` and nowhere else.
+   */
+  const liveMeter = useMemo(
+    () => (live === null ? null : chargeMeterModel(economy, { spend: live.state === "ready" ? live.cost : 0 })),
+    [economy, live],
+  );
   const model = phase === "spending" ? frozen : live;
+  /**
+   * FROZEN SEPARATELY, and it has to be. The commit appends `node_started`
+   * first, so one render later the live snapshot already reports the balance
+   * AFTER the spend and the meter would have nothing left to drain. Holding the
+   * model taken at the press keeps the animation's endpoints still, which is
+   * the same reason the gate model is frozen one line above.
+   */
+  const meter = phase === "spending" ? frozenMeter : liveMeter;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -256,6 +210,7 @@ export function ChargeGate({ node, onClose, reducedMotion }: ChargeGateProps) {
     if (node !== null) return;
     setPhase("idle");
     setFrozen(null);
+    setFrozenMeter(null);
     if (timer.current !== null) {
       window.clearTimeout(timer.current);
       timer.current = null;
@@ -281,6 +236,7 @@ export function ChargeGate({ node, onClose, reducedMotion }: ChargeGateProps) {
   const start = (): void => {
     if (model === null || phase === "spending") return;
     setFrozen(model);
+    setFrozenMeter(meter);
     progress.startNode(model.node.id, model.node.kind);
     if (reducedMotion || model.cost === 0) {
       go(model.node.href);
@@ -329,7 +285,12 @@ export function ChargeGate({ node, onClose, reducedMotion }: ChargeGateProps) {
               reducedMotion={reducedMotion}
               sizePx={72}
             />
-            {model.state === "exam" ? <ExamBand /> : <ChargeStrip model={model} phase={phase} />}
+            {meter === null ? null : (
+              /* The sheet prints the mistakes promise in its own, stronger
+                 words two elements down, so the meter's caption would be the
+                 same sentence twice on one card. */
+              <ChargeMeter model={meter} committed={phase === "spending"} caption={false} />
+            )}
           </div>
 
           <p className="charge-kind">{model.kindLabel}</p>

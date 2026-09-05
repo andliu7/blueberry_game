@@ -637,6 +637,13 @@
   --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 22%, var(--card));
   --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 22%, var(--card));
   --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 22%, var(--card));
+  /* Feed's tint was the one missing from this block while its hue was here.
+     It happened to render correctly anyway, because a custom property holding
+     a color-mix() is substituted at USE time and both of its terms are
+     themselves tokens the dark block redefines. That is a fact about CSS, not
+     a decision, and a list of five hues with four tints is a list the next
+     reader has to work that out from. Written out, like its four neighbours. */
+  --tab-tint-feed: color-mix(in srgb, var(--tab-hue-feed) 22%, var(--card));
   --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 22%, var(--card));
 }
 

@@ -145,17 +145,17 @@
   transition: stroke-dashoffset 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* --------------------------------------------------- the charge chip ---- */
+/* ------------------------------------------------------- the readouts ---- */
 /*
- * The dominant readout. Everything here is the critic's finding, applied.
+ * Three cells of one genus, and one of them is filled.
  *
- * The number is --text-scale-2xl against its neighbours' --text-scale-sm, which
- * is exactly 2x and the top of the band the verdict asked for. The tinted pill
- * is the only container in the row, so the chip is a different KIND of object
- * from the two flat readings beside it rather than a bigger one. And the meter
- * lives inside the pill, under the word, with the pill's own padding beneath
- * it: the 8px sliver that collided with the header's divider is gone, and so
- * is the divider it collided with.
+ * The round two verdict asked for a pacing resource with visual PRIMACY, and
+ * round three kept the two signals of it that cost the row no width: charge is
+ * the only cell with a tinted fill and the only one with a coloured 2px edge.
+ * What it no longer has is a 2xl number, a word and an inset meter, because the
+ * committed goal images draw no pill in this header and because the inset meter
+ * was the second meter in a row that should hold one. Hud.tsx's round three
+ * block carries the full reasoning and the divergence it reports to the owner.
  */
 /* THE OUTLINED READOUT. Hud.tsx says why all three carry one now. The charge
    item's is 2px and coloured over a tint; the other two are a hairline on the
@@ -171,70 +171,16 @@
   border-color: color-mix(in srgb, var(--good) 44%, transparent);
   background: var(--good-soft);
 }
-.hud-charge {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.1875rem;
-  padding: 0.25rem 0.5rem 0.3125rem;
-}
-/*
- * The meter spans the whole pill rather than sitting under the word. A short
- * bar tucked under six letters reads as an underline; a bar the width of the
- * chip reads as a gauge, and this one is the only place the 30 cap is drawn.
- */
-.hud-charge-row {
-  display: flex;
-  align-items: center;
-  gap: 0.3125rem;
-}
-/* The charge cell. 26px, the size Bloom used to be here, so the chip's box and
-   the three geometry assertions on it do not move. */
-.hud-charge-mark {
-  display: block;
-  width: 1.625rem;
-  height: 1.625rem;
-  flex: none;
-}
-.hud-charge-value {
-  font-size: var(--text-scale-2xl);
-  font-weight: 800;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--good-ink);
-}
-.hud-charge-value.is-exam {
-  /* The infinity glyph has no descender and reads small at the same size. */
-  font-size: calc(var(--text-scale-2xl) * 1.1);
-}
-.hud-charge-word {
-  font-size: 0.625rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--good-ink);
-}
+/* THE CHARGE READING. Hud.tsx's round three records why this is a mark and a
+   number rather than a pill with a word and an inset meter. The cell keeps the
+   two dominance signals that cost the row no width, and both of them live on
+   `.hud-item[data-hud="charge"]` above: the tint and the 2px coloured edge. */
 
-/* THE WORD GOES ON A PHONE, AND ONLY THE WORD. Measured, not preferred: at
-   393px the header now carries six 44px controls (course chip, two tools,
-   three readouts) which want 377px of control plus gaps in a 393px row, and
-   the probe found the search button painted 20px under the diamond readout.
-   Shell.tsx recorded this same collision once before ("six 44px controls do
-   not fit in 390px"). Shrinking a control is not available; mobile-ui states
-   44px as a hard floor.
-
-   Charge was made DOMINANT by the P3 round-two judge, and that verdict rested
-   on five signals: a number at twice the neighbours' size, a tinted fill, a
-   coloured 2px edge, an inset meter, and a word. Four of the five survive
-   here untouched. The word is the only one that is purely additive rather
-   than comparative, and at 45px it is the difference between a row that reads
-   and a row that overlaps. The label is not lost to a screen reader either:
-   the button's aria-label still says Charge. */
-@media (width < 40rem) {
-  .hud-charge-word {
-    display: none;
-  }
+/* The infinity glyph has no descender and reads small at the same size, so the
+   exam window's one character is set up a step. This is the whole of what is
+   left of the old `.hud-charge-value.is-exam` rule. */
+.hud-charge-exam {
+  font-size: calc(var(--text-scale-sm) * 1.35);
 }
 
 /* --------------------------------------------------------- the flame ---- */
@@ -260,34 +206,6 @@
   64% {
     transform: rotate(-0.6deg) scaleY(1.02);
   }
-}
-
-/* --------------------------------------------------------- the meter ---- */
-/*
- * The charge cap, drawn. It is under the word rather than beside the number
- * because the header has no width to spend on a "/ 30", and a bar answers the
- * same question in 5 pixels of height.
- */
-.hud-meter {
-  display: block;
-  width: 100%;
-  height: 0.375rem;
-  border-radius: 999px;
-  background: var(--hud-track);
-  overflow: hidden;
-}
-.hud-meter-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--good);
-  transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-/* Inside the exam window the meter is not a meter, it is a statement. Full,
-   and in the app's own purple rather than the charge green, so the difference
-   is visible before any words are read. */
-.hud-meter-fill.hud-meter-exam {
-  background: var(--primary);
 }
 
 /* ----------------------------------------------------- the coach mark ---- */
@@ -569,7 +487,6 @@
    animation-only information. */
 @media (prefers-reduced-motion: reduce) {
   .hud-goal-fill,
-  .hud-meter-fill,
   .hud-ring-arc {
     transition: none;
   }

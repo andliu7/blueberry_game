@@ -22,19 +22,16 @@
    fake extrusion, which is the same rule wearing a different property. .press
    travels by scale and brightness, so nothing needs somewhere to fall into.
 
-   THE METER IS DRAWN IN FOUR KINDS OF PIP and the four are distinguishable
-   without colour, which matters because two of them differ only by whether the
-   spend has happened yet:
+   THE METER IS NOT IN THIS FILE ANY MORE. It is charge/ChargeMeter.tsx and
+   charge/meter.css, built to the committed states sheet
+   `docs/reference/design-goals/blueberry_spec-meter-states_1788291102.png` and
+   shared with the header, which is why it stopped being a private part of the
+   sheet. What this file still owns is the panel, the copy and the controls.
 
-     solid --good        charge you keep
-     OUTLINED --good     charge this node is about to take
-     part filled         the point on its way back, in the empty state
-     flat --hud-track    empty
-
-   Outline against solid is the sticker language's own structural distinction,
-   it survives greyscale, and it survives both themes. A first pass drew the
-   leaving pips at half height, which reads as a partly filled unit and collides
-   with the third kind above.
+   The superseded treatment was thirty pips, and the property that made it good
+   is carried into the capsule rather than lost: outline against solid is the
+   one distinction that survives greyscale, so the stretch about to be spent is
+   an outlined ghost beyond a solid fill.
 
    Timings here are the visual half of what ChargeGate.tsx's commit does; the
    block at the bottom collapses every one of them under reduced motion, where
@@ -151,119 +148,6 @@
   padding: 0.25rem 0 0.125rem;
 }
 
-/* ------------------------------------------------------------- the meter -- */
-.charge-strip {
-  display: flex;
-  width: 100%;
-  gap: 2px;
-  align-items: flex-end;
-}
-.charge-pip {
-  flex: 1 1 0;
-  min-width: 0;
-  height: 1.25rem;
-  border-radius: 3px;
-  border: 1px solid transparent;
-  background: var(--hud-track);
-  transform-origin: 50% 100%;
-  /* EVERY pip cascades in, lit or not, for the reason hud.css records: a row
-     that animates only its lit half opens as green squares beside a wall of
-     grey with a hole between them, which reads as a rendering fault. */
-  animation: charge-pip-in 300ms both cubic-bezier(0.22, 1, 0.36, 1);
-  animation-delay: calc(var(--i) * 18ms);
-  transition:
-    background-color 260ms cubic-bezier(0.2, 0.8, 0.3, 1),
-    border-color 260ms cubic-bezier(0.2, 0.8, 0.3, 1),
-    transform 260ms cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-.charge-pip.is-lit {
-  background: var(--good);
-}
-/* About to be spent. Outlined rather than filled: the shape says "this is
-   leaving" without a second hue, and it is the only mark on the row that is a
-   boundary rather than a field. */
-.charge-pip.is-leaving {
-  background: transparent;
-  border-color: var(--good);
-  animation:
-    charge-pip-in 300ms both cubic-bezier(0.22, 1, 0.36, 1),
-    charge-pip-wait 1600ms ease-in-out infinite;
-  animation-delay: calc(var(--i) * 18ms), calc(var(--i) * 18ms + 600ms);
-}
-/* The point on its way back, filled to how far the wall clock has carried it.
-   Drawn as a NESTED FLAT FILL rather than as a gradient stop, because this
-   language has no gradients and a two stop gradient used as a fill level is
-   still a gradient in a stylesheet an auditor reads. The inner block is a plain
-   --good rectangle whose height is the fraction; the hard terminator is also
-   the honest picture of a discrete point arriving. */
-.charge-pip.is-next {
-  position: relative;
-  overflow: hidden;
-  /* An edge, so the one unit that is coming back is findable in a row of
-     twenty nine that are not. Without it the empty state is a wall of grey with
-     a two pixel green sliver in one corner, and the thing arriving is the most
-     important object on that screen. */
-  border-color: color-mix(in srgb, var(--good) 60%, transparent);
-  animation:
-    charge-pip-in 300ms both cubic-bezier(0.22, 1, 0.36, 1),
-    charge-pip-wait 1800ms ease-in-out infinite;
-  animation-delay: calc(var(--i) * 18ms), calc(var(--i) * 18ms + 600ms);
-}
-.charge-pip.is-next::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: calc(var(--next) * 100%);
-  background: var(--good);
-}
-/* The commit. The leaving pips go out from the RIGHT, 34 ms apart, so the row
-   drains toward the charge that is staying rather than eating into it.
-
-   THEY LAND AS EMPTY PIPS, not as nothing. The first pass transitioned them to
-   transparent at scaleY(0.18), which left a five unit HOLE in the middle of the
-   row: nine solid green, a gap, sixteen grey. The 400 ms capture of that reads
-   as a rendering fault rather than as a meter draining, which is the opposite
-   of what an animated receipt is for. So the resting appearance is the same
-   empty pip every unspent unit already has, and the motion is a squash that
-   returns: the pip is briefly crushed, then it is track coloured like its
-   neighbours, right to left. */
-.charge-sheet[data-charge-phase="spending"] .charge-pip.is-leaving {
-  background: var(--hud-track);
-  border-color: transparent;
-  animation: charge-pip-out 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--out) * 34ms);
-  transition:
-    background-color 200ms ease-out,
-    border-color 200ms ease-out;
-  transition-delay: calc(var(--out) * 34ms);
-}
-@keyframes charge-pip-out {
-  0% {
-    transform: scaleY(1);
-  }
-  45% {
-    transform: scaleY(0.3);
-  }
-  100% {
-    transform: scaleY(1);
-  }
-}
-@keyframes charge-pip-in {
-  from {
-    opacity: 0;
-    transform: scaleY(0.24);
-  }
-}
-@keyframes charge-pip-wait {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 /* Bloom's halo IS the meter (berryState.ts: "thickness is the Charge meter"),
    so the commit has to thin it rather than cut to the new width. The halo is a
    border whose width and colour resolve from --berry-halo, so a transition on
@@ -289,83 +173,6 @@
  * switched off, and the sentence beside him says the charge is coming back. */
 .charge-sheet[data-charge-state="empty"] .berry-origin {
   filter: grayscale(0.92);
-}
-
-/* ---------------------------------------------------------- the exam band -- */
-/*
-   What stands where the meter stood. docs/ECONOMY.md switches Charge off for
-   the fortnight before the exam, and a meter drawn full is still a meter a
-   student counts, so the row of units is not rendered at all.
-
-   IT IS GREEN, NOT PURPLE, and that is a correction of the first pass rather
-   than a preference. A full width --primary field with white bold text, drawn
-   two elements above a full width --primary button with white bold text, is
-   two buttons: at phone scale the 2rem/3rem height difference and the 12/14px
-   radius difference that were supposed to keep them apart are not legible, and
-   the capture shows two purple bars stacked with no way to tell which one is
-   the action. --good is the charge hue everywhere in this product (theme.css:
-   "charge is --good"), it is the colour of the thirty pips this band is
-   standing in for, and nothing else on the sheet is green except the promise
-   band, which never renders in this state. So the slot keeps its colour and
-   loses its divisions, which is the honest picture of a meter being switched
-   off rather than filled.
-
-   AND IT IS A LABEL, NOT A SENTENCE. Uppercase with tracking is the register
-   the HUD's own "CHARGE" caption uses and no button in this app uses, so the
-   band reads as a meter's readout. The sentence lives in the headline
-   underneath, where it is the news; the first pass put a near copy of that
-   sentence in here too and said the same thing twice on one card.
-*/
-.charge-exam-band {
-  display: flex;
-  width: 100%;
-  /* METER HEIGHT, NOT BUTTON HEIGHT. The band stands in the meter's slot, so
-     it keeps the meter's proportions: 2rem against the button's 3rem, and the
-     radius at the 12px floor against the button's 14. Colour and register do
-     the rest of the work now, but height is still what makes it sit in the row
-     the pips came out of. */
-  min-height: 2rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--good);
-  background: var(--good);
-  /* Light --good is #047857, a deep green, and white on it measures 5.5:1. The
-     contrast audit composes this pair on the charge-exam route in both themes,
-     so it is measured rather than asserted here. */
-  color: #ffffff;
-  animation: charge-band-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-/* Dark --good is #34d399, a bright mint, and white on it is 1.05:1. The ink
-   inverts with the fill, the same way .dark .path-node--open inverts its
-   numeral, so it is a near black rather than the page's own white.
-   IT IS A LITERAL AND NOT var(--background), which is what it used to be. The
-   dark ground is #171a2e, HSL S 0.333, and the sticker audit scores anything at
-   or above S 0.3 as a saturated hue on body sized text: the glyph and the word
-   here are 18px and 14px, so rule 7 was counting both. #1c1d28 is S 0.18, the
-   same near neutral band --muted-foreground sits in, reads as the same ink at
-   these sizes, and clears more contrast on the mint than the value it
-   replaced. */
-.dark .charge-exam-band {
-  color: #1c1d28;
-}
-.charge-exam-glyph {
-  font-size: var(--text-scale-lg);
-  font-weight: 800;
-  line-height: 1;
-}
-.charge-exam-word {
-  font-size: var(--text-scale-sm);
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-@keyframes charge-band-in {
-  from {
-    opacity: 0;
-    transform: scaleX(0.86);
-  }
 }
 
 /* --------------------------------------------------------------- the copy -- */
@@ -520,18 +327,9 @@
    navigates immediately instead of waiting out an animation nobody sees. */
 @media (prefers-reduced-motion: reduce) {
   .charge-sheet[open]::backdrop,
-  .charge-sheet[open] .charge-panel,
-  .charge-pip,
-  .charge-pip.is-leaving,
-  .charge-pip.is-next,
-  .charge-exam-band {
+  .charge-sheet[open] .charge-panel {
     animation: none;
   }
-  .charge-sheet[data-charge-phase="spending"] .charge-pip.is-leaving {
-    animation: none;
-  }
-  .charge-pip,
-  .charge-sheet[data-charge-phase="spending"] .charge-pip.is-leaving,
   .charge-sheet .berry-origin[data-halo="static"] .berry-halo {
     transition: none;
   }

@@ -9,8 +9,8 @@
  * Routes are data here and nowhere else. A tab component never reads
  * window.location; it receives what it needs as props from the shell.
  *
- * FOUR TABS, NOT EIGHT. Owner amendment of 2026-08-28, recorded in CLAUDE.md
- * and in docs/OPEN-QUESTIONS.md §4:
+ * FIVE TABS, NOT EIGHT AND NOT FOUR. Owner amendment of 2026-08-28, recorded
+ * in CLAUDE.md and in docs/OPEN-QUESTIONS.md §4:
  *
  *   "Four tabs: Path, Train, Cards, Me. The periodic table and the reaction
  *   search are not destinations, they are tools a student reaches for mid
@@ -19,10 +19,26 @@
  *   Leaderboards, chat and tutor messages go behind a flag until their servers
  *   exist. Nothing is deleted and no link 404s."
  *
+ * AMENDED 2026-09-01 at the calibration gate, and the amendment is deliberate
+ * rather than a slide: the bar is FIVE. Path, Train, Cards, Feed, Me, in that
+ * order. CLAUDE.md's tab section carries the supersession in the owner's own
+ * words, docs/DESIGN-GOALS.md ("Header and tabs") makes the five-tab goal
+ * images binding on the count, and every committed unit image in
+ * docs/reference/design-goals/units/ draws exactly those five in exactly that
+ * order. Five is mobile-ui's HARD limit, so this bar now sits on the ceiling
+ * and no sixth ever joins without one leaving; owner direction of 2026-09-02
+ * is that the one leaving is eventually Train, once its surfaces have a named
+ * home, which is a later round's brief and not this one's.
+ *
+ * Feed's server-backed sections render an honest not-open state until their
+ * servers exist, per the flagged-surface rule; its daily quests are derived
+ * from the LOCAL journal, so they ship live. That is why Feed is `nav` and not
+ * `flagged`: the tab has real content today, and only one section of it waits.
+ *
  * So a tab id has a PLACEMENT, and the placement is what the shell reads:
  *
- *   nav        the four in the bar. mobile-ui: five is the hard limit, three
- *              or four is right, and tabs are DESTINATIONS
+ *   nav        the five in the bar. mobile-ui: five is the hard limit, and
+ *              tabs are DESTINATIONS
  *   tool       reachable from the header on every screen, and still a route of
  *              its own so a deep link and a browser back button both work
  *   collapsed  reachable, not in the bar, because one course does not need a
@@ -36,10 +52,11 @@
  */
 
 export type TabId =
-  // the four
+  // the five
   | "pathway"
   | "trainer"
   | "cards"
+  | "feed"
   | "me"
   // header tools
   | "periodic"
@@ -85,6 +102,10 @@ export const ALL_TABS: readonly TabDefinition[] = Object.freeze([
   { id: "pathway", label: "Path", short: "Path", dataPhase: 6, placement: "nav", parent: "pathway" },
   { id: "trainer", label: "Train", short: "Train", dataPhase: 5, placement: "nav", parent: "trainer" },
   { id: "cards", label: "Cards", short: "Cards", dataPhase: 5, placement: "nav", parent: "cards" },
+  // Between Cards and Me, which is the order every committed unit image draws
+  // and the order the calibration gate named. FeedTab.tsx asked for exactly
+  // this row, as FEED_TAB_REQUEST, rather than describing it in a report.
+  { id: "feed", label: "Feed", short: "Feed", dataPhase: 5, placement: "nav", parent: "feed" },
   { id: "me", label: "Me", short: "Me", dataPhase: 5, placement: "nav", parent: "me" },
   { id: "periodic", label: "Periodic table", short: "Table", dataPhase: 5, placement: "tool", parent: "me" },
   { id: "search", label: "Reaction search", short: "Search", dataPhase: 5, placement: "tool", parent: "me" },
@@ -94,7 +115,7 @@ export const ALL_TABS: readonly TabDefinition[] = Object.freeze([
   { id: "messages", label: "Tutor messages", short: "Tutors", dataPhase: 8, placement: "flagged", parent: "me" },
 ]);
 
-/** The bar. Four items, in this order. */
+/** The bar. Five items, in this order, and five is the ceiling. */
 export const NAV_TABS: readonly TabDefinition[] = Object.freeze(
   ALL_TABS.filter((tab) => tab.placement === "nav"),
 );

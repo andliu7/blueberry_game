@@ -1,6 +1,23 @@
 /**
  * The header's course chip: which course you are in, and the way to change it.
  *
+ * THE MARK IS A CARTOON FLASK, NOT THE COURSE'S INITIALS. Owner direction, and
+ * every committed goal image draws it: docs/DESIGN-GOALS.md, "Header and tabs",
+ * "a cartoonish flask course chip (cute rounded erlenmeyer, violet liquid,
+ * sticker style) beside the course name", and
+ * docs/reference/design-goals/units/unit02-path.jpg and unit07-path.jpg both
+ * put that flask and the words "Orgo II" in the top left of the phone frame.
+ * What the build drew was "O2" in a tinted rounded square, which is a legible
+ * abbreviation and is not a picture of anything.
+ *
+ * SO THE NAME COMES BACK ON THE PHONE, and that is the trade the flask forces
+ * rather than a taste reversal. course-chip.css used to hide the word under
+ * 40rem because six 44px controls did not fit in 390px, and with the initials
+ * carrying the identity that was survivable. A flask cannot carry it: one
+ * generic flask would be the same mark for all six courses. The row has the
+ * width now because the header lost two things in the same pass, the second
+ * tool button and the charge pill, and Shell.tsx and Hud.tsx record both.
+ *
  * WHY THE HEADER SAYS THE COURSE AND NOT THE APP'S NAME. Owner direction, and
  * the reference agrees twice over: Duolingo's path header carries the flag of
  * the language you are learning, not the word "Duolingo", and Brainly's carries
@@ -40,6 +57,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CourseId } from "@blueberry/curriculum";
 import { COURSE_COMING, isCourseOpen } from "../courses";
 import { COURSE_LABEL, COURSE_MARK, COURSE_SHORT } from "../../tabs/courses/CoursesTab";
+import { CourseFlask } from "./CourseFlask";
 import { useProgress } from "../hooks";
 import { progress } from "../progress";
 import { hrefForTab } from "../routes";
@@ -117,9 +135,7 @@ export function CourseChip(): React.ReactElement | null {
         aria-haspopup="dialog"
         aria-label={"Course: " + COURSE_LABEL[course] + ". Change course"}
       >
-        <span className="course-chip__mark" aria-hidden>
-          {COURSE_MARK[course]}
-        </span>
+        <CourseFlask className="course-chip__flask" />
         <span className="course-chip__name">{COURSE_SHORT[course]}</span>
         <svg className="course-chip__caret" viewBox="0 0 12 8" width="10" height="7" aria-hidden>
           <path d="M1 1.5 6 6.5 11 1.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

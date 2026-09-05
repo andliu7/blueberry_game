@@ -1,33 +1,59 @@
 /**
  * The app shell: header, the tab bar, and the outlet the current tab renders in.
  *
- * FOUR TABS. Owner amendment of 2026-08-28, quoted in full in routes.ts and in
- * CLAUDE.md. Path, Train, Cards, Me. The periodic table and the reaction search
- * are header TOOLS now, not destinations; Courses collapsed to a link because
- * there is one course; leaderboards, chat and tutor messages sit behind
- * app/flags.ts. Every id still parses and every route still resolves, so a link
- * a student already has lands on a page.
+ * FIVE TABS. Owner amendment of 2026-08-28 as amended at the calibration gate
+ * of 2026-09-01, quoted in full in routes.ts and in CLAUDE.md. Path, Train,
+ * Cards, Feed, Me. The periodic table and the reaction search are header TOOLS,
+ * not destinations; Courses collapsed to a link because there is one course;
+ * leaderboards, chat and tutor messages sit behind app/flags.ts. Every id still
+ * parses and every route still resolves, so a link a student already has lands
+ * on a page.
  *
- * WHAT THE HEADER CARRIES, AND WHY IT CHANGED.
+ * WHAT THE HEADER CARRIES, AND WHY IT CHANGED AGAIN ON 2026-09-05.
  *
- * The header's right half is the P3 HUD, which was won blind at round two and
- * is untouched here: three status items and the daily goal meter as the
- * header's bottom edge. The left half used to be the wordmark plus two ghost
- * chrome buttons, language and theme. It is now the language button and the two
- * tool buttons.
+ * The committed goal images are the specification for this row, and every one
+ * of them draws the same three things: a cartoonish flask course chip with the
+ * course name on the LEFT, and on the RIGHT one flat cartoon flame with the
+ * streak beside it and one teal diamond with the gem count. See
+ * docs/reference/design-goals/units/unit02-path.jpg and unit07-path.jpg, and
+ * docs/DESIGN-GOALS.md, "Header and tabs". What the build carried instead was
+ * two bare outlined tool buttons on the left and a wide tinted CHARGE pill with
+ * its own inset meter on the right, and neither appears in any reference frame.
  *
- * That trade is the piece. A tool a student reaches for MID PROBLEM has to be
- * in the header or it is not reachable at all from inside a lesson, which is
- * the half of CLAUDE.md's "interactive, always reachable" that a tab never
- * satisfied. Theme is not that: it is a setting, it is chosen once, and it
- * belongs on the Me tab with the other settings. Language stays because it is
- * the closest thing this app has to the reference bar's course chip, and
- * because a student on a non-English course changes it far more often than
- * they change a colour scheme.
+ * SO TWO THINGS MOVED, and one deliberately did not.
+ *
+ *  1. THE TOOLS COLLAPSED TO ONE CONTROL, tucked in behind the course chip.
+ *     CLAUDE.md's placement table is unchanged and is not negotiable: the
+ *     periodic table and the reaction search are reachable from every screen
+ *     and from inside a lesson, which is the half of "interactive, always
+ *     reachable" a tab never satisfied. What changed is that the shell header
+ *     spends ONE 44px slot on them rather than two, because two bare icon
+ *     buttons beside the chip is the "seven chips at one weight" finding the P3
+ *     judge already charged us for and it is not what any reference frame
+ *     draws. The lesson header keeps BOTH buttons directly (see
+ *     beats/BeatRunner.tsx), because mid-problem is where one tap matters and
+ *     that row has the width for it.
+ *
+ *  2. THE WIDE CHARGE PILL IS GONE. Charge is a compact readout in the same
+ *     genus as its two neighbours now: a mark and a number. Its 2xl number, its
+ *     word and its inset meter are what made it wide, and the inset meter is
+ *     also D1's recorded residue from the S3 round, "two meters of different
+ *     genera still share the header". One meter now shares the header with
+ *     nothing: the daily goal edge, drawn as ten ticks along the bottom.
+ *
+ *  3. CHARGE ITSELF STAYS IN THE ROW, and this is a stated divergence from the
+ *     goal images rather than an oversight. The images draw two readouts; we
+ *     draw three. The images are AI drafts of a Duolingo-shaped header and
+ *     Duolingo has no charge system, so there was never a frame for one to
+ *     appear in. CLAUDE.md wins over the images by its own last line, and it
+ *     makes docs/ECONOMY.md's mitigation set load bearing: a pacing limiter a
+ *     student cannot see until it stops them is exactly the anti-pattern
+ *     docs/THREE-TEACHERS.md names in the bar's own energy system. Reported for
+ *     the owner rather than resolved silently.
  *
  * The wordmark leaves the phone header for the same reason the reference bar
  * has no wordmark on a signed-in screen: the tab bar already says which app
- * this is, and 390px of header is worth more to a tool than to a logo. It
+ * this is, and 390px of header is worth more to the course than to a logo. It
  * stays above the rail on the wide layout, where there is room.
  *
  * Every tab except the trainer is behind React.lazy, so a student who opens
@@ -38,8 +64,8 @@
  * are the loading contract: never a blank rectangle.
  */
 
-import { lazy, Suspense, useCallback, useState, type ReactNode } from "react";
-import { NAV_TABS, hrefForTab, tabDefinition, type Route, type TabId } from "./routes";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { NAV_TABS, TOOL_TABS, hrefForTab, tabDefinition, type Route, type TabId, type ToolId } from "./routes";
 import { isFlagOn } from "./flags";
 import { TabSkeleton } from "./ui/Skeleton";
 import { BootReady } from "./Loader";
@@ -48,13 +74,14 @@ import { LanguageButton, LanguageSheet } from "./ui/LanguagePicker";
 import { CourseChip } from "./ui/CourseChip";
 import { Hud } from "./ui/Hud";
 import { NotOpenYet } from "./ui/NotOpenYet";
-import { ToolRail } from "./ui/ToolRail";
+import { ToolSheet } from "./ui/ToolRail";
 import { TrainerTab } from "../tabs/trainer/TrainerTab";
 import { TabIcon } from "./ui/TabIcon";
 import "./ui/tabs.css";
 
 const PathwayTab = lazy(() => import("../tabs/pathway/PathwayTab"));
 const CardsTab = lazy(() => import("../tabs/cards/CardsTab"));
+const FeedTab = lazy(() => import("../tabs/feed/FeedTab"));
 const MeTab = lazy(() => import("../tabs/me/MeTab"));
 const CoursesTab = lazy(() => import("../tabs/courses/CoursesTab"));
 const SearchTab = lazy(() => import("../tabs/search/SearchTab"));
@@ -114,6 +141,8 @@ function Outlet({
       return <PathwayTab reducedMotion={reducedMotion} />;
     case "cards":
       return <CardsTab onImmersiveChange={onImmersiveChange} />;
+    case "feed":
+      return <FeedTab />;
     case "me":
       return <MeTab />;
     case "courses":
@@ -145,6 +174,133 @@ function Outlet({
       return <>{unreachable}</>;
     }
   }
+}
+
+/**
+ * The header's tool slot: ONE control, standing in for two tools.
+ *
+ * WHY ONE AND NOT TWO. Every committed goal image draws a header of a flask
+ * chip and two readouts and nothing else, and the two bare outlined icon
+ * buttons the build carried are the loudest single divergence from that frame:
+ * at 390px they were 94px of chrome sitting between the course and the scores,
+ * at the same weight as both. CLAUDE.md's placement table is what stops the
+ * answer being "delete them": the periodic table and the reaction search are
+ * reachable from every screen and from inside a lesson, full stop. So the
+ * shell header spends one slot rather than two, and the slot opens a menu of
+ * the two.
+ *
+ * WHAT THIS COSTS, said plainly: reaching the periodic table from a TAB is two
+ * taps now instead of one. That is the right place to spend it. The tap that
+ * has to stay one is the one taken mid problem, and the lesson header is a
+ * different row: beats/BeatRunner.tsx renders the full ToolRail with both
+ * buttons directly, and nothing here changes that.
+ *
+ * WHY A <dialog> FOR A TWO ROW MENU. Escape, focus trapping and the top layer,
+ * from the platform. Same call and the same reasoning as ToolRail.tsx,
+ * CourseChip.tsx, LanguagePicker.tsx and Hud.tsx; this is the fifth use of one
+ * pattern rather than a fifth pattern.
+ *
+ * THE GLYPH IS THE TWO TOOLS, NOT A WRENCH. A wrench means "settings" in every
+ * app a student has ever used, and settings live on Me. The mark is three cells
+ * of the periodic table's own grid with the search lens sitting in the fourth,
+ * so the button pictures what is behind it rather than naming a category.
+ *
+ * THREE CELLS AND NOT FOUR, and that is a measurement rather than a preference.
+ * A first pass drew four small hollow cells at a 2.1 stroke and the 20px
+ * capture read as a QR code: at that size a dense grid of equal squares is
+ * noise, and the eye finds the pattern before it finds the meaning. Fewer,
+ * larger cells at a thinner stroke read as a table. The lens then has a corner
+ * of its own to sit in instead of being laid over a cell, which is the second
+ * half of why the first pass was dense.
+ */
+function ToolsMark({ className = "" }: { readonly className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      focusable="false"
+    >
+      <path d="M3.1 3.1h7.6v7.6H3.1zM13.3 3.1h7.6v7.6h-7.6zM3.1 13.3h7.6v7.6H3.1z" />
+      <circle cx="16.4" cy="16.4" r="3.1" />
+      <path d="M18.7 18.7 21.2 21.2" />
+    </svg>
+  );
+}
+
+function HeaderTools() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [tool, setTool] = useState<ToolId | null>(null);
+  const menu = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = menu.current;
+    if (dialog === null) return;
+    if (menuOpen && !dialog.open) dialog.showModal();
+    if (!menuOpen && dialog.open) dialog.close();
+  }, [menuOpen]);
+
+  return (
+    <>
+      <button
+        type="button"
+        data-header-tools
+        // Pointer down, not click. CLAUDE.md: the press is the first frame of
+        // feedback, and it renders before any work happens.
+        onPointerDown={() => setMenuOpen(true)}
+        aria-haspopup="dialog"
+        aria-label="Tools: the periodic table and the reaction search"
+        title="Tools"
+        className="press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border-2 border-border bg-card text-foreground"
+      >
+        <ToolsMark className="h-5 w-5" />
+      </button>
+
+      <dialog
+        ref={menu}
+        data-tools-menu={menuOpen ? "open" : "closed"}
+        className="tools-menu"
+        aria-label="Tools"
+        onClose={() => setMenuOpen(false)}
+        onClick={(event) => {
+          // The dialog element is the full viewport ground; the panel is not.
+          if (event.target === menu.current) setMenuOpen(false);
+        }}
+      >
+        <div className="tools-menu__panel">
+          <span className="tools-menu__grip" aria-hidden />
+          <h2 className="tools-menu__title">Tools</h2>
+          <ul className="tools-menu__list">
+            {TOOL_TABS.map((entry) => (
+              <li key={entry.id}>
+                <button
+                  type="button"
+                  className="press tools-menu__row"
+                  data-tool-row={entry.id}
+                  onPointerDown={() => {
+                    setMenuOpen(false);
+                    setTool(entry.id as ToolId);
+                  }}
+                >
+                  <span className="tools-menu__mark" aria-hidden>
+                    <TabIcon tab={entry.id} className="h-5 w-5" />
+                  </span>
+                  <span className="tools-menu__name">{entry.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </dialog>
+
+      <ToolSheet tool={tool} onClose={() => setTool(null)} />
+    </>
+  );
 }
 
 export function Shell({ route, children }: { readonly route: Route; readonly children?: ReactNode }) {
@@ -254,17 +410,17 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
               pixels of overlap, and shrinking six controls to close it would
               break the 44pt hit target mobile-ui states as a hard floor.
 
-              So one control leaves the PHONE header, and it is language. It is
-              a setting chosen once, not a tool reached for mid problem, and
-              CLAUDE.md's placement table lists only the periodic table and the
-              reaction search as header tools for exactly that reason. It
-              already has a full row under SETTINGS on the Me tab, opening the
-              same sheet, so nothing became unreachable. It stays in the header
-              from `sm` up, where the wordmark also fits and the row has room.
+              That capture is what the row is still budgeted against, and the
+              budget is met now with room rather than by hiding a label. The
+              phone row is FOUR controls: the course chip, one tool control and
+              two readouts, with charge as a third readout costing a mark and a
+              number rather than a pill and a meter. Language keeps its `sm`
+              breakpoint, because it is a setting chosen once and it already has
+              a full row under SETTINGS on the Me tab opening the same sheet.
 
-              `shrink-0` on the rail and on the HUD is the structural half: a
-              flex row whose children may shrink below their content is a row
-              that overlaps, and this one has to be unable to. */}
+              `shrink-0` on the tool control and on the HUD is the structural
+              half: a flex row whose children may shrink below their content is
+              a row that overlaps, and this one has to be unable to. */}
           <div className="flex min-w-0 items-center gap-1.5">
             <h1 className="hidden truncate pr-1 text-scale-lg font-semibold text-foreground lg:block">{label}</h1>
             {/* THE COURSE, NOT THE APP'S NAME. See CourseChip.tsx. The page
@@ -272,10 +428,10 @@ export function Shell({ route, children }: { readonly route: Route; readonly chi
                 overlapping things at a glance and the course is the one a
                 student cannot work out from the lit tab underneath. */}
             <CourseChip />
+            <HeaderTools />
             <div className="hidden shrink-0 sm:block">
               <LanguageButton onOpen={() => setLanguageOpen(true)} />
             </div>
-            <ToolRail />
           </div>
           <Hud />
         </header>

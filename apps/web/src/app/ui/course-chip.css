@@ -43,6 +43,17 @@
   outline-offset: 2px;
 }
 
+/* THE FLASK IS BARE, no tinted square behind it. The goal images draw a sticker
+   sitting on the header sheet, and a coloured tile under a coloured object is
+   the palette twice and the object never. The tile is still used by the SHEET's
+   rows below, where six courses are being told apart by their initials. */
+.course-chip__flask {
+  display: block;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
 .course-chip__mark {
   display: grid;
   place-items: center;
@@ -67,35 +78,39 @@
   flex: none;
 }
 
-/* ON A PHONE THE CHIP IS A MARK, NOT A WORD, and the reference made this call
-   first. Duolingo's path header carries the FLAG of the course in the readout
-   row and spends no width on its name; the descriptive name lives in the
-   section card on the page, which our pathway already draws as
-   "UNIT 1 - CONJUGATION, RESONANCE & DIENES".
+/* THE NAME IS BACK ON THE PHONE, 2026-09-05, and the superseded reasoning is
+   kept below rather than deleted so the next round does not re-hide it.
 
-   The measurement, not the taste, is what forces it. At 393px the row wants
-   107px of chip, 94px of tool rail and 245px of HUD, which is 450px in a 393px
-   row, and the probe found the search button painted 33px under the diamond
-   readout. Shell.tsx already recorded this failure once ("six 44px controls do
-   not fit in 390px") and shrinking a control below 44px is not available:
-   mobile-ui states that as a hard floor. So the chip sheds the only thing on
-   the row that is not load bearing, which is its own label. 44x44 exactly. */
+   WHAT CHANGED IS THE MEASUREMENT, not the principle. The old rule was forced
+   by arithmetic: at 393px the row wanted 107px of chip, 94px of tool rail and
+   245px of HUD, which is 450px in a 393px row, and the probe found the search
+   button painted 33px under the diamond readout. Shrinking a control below
+   44px was not available then and is not now; mobile-ui states it as a hard
+   floor. So the chip shed the only thing on the row that was not load bearing,
+   its own label, and kept "O2" as the identity.
+
+   The same pass that put the flask here removed 44px of tool button and the
+   whole charge pill from the row, and the flask cannot carry an identity the
+   way initials could: one generic flask is the same mark for all six courses.
+   So the label is load bearing now and the width exists to pay for it. The
+   chip is ~118px, the tool control 44 and the three readouts ~164, which is
+   ~332 in a 378px content row.
+
+   The caret still goes. It is the one part that is purely additive: the chip
+   is already announced as a dialog opener by aria-haspopup, and a 10px
+   chevron at 390px is the first thing to spend. */
 @media (width < 40rem) {
   .course-chip {
-    padding: 0.25rem;
-    justify-content: center;
-    min-width: 44px;
+    padding: 0.25rem 0.375rem 0.25rem 0.25rem;
   }
 
-  .course-chip__name,
   .course-chip__caret {
     display: none;
   }
 
-  .course-chip__mark {
+  .course-chip__flask {
     width: 1.875rem;
     height: 1.875rem;
-    font-size: var(--text-scale-sm);
   }
 }
 

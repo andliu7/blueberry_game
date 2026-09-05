@@ -27,10 +27,16 @@
  *      forward is in the same place before and after the answer. `pb-safe` is
  *      theme.css's safe area inset, so it clears the home indicator too.
  *
- *   3. THE TOP BAR CARRIES AN EXIT AND A FLAG. The reference shows X, a
- *      progress bar, a flag and a currency count on every question. A student
- *      who meets a confusing authored beat needs a way out and a way to say so;
- *      a level chip and a diamond count are not those.
+ *   3. THE TOP BAR CARRIES AN EXIT, ONE BAR AND ONE COUNT, and nothing
+ *      else. This used to say "an exit and a flag", after an older Duolingo
+ *      capture. The committed lesson frames
+ *      (blueberry_r9-lesson-mechanism, blueberry_r9-lesson-reaction) are the
+ *      newer and more specific reference for this exact row and they draw
+ *      three things: the violet exit chip, one long progress capsule, and a
+ *      currency count paired with a DRAWN ICON. No flag, and no level chip.
+ *      The flag is not cut, because a student who meets a confusing authored
+ *      beat still needs a way to say so; it moves to the foot of the
+ *      question, where it says what it does in words.
  *
  * NO RED ON THIS SCREEN, the rule lesson/Feedback.tsx already set: the student
  * is learning, not being marked down. The answer is marked with the `--good`
@@ -185,6 +191,8 @@ export interface McqBeatViewProps {
    * the counters) with one progress instrument rather than two stacked bars.
    */
   readonly progressSlot?: ReactNode;
+  /** The header's currency counter. See McqRunner for why it is not beat.diamonds. */
+  readonly currencySlot?: ReactNode;
 }
 
 const HOW_TO_PICKING = "Pick one, then press Check. You can change your mind as many times as you like first.";
@@ -206,6 +214,7 @@ export function McqBeatView({
   showHowTo,
   reducedMotion = false,
   progressSlot,
+  currencySlot,
 }: McqBeatViewProps) {
   const answered = reveal !== null;
   const howTo = showHowTo ?? level === 0;
@@ -272,19 +281,25 @@ export function McqBeatView({
         )}
 
         {/* THE COUNTER IS A DRAWN GEM AND A NUMBER, and there is nothing else
-            in this row. Both committed frames pair the count with an icon
-            (a flask and flame in the mechanism frame, a gem in the reaction
+            in this row. Both committed frames pair the count with an icon (a
+            flask and flame in the mechanism frame, a gem in the reaction
             frame) and neither carries a flag up here; the previous build
             showed a bare numeral beside a U+2691 flag button, so the number
             did not say what it counted and the row carried a control the
             frames do not have. The flag itself is not cut, only moved: see
-            the quiet report control at the foot of the question. */}
-        {beat.diamonds !== undefined ? (
-          <span className="lesson-currency" aria-label={`${beat.diamonds} gems for this question`}>
-            <GemMark />
-            {beat.diamonds}
-          </span>
-        ) : null}
+            the quiet report control at the foot of the question.
+
+            IT ARRIVES AS A SLOT, and the fallback is this beat's own payout
+            rather than nothing, so a runner mounted on its own still draws a
+            counter instead of a hole where one belongs. */}
+        {currencySlot ?? (
+          beat.diamonds !== undefined ? (
+            <span className="lesson-currency" aria-label={`${beat.diamonds} gems for this question`}>
+              <GemMark />
+              {beat.diamonds}
+            </span>
+          ) : null
+        )}
       </div>
 
       {/* Everything that can grow lives in the one scrolling region, so the
@@ -356,7 +371,13 @@ export function McqBeatView({
             answer is revealed the growth stops, because the explanation
             underneath is the thing that needs the room then. */}
         {tiles !== null ? (
-          <ul className={`option-tiles ${answered ? "" : "min-h-0 flex-1"}`} role="group" aria-label="Answer options">
+          // `shrink-0`, and NO growth clause. The tiles carry their own aspect
+          // ratio now, so growing the grid could never make them bigger; what
+          // it did instead was let flexbox SHRINK the grid below its rows'
+          // own height, and the second row then overflowed on top of the
+          // explanation panel underneath. Measured after grading: the third
+          // tile drew across the reveal text.
+          <ul className="option-tiles shrink-0" role="group" aria-label="Answer options">
             {beat.options.map((option) => {
               const isAnswer = option.id === beat.correctOptionId;
               const isSelected = selectedId === option.id;
@@ -391,7 +412,7 @@ export function McqBeatView({
           <div
             role="group"
             aria-label="Answer options"
-            className={`flex flex-col gap-2 ${answered ? "" : "min-h-0 flex-1"}`}
+            className={`flex flex-col gap-2 ${answered ? "shrink-0" : "min-h-0 flex-1"}`}
           >
             {beat.options.map((option) => {
               const isAnswer = option.id === beat.correctOptionId;

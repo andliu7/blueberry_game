@@ -2,17 +2,27 @@
  * The tab shell's contract, as checks rather than as a paragraph in a comment.
  *
  * Two claims are made by the owner amendment of 2026-08-28 and both of them are
- * the kind that rot quietly. "Four tabs" rots the first time somebody adds a
- * fifth to the array and nothing complains. "Every route still resolves so a
- * deep link does not 404" rots the first time an id is dropped from the union
- * and a hash in a student's history starts landing on the pathway with no sign
- * that it was ever anything else.
+ * the kind that rot quietly. A tab count rots the first time somebody adds one
+ * to the array and nothing complains. "Every route still resolves so a deep
+ * link does not 404" rots the first time an id is dropped from the union and a
+ * hash in a student's history starts landing on the pathway with no sign that
+ * it was ever anything else.
  *
- * mobile-ui's number is the one asserted here: five is the HARD limit, three or
- * four is right. The assertion is written at five and not at four on purpose,
- * because four is a judgement and five is a rule, and a check should fail on
- * the rule. The count today being four is asserted separately, so a fifth tab
- * is a deliberate edit to this file rather than a silent slide.
+ * mobile-ui's number is the one asserted here: five is the HARD limit. The
+ * assertion is written at five because five is a rule where a smaller count is
+ * a judgement, and a check should fail on the rule. The count today is asserted
+ * separately, so a change to it is a deliberate edit to this file rather than a
+ * silent slide.
+ *
+ * THE COUNT WENT FROM FOUR TO FIVE ON 2026-09-05, and that edit is exactly the
+ * deliberate one this file was shaped to force. Feed joins the bar between
+ * Cards and Me per the owner's amendment at the calibration gate of
+ * 2026-09-01, quoted in CLAUDE.md's tab section and in docs/DESIGN-GOALS.md
+ * under "Header and tabs", and drawn in every committed frame in
+ * docs/reference/design-goals/units/. The bar now sits ON mobile-ui's ceiling,
+ * which is why the rule assertion below matters more than it did at four: a
+ * sixth tab cannot be added without one leaving, and this is the check that
+ * says so.
  */
 
 import { describe, expect, it } from "vitest";
@@ -34,8 +44,29 @@ describe("the bar", () => {
     expect(NAV_TABS.length).toBeLessThanOrEqual(5);
   });
 
-  it("carries exactly the four the amendment names, in order", () => {
-    expect(NAV_TABS.map((tab) => tab.id)).toEqual(["pathway", "trainer", "cards", "me"]);
+  it("carries exactly the five the amendment names, in order", () => {
+    expect(NAV_TABS.map((tab) => tab.id)).toEqual(["pathway", "trainer", "cards", "feed", "me"]);
+  });
+
+  it("sits on the ceiling, so the count and the limit are now the same number", () => {
+    // Written as an equality rather than folded into the rule above, because
+    // the two say different things: one is mobile-ui's limit and one is the
+    // fact that the bar has spent all of it.
+    expect(NAV_TABS.length).toBe(5);
+  });
+
+  it("puts Feed between Cards and Me, which is the order every goal image draws", () => {
+    const order = NAV_TABS.map((tab) => tab.id);
+    expect(order.indexOf("feed")).toBe(order.indexOf("cards") + 1);
+    expect(order.indexOf("me")).toBe(order.indexOf("feed") + 1);
+  });
+
+  it("makes Feed a destination and not a flagged surface", () => {
+    // Its daily quests derive from the local journal and ship live; only the
+    // lab-mates section waits on a server, and it renders its own honest
+    // not-open state inside the tab. A tab with real content today is `nav`.
+    expect(tabDefinition("feed").placement).toBe("nav");
+    expect(FLAGGED_TABS.some((tab) => tab.id === "feed")).toBe(false);
   });
 
   it("gives every bar item a short label that fits a phone column", () => {
@@ -98,6 +129,20 @@ describe("no deep link 404s", () => {
 
   it("sends an unknown hash to the pathway rather than to nothing", () => {
     expect(parseHash("#/whatever-this-was")).toEqual({ kind: "tab", tab: "pathway", rest: [] });
+  });
+
+  it("resolves the Feed hash the builder could not reach before it was wired", () => {
+    expect(parseHash("#/feed")).toEqual({ kind: "tab", tab: "feed", rest: [] });
+    expect(parseHash(hrefForTab("feed"))).toEqual({ kind: "tab", tab: "feed", rest: [] });
+  });
+
+  it("lights a real bar item for every route in the product", () => {
+    // A bar with nothing lit reads as broken. `parent` is what the shell reads,
+    // so every tab's parent has to BE a bar item, including the new one's.
+    for (const tab of ALL_TABS) {
+      const parent = tabDefinition(tab.id as TabId).parent;
+      expect(NAV_TABS.some((nav) => nav.id === parent)).toBe(true);
+    }
   });
 
   it("has a definition for every id, so the shell can always title the page", () => {

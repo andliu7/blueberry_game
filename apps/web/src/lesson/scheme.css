@@ -160,17 +160,20 @@
 .option-tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* align-content, not the default stretch: the tile's own aspect ratio sets
+     the row height, and stretching the rows to fill a growing container was
+     what made a graded list's rows and its tiles disagree, so the third tile
+     overlapped the explanation under it. */
+  align-content: start;
   gap: 0.625rem;
   margin: 0;
   padding: 0;
   list-style: none;
-  min-height: 0;
 }
 
 .option-tiles > li {
   display: flex;
-  aspect-ratio: 6 / 5;
-  min-height: 0;
+  min-width: 0;
 }
 
 .option-tile {
@@ -180,7 +183,10 @@
   justify-content: center;
   gap: 0.125rem;
   width: 100%;
-  height: 100%;
+  /* WIDER THAN TALL, AND THE SAME SIZE BEFORE AND AFTER THE ANSWER. The ratio
+     lives on the tile rather than on its list item so the grid row is sized BY
+     the tile instead of the other way round. */
+  aspect-ratio: 6 / 5;
   /* The 44 by 44 floor is met many times over, but it is stated rather than
      inferred from the content, because a tile whose figure fails to load must
      still be a legal target. */

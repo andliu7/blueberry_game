@@ -1,12 +1,15 @@
 /*
- * The tab bar. Four items at the bottom edge on a phone, four items in a left
+ * The tab bar. Five items at the bottom edge on a phone, five items in a left
  * rail above 768px, one component and two layouts.
  *
- * WHY FOUR. mobile-ui: "Five is the hard limit. Three or four is right", and
- * "tabs are DESTINATIONS. Tools you reach for mid-task belong in the header or
- * a sheet, not a tab." The eight this bar used to carry failed both halves. See
- * routes.ts for the owner amendment that settled it and app/ui/ToolRail.tsx for
- * where the periodic table and the reaction search went.
+ * WHY FIVE, AND WHY FIVE IS THE END OF IT. mobile-ui: "Five is the hard limit",
+ * and "tabs are DESTINATIONS. Tools you reach for mid-task belong in the header
+ * or a sheet, not a tab." The eight this bar used to carry failed both halves;
+ * the four it then carried was one under the ceiling and the calibration gate
+ * of 2026-09-01 spent that one on Feed. See routes.ts for the amendment and
+ * app/ui/ToolRail.tsx for where the periodic table and the reaction search
+ * went. A sixth is not a decision this file gets to make: it costs one of the
+ * five its place.
  *
  * THE SHAPE, AND WHERE IT COMES FROM. The reference bar's move is that the
  * active tab is not a coloured icon, it is an OBJECT: a rounded rectangle in a
@@ -25,8 +28,10 @@
  * What we do not take is the colour itself: the chip here is Blueberry purple,
  * per sticker-ui's loudest rule, that a reference brand's dominant colour is
  * its equity and copying it produces a clone. And we add the label the
- * reference cannot afford, because it draws five icons across a phone and we
- * draw four.
+ * reference cannot afford, because it labels nothing and we label all five.
+ * That is what the short labels in routes.ts are sized for: at 390px five
+ * columns are 74px each, and `short` is capped at six characters so no word in
+ * the bar ever wraps or truncates.
  *
  * NO BACKDROP BLUR, and that is a change from the eight-tab bar. Sticker rule 2
  * and 3: flat fills, no gradients, no glass. A translucent blurred bar is glass,
@@ -81,10 +86,20 @@
 }
 
 .tabbar-icon {
-  /* 32px. The reference's items are 48 square with the sticker filling most of
-     that and no label under it; ours carries a label, so the icon takes 32 of
-     the item's 58 and the word takes the rest. At 28, which is what round one
-     shipped, a two-tone cut-out has no room to be two tones. */
+  /* 32px, and it stayed 32 when the bar went from four columns to five. The
+     reference's items are 48 square with the sticker filling most of that and
+     no label under it; ours carries a label, so the icon takes 32 of the item's
+     58 and the word takes the rest. At 28, which is what round one shipped, a
+     two-tone cut-out has no room to be two tones.
+
+     A first pass at the five-tab bar dropped this to 28 on the phone and it was
+     wrong twice over. The fifth column costs WIDTH, not height: at 390px five
+     columns are 74px each and a 32px icon over a six character label is not
+     close to either edge. And the height is load bearing elsewhere: the node
+     sheet pins its bottom edge to this bar with --ns-bottom-inset, so 4px off
+     the icon is 4px of seam between the sheet and the bar, which
+     test/nodeSheetSeam.test.ts measures against a live 76.19px capture and
+     caught within the hour. */
   width: 2rem;
   height: 2rem;
 }
@@ -103,6 +118,7 @@
   --tab-tint-path: color-mix(in srgb, var(--tab-hue-path) 34%, var(--tab-active));
   --tab-tint-train: color-mix(in srgb, var(--tab-hue-train) 34%, var(--tab-active));
   --tab-tint-cards: color-mix(in srgb, var(--tab-hue-cards) 34%, var(--tab-active));
+  --tab-tint-feed: color-mix(in srgb, var(--tab-hue-feed) 34%, var(--tab-active));
   --tab-tint-me: color-mix(in srgb, var(--tab-hue-me) 34%, var(--tab-active));
 }
 
@@ -156,9 +172,9 @@
 
 /*
  * The wordmark above the rail. It does not exist on the phone at all: the
- * bottom bar is thumb space, the header's 390px is worth more to a tool than to
- * a logo, and the bar itself already says which app this is. It is a label and
- * not a link; Shell.tsx records why.
+ * bottom bar is thumb space, the header's 390px is worth more to the course
+ * chip than to a logo, and the bar itself already says which app this is. It is
+ * a label and not a link; Shell.tsx records why.
  */
 .tabbar-brand {
   display: none;

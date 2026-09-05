@@ -2,7 +2,7 @@
  * One inline icon per tab id. Inline SVG rather than an icon package so the
  * shell's entry chunk carries a handful of glyphs and not a font.
  *
- * THE FOUR BAR ICONS ARE STICKERS, THE SIX OFF-BAR ONES ARE GLYPHS, and that
+ * THE FIVE BAR ICONS ARE STICKERS, THE FIVE OFF-BAR ONES ARE GLYPHS, and that
  * is a deliberate split rather than an unfinished job.
  *
  * The bar's icons are the only ones a student sees at 32px on a phone with
@@ -33,7 +33,7 @@
  * knockout that had to guess whether the bar was white or near-black was one
  * more thing to get wrong in a theme nobody screenshotted.
  *
- * The six off-bar ids stay single stroke paths in `currentColor` on purpose.
+ * The five off-bar ids stay single stroke paths in `currentColor` on purpose.
  * They are drawn in a header tool button, in a list row on the Me tab and
  * beside a course name, all at 20px next to text, where a filled sticker would
  * out-shout the label it is labelling. Same family, different job.
@@ -61,8 +61,8 @@ interface Sticker {
   readonly layers: readonly Layer[];
 }
 
-/** The four that appear in the bar, drawn as cut-outs in their own colour. */
-const STICKERS: Record<"pathway" | "trainer" | "cards" | "me", Sticker> = {
+/** The five that appear in the bar, drawn as cut-outs in their own colour. */
+const STICKERS: Record<"pathway" | "trainer" | "cards" | "feed" | "me", Sticker> = {
   /* Two nodes on a winding track, the small one behind and the big one ahead
      with a filled centre. The pathway tab draws exactly this, so the icon is a
      small picture of the screen it opens rather than a generic signpost, and
@@ -119,6 +119,33 @@ const STICKERS: Record<"pathway" | "trainer" | "cards" | "me", Sticker> = {
       { d: "M5.2 6.6h4.6a2.6 2.6 0 0 1 2.6 2.6v9.6a2.6 2.6 0 0 1-2.6 2.6H5.2a2.6 2.6 0 0 1-2.6-2.6V9.2a2.6 2.6 0 0 1 2.6-2.6z", as: "body" },
     ],
   },
+  /* THE BLUE NEWSPAPER, docs/DESIGN-GOALS.md, "Header and tabs": "Feed is the
+     blue NEWSPAPER". Drawn here in the same three-layer construction as its
+     four neighbours rather than reusing FeedIcon.tsx's NewspaperMark, and the
+     reason is that the bar draws its icons in the tab's OWN hue while
+     NewspaperMark inherits `currentColor` and knocks its print out in
+     `var(--card)`. In the bar that would be a grey silhouette beside four
+     coloured cut-outs at rest, and on the active chip its knockouts would be
+     card-coloured on a lavender ground. NewspaperMark stays exactly where it
+     is and keeps its job: it is the cheap glyph a non-bar surface imports
+     without pulling the Feed chunk into the entry payload.
+
+     The folded back page is the shape that says "newspaper" rather than
+     "document" at 32px, so it is an `ink` slab BEHIND the sheet: an opaque
+     fill occludes nothing it should not and needs no knockout colour. The
+     print is three marks, not six: a masthead bar, one headline block and two
+     column rules. Round one of this glyph drew six and they closed into a
+     smudge at bar size. */
+  feed: {
+    hue: "feed",
+    layers: [
+      { d: "M15.4 6.3h3.9a1.7 1.7 0 0 1 1.7 1.7v9.4a2.7 2.7 0 0 1-2.7 2.7h-2.9z", as: "ink" },
+      { d: "M4.5 3.3h10.3a2 2 0 0 1 2 2v13a2.4 2.4 0 0 1-2.4 2.4H4.9a2.4 2.4 0 0 1-2.4-2.4V5.3a2 2 0 0 1 2-2z", as: "body" },
+      { d: "M4.9 6.2h9.2v1.9H4.9z", as: "ink" },
+      { d: "M4.9 10.1h4v4.6h-4z", as: "ink" },
+      { d: "M9.9 10.1h4.2v1.6H9.9zM9.9 13.1h4.2v1.6H9.9z", as: "ink" },
+    ],
+  },
   /* The avatar: a head and shoulders, the shoulders solid so the head reads as
      sitting in front of them rather than floating. */
   me: {
@@ -130,7 +157,7 @@ const STICKERS: Record<"pathway" | "trainer" | "cards" | "me", Sticker> = {
   },
 };
 
-/** The six off-bar glyphs. Stroke only, in currentColor; see the header. */
+/** The five off-bar glyphs. Stroke only, in currentColor; see the header. */
 const GLYPHS: Record<Exclude<TabId, keyof typeof STICKERS>, string> = {
   periodic: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
   search: "M10 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM14.5 14.5 20 20",

@@ -1014,3 +1014,214 @@ the accuracy chip.
 
 D1's residue stands as the round 3 builder wrote it: two meters of different genera still
 share the header, a real argument a counting critic may still make. Recorded, not hidden.
+
+# The R rebuild, 2026-09-05
+
+A different gauntlet, appended here because this file is where the run is recorded and a
+second log would be a second place to look. The bar changed with it. The S series exit was
+a fresh judge picking ours BLIND against a Duolingo capture. R's exit is CONFORMANCE: a
+fresh critic reads the built screen against the named file in
+`docs/reference/design-goals/` and says whether the build is that design. The images are
+the specification down to the motif, the radii, the chip edges and the spacing rhythm; only
+the text inside them is model gibberish.
+
+Four owner rulings of 2026-09-04 bind every piece below and are the reason three of them
+were rebuilt rather than polished: every question is visual first, the image comes before
+the name, fill in the blank is scratched, and every node carries its motif.
+
+One thing about attribution, stated once so the sections below are read correctly. The
+pieces did not each land in their own commit. Round work was found in the working tree and
+committed by whichever turn came next, and 49411c6 says so in its own message ("this
+commit also carries the lesson-flow round's in-tree work, which this turn did not author").
+So a piece's diff is identified below by the files it owns, not by a commit hash.
+
+## R celebration-feed
+
+### Rounds 1 and 2: BUILT, NOT JUDGED. No verdict, no unblind.
+
+Two rounds, which is the S series rate. Neither produced a critic verdict, so there is
+nothing to record on the conformance axis and this piece is NOT recorded as conforming.
+That is the whole of the finding: the work exists and nobody has compared it to
+`blueberry_r6-lesson-complete_1788286354.png` or `blueberry_r7-feed-v2_1788288479.png`.
+
+What landed, by file. The celebration half rewrote `RewardMoment.tsx` and `streak.css`
+against the goal image's hierarchy, which is P2's winning order restated in the warm
+palette: big single number, reason chips beneath, XP and streak as 3D chips, green CLAIM,
+goggles-up mascot. The feed half rewrote `FeedTab.tsx`, `feed.css`, `feedModel.ts` and
+`backdropProps.ts` toward our own iconography rather than the bar's, per DESIGN-GOALS:
+flask quest icons, berry avatars, Lab mates, the toast-a-flask cheer. `celebration.test.ts`,
+`feedBackdrop.test.ts` and `feedModel.test.ts` moved with it.
+
+The accuracy chip S3's verdict assigned to this piece ("their reward screen also reports
+accuracy, an honest performance measure ours omits") is not verifiable from this record
+either, for the same reason: no critic looked.
+
+Uncommitted in the tree at the time of writing and belonging to this neighbourhood rather
+than provably to this piece: `src/mastery/` (MasteryCard, RankMark, RankUpMoment,
+masteryModel, mastery.css), `beats/LessonGems.tsx`, and the tests `masteryCard.test.ts`
+and `rankUpMoment.test.ts`. They are green in the suite and they are not in a commit. That
+is output one session limit away from gone, which is the exact risk db9ab0f was made to
+close for the lesson-flow tests, and it is still open here.
+
+## R onboarding
+
+### Rounds 1 and 2: BUILT, NOT JUDGED. No verdict, no unblind.
+
+Two rounds, again the S rate, again no conformance verdict. Nobody has held the built flow
+beside `blueberry_r9-onboard-welcome_1788289471.png`,
+`blueberry_r9-onboard-question_1788289477.png` or
+`blueberry_r9-onboard-placement_1788289481.png`.
+
+What landed is the visual-first rulings taken literally, and it is the largest single piece
+of new authored drawing in the run. `figures.ts` is 729 new lines and `StructureFigure.tsx`
+143, so an onboarding question now draws a structure instead of naming one, with the name
+under it in the muted ink per ruling 2. `onboarding.css` moved 684 lines, `Frame.tsx` 269,
+`PlacementStep.tsx` 235, and `copy.ts` and `flow.ts` carry the "onboarding is simple and
+the questions are short" ruling: one short question per screen, no compound sentences, no
+chemistry vocabulary in the framing outside the placement quiz itself.
+`test/onboardingFigures.test.ts` is 280 new lines and is the check on the drawn set.
+
+The onboarding COPY is still a human gate and always was. Nothing here changes that. What
+is missing is the design conformance verdict, which is a different question from the copy
+one and is the one this gauntlet exists to answer.
+
+## R lesson-flow
+
+### Rounds 1, 2 and 3: JUDGED, AND IT DOES NOT CONFORM. 105 minutes.
+
+The only piece in the run that reached a verdict, and the verdict is negative. Three rounds
+against the S baseline of two, 105 minutes, and the exit condition is NOT met. It is
+recorded as a fail rather than as a near miss, because a conformance gauntlet whose failing
+verdicts get written up as progress stops being a gauntlet.
+
+The critic's reasons are not in this repository. The run carries the verdict and not the
+transcript, so what a reader gets here is the flag and the file list, and the next round
+starts by re-judging rather than by acting on a summary nobody can check. That is a record
+defect of the same class the S4 backfill was made to fix, and it is named rather than
+papered over.
+
+What the three rounds built, by file: the beat chrome and `RecipeStrip` (so a lesson shows
+its beat composition up front, per `blueberry_spec-question-badges_1788291079.png`),
+`chromeIcons.tsx`, `McqBeatView` and the new `McqVisualCard`, `mcqFigures.ts` at 773 new
+lines, `lessonFigures.ts` at 624, `SchemeCard.tsx` and `scheme.css`, `template.ts`,
+`boards.ts`, and the sort, trace and synthesis views. `LessonPlayer`, `LessonVideo` and
+`ProblemView` moved with them. 880 lines of test across `lessonFigures.test.ts`,
+`lessonTemplate.test.ts` and `mcqFigures.test.ts` were running green in the suite and were
+NOT in the repository until db9ab0f committed them.
+
+**The one finding from this piece worth carrying, and it came from looking rather than from
+a gate.** Put beside the reference at the same size, our graded question separated the two
+graded options BY HUE ALONE: a green fill on the right answer and a periwinkle stroke on
+the student's pick. That is WCAG 1.4.1, colour as the only visual carrier, and it lands
+hardest on the student who cannot tell the two apart and has no way to ask. Both states
+carry a mark now, and deliberately NOT the reference's red: `beat-chrome.css` already
+carries the rule that there is no red on this screen, it descends from CLAUDE.md's voice
+section, and the reader is a stressed student for whom a mistake is the normal step. The
+tick is the good family and the pick is labelled "your pick" in the periwinkle it already
+wore. Measured on painted pixels rather than on computed colour-mix: the tick is 4.79:1
+against a 3.0 graphics floor and the label is 7.03:1 against the 4.5 text floor.
+
+**Decoration never covers information**, found in the same capture: the peeking berry sat
+on top of the new mark once the option list grew down into the action bar. The options sit
+above it now. The sticker did not move, only which of the two is in front, and a berry that
+peeks belongs behind the thing it peeks around.
+
+Fill in the blank came out of the lesson template here, per ruling 3. It is withdrawn, not
+deleted, and `SynthesisGapBeat` is the surface that changed. That withdrawal has a
+measurement consequence, recorded under the integration blocker below.
+
+## P5 charge meter, rebuilt against the states sheet
+
+### BUILT, NOT JUDGED. verdict null, unblind null.
+
+The piece that stalled twice in the economy run has a build again, and it has no verdict.
+It is not recorded as won and it is not recorded as lost.
+
+The build is in the working tree rather than in a commit: `charge/ChargeMeter.tsx`,
+`chargeMeterModel.ts`, `meter.css`, `index.ts` and `test/chargeMeter.test.ts` are untracked,
+and `ChargeGate.tsx` and `charge.css` are modified, the latter down 222 lines. Same risk as
+the celebration files above, same sentence about session limits.
+
+Two arguments in it are worth keeping whatever the verdict turns out to be, because both
+are a builder choosing the reference over his own earlier reasoning and saying why.
+
+- **The thirty pips became one capsule, and the reason the pips existed is kept inside it.**
+  `blueberry_spec-meter-states_1788291102.png` draws a stadium capsule with a heavy dark
+  outline and an inset pill of fill, not a row of units. The sheet is the specification, so
+  the capsule is the object. The pips were a good idea for a reason that survives, a student
+  can see WHICH end is leaving, and that survives as an OUTLINED ghost stretch beyond the
+  solid fill, which reads in greyscale exactly as outline-against-solid did.
+- **The halo is paint, not elevation.** `--progress-glow` flat fill with a blur, not a
+  box-shadow, because the sticker language's rule 3 is about shadows that imply a stack and
+  a centred halo with no offset implies nothing. Static in every state, so reduced motion has
+  nothing to switch off.
+
+It also declares its own instrument problem rather than fixing it: the measurement drives
+that count `.charge-pip` are pointed at the superseded design, and this round did not edit
+them. That is the discipline working.
+
+## Integration: done, and one gate went dark
+
+The integrator landed. `Shell.tsx`, `routes.ts` and `theme.css` moved, the bar is five tabs
+(Path, Train, Cards, Feed, Me) per the 2026-09-01 ruling, the header carries the flask
+course chip and clears the device cutout, and `test/shellRoutes.test.ts` grew with it.
+
+**THE BLOCKER, and it is a measurement one, not a design one.** `npm run sticker:audit`
+crashes before it reports, inside `economy-moments.mjs` at `driveFeedback`, waiting for
+`input[aria-label="Numeric answer"]`. It is PRE-EXISTING and that was verified rather than
+assumed: stashing every integrator change and rebuilding at db9ab0f crashes identically.
+The cause is the two design changes above meeting an instrument written against the old
+build. Fill in the blank was scratched and the lesson-flow round changed which beat the
+driven lesson serves, so the moment driver types into an input that is no longer on the
+screen.
+
+It was NOT repaired, and the reason is the rule: repairing an instrument in the same round
+that reports its number is what CLAUDE.md forbids, and the S3 round already paid this exact
+price with `driveHudStreak` and paid it correctly. So the consequence is carried instead of
+hidden: **the sticker rule counts for the new five-tab bar and the new header are UNMEASURED
+this round.** The last honest full sticker walk is `sticker-audit.json` generated
+2026-09-02T03:37:55Z over 29 routes and 51,728 elements, total 34, split 4 / 4 / 6 / 20
+across rules 4, 5, 6 and 10. Every one of those rows predates the R pieces. Treating 34 as
+this round's number would be a lie about which tree it was taken on.
+
+**A second instrument to name while we are here.** `measurements/contrast-audit.json` on
+disk no longer holds a full walk. Its shape is `{measured, distinct, failing, unresolved,
+rows}` with `measured: 108` and 34 rows, all of them pathway SVG fills and strokes, where
+the full audit reports composed pairs in the thousands. A probe overwrote the gate's own
+output file. Failing is 0 in what is there, and that is not the same claim as the audit
+being green: nobody can say from this file what the R surfaces measure. Reported, not
+fixed, for the same reason as the first.
+
+## The gates at the end of the R round
+
+Everything that could be run, was. The two that could not are named above rather than
+estimated.
+
+| gate | S3 round 4 | R, this round |
+|---|---|---|
+| typecheck, apps/web | clean | clean, exit 0 |
+| web tests | 999 in 36 files | **1488 in 67 files**, 0 failed |
+| all workspaces | not reported as a total | **2753**, 0 failed. chem-core 414, curriculum 217, economy 170, interaction 377, validators 87, web 1488 |
+| validator suite | 30 of 30, integrity unmodified, 101 fixtures | 30 of 30, integrity unmodified, 101 fixtures, 215 files hashed, 26 external data entries |
+| suite hash | not recorded | `cf5d2f6fb7c633de1348d33ae3a5d6c8025cf9c676212dd066eaf6f7b1364757` |
+| adjudication queue | not recorded | 3 stereo descriptors, 6 aromaticity |
+| game route payload, gzipped | 191.9 KB | **351.8 KB** (360,204 bytes), ceiling 400 KB, 30 files in the initial set |
+| hit targets under 44 by 44 | 0 of 838 | **0 of 1902**, generated 2026-09-05T05:59:58Z |
+| contrast, failing pairs | 0 of 7863 composed | NOT MEASURED, see above |
+| sticker audit total | blocked, then 32 at 22:37 local | NOT MEASURED, see above |
+
+**The payload is the number to look at, and it is not a failure.** 191.9 to 351.8 KB
+gzipped is 83 percent growth in one round, and the ceiling is 400. There is 48.2 KB of
+headroom left for every piece R has not built yet. Nothing broke a budget and nothing was
+weakened; the round simply spent most of what was left. The authored figure sets are the
+obvious suspects, `mcqFigures.ts` at 773 lines and `lessonFigures.ts` at 624 and
+`figures.ts` at 729, all of them drawing rather than describing per ruling 1, and the honest
+version of ruling 1 is that pictures cost bytes. Whether they belong in the entry chunk is a
+question for the next round and it is the same question the mastery denominator fix answered
+once already, by generating into a module the route imports lazily. Recorded here rather
+than acted on, because a payload decision taken in the round that reports the payload is the
+pattern this file keeps refusing.
+
+**The suite grew with the surfaces.** 999 tests in 36 files to 1488 in 67 is 489 new tests
+and 31 new files, none failing, and across every workspace it is 2753. That is the right
+direction and it is worth one line of confirmation rather than a paragraph.

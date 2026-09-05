@@ -131,3 +131,118 @@
   justify-content: flex-end;
   padding: 0.5rem 0.75rem 0;
 }
+
+
+/* ------------------------------------------------------- the tools menu -- */
+
+/*
+ * The two row menu behind the shell header's single tool control. Shell.tsx
+ * carries the reasoning for why that control is one and not two; this is only
+ * what it opens.
+ *
+ * A BOTTOM SHEET, not a popover pinned under the button. The control is at the
+ * top of a phone screen and the thumb is at the bottom, and the same call has
+ * already been made twice in this app for exactly that reason: the course
+ * picker and the node sheet both open from the bottom edge. A third pattern
+ * here would be a third thing to keep in sync.
+ *
+ * Every colour is a token. No hex literal reaches this file, because the
+ * contrast gate measures tokens and a literal is a colour nothing checks.
+ */
+.tools-menu {
+  position: fixed;
+  inset-inline: 0;
+  inset-block: auto 0;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--card-foreground);
+  /* NOT `display: flex` unconditionally. The UA sheet hides a closed dialog
+     with `dialog:not([open]) { display: none }`, and a bare `display` on the
+     element outranks it, so declaring the layout here paints the menu over
+     every screen in the app. course-chip.css already paid for that lesson. */
+}
+
+.tools-menu[open] {
+  display: block;
+}
+
+.tools-menu::backdrop {
+  background: rgb(0 0 0 / 0.32);
+}
+
+.tools-menu__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--card);
+  box-shadow: 0 -8px 40px rgb(0 0 0 / 0.18);
+}
+
+.tools-menu__grip {
+  width: 2.25rem;
+  height: 0.25rem;
+  margin: 0.125rem auto 0.375rem;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.tools-menu__title {
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: var(--text-scale-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tools-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 44px is the floor, not the target: the row is 52 so a thumb landing anywhere
+   on it hits, which is what a list of two choices on a phone is for. */
+.tools-menu__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--text-scale-base);
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+
+.tools-menu__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  /* The DISC carries the colour and the glyph recedes into it: sticker rules 5
+     and 6 in one object, the same construction NotOpenYet.tsx uses. */
+  background: var(--tab-active);
+  color: var(--muted-foreground);
+}
+
+.tools-menu__name {
+  min-width: 0;
+}

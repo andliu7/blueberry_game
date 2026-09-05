@@ -18,6 +18,38 @@
  *     the header now, muted, beside the wordmark, where a reader looking for a
  *     score never lands on them.
  *
+ * ROUND THREE, 2026-09-05, AND IT TRIMS POINT 2 WITHOUT REVERSING IT.
+ *
+ * The committed goal images are the specification for this row and none of them
+ * draws a charge pill: docs/reference/design-goals/units/unit02-path.jpg and
+ * unit07-path.jpg both put a flat cartoon flame with its streak and a teal
+ * diamond with its gems on the right of the header and nothing else. The wide
+ * tinted pill was the single largest object in the row and the largest
+ * divergence from the frame, so it is gone. What replaced it is a readout in
+ * the same genus as its neighbours: the charge mark and the number.
+ *
+ * TWO OF DOMINANCE'S FIVE SIGNALS SURVIVE, and they are the two that cost no
+ * width: charge is still the only item with a tinted fill and the only one with
+ * a 2px coloured edge, where the other two carry a hairline on the card. What
+ * went is the 2xl number, the word and the inset meter. The judge's finding was
+ * that a pacing resource with no primacy reads as one of seven equal chips;
+ * three readouts of which one is filled and outlined is not that row.
+ *
+ * AND IT CLOSES D1's RESIDUE, recorded in the S3 verdict in LOG.md and left
+ * standing rather than hidden: "two meters of different genera still share the
+ * header, a real argument a counting critic may still make". There is one meter
+ * in this header now, the daily goal edge, and it shares the header with no
+ * second meter of any genus.
+ *
+ * WHAT DID NOT GO IS CHARGE ITSELF, and that is a stated divergence from the
+ * images rather than an oversight. They draw two readouts; we draw three. The
+ * images are drafts of a Duolingo-shaped header and Duolingo has no charge
+ * system, so no frame of theirs could have carried one. CLAUDE.md wins over the
+ * images by its own last line and it makes docs/ECONOMY.md's mitigation set
+ * load bearing: a pacing limiter a student cannot see until it stops them is
+ * exactly the anti-pattern docs/THREE-TEACHERS.md names in the bar's own energy
+ * system. Shell.tsx carries the same note; the owner decides, not this file.
+ *
  * WHERE THE DAILY GOAL WENT. Into the header's bottom edge, as a full width
  * meter in place of the divider. That is the bar's in-lesson header pattern:
  * one progress bar across the whole width and a single resource chip. It costs
@@ -117,15 +149,15 @@ interface ItemProps {
 /**
  * One readout. 44px minimum in both directions, pressed on pointer down.
  *
- * EVERY ONE OF THE THREE IS AN OUTLINED OBJECT NOW, and the round two verdict
- * survives it. That verdict was that Charge has to be DOMINANT, and it read the
- * dominance off four things: a number at twice the neighbours' size, a tinted
- * fill, a word, and a meter. Only one of the four was "it is the only one in a
- * box", and the sticker language is explicit that a control without a cut edge
- * is not in the language at all (rule 3, and the audit was counting 80 rows).
- * So all three get a cut edge and Charge keeps a 2px coloured one over a tint
- * where the other two get a hairline. The chip's own border moved onto the
- * button rather than being added to it: a pill inside a pill is two boxes.
+ * EVERY ONE OF THE THREE IS AN OUTLINED OBJECT, and the round two verdict
+ * survives round three's trim. That verdict was that Charge has to be DOMINANT,
+ * and it read the dominance off five things: a number at twice the neighbours'
+ * size, a tinted fill, a coloured 2px edge, a word, and a meter. The sticker
+ * language is explicit that a control without a cut edge is not in the language
+ * at all (rule 3, and the audit was counting 80 rows), so all three get a cut
+ * edge and Charge keeps a 2px coloured one over a tint where the other two get
+ * a hairline. Those are the two signals that cost the row no width and they are
+ * the two that stayed; the file header records what went and why.
  *
  * It measures itself on the way into the sheet rather than letting the sheet go
  * looking for it, because the button is the only thing that knows for certain
@@ -227,34 +259,37 @@ function HudGoalBar({ model }: { readonly model: HudModel }) {
 }
 
 /**
- * The dominant chip.
+ * The charge readout. A mark and a number, in a tinted outlined cell.
  *
- * The charge cell, the number at twice the neighbours' size, and a column
- * holding the one word in the row over the meter. The word is what the critic
- * asked for ("a visible label or unit") and it is a LABEL rather than a "/ 30",
- * because the denominator stays drawn: the meter under it is the 30 cap and
- * writing it twice would undo the thing this header is built on.
+ * WHERE THE METER WENT, and it is not lost. The 30 cap is still DRAWN and never
+ * written: the coach mark behind this button draws all thirty pips with the one
+ * that is refilling partly filled, and charge/ChargeGate.tsx draws them again
+ * at the moment a node is about to spend some. Both of those are surfaces where
+ * a student is asking about charge. A 6px bar in a header is a reading nobody
+ * was asking for, and it was the second meter in a row that should hold one.
+ *
+ * INSIDE THE EXAM WINDOW THE NUMBER IS THE STATEMENT. `charge.value` is the
+ * infinity glyph there and the days-left label lives in the accessible name and
+ * in the coach mark, because a header cell has room for one of the two and the
+ * one that says "this fortnight has no meter" in a single character is the
+ * glyph. docs/ECONOMY.md's exam-window pause is the rule being drawn.
  *
  * BLOOM USED TO BE THE MARK HERE AND IS NOT ANY MORE. HudIcons.tsx carries the
  * reasoning; the short version is that the fraction was drawn twice in one chip
- * and the mascot was appearing two to four times on one screen. The meter is
- * the reading that survived, because at 26px a halo's thickness is not one.
+ * and the mascot was appearing two to four times on one screen.
  */
-function ChargeChip({ charge }: { readonly charge: ChargeReadout }) {
+function ChargeReading({ charge }: { readonly charge: ChargeReadout }) {
   return (
-    <span className="hud-charge">
-      <span className="hud-charge-row">
-        <ChargeMark className="hud-charge-mark" />
-        <span className={`hud-charge-value ${charge.examWindow ? "is-exam" : ""}`}>{charge.value}</span>
-        <span className="hud-charge-word">{charge.examWindow ? charge.daysLabel : "Charge"}</span>
+    <>
+      <ChargeMark className="h-5 w-5 shrink-0" />
+      <span
+        className={`text-scale-sm font-bold leading-none tabular-nums text-good-ink ${
+          charge.examWindow ? "hud-charge-exam" : ""
+        }`}
+      >
+        {charge.value}
       </span>
-      <span className="hud-meter" aria-hidden>
-        <span
-          className={`hud-meter-fill ${charge.examWindow ? "hud-meter-exam" : ""}`}
-          style={{ width: `${(charge.fraction * 100).toFixed(1)}%` }}
-        />
-      </span>
-    </span>
+    </>
   );
 }
 
@@ -295,8 +330,8 @@ export function Hud() {
           </span>
         </HudButton>
 
-        <HudButton id="charge" label={charge.label} onOpen={openItem}>
-          <ChargeChip charge={charge} />
+        <HudButton id="charge" label={charge.label} onOpen={openItem} className="gap-1 px-1">
+          <ChargeReading charge={charge} />
         </HudButton>
       </div>
 
