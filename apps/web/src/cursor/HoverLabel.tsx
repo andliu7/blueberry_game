@@ -42,7 +42,23 @@ function labelFor(el: HTMLElement): string | null {
   const explicit = el.dataset.hoverLabel;
   const aria = el.getAttribute("aria-label");
   const title = el.getAttribute("title");
-  const text = el.textContent ?? "";
+  /*
+    innerText, NOT textContent, and the difference is a bug the owner found:
+    hovering Train read "Train Train".
+
+    A tab renders BOTH labels and hides one per breakpoint in CSS, the short
+    one above `md` and the full one below it (Shell.tsx TabLink). textContent
+    concatenates every text node in the subtree whether or not it is displayed,
+    so it returned both and the two collapsed into a doubled word. innerText is
+    the rendered text: it honours `display: none` and returns only the label a
+    reader can actually see, which is by definition the right name for a chip
+    that names what the pointer is over.
+
+    It costs a layout flush, which is why textContent is the usual advice. Here
+    it runs once per hovered element rather than per frame, and being wrong is
+    more expensive than being slow.
+  */
+  const text = el.innerText ?? "";
   const raw = (explicit ?? aria ?? title ?? text).trim();
   if (raw === "") return null;
   // One or two words. A comma or a full stop ends the phrase early, because an

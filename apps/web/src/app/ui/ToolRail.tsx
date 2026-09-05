@@ -43,6 +43,7 @@ import { TOOL_TABS, hrefForTab, type ToolId } from "../routes";
 import { TabIcon } from "./TabIcon";
 import { TabSkeleton } from "./Skeleton";
 import "./tools.css";
+import { closeOnBackdrop } from "./dismiss";
 
 const PeriodicTab = lazy(() => import("../../tabs/periodic/PeriodicTab"));
 const SearchTab = lazy(() => import("../../tabs/search/SearchTab"));
@@ -109,11 +110,7 @@ export function ToolSheet({ tool, onClose }: { readonly tool: ToolId | null; rea
       ref={ref}
       data-tool-sheet={tool ?? "closed"}
       onClose={onClose}
-      onClick={(event) => {
-        // The dialog element is the full-viewport ground; the panel inside it
-        // is not. So this closes on the scrim only.
-        if (event.target === ref.current) onClose();
-      }}
+      onClick={closeOnBackdrop(ref, onClose)}
       className="tool-sheet"
       aria-label={definition === undefined ? "Tools" : definition.label}
     >

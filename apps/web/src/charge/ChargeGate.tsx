@@ -59,6 +59,7 @@ import { ChargeMeter } from "./ChargeMeter";
 import { chargeMeterModel, type ChargeMeterModel } from "./chargeMeterModel";
 import { chargeGateModel, type ChargeGateModel, type ChargeGateNode } from "./chargeGateModel";
 import "./charge.css";
+import { closeOnBackdrop } from "../app/ui/dismiss";
 
 /**
  * How often the sheet re-derives while it is open and nothing has been pressed.
@@ -265,10 +266,7 @@ export function ChargeGate({ node, onClose, reducedMotion }: ChargeGateProps) {
       data-charge-phase={phase}
       aria-label={model === null ? "Charge" : model.label}
       onClose={onClose}
-      onClick={(event) => {
-        // The dialog element is the whole viewport; the panel inside it is not.
-        if (event.target === ref.current) onClose();
-      }}
+      onClick={closeOnBackdrop(ref, onClose)}
     >
       {model === null ? null : (
         <div className="charge-panel">

@@ -91,6 +91,7 @@ import {
   type HudModel,
   type StreakReadout,
 } from "./hudModel";
+import { closeOnBackdrop } from "./dismiss";
 
 /**
  * How often the header re-derives against the wall clock.
@@ -405,11 +406,7 @@ function HudSheet({
       ref={ref}
       data-hud-sheet={open ?? "closed"}
       onClose={onClose}
-      onClick={(event) => {
-        // The dialog element itself is the full viewport ground; the panel
-        // inside it is not, and the spotlight layer takes no pointer events.
-        if (event.target === ref.current) onClose();
-      }}
+      onClick={closeOnBackdrop(ref, onClose)}
       className="hud-sheet"
       aria-label={readout === null ? "Progress detail" : readout.eyebrow}
     >

@@ -63,6 +63,7 @@ import { progress } from "../progress";
 import { hrefForTab } from "../routes";
 import { navigate } from "../useHashRoute";
 import "./course-chip.css";
+import { closeOnBackdrop } from "./dismiss";
 
 const ALL_COURSES: readonly CourseId[] = Object.freeze([
   "orgo_2",
@@ -142,7 +143,13 @@ export function CourseChip(): React.ReactElement | null {
         </svg>
       </button>
 
-      <dialog ref={ref} className="course-sheet" onClose={close} aria-label="Choose a course">
+      <dialog
+        ref={ref}
+        className="course-sheet"
+        onClose={close}
+        onClick={closeOnBackdrop(ref, close)}
+        aria-label="Choose a course"
+      >
         <div className="course-sheet__grip" aria-hidden />
         <div ref={scroller} className="course-sheet__scroll">
           {/* ABOVE the list, so it is revealed by pulling down rather than by a

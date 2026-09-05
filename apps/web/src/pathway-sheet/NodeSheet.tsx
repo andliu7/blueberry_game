@@ -51,6 +51,7 @@ import { BerryHands, BerryLeaf } from "./BerryLeaf";
 import { MoleculeGlyph } from "./MoleculeGlyph";
 import { nodeSheetModel, type SheetNode } from "./nodeSheetModel";
 import "./pathway-sheet.css";
+import { closeOnBackdrop } from "../app/ui/dismiss";
 
 /**
  * Where the sheet title steps down a size, in characters.
@@ -186,10 +187,7 @@ export function NodeSheet({ node, onClose, onStart, onChallenge, onGuidebook, re
       aria-label={model === null ? "Lesson" : `${model.label}${model.cleared ? " Cleared." : ""}`}
       data-node-state={node === null ? "closed" : node.state}
       onClose={onClose}
-      onClick={(event) => {
-        // The backdrop's clicks target the dialog element; the panel's do not.
-        if (event.target === ref.current) onClose();
-      }}
+      onClick={closeOnBackdrop(ref, onClose)}
     >
       {model === null || node === null ? null : (
         <>
