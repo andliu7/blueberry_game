@@ -9,6 +9,20 @@
  * one is a trap for whoever opens the page next. When a clip lands, `src`
  * becomes a real URL and the <video> element below takes over: `muted` by
  * default, `controls` on, no `autoplay` attribute, ever.
+ *
+ * THE UNFILMED SLOT IS A STRIP, NOT A HERO, and that is a measured fix rather
+ * than a taste one. The placeholder used to render at the real player's 16:9,
+ * which on a 390 by 844 phone is about 220 CSS pixels of near-black card
+ * sitting between the lesson's top bar and its question: the first thing the
+ * student sees on a free lesson was a rectangle saying nothing is filmed, and
+ * the question itself opened below the fold. CLAUDE.md's content pipeline is
+ * explicit that "nothing in the free tier depends on video being present, so
+ * lessons must stand without them"; a slot that costs a quarter of the screen
+ * to say it is empty is that lesson not standing. So the UNFILMED state is a
+ * one-row strip that keeps every promise the hero kept (it is marked as a
+ * template, it names the concept, it is skippable, the transcript is reachable)
+ * and gives the room back to the chemistry. A REAL clip keeps the 16:9 player,
+ * because then the room is buying something.
  */
 
 import { useState } from "react";
@@ -22,22 +36,55 @@ export interface LessonVideoProps {
 
 export function LessonVideo({ title, src, transcript, onSkip }: LessonVideoProps) {
   const [showTranscript, setShowTranscript] = useState(false);
+  const transcriptToggle = (
+    <button
+      type="button"
+      className="press min-h-11 shrink-0 px-2 text-scale-sm font-semibold text-primary"
+      onPointerDown={() => setShowTranscript((s) => !s)}
+    >
+      {showTranscript ? "Hide transcript" : "Transcript"}
+    </button>
+  );
+  const transcriptBody = showTranscript ? (
+    <p className="rounded-xl bg-muted p-3 text-scale-sm text-muted-foreground">
+      {transcript ?? "The transcript is stored with the video and arrives with it."}
+    </p>
+  ) : null;
+
+  // The unfilmed slot: a strip. See the header for the measurement.
+  if (src === undefined) {
+    return (
+      <figure className="flex shrink-0 flex-col gap-2">
+        <div className="flex items-center gap-2 rounded-2xl border border-dashed border-border bg-muted px-3 py-2">
+          <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Template
+          </span>
+          <p className="min-w-0 flex-1 truncate text-scale-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{title}</span> video, about a minute, from Kai. Not
+            filmed yet.
+          </p>
+          {transcriptToggle}
+          <button
+            type="button"
+            onPointerDown={onSkip}
+            aria-label="Skip the video and go to the questions"
+            title="Skip the video and go to the questions"
+            className="press flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border-2 border-border text-scale-base font-semibold text-muted-foreground"
+          >
+            &#10005;
+          </button>
+        </div>
+        {transcriptBody}
+      </figure>
+    );
+  }
+
   return (
-    <figure className="flex flex-col gap-2">
+    <figure className="flex shrink-0 flex-col gap-2">
       <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-foreground/90">
-        {src !== undefined ? (
-          <video src={src} controls muted playsInline preload="metadata" className="h-full w-full" aria-label={title}>
-            {transcript !== undefined ? <track kind="captions" label="Transcript" /> : null}
-          </video>
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-background">
-            <span className="rounded-full border border-background/40 px-3 py-1 text-scale-xs font-semibold uppercase tracking-wide">
-              Template
-            </span>
-            <p className="text-scale-base font-semibold">{title}</p>
-            <p className="text-scale-xs opacity-80">About one minute, one concept, from Kai. Not filmed yet.</p>
-          </div>
-        )}
+        <video src={src} controls muted playsInline preload="metadata" className="h-full w-full" aria-label={title}>
+          {transcript !== undefined ? <track kind="captions" label="Transcript" /> : null}
+        </video>
         <button
           type="button"
           onPointerDown={onSkip}
@@ -48,15 +95,9 @@ export function LessonVideo({ title, src, transcript, onSkip }: LessonVideoProps
       </div>
       <figcaption className="flex items-center justify-between text-scale-xs text-muted-foreground">
         <span>{title}</span>
-        <button type="button" className="press min-h-11 px-2 font-semibold text-primary" onPointerDown={() => setShowTranscript((s) => !s)}>
-          {showTranscript ? "Hide transcript" : "Transcript"}
-        </button>
+        {transcriptToggle}
       </figcaption>
-      {showTranscript ? (
-        <p className="rounded-xl bg-muted p-3 text-scale-sm text-muted-foreground">
-          {transcript ?? "The transcript is stored with the video and arrives with it."}
-        </p>
-      ) : null}
+      {transcriptBody}
     </figure>
   );
 }

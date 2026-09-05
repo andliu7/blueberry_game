@@ -79,6 +79,34 @@ export const LADDER_FOR_NODE: Readonly<Record<string, string>> = Object.freeze({
   "u10-basicity": "sort-basicity-vs-nucleophilicity",
 });
 
+/*
+ * A ROW THIS ROUND DELIBERATELY DID NOT ADD, recorded so the next one does
+ * not rediscover it. `sort-pka-hierarchy` ranks a carboxylic acid, a phenol,
+ * a beta-dicarbonyl alpha C-H and a ketone alpha C-H, which is exactly what
+ * the node "u9-pka, alpha-proton pKa hierarchy" teaches, and the node now
+ * carries MCQ and match beats too, so mapping it here would give the product
+ * its first four-content-step lesson.
+ *
+ * IT IS BLOCKED BY A CHECK, NOT BY THE CHEMISTRY. test/beatRunner.test.ts,
+ * "the ladder table > resolves each of those nodes to its ladder", asserts
+ * that resolveBeat() returns the SORT beat for every node in this table.
+ * resolveBeat returns the plan's FIRST step, and the template's own ordering
+ * puts recognise before order, so that assertion holds only while a ladder
+ * node has nothing else authored on it. As written it forbids any node in
+ * this table from ever gaining a second content kind, which is the opposite
+ * of what the seven-slot template exists to allow, and the very next test in
+ * that file ("prefers the gentler surface when a node has more than one")
+ * asserts the opposite behaviour for the same case while filtering on the
+ * property it asserts, so it can never fail either way.
+ *
+ * Loosening an assertion in the same round that reports the number it
+ * produces is the failure mode CLAUDE.md's non-negotiable names, so this
+ * round reports it instead of editing it. The fix is one line in that test:
+ * assert that planLesson(node) CONTAINS the sort step rather than that it
+ * opens with it, which is strictly stronger, because it keeps checking the
+ * ladder is reachable once other content exists.
+ */
+
 /* ------------------------------------------------------------------ */
 /* Resolution and the plan                                              */
 /* ------------------------------------------------------------------ */
@@ -320,6 +348,32 @@ export const BADGE_LABEL: Readonly<Record<BadgeKind, string>> = Object.freeze({
 });
 
 /**
+ * Which of the seven slots a badge belongs to.
+ *
+ * The beat runner gets its slot from the plan, because the plan is what put
+ * the step in a slot. A curriculum lesson has no plan: it is a list of
+ * authored problems, and the strip still has to say which slot each one is
+ * standing in, or the two strips are two vocabularies wearing the same
+ * shape. So the mapping is written down once, here, where a test holds it.
+ *
+ * Everything that asks the student to BUILD something lands in produce,
+ * which is the slot's own definition. That is why reagents, product, numeric
+ * and structure share it: they differ in answer shape, not in teaching move.
+ */
+export const SLOT_FOR_BADGE: Readonly<Record<BadgeKind, LessonSlot>> = Object.freeze({
+  mcq: "recognise",
+  match: "connect",
+  sort: "order",
+  synthesis: "produce",
+  reagents: "produce",
+  product: "produce",
+  numeric: "produce",
+  structure: "produce",
+  recycle: "recycle",
+  reward: "reward",
+});
+
+/**
  * The strip, computed from the run: one segment per content step in template
  * order, then recycle once a miss has earned it, then the reward.
  *
@@ -351,4 +405,75 @@ export function recipeSegments(run: LessonRun): readonly RecipeSegment[] {
     label: BADGE_LABEL.reward,
   });
   return segments;
+}
+
+/**
+ * The same strip for a CURRICULUM lesson, whose beats are authored problems
+ * rather than a planned run.
+ *
+ * lesson/LessonPlayer.tsx used to draw a bare percentage bar here, which told
+ * the student how far they were and nothing at all about what was coming.
+ * The committed spec's whole point is that a lesson SHOWS ITS COMPOSITION UP
+ * FRONT, so a problem list gets the same instrument the beat runner has: one
+ * badge per problem in the order they will be played, then the reward slot.
+ *
+ * Pure, and taking answer kinds rather than Problems, so the web suite (node,
+ * no DOM) can hold the rule and the player only draws. `index` is the problem
+ * on screen; passing `kinds.length` is the finished lesson, where every
+ * question is behind the student and the reward is current.
+ *
+ * NO RECYCLE SEGMENT HERE, deliberately: the curriculum player has no recycle
+ * pass, and a slot the run cannot reach would be a promise the screen does
+ * not keep.
+ */
+export function problemRecipeSegments(kinds: readonly string[], index: number): readonly RecipeSegment[] {
+  const segments: RecipeSegment[] = kinds.map((kind, i) => {
+    const badge = problemBadge(kind);
+    return {
+      slot: SLOT_FOR_BADGE[badge],
+      badge,
+      state: i < index ? "done" : i === index ? "current" : "todo",
+      label: BADGE_LABEL[badge],
+    };
+  });
+  segments.push({
+    slot: "reward",
+    badge: "reward",
+    state: index >= kinds.length ? "current" : "todo",
+    label: BADGE_LABEL.reward,
+  });
+  return segments;
+}
+
+/* ------------------------------------------------------------------ */
+/* The green capsule                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How far the strip's green fill has travelled, 0 to 1.
+ *
+ * WHY THIS IS A FUNCTION AND NOT A TERNARY IN THE STRIP. Both committed
+ * lesson frames (blueberry_r9-lesson-mechanism, blueberry_r9-lesson-reaction)
+ * draw ONE long green capsule between the exit and the currency counter,
+ * filling left to right. The committed badge sheet
+ * (blueberry_spec-question-badges) draws the same slot as a segmented strip
+ * of beat badges. They are the same instrument at two zoom levels, so the
+ * strip is drawn as a capsule whose green runs continuously across every
+ * segment behind the student: the frames' bar and the sheet's badges, one
+ * object. This function is the length of that run, and it lives here because
+ * the web suite has no DOM and a rule inside JSX is a rule nothing can test.
+ *
+ * `withinCurrent` is how far through the CURRENT segment's own beats the
+ * student has got, and it must be a CLEARED fraction rather than an answered
+ * one. A miss that pushed the green forward would paint a wrong answer as
+ * progress, which contradicts DESIGN-GOALS' "green says you moved" and is
+ * exactly what the previous build did: the current segment showed a full
+ * green fill while the panel under it said "Not yet".
+ */
+export function recipeProgress(segments: readonly RecipeSegment[], withinCurrent = 0): number {
+  if (segments.length === 0) return 0;
+  const done = segments.filter((segment) => segment.state === "done").length;
+  const hasCurrent = segments.some((segment) => segment.state === "current");
+  const partial = hasCurrent ? Math.min(1, Math.max(0, withinCurrent)) : 0;
+  return Math.min(1, (done + partial) / segments.length);
 }

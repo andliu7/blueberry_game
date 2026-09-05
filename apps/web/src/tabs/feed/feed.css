@@ -37,6 +37,15 @@
 .feed-page {
   position: relative;
   isolation: isolate;
+  /* THE GROUND REACHES THE BOTTOM OF THE SCREEN. Without this the page is only
+     as tall as its content, and on a short journal the band's fill stopped in
+     a dead-straight full-width line partway down with bare cream under it,
+     which is precisely the "unfinished background asset" the S2 judge named on
+     the pathway. Shell.tsx renders a tab inside `<main class="min-h-0 flex-1">`
+     within a `min-h-dvh` column, so main has a resolved height and 100 percent
+     resolves against it; where it does not resolve this is simply inert, which
+     is why it is min-height and not height. */
+  min-height: 100%;
 
   /* THE WHITE CARD, and its family. Declared on the page rather than on the
      card so the chest's cut-out latch can resolve the same value from inside
@@ -140,7 +149,15 @@
 .feed-prop {
   display: block;
   overflow: visible;
-  opacity: 0.5;
+  /* HALVED AGAIN, off a second capture, and the reason is the one the block
+     above already gives: on a phone the content column is the whole screen, so
+     every prop spends most of its height behind an opaque white card and what
+     the student actually sees is the SLICE of it that clears a card edge. At
+     0.5 those slices read as objects being cut; DESIGN-GOALS' own measurement
+     of the reference is a luminance delta of about 33 against the ground,
+     which on this cream is roughly what 0.28 of --feed-prop lands on. Faint
+     enough that a cut edge is texture rather than damage. */
+  opacity: 0.28;
 }
 /* Outlined, faint by WEIGHT rather than by a colour nobody can find. */
 .feed-prop--flask,
@@ -168,9 +185,12 @@
   height: 1.5rem;
   fill: var(--feed-cloud-fill);
   stroke: var(--feed-cloud-line);
-  stroke-width: 2.4;
+  stroke-width: 2;
   stroke-linejoin: round;
-  opacity: 0.4;
+  /* Same correction as .feed-prop, one notch higher because a cloud is a
+     filled shape whose white is already close to the card it passes behind,
+     so it survives being quieter better than an outline does. */
+  opacity: 0.26;
 }
 
 /* ------------------------------------------------------------ the headings -- */

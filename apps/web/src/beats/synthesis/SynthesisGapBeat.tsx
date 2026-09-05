@@ -40,6 +40,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Press } from "../../app/ui/Press";
+import { ChipPress } from "../ChipPress";
 import type { BeatResult, MasteryLevel } from "../types";
 import { offerCardForMistake, shouldOfferCard, type GapCardOffer } from "./cards";
 import { explainSynthesisResult, gradeSynthesisGap, type GapSubmission } from "./grade";
@@ -358,10 +359,14 @@ export function SynthesisGapBeat({
         </div>
       ) : null}
 
+      {/* THE COMMIT IS A CHIP, per the committed button-types sheet and the
+          S3 judge's carry: before an answer exists this goes flat grey with
+          its bottom edge gone, so "nothing chosen yet" is a visible fact
+          rather than a dimmed guess. */}
       {explanation === null ? (
-        <Press onClick={check} disabled={!answered} className="w-full">
+        <ChipPress onClick={check} disabled={!answered} className="w-full">
           Check
-        </Press>
+        </ChipPress>
       ) : (
         <div className="flex flex-col gap-4">
           <div className={`rounded-2xl border p-4 ${TONE_CLASS[explanation.tone]}`}>
@@ -377,9 +382,9 @@ export function SynthesisGapBeat({
           <p className="text-scale-xs text-muted-foreground">
             Route from {problem.source.file}, {problem.source.locator}.
           </p>
-          <Press onClick={onContinue} className="w-full">
+          <ChipPress onClick={onContinue} className="w-full">
             Continue
-          </Press>
+          </ChipPress>
         </div>
       )}
     </section>

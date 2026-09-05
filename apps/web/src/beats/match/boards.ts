@@ -295,11 +295,96 @@ export const PROTECTING_GROUP_BOARD: MatchBeat = Object.freeze({
   ],
 });
 
+/**
+ * Reagent to job, on the multistep sequencing node. Node u3-sequencing.
+ *
+ * AUTHORED SO ONE LESSON IN THE PRODUCT PLAYS MORE THAN ONE SLOT. The
+ * seven-slot template in ../template.ts was real code that no content could
+ * exercise: every node authored exactly one beat KIND, so a lesson plan never
+ * had more than one content step and the recipe strip never drew more than
+ * [content, reward]. u3-sequencing already carried three SYNTHESIS gaps, and
+ * mcq/content.ts's SEQUENCING set now gives it the recognise rung, so this
+ * board is the connect rung and the node plays recognise, connect, produce and
+ * reward, with recycle when a miss earns it.
+ *
+ * WHY THIS BOARD IS THE RIGHT CONNECT RUNG FOR THIS NODE rather than filler.
+ * Sequencing is the one EAS topic where knowing each reaction is not enough:
+ * the exam question is which reagent does which JOB, so that the jobs can be
+ * put in an order. The synthesis gaps downstream ask for the order. This asks
+ * for the vocabulary the order is built from, which is the connect slot's own
+ * definition, and every left card here is a reagent set that appears in one of
+ * those gaps.
+ *
+ * The decoy is the mistake the course's own exams keep catching: reaching for
+ * bromination when the sequence asked for sulfonation, because both are "put
+ * something on so you can take it off later".
+ */
+export const SEQUENCING_JOBS_BOARD: MatchBeat = Object.freeze({
+  kind: "match",
+  id: "match-sequencing-jobs",
+  node: "u3-sequencing",
+  conceptIds: ["eas-sequencing", "directing-effects"],
+  levels: MATCH_LEVELS,
+  presentation: "columns",
+  diamonds: 4,
+  prompt: "Match each reagent set to the job it does in a sequence.",
+  brief: "Same benzene every time. What changes is what the ring is carrying afterwards.",
+  pairs: [
+    {
+      id: "nitration",
+      left: "HNO3, H2SO4",
+      right: "Nitro group on",
+      why:
+        "Nitration puts a strong deactivator on the ring, and that is usually the point: it " +
+        "shuts the ring down so a later step cannot go twice, and it is the group that gets " +
+        "reduced to an amine once the hard chemistry is over.",
+    },
+    {
+      id: "reduction",
+      left: "Sn, HCl, then NaOH",
+      right: "Nitro down to amine",
+      why:
+        "The same nitrogen, three oxidation states later. Doing it at the END is what makes " +
+        "nitration worth reaching for, because an amine on the ring first would have been " +
+        "protonated by every acidic step in the sequence.",
+    },
+    {
+      id: "sulfonation",
+      left: "SO3, H2SO4",
+      right: "Blocker on, para",
+      why:
+        "Sulfonation is the reversible one, and reversibility is the whole feature. The " +
+        "sulfonic acid parks on para, the next step is forced to ortho, and dilute hot acid " +
+        "takes the blocker back off.",
+    },
+    {
+      id: "acylation",
+      left: "CH3COCl, AlCl3",
+      right: "Acyl group on, once",
+      why:
+        "Acylation stops after one because the ketone it leaves deactivates the ring. That is " +
+        "why the sequence reaches for it rather than alkylation, and a Clemmensen or Wolff " +
+        "Kishner afterwards turns the C=O into the CH2 an alkylation would have overshot.",
+    },
+  ],
+  decoys: [
+    {
+      id: "bromination",
+      text: "Bromine on, ortho para",
+      why:
+        "Bromination is a real step and it is not this one. It belongs with Br2 and FeBr3, and " +
+        "the bromine it leaves behind is permanent, so it cannot do the park-and-remove job " +
+        "sulfonation was chosen for.",
+    },
+  ],
+});
+
 export const MATCH_BOARDS: readonly MatchBeat[] = Object.freeze([
   ALKENE_OXIDATION_BOARD,
   PKA_LADDER_BOARD,
   IR_SIGNAL_BOARD,
   PROTECTING_GROUP_BOARD,
+  SEQUENCING_JOBS_BOARD,
 ]);
 
 export function matchBoardById(id: string): MatchBeat | undefined {

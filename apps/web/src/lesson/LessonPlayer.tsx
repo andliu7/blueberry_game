@@ -45,7 +45,12 @@ import {
   type TopicId,
 } from "@blueberry/curriculum";
 import { Press } from "../app/ui/Press";
-import { Card, Pill } from "../app/ui/Card";
+import { Card } from "../app/ui/Card";
+import { ExitMark, GemMark } from "../beats/chromeIcons";
+import { RecipeStrip } from "../beats/RecipeStrip";
+import { problemRecipeSegments } from "../beats/template";
+import { SchemeCard } from "./SchemeCard";
+import { schemeFor } from "./lessonFigures";
 import { Berry } from "../mascot/Berry";
 import { costumeForSurface, type BerrySurface } from "../mascot/berryCostume";
 import type { BerryState } from "../mascot/berryState";
@@ -84,15 +89,27 @@ export interface LessonPlayerProps {
   readonly surface?: BerrySurface;
 }
 
-const KIND_LABEL: Record<Problem["answer"]["kind"], string> = {
-  multiple_choice: "Pick one",
-  major_product: "Major product",
-  numeric: "Calculate",
-  reagents: "Supply the reagents",
-  ordering: "Put in order",
-  matching: "Match the pairs",
-  structure: "Draw",
-};
+/**
+ * The authored hook clip for a topic, when one exists.
+ *
+ * EMPTY TODAY AND THAT IS THE POINT. The content pipeline in CLAUDE.md says
+ * the clips are authored by a named creator and that "nothing in the free
+ * tier depends on video being present, so lessons must stand without them".
+ * None is filmed, so no lesson schedules a hook, so no lesson draws one. The
+ * day a clip lands its URL goes in here beside its topic id and the slot
+ * appears with no other change.
+ */
+const HOOK_CLIPS: Readonly<Record<string, string>> = Object.freeze({});
+
+/* THE TWO PILLS ABOVE THE STEM ARE GONE, and the information is not.
+   blueberry_r9-lesson-reaction opens on the question itself: no kind chip, no
+   topic chip, nothing between the top bar and the words. Both pills were
+   restating what the screen already says elsewhere. The answer KIND is the
+   current badge in the recipe strip, which carries the same words as its
+   title and to a screen reader (beats/template.ts's BADGE_LABEL), and the
+   TOPIC is what the student tapped to get here and what the exit returns
+   them to. Two rows of chrome bought nothing and cost the question its place
+   at the top of the frame. */
 
 function surfaceForProblem(problem: Problem): BerrySurface {
   switch (problem.answer.kind) {
@@ -328,6 +345,12 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
 
   const outcome = result === null ? null : outcomeOf(result);
   const nextLabel = index + 1 < total ? "Next" : "Finish lesson";
+  const recipe = problemRecipeSegments(
+    problems.map((p) => p.answer.kind),
+    index,
+  );
+  const scheme = schemeFor(problem.id);
+  const clip = HOOK_CLIPS[topic];
 
   return (
     // THE LESSON FILLS THE SCREEN. The S3 capture had a short numeric question
@@ -343,54 +366,146 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
     // the approved lesson concept shows: a cream field edge to edge with the
     // controls low, not a small card floating in a field of ground.
     //
-    // TWO GROWTH CLAUSES BECAUSE THERE ARE TWO MOUNTS, and each one answers a
-    // different parent. Inside the shell the parent is `main`, a block whose
-    // height flexbox already resolved, so `min-h-full` is the clause that
-    // fires. In onboarding the parent is a flex column with a min height and no
-    // definite one, where a percentage min-height resolves to auto and does
-    // nothing, so `flex-1` is the clause that fires. Neither is redundant and
-    // dropping either leaves one of the two mounts short.
-    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col gap-4 p-4 md:p-6">
-      <header className="flex items-center justify-between gap-3">
-        <button type="button" onPointerDown={onExit} className="press min-h-11 rounded-full border-2 border-border px-3 text-scale-sm font-semibold text-muted-foreground">
-          ← Leave
+    // TWO GROWTH CLAUSES BECAUSE THERE ARE TWO MOUNTS, and ONE OF THEM DOES
+    // NOT WORK TODAY. In onboarding the parent is a flex column, so `flex-1`
+    // is the clause that fires and this column fills it.
+    //
+    // Inside the shell it does not, and the previous note here claimed it did.
+    // Measured on a 390 by 844 phone at #/courses/orgo_2/oxidation_and_
+    // reduction_ladder: `main` is 670px tall and this column comes out 497,
+    // leaving 173px of bare ground under the card. The cause is that Shell's
+    // `main` is `display: block` (classes `min-h-0 flex-1`), so `flex-1` here
+    // is inert, and a percentage min-height against a parent whose SPECIFIED
+    // height is auto resolves to auto no matter what height flexbox later gave
+    // it. `min-h-full` and `max-h-full` are both no-ops in that mount.
+    //
+    // THE FIX IS ONE CLASS IN A FILE THIS BUILDER DOES NOT OWN: `main` needs
+    // `flex flex-col` beside the `min-h-0 flex-1` it already carries, and then
+    // this column's `flex-1` fires in both mounts and the well below scrolls
+    // rather than the page. Reported to the integrator rather than worked
+    // around, because the alternative is hardcoding the header and tab bar
+    // heights into a calc() here, which breaks silently the next time the
+    // shell chrome changes.
+    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-1 flex-col gap-3 px-4 pt-3 pb-4 md:px-6 md:pt-4">
+      {/* THE RECIPE STRIP replaces the bare percentage bar that used to sit
+          here. A percentage says how far; the committed spec
+          (blueberry_spec-question-badges_*.png) says a lesson shows its BEAT
+          COMPOSITION up front, so the bar is one badge per question in the
+          order they arrive, completed green, current violet, the rest quiet.
+          The segments are computed by a pure function in beats/template.ts,
+          which is where the suite can hold the rule. */}
+      <header className="flex shrink-0 items-center gap-3">
+        <button
+          type="button"
+          onPointerDown={onExit}
+          aria-label="Leave this lesson"
+          title="Leave this lesson"
+          /* The committed mechanism frame's filled violet squircle, shared
+             with the beat runner's own exit. See beats/beat-chrome.css for
+             why the outlined navy circle went: it was neither of the two
+             treatments the frames draw, and it gave the way OUT of a lesson
+             the heaviest stroke in the header row. */
+          className="lesson-exit"
+        >
+          <ExitMark />
         </button>
-        <div className="flex-1">
-          <div className="h-2 w-full overflow-hidden rounded-full border border-border bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
-            <div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${(index / total) * 100}%` }} />
-          </div>
+        <div className="min-w-0 flex-1">
+          <RecipeStrip segments={recipe} reducedMotion={reducedMotion} />
         </div>
-        <span className="text-scale-sm font-semibold text-muted-foreground tabular-nums">
-          {index + 1}/{total}
+        {/* THE COUNTER IS THE FRAMES' COUNTER. blueberry_r9-lesson-reaction
+            pairs its number with a drawn gem and
+            blueberry_r9-lesson-mechanism with a drawn flask and flame; both
+            count a CURRENCY. This slot used to read "3/7", which is the
+            recipe strip's own job said again in digits beside it. */}
+        <span className="lesson-currency" aria-label={`${snapshot.economy.diamonds.balance} gems`}>
+          <GemMark />
+          {snapshot.economy.diamonds.balance}
         </span>
       </header>
 
-      {!videoDone ? (
-        <LessonVideo title={definition.label} onSkip={() => setVideoDone(true)} />
+      {/* THE HOOK SLOT IS EMPTY RATHER THAN FAKED, which is the rule
+          beats/template.ts already states for the beat runner's own hook:
+          "no node carries one yet ... so the slot stays empty rather than
+          being faked". This player was the one place still breaking it. On a
+          390 by 844 phone the unfilmed strip cost about 92 pixels between the
+          top bar and the question, which is a row of the screen spent telling
+          a student that something they cannot watch does not exist, on the
+          free lesson CLAUDE.md holds to the highest bar in the product.
+          LessonVideo keeps its unfilmed strip because a SCHEDULED hook whose
+          asset has not landed is a real state and deserves an honest render;
+          what changes is that an UNSCHEDULED hook is no longer scheduled. */}
+      {!videoDone && clip !== undefined ? (
+        <LessonVideo title={definition.label} src={clip} onSkip={() => setVideoDone(true)} />
       ) : null}
 
-      <Card className="flex flex-1 flex-col gap-4">
-        {/* THE PROMPT GETS THE FULL WIDTH. Bloom used to sit in this row and
-            cost it 72px plus a gap, which on a phone turned a four line
-            question into six. It has moved down to sit above the answer, which
-            is where the approved lesson concept puts it and where it does
-            something: the card is full height now, and a coach standing over
-            the answer is a better use of that room than a hole. */}
-        <div className="flex flex-col gap-1">
-          <div className="flex gap-2">
-            <Pill tone="primary">{KIND_LABEL[problem.answer.kind]}</Pill>
-            <Pill>{definition.label}</Pill>
-          </div>
-          <p className="mt-2 text-scale-lg font-medium leading-relaxed text-foreground">{problem.prompt}</p>
+      {/* NO OUTER CARD. Both committed lesson frames put the stem and the
+          reaction scheme directly on the cream page, and the SCHEME CARD is
+          the only bounded surface on the frame. The previous build wrapped
+          the stem, the scheme, the input and the CHECK inside one 2px
+          navy-outlined rounded Card, which added a box the frames do not
+          have, drew the heaviest stroke on the screen around the question,
+          and pushed the action button into the middle of the page with about
+          250px of empty cream under it. The card is gone; the scheme card
+          keeps its own surface, because that one IS in the frame. */}
+      <div className="relative flex min-h-0 flex-1 flex-col gap-3">
+        {/* THE STEM IS THE LIGHTEST LARGE TEXT ON THE FRAME, which is the
+            hierarchy both committed frames set: "Push the arrows for the
+            first step of this SN1." and "Predict the major product." are
+            large and REGULAR, because the loudest thing on a chemistry
+            question is meant to be the chemistry. A previous build set the
+            stem semibold, making it the heaviest element on the screen and
+            inverting that.
+
+            THE CONTENT FACE, per DESIGN-TOKENS' typography split: a question
+            stem is CONTENT, so it is set in --font-sans (the system stack,
+            which body already carries) and never in the rounded display
+            face. Personality lives at the celebration, not between the
+            student and the chemistry. */}
+        <div className="flex shrink-0 flex-col gap-1">
+          <p className="text-scale-xl font-normal leading-snug text-foreground">{problem.prompt}</p>
         </div>
 
-        {/* `mt-auto` is the whole mechanism: it collapses to nothing when the
-            options fill the card and pushes the answer block to the bottom
-            edge when they do not, so Check is under the thumb either way and
-            the card never has a hole in the middle of it. */}
-        <div className="mt-auto flex flex-col gap-2">
-          {!berryReacting ? <Berry {...berry} sizePx={84} className="self-end" /> : null}
+        {/* THE QUESTION IS A PICTURE FIRST. Owner ruling 1 of 2026-09-04:
+            "a question that is only prose has already lost the student".
+            blueberry_r9-lesson-reaction puts a scheme card directly under the
+            stem, and that card is the loudest thing on the frame. `schemeFor`
+            returns null for a corpus question the figure table has not met,
+            in which case the question falls back to its prompt and a test
+            fails; see lessonFigures.ts for why that fallback exists and what
+            stops a student ever seeing it. */}
+        {scheme !== null ? <SchemeCard scheme={scheme} /> : null}
+
+        {/* THE DEAD ZONE, and where it went. The S3 judge's carry against this
+            exact frame was "a large dead zone": the prompt sat at the top, the
+            answer was pushed to the bottom by an `mt-auto`, and the hole
+            between them was most of a phone screen. Pushing content apart is
+            not the same as filling a screen.
+
+            So the answer region is the GROWING child now, and the answer
+            itself grows inside it (ProblemView's option list stretches its
+            rows, its forms fill the well). That is the committed frame's own
+            shape, blueberry_r9-lesson-reaction: prompt at the top, big option
+            cards spanning the middle, the action under the thumb. There is no
+            `mt-auto` left to open a hole with. */}
+        {/* THE MASCOT IS ANCHORED, NOT FLOATING, the second half of the same
+            carry, and it stands INSIDE the answer region rather than beside
+            it. That containment is the whole fix: the region ends at the
+            bottom of ProblemView's own action chip, so `bottom: 0` against it
+            lands the berry's feet on that chip and nothing here has to know
+            how tall the chip, the card's padding or the card's border are.
+            As a sibling of this region it was anchored to the CARD instead,
+            which put it a border-width lower and let the card's rounded edge
+            cut across it. Decoration: aria hidden, no pointer target, no
+            reserved row, and dropped entirely while the reaction strip has
+            its own berry on screen, because DESIGN-GOALS allows exactly one
+            berry to a frame. */}
+        <div className="relative flex min-h-0 flex-1 flex-col">
           <ProblemView key={problem.id} problem={problem} locked={result !== null} onSubmit={submit} onSkip={skip} />
+          {!berryReacting ? (
+            <span className="berry-anchor" aria-hidden>
+              <Berry {...berry} sizePx={72} />
+            </span>
+          ) : null}
         </div>
 
         {result !== null && outcome !== null && berryReacting ? (
@@ -412,7 +527,7 @@ export function LessonPlayer({ topic, problems, reducedMotion, onExit, onFinishe
             ) : null}
           </ReactionStrip>
         ) : null}
-      </Card>
+      </div>
 
       {showCombo && combo !== null && reaction !== null ? (
         <ComboInterstitial

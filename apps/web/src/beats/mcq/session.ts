@@ -191,6 +191,20 @@ export interface McqProgress {
   readonly fraction: number;
   /** Committed results that cleared the beat. L0 misses count, per canFail. */
   readonly cleared: number;
+  /**
+   * 0 to 1 over the CLEARED beats rather than the answered ones, and this is
+   * the one the recipe strip's green fill takes.
+   *
+   * The two numbers are different the moment a student gets one wrong, and
+   * the previous build handed the strip `fraction`: after a miss the current
+   * segment filled solid green while the panel underneath said "Not yet", so
+   * the bar contradicted the screen it was sitting on. DESIGN-GOALS is that
+   * "green says you moved" and the committed badge sheet reserves the green
+   * fill for cleared beats, so a miss advances the position and not the
+   * colour. 1 on an empty run for the same reason `fraction` is: an empty run
+   * is finished, not stuck.
+   */
+  readonly clearedFraction: number;
 }
 
 export function sessionProgress(session: McqSession): McqProgress {
@@ -204,6 +218,7 @@ export function sessionProgress(session: McqSession): McqProgress {
     total,
     fraction: total === 0 ? 1 : Math.min(1, answered / total),
     cleared,
+    clearedFraction: total === 0 ? 1 : Math.min(1, cleared / total),
   };
 }
 

@@ -63,7 +63,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { PKA_TABLE, type OrderingState, type PkaSiteId } from "@blueberry/curriculum";
-import { Press } from "../../app/ui/Press";
+import { ChipPress } from "../ChipPress";
 import { canFail, type BeatResult, type MasteryLevel } from "../types";
 import {
   boardIsComplete,
@@ -488,19 +488,30 @@ export function SortBeatView({
         )}
       </div>
 
+      {/* THE COMMIT IS A CHIP, and its disabled state is a different object.
+          The S3 judge's carry against the question screen was an outlined
+          Check whose disabled state was ambiguous; this row held the same
+          defect, because a ladder is incomplete far more often than it is
+          complete and the student was reading a dimmed button to find out.
+          ChipPress is the committed button-types sheet's own construction:
+          the sheet's periwinkle check face over a darker bottom edge while
+          it is live, and the sheet's cool grey-blue disabled pill, which is
+          a different object rather than a dimmer one, while it is not. */}
       <div className="sort-beat__actions">
         {judged ? (
           cleared ? (
-            <Press onClick={onContinue} disabled={onContinue === undefined}>
+            <ChipPress onClick={onContinue} disabled={onContinue === undefined}>
               Keep going
-            </Press>
+            </ChipPress>
           ) : (
-            <Press onClick={adjust}>Adjust the ladder</Press>
+            <ChipPress variant="quiet" onClick={adjust}>
+              Adjust the ladder
+            </ChipPress>
           )
         ) : (
-          <Press onClick={check} disabled={!complete}>
+          <ChipPress onClick={check} disabled={!complete}>
             Check
-          </Press>
+          </ChipPress>
         )}
         {!judged && !complete ? (
           <span className="sort-beat__how">

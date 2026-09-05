@@ -66,6 +66,7 @@ import type { OptionId } from "@blueberry/curriculum";
 import type { BeatResult, MasteryLevel, MatchBeat } from "../types";
 import type { Card } from "../../cards/types";
 import { Press } from "../../app/ui/Press";
+import { ChipPress } from "../ChipPress";
 import {
   buildMatchBoard,
   isPlayable,
@@ -302,7 +303,14 @@ function Board({
       {/* Two columns at every width. See the header: the partner being ACROSS
           from you is the affordance, and stacking would trade a scroll the
           pills already removed for the loss of the whole spatial idea. */}
-      <div className="grid grid-cols-2 items-start gap-2 sm:gap-3">
+      {/* THE BOARD FILLS THE SCREEN, the S3 judge's dead-zone carry applied
+          here. Measured on a 390 by 844 phone: four short cards and four
+          short targets left about 500px of bare cream under the board, which
+          is the same hole the question screen had. The grid is the growing
+          child now and `items-stretch` lets each column's rows share the room
+          it gets, so a four pair board reads as a full screen of big tap
+          targets rather than as a diagram parked at the top. */}
+      <div className="grid min-h-0 flex-1 grid-cols-2 items-stretch gap-2 sm:gap-3">
         <Column
           heading="Cards"
           ids={prompts}
@@ -373,9 +381,7 @@ function Board({
               {showWorkings ? "Hide the reasons" : "See every pairing"}
             </Press>
             {onContinue === undefined ? null : (
-              <Press variant="primary" onPointerDown={onContinue}>
-                Continue
-              </Press>
+              <ChipPress onPointerDown={onContinue}>Continue</ChipPress>
             )}
           </div>
           {showWorkings ? <Workings spec={spec} state={state} /> : null}
@@ -438,11 +444,20 @@ function Column({
     // min-w-0 on a grid child: without it a long word refuses to wrap and the
     // column pushes the grid wider than the screen. This is the one Tailwind
     // incantation in this file that is not self explanatory.
-    <div className="flex min-w-0 flex-col gap-2">
+    <div className="flex min-h-0 min-w-0 flex-col gap-2">
       <h3 className="truncate text-scale-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {heading}
       </h3>
-      <ul className="flex flex-col gap-2" role="list" ref={listRef}>
+      {/* The rows share the column's room rather than parking at the top:
+          `flex-1` on the list and on each row, capped so a two pair board does
+          not become two slabs, floored above the 44px hit target, and centred
+          so what the cap leaves over splits evenly instead of pooling into one
+          hole under the board. */}
+      <ul
+        className="flex min-h-0 flex-1 flex-col justify-center gap-2 overflow-y-auto"
+        role="list"
+        ref={listRef}
+      >
         {ids.map((id) => {
           const inPending =
             pending !== null && (side === "prompt" ? pending.promptId : pending.targetId) === id;
@@ -468,7 +483,7 @@ function Column({
                 : "border-border bg-card text-foreground";
 
           return (
-            <li key={id}>
+            <li key={id} className="flex min-h-12 max-h-40 flex-1 shrink-0">
               <button
                 type="button"
                 // The press contract: selection happens on pointer down, before
@@ -486,7 +501,7 @@ function Column({
                 }}
                 aria-pressed={held}
                 aria-disabled={gone || undefined}
-                className={`press flex min-h-11 w-full items-center break-words hyphens-auto rounded-xl border px-2.5 py-2.5 text-left text-scale-sm leading-snug sm:px-3 sm:py-3 ${skin} ${motion}`}
+                className={`press flex h-full min-h-11 w-full items-center break-words hyphens-auto rounded-xl border px-2.5 py-2.5 text-left text-scale-sm leading-snug sm:px-3 sm:py-3 ${skin} ${motion}`}
               >
                 {textOf(spec, id)}
               </button>

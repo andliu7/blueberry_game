@@ -17,7 +17,7 @@
  */
 
 import type { ReactNode } from "react";
-import { Press } from "../app/ui/Press";
+import { ChipPress } from "../beats/ChipPress";
 import { Berry, type BerryProps } from "../mascot/Berry";
 import type { ReactionOutcome } from "../mascot/berryReaction";
 
@@ -57,14 +57,14 @@ export function ReactionStrip({ outcome, headline, caption = null, berry, contin
           {caption !== null ? <p className="mt-1 text-scale-sm text-muted-foreground">{caption}</p> : null}
         </div>
         <div className="hidden md:block">
-          <Press onPointerDown={onContinue}>{continueLabel}</Press>
+          <ChipPress onPointerDown={onContinue}>{continueLabel}</ChipPress>
         </div>
       </div>
       {children}
       <div className="md:hidden">
-        <Press className="w-full" onPointerDown={onContinue}>
+        <ChipPress className="w-full" onPointerDown={onContinue}>
           {continueLabel}
-        </Press>
+        </ChipPress>
       </div>
     </section>
   );

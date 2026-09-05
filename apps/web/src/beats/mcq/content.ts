@@ -47,11 +47,15 @@
  * cheaper fix is authoring discipline, so the correct option's index is varied
  * across the set here and a test caps how often any one index is the answer.
  *
- * NO `moleculeId` ON ANY BEAT IN THIS FILE, on purpose. A question that needs
- * a drawn structure beside it is a question that needs the renderer, and the
- * renderer is another agent's surface. Every question here is answerable from
- * its own words, which is also what "one concept, no multi step reasoning"
- * means in practice.
+ * NO `moleculeId` ON ANY BEAT IN THIS FILE, and every beat still carries a
+ * DRAWING. The two were the same sentence until owner ruling 1 of 2026-09-04
+ * ("every question carries a visual") separated them. The drawings live in
+ * `mcqFigures.ts`, keyed on the beat id, because a `moleculeId` can name one
+ * molecule and several of these questions need a scheme or a comparison. This
+ * file stays what it was: the words, the options and the authored `why` for
+ * each, with the picture beside it rather than inside it. A NEW BEAT ADDED
+ * HERE NEEDS AN ENTRY THERE, and test/mcqFigures.test.ts fails until it has
+ * one.
  */
 
 import type { McqBeat } from "../types";
@@ -69,6 +73,8 @@ export const MCQ_NODES: readonly string[] = Object.freeze([
   "u11-acidity",
   "u3-blocking",
   "u7-protect",
+  "u9-pka",
+  "u3-sequencing",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -703,6 +709,212 @@ const ACETAL_PROTECTION: readonly McqBeat[] = Object.freeze([
   },
 ]);
 
+/* ------------------------------------------------------------------ */
+/* Alpha-proton acidity                                                 */
+/*                                                                      */
+/* AUTHORED SO THE LESSON TEMPLATE HAS SOMETHING TO PLAY. The seven-slot */
+/* ordering in ../template.ts was real code with no content that could   */
+/* exercise it: every node in the product authored exactly one beat      */
+/* KIND, so `planLesson` could never return more than one content step   */
+/* and the recipe strip could never draw more than [content, reward].    */
+/* The committed spec draws a SEVEN segment strip whose whole point is   */
+/* that a lesson shows its composition up front, and a two segment strip */
+/* shows nothing.                                                        */
+/*                                                                       */
+/* u9-pka, the alpha-proton pKa hierarchy, is the node where that is     */
+/* fixed with real chemistry rather than with filler. It already carried */
+/* a MATCH board (protons to pKa values) and the acidity SORT ladder is  */
+/* about the same four rungs, so the node needed only its RECOGNISE      */
+/* entry to play four of the seven slots: recognise, connect, order and  */
+/* reward, with recycle appearing when a miss earns it. See              */
+/* ../template.ts's LADDER_FOR_NODE for the other half of this.          */
+/*                                                                       */
+/* THE CHEMISTRY IS THE COURSE'S OWN. docs/COURSE-OUTLINE-ORGO2.md puts  */
+/* enolates on the exam-weighted spine, and the three questions here are */
+/* the three things a student has to hold to use one: which C-H comes    */
+/* off, why a second carbonyl moves it ten orders of magnitude, and why  */
+/* hydroxide gives an equilibrium where LDA gives a quantitative         */
+/* enolate. Nothing here is a restatement of the other two beats on the  */
+/* node: the match board asks for VALUES and the ladder asks for an      */
+/* ORDER, so these ask for the reason.                                   */
+/* ------------------------------------------------------------------ */
+
+const ALPHA_ACIDITY: readonly McqBeat[] = Object.freeze([
+  {
+    kind: "mcq",
+    id: "mcq-pka-alpha-meet",
+    node: "u9-pka",
+    conceptIds: ["pka_keq_viability"],
+    levels: [0],
+    prompt: "Pick the C-H a base takes off butan-2-one first.",
+    brief: "The carbon next to a carbonyl is the one whose charge has somewhere to go.",
+    diamonds: 5,
+    correctOptionId: "alpha",
+    options: [
+      {
+        id: "far",
+        text: "The C-H at the far end of the chain",
+        why: "That carbon is one bond too far. Take a proton off there and the charge is stuck on carbon with no carbonyl to lean on, which is about twenty orders of magnitude harder than the alpha position next door.",
+      },
+      {
+        id: "alpha",
+        text: "A C-H next to the carbonyl",
+        why: "Exactly the one. The charge left behind sits next to the carbonyl, so it slides onto the oxygen and the anion becomes an enolate. That delocalisation is the whole reason alpha protons are the acidic ones.",
+      },
+      {
+        id: "same",
+        text: "Any C-H, they are all about the same",
+        why: "They look alike on paper and they are far apart in practice. An alpha C-H sits near pKa 20 and an ordinary alkane C-H near pKa 50, and the difference is entirely about where the charge goes afterwards.",
+      },
+    ],
+  },
+  {
+    kind: "mcq",
+    id: "mcq-pka-between",
+    node: "u9-pka",
+    conceptIds: ["pka_keq_viability", "conjugate_base_stability_argument"],
+    levels: [1],
+    prompt: "Pick the alpha C-H that comes off more easily.",
+    brief: "One of these two carbons sits between two carbonyls.",
+    diamonds: 6,
+    correctOptionId: "between",
+    options: [
+      {
+        id: "between",
+        text: "The one between two carbonyls",
+        why: "Two carbonyls means two oxygens for the charge to spread onto instead of one, and that is worth roughly ten orders of magnitude. It is why a beta-dicarbonyl deprotonates with a base as mild as ethoxide.",
+      },
+      {
+        id: "single",
+        text: "The one next to a single carbonyl",
+        why: "This one is genuinely acidic for a C-H, near pKa 20, so the instinct is sound. Put a second carbonyl on the other side and the same charge has twice as many places to sit, which wins.",
+      },
+      {
+        id: "equal",
+        text: "They come off about equally",
+        why: "Counting alpha positions makes them look level. Count the OXYGENS the charge reaches instead: one on the ketone, two on the dicarbonyl, and the ladder falls out of that.",
+      },
+    ],
+  },
+  {
+    kind: "mcq",
+    id: "mcq-pka-base-choice",
+    node: "u9-pka",
+    conceptIds: ["pka_keq_viability"],
+    levels: [2],
+    prompt: "Pick the base that takes an alpha proton off for good.",
+    brief: "A base deprotonates fully when its own conjugate acid is the far weaker one.",
+    diamonds: 8,
+    correctOptionId: "lda",
+    options: [
+      {
+        id: "hydroxide",
+        text: "Hydroxide, conjugate acid near pKa 16",
+        why: "Water at pKa 16 against an alpha C-H near pKa 20 leaves the equilibrium sitting on the ketone, so you get a trace of enolate and a lot of starting material. Aldol runs on exactly that trace.",
+      },
+      {
+        id: "ethoxide",
+        text: "Ethoxide, conjugate acid near pKa 16",
+        why: "Ethanol lands in the same place as water, so this is the same equilibrium wearing a different solvent. It is the right call for a Claisen, where the trace is all you need, and the wrong one when you want the enolate quantitatively.",
+      },
+      {
+        id: "lda",
+        text: "LDA, conjugate acid near pKa 36",
+        why: "Sixteen pKa units of headroom, and the equilibrium goes one way and stays there. LDA is also too bulky to add to the carbonyl, which is the other half of why it is the reagent for a clean enolate.",
+      },
+    ],
+  },
+]);
+
+/* ------------------------------------------------------------------ */
+/* Multistep sequencing                                                 */
+/*                                                                      */
+/* THE RECOGNISE RUNG ON u3-sequencing, and the second half of the      */
+/* content work that lets the seven-slot template be seen at all. The   */
+/* node already carried three SYNTHESIS gaps, which is the produce      */
+/* slot, and match/boards.ts now gives it the connect slot, so with     */
+/* these two it plays recognise, connect, produce and reward, plus      */
+/* recycle when a miss earns it. Before this the longest recipe strip   */
+/* any lesson in the product could draw was two segments.               */
+/*                                                                      */
+/* THE TWO QUESTIONS ARE THE TWO HALVES OF SEQUENCING that              */
+/* docs/COURSE-OUTLINE-ORGO2.md weights: which group goes on first,     */
+/* because the first one directs the second, and why sulfonation is the */
+/* one reagent in the set you can take back off. Neither restates the   */
+/* match board, which asks what each reagent DOES rather than when.     */
+/*                                                                      */
+/* BOTH SERVE L1, AND THAT IS NOT DECORATION. The lesson plan asks      */
+/* whether a node has ANY mcq beat, by design (../template.ts records   */
+/* why: filtering by rung there would make the pathway show a real      */
+/* lesson as queued forever). The RUNNER then picks a beat at the rung  */
+/* it was given, and a node whose only mcq beats sit at L0 and L2 plans */
+/* a recognise step the runner cannot serve, so the whole lesson stops  */
+/* on "nothing here yet" before the match board and the synthesis gaps  */
+/* behind it ever play. Measured on this node at level 1 before these   */
+/* levels were widened. It is a latent seam between the plan and the    */
+/* runner rather than a fault in this content, and it is reported as    */
+/* one; the content is authored so it does not trip on it.              */
+/* ------------------------------------------------------------------ */
+
+const SEQUENCING: readonly McqBeat[] = Object.freeze([
+  {
+    kind: "mcq",
+    id: "mcq-sequencing-order",
+    node: "u3-sequencing",
+    conceptIds: ["ewg_edg_rubric"],
+    levels: [0, 1],
+    prompt: "Pick the order that ends with the two groups meta.",
+    brief: "Whichever group lands first is the one that decides where the second one goes.",
+    diamonds: 6,
+    correctOptionId: "nitrate-first",
+    options: [
+      {
+        id: "nitrate-first",
+        text: "Nitrate first, then alkylate",
+        why: "Nitro is a meta director, so once it is on the ring it sends the next electrophile to meta and the target falls out. Order is the whole answer here, and this is the order that gives it.",
+      },
+      {
+        id: "alkylate-first",
+        text: "Alkylate first, then nitrate",
+        why: "Both steps are real and both work, so this reads fine until you ask where the second group lands. Methyl is an ortho and para director, so nitrating after it gives the ortho and para product rather than the meta one.",
+      },
+      {
+        id: "either",
+        text: "Either order, the product is the same",
+        why: "The two groups are the same two groups, which is what makes this tempting. What changes is the ring they arrive at: the second electrophile meets a ring the first group has already committed to a pattern.",
+      },
+    ],
+  },
+  {
+    kind: "mcq",
+    id: "mcq-sequencing-blocker",
+    node: "u3-sequencing",
+    conceptIds: ["ewg_edg_rubric"],
+    levels: [1, 2],
+    prompt: "Pick what makes sulfonation useful as a blocking group.",
+    brief: "The other reagents in this unit all leave something on the ring for good.",
+    diamonds: 8,
+    correctOptionId: "reversible",
+    options: [
+      {
+        id: "fastest",
+        text: "It is the fastest of the reactions",
+        why: "Rate is not what a blocker is chosen for. A blocker is chosen for what happens at the END of the sequence, and the useful property is that this one can be undone.",
+      },
+      {
+        id: "gentlest",
+        text: "It deactivates the ring the least",
+        why: "A sulfonic acid is a strong deactivator, so this is the opposite of true, and that deactivation is part of the plan: it also stops the ring reacting twice while the blocker sits there.",
+      },
+      {
+        id: "reversible",
+        text: "It is reversible, so the blocker comes off",
+        why: "Hot dilute acid runs the sulfonation backwards and the ring comes out clean. Park it on the para position, force the next step to ortho, then take it away: that whole strategy rests on this one property.",
+      },
+    ],
+  },
+]);
+
 export const MCQ_BEATS: readonly McqBeat[] = Object.freeze([
   ...DIRECTING,
   ...KINETIC_VS_THERMO,
@@ -710,6 +922,8 @@ export const MCQ_BEATS: readonly McqBeat[] = Object.freeze([
   ...PHENOL_ACIDITY,
   ...BLOCKING,
   ...ACETAL_PROTECTION,
+  ...ALPHA_ACIDITY,
+  ...SEQUENCING,
 ]);
 
 /** Every beat authored for one pathway node, in authored order. */

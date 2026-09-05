@@ -49,6 +49,7 @@ import { synthesisGapsForNode } from "./synthesis";
 import { ToolRail } from "../app/ui/ToolRail";
 import { Berry } from "../mascot/Berry";
 import { ChipPress } from "./ChipPress";
+import { ExitMark, GemMark } from "./chromeIcons";
 import { RecipeStrip } from "./RecipeStrip";
 import {
   currentStep,
@@ -107,7 +108,10 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
 
   const [seenNode, setSeenNode] = useState(node);
   const [run, setRun] = useState<LessonRun | null>(() => (plan === null ? null : startRun(plan)));
-  // The current MCQ step's within-step fraction, for the strip's green fill.
+  // The current MCQ step's within-step CLEARED fraction, for the strip's
+  // green fill. Cleared and not answered: a miss moves the student on without
+  // moving the green, because a green segment over a screen that says "Not
+  // yet" is the bar contradicting the panel under it. See session.ts.
   const [mcqFraction, setMcqFraction] = useState(0);
   // The last graded result of a single-problem step, read when it advances.
   // A ref, not state: recording it must not re-render mid-animation, and
@@ -177,21 +181,39 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
         <ToolRail />
       </header>
 
-      {!inMcq && run.phase !== "reward" ? (
-        <div className="mx-auto flex w-full max-w-xl items-center gap-3 px-4 pt-3 md:px-6">
-          <button
-            type="button"
-            onPointerDown={onExit}
-            aria-label="Leave this lesson"
-            title="Leave this lesson"
-            className="press flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border-2 border-border text-scale-lg font-semibold text-muted-foreground"
-          >
-            &#10005;
-          </button>
-          <div className="min-w-0 flex-1">{strip}</div>
-        </div>
+      {/* THE HEADER DOES NOT CHANGE SHAPE BETWEEN SCREENS. It used to be
+          dropped on the reward slot, which drew its own bare strip instead,
+          so the exit vanished on the last screen of the lesson and the strip
+          started at a different x than it had on every question before it. A
+          student watching the top of the frame saw the chrome rearrange
+          itself at the moment they finished. One row: the exit, the strip,
+          the count, in the committed frames' own order.
+
+          The MCQ surfaces render this row themselves, because their sheet
+          scrolls internally and the row has to sit above that scroller
+          rather than above the sheet; they are handed the same strip. */}
+      {!inMcq ? (
+        <LessonHeader onExit={onExit} strip={strip} />
       ) : null}
 
+      {/* THE STAGE. One surface plays here at a time and it fills what is
+          left of the screen: see beat-chrome.css for the measurement that
+          made this a real element rather than a bare Suspense boundary
+          (Suspense renders no DOM node of its own, so there was nothing for
+          the surfaces to grow inside).
+
+          THE GUTTER IS THE STAGE'S, NOT EACH SURFACE'S, and only where the
+          surface does not already own one. Measured on a 390px phone: the
+          sort ladder, the match board and the synthesis gap all render as a
+          bare `<section>` with no padding and no max width, so their prompts
+          started at x = 0 and ran to the viewport edge while the X and the
+          recipe strip above them sat in a 16px gutter. The MCQ sheet and the
+          reward slot each carry `mx-auto max-w-xl` and their own padding,
+          because both scroll internally and their sticky action bars have to
+          reach the full width; a second gutter around those would double the
+          inset and inset the sticky bar. So the class is conditional rather
+          than unconditional, and the condition is which surface is playing. */}
+      <div className={`beat-runner__stage${inMcq ? "" : " beat-runner__stage--gutter"}`}>
       <Suspense fallback={<p role="status">Loading the lesson.</p>}>
         {step?.beat.kind === "mcq" ? (
           <McqRunner
@@ -200,7 +222,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
             onExit={onExit}
             reducedMotion={reducedMotion}
             progressSlot={strip}
-            onProgress={(progress) => setMcqFraction(progress.fraction)}
+            onProgress={(progress) => setMcqFraction(progress.clearedFraction)}
             onDone={(results) =>
               advanceStep(results.filter((r) => clearsBeat(r)).length, results.length, missedMcqIdsFrom(results))
             }
@@ -248,7 +270,7 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
             onExit={onExit}
             reducedMotion={reducedMotion}
             progressSlot={strip}
-            onProgress={(progress) => setMcqFraction(progress.fraction)}
+            onProgress={(progress) => setMcqFraction(progress.clearedFraction)}
             onDone={(results) => {
               setMcqFraction(0);
               setRun((r) =>
@@ -259,9 +281,47 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
         ) : null}
 
         {run.phase === "reward" ? (
-          <RewardSlot run={run} strip={strip} reducedMotion={reducedMotion} onExit={onExit} />
+          <RewardSlot run={run} reducedMotion={reducedMotion} onExit={onExit} />
         ) : null}
       </Suspense>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* The header                                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The committed lesson frames' top row: the exit chip, the progress bar, the
+ * currency count. One component so the row cannot drift between the screens
+ * that draw it, which is exactly what it had done: the question frame put the
+ * X at x = 16 and the strip from x = 72, and the lesson-complete frame had no
+ * X at all and started its strip at x = 36.
+ *
+ * THE COUNT IS A DRAWN GEM AND A NUMBER. Both frames pair the number with an
+ * icon; a bare numeral does not say what it counts.
+ */
+function LessonHeader({ onExit, strip, gems }: { readonly onExit: () => void; readonly strip: ReactNode; readonly gems?: number }) {
+  return (
+    <div className="mx-auto flex w-full max-w-xl shrink-0 items-center gap-3 px-4 pt-3 pb-1 md:px-6">
+      <button
+        type="button"
+        onPointerDown={onExit}
+        aria-label="Leave this lesson"
+        title="Leave this lesson"
+        className="lesson-exit"
+      >
+        <ExitMark />
+      </button>
+      <div className="min-w-0 flex-1">{strip}</div>
+      {gems !== undefined ? (
+        <span className="lesson-currency" aria-label={`${gems} gems`}>
+          <GemMark />
+          {gems}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -276,12 +336,10 @@ export function BeatRunner({ node, level = 1, onExit, reducedMotion = false }: B
  */
 function RewardSlot({
   run,
-  strip,
   reducedMotion,
   onExit,
 }: {
   readonly run: LessonRun;
-  readonly strip: ReactNode;
   readonly reducedMotion: boolean;
   readonly onExit: () => void;
 }) {
@@ -289,9 +347,14 @@ function RewardSlot({
   const played = run.totalBeats;
   const stillRough = run.recycled ? run.recycleTotal - run.recycleCleared : 0;
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-xl flex-1 flex-col gap-4 p-4 md:p-6">
-      <div className="min-w-0">{strip}</div>
-      <div className="mt-auto flex flex-col items-center gap-3 rounded-2xl border-2 border-border bg-card p-6 text-center">
+    // CENTRED, NOT BOTTOM-PINNED UNDER A HOLE. The previous build put the
+    // strip at the top and pushed this card to the bottom with an `mt-auto`,
+    // which on a phone left roughly 600px of bare cream between them: the
+    // same dead zone the S3 judge carried against the question screen,
+    // reappearing on the screen the lesson ENDS on. The card is centred in
+    // what the header leaves, so the frame has a subject.
+    <div className="flex min-h-0 w-full flex-1 flex-col justify-center">
+      <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-border bg-card p-6 text-center">
         <Berry mood="cheer" behaviour="celebrate" sizePx={96} reducedMotion={reducedMotion} />
         <h2 className="title-face text-scale-2xl font-bold text-foreground">Lesson complete</h2>
         <p className="text-scale-base text-foreground">
@@ -306,7 +369,14 @@ function RewardSlot({
             and this node stays open on the pathway.
           </p>
         ) : null}
-        <ChipPress variant="claim" className="mt-2 w-full" onClick={onExit}>
+        {/* THE CHECK CHIP, NOT THE CLAIM CHIP. The committed button-types
+            sheet reserves green for `review` and `claim` and gives `continue`
+            the same periwinkle as `check`, and this control banks nothing:
+            the file header above is explicit that this slot is a receipt for
+            a run the progress store already committed. A green claim chip
+            over the word Continue promises a payout the screen does not
+            make. */}
+        <ChipPress className="mt-2 w-full" onClick={onExit}>
           Continue
         </ChipPress>
       </div>

@@ -902,6 +902,30 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9375rem;
+  /* ALL FOUR TILES ARE THE SAME SIZE, WHICH IS THE ONE THING THE IMAGE IS
+     UNAMBIGUOUS ABOUT AND THE BUILD WAS NOT.
+
+     Measured on the running screen, the four tiles of the first placement
+     question came out 205, 221, 188 and 221 tall: two ragged rows with three
+     different bottoms, because a grid row sizes to its own tallest item and
+     each caption is a different number of lines. blueberry_r9-onboard-
+     placement draws four identical squares.
+
+     `1fr` on the auto rows makes every row an equal share of the track, so all
+     four tiles match whatever the longest caption in the set needs. The tiles
+     stay as square as the authored words allow: with the image's own one word
+     captions the set lands on the 10.5rem minimum below, which is its 169. */
+  grid-auto-rows: 1fr;
+}
+
+/* The list item is only a grid cell; the tile is the button that has to fill
+   it, or `1fr` rows would stretch the cell and leave the button short. */
+.ob-options--grid > li {
+  display: flex;
+}
+
+.ob-options--grid > li > .ob-tile {
+  width: 100%;
 }
 
 /* THE CHIP FACE IS 70.6 css TALL, RE-MEASURED AT THE IMAGE'S OWN SCALE.
@@ -1121,11 +1145,17 @@
   color: var(--chip-ink);
 }
 
+/* THE DRAWING TAKES A FIXED SHARE AND THE CAPTION TAKES THE REST, which is
+   what keeps a long authored option from turning the tile into a portrait.
+   At 5.5rem the goal image's own tile (one word under a carbocation) lands on
+   the 10.5rem minimum, which is its measured 169; a five line caption grows
+   the tile rather than squeezing the chemistry, because the words are the
+   answer and an answer is never clipped. */
 .ob-tile[data-shape="tile"] .ob-tile__figure {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   width: 100%;
   min-height: 0;
-  max-height: 6.5rem;
+  height: 5.5rem;
 }
 
 .ob-tile[data-shape="row"] .ob-tile__figure {

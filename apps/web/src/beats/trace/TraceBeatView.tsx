@@ -42,7 +42,7 @@ import { canFail, traceGuideStyle, type BeatResult, type MasteryLevel, type Trac
 import type { StrokeOutcome } from "./geometry";
 import { FreehandCanvas } from "./FreehandCanvas";
 import { GuidedCanvas } from "./GuidedCanvas";
-import { PressButton } from "./PressButton";
+import { ChipPress } from "../ChipPress";
 import { traceTarget } from "./content";
 import { gradeDrawing, guidedCause, toBeatResult, type Recognition, type TraceOutcome } from "./recognise";
 import { formulaOf, type Graph } from "./target";
@@ -256,19 +256,14 @@ export function TraceBeatView({ beat, level, onResult, onOfferCard, onContinue }
 
       <footer style={{ display: "flex", gap: "var(--space-2, 8px)", alignItems: "center" }}>
         {freehand && !cleared && (
-          <PressButton
-            tone="primary"
+          <ChipPress
             disabled={drawnCount === 0}
-            onPress={() => resolve(gradeDrawing(target, drawnRef.current))}
+            onClick={() => resolve(gradeDrawing(target, drawnRef.current))}
           >
             Check
-          </PressButton>
+          </ChipPress>
         )}
-        {cleared && onContinue !== undefined && (
-          <PressButton tone="primary" onPress={onContinue}>
-            Continue
-          </PressButton>
-        )}
+        {cleared && onContinue !== undefined && <ChipPress onClick={onContinue}>Continue</ChipPress>}
         {beat.diamonds !== undefined && cleared && (
           <span style={{ color: "var(--diamond)", fontWeight: 700 }}>+{beat.diamonds}</span>
         )}
