@@ -56,7 +56,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CourseId } from "@blueberry/curriculum";
 import { COURSE_COMING, isCourseOpen } from "../courses";
-import { COURSE_LABEL, COURSE_MARK, COURSE_SHORT } from "../../tabs/courses/CoursesTab";
+import { COURSE_LABEL, COURSE_MARK, COURSE_SHORT } from "../../tabs/courses/courseCopy";
 import { CourseFlask } from "./CourseFlask";
 import { useProgress } from "../hooks";
 import { progress } from "../progress";

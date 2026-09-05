@@ -28,7 +28,7 @@ import { FIGURE_HEIGHT, FIGURE_WIDTH, type Figure } from "../src/onboarding/figu
 
 /**
  * The answer kinds a lesson serves today, mirrored from `SERVED_KINDS` in
- * src/tabs/courses/CoursesTab.tsx.
+ * src/tabs/courses/courseCopy.ts.
  *
  * MIRRORED, AND THE MIRROR IS CHECKED, which is the whole point of the test
  * directly below. The honest way to write this would be to import
@@ -42,7 +42,12 @@ import { FIGURE_HEIGHT, FIGURE_WIDTH, type Figure } from "../src/onboarding/figu
  */
 const SERVED_KINDS: readonly string[] = ["major_product", "reagents", "structure"];
 
-const COURSES_TAB = "src/tabs/courses/CoursesTab.tsx";
+/* Moved 2026-09-05. SERVED_KINDS lived in CoursesTab.tsx until the course copy
+   and the served-kinds gate were lifted into courseCopy.ts, so that three
+   eagerly-loaded modules could import the DATA without pinning the whole lazy
+   Courses tab into the entry chunk. The constant is unchanged and so is every
+   assertion below; only where it is read from moved. */
+const COURSES_TAB = "src/tabs/courses/courseCopy.ts";
 
 describe("the mirror of what a lesson serves", () => {
   it("matches the courses tab's own list", () => {

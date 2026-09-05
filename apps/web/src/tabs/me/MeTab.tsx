@@ -32,7 +32,7 @@ import { LanguageSheet } from "../../app/ui/LanguagePicker";
 import { TabIcon } from "../../app/ui/TabIcon";
 import { FLAGGED_TABS, hrefForTab, type TabId } from "../../app/routes";
 import { isFlagOn, type FlagId } from "../../app/flags";
-import { COURSE_LABEL } from "../courses/CoursesTab";
+import { COURSE_LABEL } from "../courses/courseCopy";
 
 /** When each flagged surface opens, in the student's words rather than ours. */
 const FLAG_WHEN: Record<FlagId, string> = {

@@ -40,7 +40,13 @@ const PATHWAY = path.resolve(__dirname, "../src/tabs/pathway");
 const read = (file: string) => readFileSync(path.join(PATHWAY, file), "utf8");
 
 /** Every component file on the pathway surface. */
-const COMPONENTS = ["PathScene.tsx", "PathwayTab.tsx", "PathTrackMap.tsx", "UnitTrail.tsx"] as const;
+/* PathTrackMap.tsx was here until 2026-09-05, when the file was deleted. The
+   owner removed the scroll map on 2026-09-03 ("asked twice", recorded in
+   PathwayTab.tsx), the render went with it, and the component then sat
+   unreferenced for two days along with 264 lines of stylesheet for classes
+   nothing drew. Nothing is loosened by its going: every surviving component is
+   still scanned by the same rules. */
+const COMPONENTS = ["PathScene.tsx", "PathwayTab.tsx", "UnitTrail.tsx"] as const;
 
 /**
  * Does this module DRAW the trail, as opposed to merely mentioning it?

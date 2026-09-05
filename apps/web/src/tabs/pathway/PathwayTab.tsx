@@ -58,7 +58,7 @@ import { ChargeGate } from "../../charge/ChargeGate";
 import type { ChargeGateNode } from "../../charge/chargeGateModel";
 import type { NodeKind as EconomyNodeKind } from "@blueberry/economy";
 import { Berry } from "../../mascot/Berry";
-import { COURSE_LABEL, problemsForTopic } from "../courses/CoursesTab";
+import { COURSE_LABEL, problemsForTopic } from "../courses/courseCopy";
 import "./pathway.css";
 
 export type NodeState = "done" | "current" | "open" | "review" | "locked";
