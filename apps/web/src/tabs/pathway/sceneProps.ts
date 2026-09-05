@@ -76,10 +76,28 @@
  * copied: the clause is newer than the image. Named here so nobody re-adds it
  * as an oversight.
  */
-export type PropKind = "cloud" | "flask" | "boulder" | "ring" | "amide" | "chain";
+/**
+ * OWNER RULING 2026-09-05: the molecule watermarks are gone.
+ *
+ * "remove all molecules in the background of the pathway. none of them look
+ * good. the bonds are wack and I don't even know if it fits very well."
+ *
+ * Three kinds went with it, ring, amide and chain, along with the MoleculeMark
+ * that drew them, their size and scale rows, and their stylesheet. They are
+ * REMOVED rather than left unplaced, because an unplaced component is exactly
+ * the `trace` situation recorded in beats/types.ts: finished code nothing
+ * reaches, which reads as shipped in every count that does not check.
+ *
+ * The landscape is thinner for it, and that is a real cost rather than a
+ * neutral one: the density argument in propsForBand below was answering a
+ * pixel verdict that the reference "fits nine nodes, eight labels, two clouds
+ * ... three skeletons" into one frame and ours had "eight nodes and then
+ * nothing". Two of the props per band were skeletons. Redrawing them is a new
+ * design against the prop sheet, not a revert of this.
+ */
+export type PropKind = "cloud" | "flask" | "boulder";
 
 /** The molecule watermarks, which are the props a unit's character selects. */
-export type MarkKind = "ring" | "amide" | "chain";
 
 export interface PropPlacement {
   readonly kind: PropKind;
@@ -115,9 +133,6 @@ export const PROP_HALF: Record<PropKind, { readonly w: number; readonly h: numbe
   // Two pebbles, the larger in front: the path data spans -22..22 across and
   // -13..9 down, which is the low wide silhouette the reference draws.
   boulder: { w: 22, h: 11 },
-  ring: { w: 44, h: 24 },
-  amide: { w: 47, h: 28 },
-  chain: { w: 34, h: 10 },
 };
 
 /**
@@ -142,9 +157,6 @@ export const PROP_DRAW_SCALE: Record<PropKind, number> = {
   cloud: 1.3,
   flask: 1.95,
   boulder: 1.5,
-  ring: 1.25,
-  amide: 1.2,
-  chain: 1.6,
 };
 
 /** The size a prop is actually drawn at: its own scale times its kind's. */
@@ -167,10 +179,6 @@ export function propExtent(placement: PropPlacement): { readonly w: number; read
  * authoring wave that adds a lesson does not redecorate the map.
  */
 export interface UnitCharacter {
-  /** The watermark family standing on this unit's flanks. */
-  readonly mark: MarkKind;
-  /** The second family, so a unit is not a single repeated stamp. */
-  readonly companion: MarkKind;
   /** Glassware appears once every this many bands. */
   readonly glassEvery: number;
   /** Weather appears once every this many bands. */
@@ -181,7 +189,6 @@ export interface UnitCharacter {
   readonly scale: number;
 }
 
-const MARKS: readonly MarkKind[] = ["ring", "amide", "chain"];
 /** The golden ratio: a spread with no visible period, and stable in the index. */
 const GOLDEN = 0.6180339887498949;
 
@@ -197,11 +204,7 @@ export function unitCharacter(index: number): UnitCharacter {
   const safe = Math.max(0, Math.floor(index));
   const a = (safe * GOLDEN) % 1;
   const b = ((safe + 1) * GOLDEN * 2) % 1;
-  const mark = MARKS[Math.floor(a * MARKS.length) % MARKS.length]!;
-  const companion = MARKS[(Math.floor(a * MARKS.length) + 1 + Math.floor(b * 2)) % MARKS.length]!;
   return {
-    mark,
-    companion,
     glassEvery: 2 + Math.floor(b * 2),
     cloudEvery: 2 + Math.floor(a * 2),
     flank: safe % 2 === 0 ? -1 : 1,
@@ -227,34 +230,14 @@ export function propsForBand(bandIndex: number, character: UnitCharacter): reado
   const band = Math.max(0, Math.floor(bandIndex));
   const near: -1 | 1 = band % 2 === 0 ? character.flank : (-character.flank as -1 | 1);
   const far: -1 | 1 = -near as -1 | 1;
-  const out: PropPlacement[] = [
-    {
-      kind: band % 3 === 0 ? character.companion : character.mark,
-      side: near,
-      // Mid-flank, so the shape has room either side of it rather than being
-      // pinned to the page edge like a margin note.
-      out: 0.42,
-      y: 0.46,
-      scale: character.scale,
-    },
-    /*
-      A SECOND WATERMARK, ON THE OTHER FLANK, EVERY BAND. This is the density
-      half of the pixel verdict: "the reference fits nine nodes, eight labels,
-      two clouds, two full-body mascots, two flasks, three skeletons, boulders
-      and a gate into one frame. The build has eight nodes and then nothing."
-      One watermark per 230px band is one per two thirds of a phone screen; the
-      reference carries three skeletons in one frame. It is the COMPANION
-      family and it sits at a different height, so the two never read as a
-      matched pair ruled across the page.
-    */
-    {
-      kind: band % 3 === 0 ? character.mark : character.companion,
-      side: far,
-      out: 0.5,
-      y: 0.14,
-      scale: character.scale * 0.82,
-    },
-  ];
+  /*
+    NO WATERMARK ROWS. Both entries that used to open this array were molecule
+    skeletons, one on each flank every band, and the owner removed them on
+    2026-09-05. What is left is glassware, weather and boulders, so a band now
+    carries one to three props rather than three to five. See PropKind above
+    for the cost that was accepted along with it.
+  */
+  const out: PropPlacement[] = [];
   /*
     GLASSWARE EVERY BAND, ON A FLANK THAT ALTERNATES ON THE BAND'S OWN
     PARITY. The reference frame carries two flasks; the old cycle gave one
@@ -295,11 +278,6 @@ export function propsForBand(bandIndex: number, character: UnitCharacter): reado
   */
   if (band % 4 === 1) {
     out.push({ kind: "boulder", side: near, out: 0.82, y: 0.98, scale: character.scale });
-  }
-  if (band % 5 === 3) {
-    // The chevron lies near the horizon, low and flat, on the near flank
-    // under the watermark: the prop sheet draws it as ground detail.
-    out.push({ kind: "chain", side: near, out: 0.7, y: 0.88, scale: character.scale * 0.9 });
   }
   return out;
 }

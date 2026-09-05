@@ -1642,25 +1642,6 @@
    same ink as the flask prop (6.11:1 on cream), faint by WEIGHT (thin
    strokes, sparse placement) rather than by a colour under the graphics
    floor, which is the mistake the first ridge already paid for. */
-.path-mark__atom {
-  fill: var(--background);
-  stroke: none;
-}
-.path-mark__label {
-  fill: var(--path-prop);
-  stroke: none;
-  font-family: var(--font-display);
-  font-size: 8px;
-  font-weight: 700;
-  text-anchor: middle;
-}
-.path-mark {
-  fill: none;
-  stroke: var(--path-prop);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
 /*
  * The clouds, and they are the one FILLED prop in the landscape because the
  * committed backdrop draws them that way: white clouds over the cream ground,

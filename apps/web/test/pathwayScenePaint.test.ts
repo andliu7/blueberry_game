@@ -204,7 +204,15 @@ const UNPAINTED = new Set(["none", "transparent", "currentcolor", "inherit"]);
  * controls, they are held to WCAG floors by the contrast audit, and holding
  * them to a darkness CEILING as well would be nonsense.
  */
-const LAND = ["path-terrace", "path-ridge", "path-hump", "path-ground", "path-mark", "path-mark__atom", "path-prop"];
+/* "path-mark" and "path-mark__atom" were here until 2026-09-05. The owner
+   removed the molecule watermarks and MoleculeMark went with them, so those
+   two names no longer match any shape the scene draws. They are dropped rather
+   than left in place: offendersIn only reports a class it finds in the table,
+   so a name for a deleted shape is silently vacuous, and this list is
+   deliberately one "a reader can check". A list with dead names in it cannot
+   be checked. Nothing was loosened by their going: the ceiling, the ground and
+   every surviving shape are unchanged. */
+const LAND = ["path-terrace", "path-ridge", "path-hump", "path-ground", "path-prop"];
 
 /**
  * THINGS STANDING ON THE LAND: a cloud, a boulder. They are objects rather

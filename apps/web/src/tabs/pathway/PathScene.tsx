@@ -570,82 +570,6 @@ function Flask({ x, y, scale }: { readonly x: number; readonly y: number; readon
 }
 
 /**
- * The molecule line-art watermarks the goals ask for, one per unit on the
- * flank, alternating a benzene ring with a skeletal chain so the landscape
- * reads as a chemist's margin doodles rather than a repeated tile. Outlined
- * in the prop ink, faint by WEIGHT rather than by a colour under the
- * graphics floor; see .path-mark in pathway.css for the measured reasoning.
- */
-function MoleculeMark({
-  x,
-  y,
-  kind,
-  scale = 1,
-}: {
-  readonly x: number;
-  readonly y: number;
-  readonly kind: "ring" | "amide" | "chain";
-  readonly scale?: number;
-}) {
-  const at = `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${scale})`;
-  /*
-    Ring geometry, written once. A pointy-top hexagon of radius 17 has its two
-    vertical sides at x = +/-14.7, so a second ring sharing the right-hand side
-    is the same hexagon translated by 29.4: the two rings are FUSED, sharing a
-    bond, which is what makes the mark a bicycle rather than two hexagons
-    parked beside each other. Real chemistry in the wallpaper, because a
-    chemistry app's wallpaper is read by chemists.
-  */
-  const ring = (cx: number) =>
-    `M ${cx - 14.7} -8.5 L ${cx} -17 L ${cx + 14.7} -8.5 L ${cx + 14.7} 8.5 L ${cx} 17 L ${cx - 14.7} 8.5 Z`;
-  if (kind === "ring") {
-    return (
-      <g className="path-mark" transform={at}>
-        <path d={`${ring(-14.7)} ${ring(14.7)}`} />
-        {/* Aromatic inner lines on alternating bonds, the skeletal convention. */}
-        <path d="M -24.4 -5.6 L -24.4 5.6 M -18.4 -11.4 L -8.4 -17.2 M -18.4 11.4 L -8.4 17.2" />
-        <path d="M 24.4 -5.6 L 24.4 5.6 M 8.4 -17.2 L 18.4 -11.4" />
-        {/* The ring nitrogen, drawn as a gap in the ring with an N over it. */}
-        <circle cx="14.7" cy="17" r="4.6" className="path-mark__atom" />
-        <text x="14.7" y="20.4" className="path-mark__label">
-          N
-        </text>
-      </g>
-    );
-  }
-  if (kind === "amide") {
-    return (
-      <g className="path-mark" transform={at}>
-        <path d={ring(-32)} />
-        <path d="M -34.7 -5.6 L -34.7 5.6 M -28.7 -11.4 L -18.7 -17.2" />
-        {/* Ring, carbonyl carbon, amide nitrogen, second ring. */}
-        <path d="M -17.3 8.5 L -4 16 L 9 8.5" />
-        <path d="M -4 16 L -4 28" />
-        <path d="M -1.6 16.6 L -1.6 27.4" />
-        <circle cx="9" cy="8.5" r="4.6" className="path-mark__atom" />
-        <text x="9" y="11.9" className="path-mark__label">
-          N
-        </text>
-        <path d={ring(19)} />
-        <path d="M 21.4 -5.6 L 21.4 5.6" />
-      </g>
-    );
-  }
-  /*
-    THE CHAIN, flattened. The prop sheet's chevron is a wide, SHALLOW zigzag of
-    four bonds lying near the horizon: a carbon chain seen edge on. The build
-    drew two tall peaks, which reads as a mountain icon, and it drew them in
-    the slate ink, which made the most saturated thing in the landscape a
-    doodle. Amplitude 6 against a 68 span is the sheet's own proportion.
-  */
-  return (
-    <g className="path-mark" transform={at}>
-      <path d="M -34 6 L -17 -6 L 0 6 L 17 -6 L 34 6" />
-    </g>
-  );
-}
-
-/**
  * The low boulders on the near ground.
  */
 function BoulderMark({ x, y, scale }: { readonly x: number; readonly y: number; readonly scale: number }) {
@@ -1115,8 +1039,7 @@ export default function PathScene({
             const scale = drawScale(placement);
             if (placement.kind === "cloud") return <CloudMark key={key} x={point.x} y={point.y} scale={scale} />;
             if (placement.kind === "boulder") return <BoulderMark key={key} x={point.x} y={point.y} scale={scale} />;
-            if (placement.kind === "flask") return <Flask key={key} x={point.x} y={point.y} scale={scale} />;
-            return <MoleculeMark key={key} x={point.x} y={point.y} kind={placement.kind} scale={scale} />;
+            return <Flask key={key} x={point.x} y={point.y} scale={scale} />;
           });
         })}
       </g>
