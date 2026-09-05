@@ -183,7 +183,17 @@ export async function installSeed(page, theme, journal = null, stored = {}) {
     (wanted, seed, extra) => {
       localStorage.clear();
       localStorage.setItem("theme", wanted);
-      if (seed !== null) {
+      /*
+        WRITE WHEN THERE IS EITHER A JOURNAL OR AN ACCOUNT. This guard used to
+        be `seed !== null` alone, which silently threw away `extra` for every
+        moment whose journal is empty: a moment can legitimately want a blank
+        history and still need a course and a finished onboarding, and four of
+        them do. With the write skipped they got no stored progress at all, the
+        app sent them to onboarding from whatever hash they asked for, and the
+        driver then waited ten seconds for a control that was never coming.
+        That is the TimeoutError both audits died on.
+      */
+      if (seed !== null || (extra !== undefined && extra !== null && Object.keys(extra).length > 0)) {
         localStorage.setItem(
           "blueberry.progress.v2",
           JSON.stringify({
@@ -193,7 +203,7 @@ export async function installSeed(page, theme, journal = null, stored = {}) {
             attemptedProblems: [],
             onboardingDone: false,
             displayName: null,
-            journal: seed,
+            journal: seed ?? [],
             ...extra,
           }),
         );
@@ -529,6 +539,28 @@ export function hudSeed() {
 /** The stored blob P3 opens with. The course is the mastery denominator; see above. */
 export const P3_SEED = hudSeed();
 export const P3_STORED = { course: "orgo_2", startTopics: [], onboardingDone: true };
+
+/**
+ * The account a LESSON moment is reached through.
+ *
+ * WHY IT HAS TO EXIST. installSeed writes `course: null, onboardingDone: false`
+ * unless a moment overrides them, and the app sends an account in that state to
+ * onboarding from every route. So a moment with no `stored` never reaches its
+ * surface: it photographs "Hi! I'm Berry. Learn organic chemistry by doing it.
+ * GET STARTED" no matter which hash it asked for.
+ *
+ * That is exactly the nine moments the R run listed as blocked, and the
+ * correlation is nine for nine: every moment carrying a `stored` field worked,
+ * and the ones without it were feedback-correct, feedback-wrong, combo,
+ * reward-first, reward-streak, streak-rest, streak-milestone, streak-exam and
+ * surface-lesson. Two separate records blamed the fill-in-the-blank scratch for
+ * this. The scratch is not why.
+ *
+ * Identical to P3_STORED today. It is named separately because the two answer
+ * different questions: P3_STORED is the HUD's account, and if the HUD ever
+ * wants a different one, the lesson moments must not silently follow it.
+ */
+export const LESSON_STORED = { course: "orgo_2", startTopics: [], onboardingDone: true };
 
 /**
  * The same account, with today already counted.
@@ -2126,18 +2158,18 @@ export const ME_HASH = "#/me";
  * with `seed` and `stored`, then awaits `drive(page, options)`.
  */
 export const MOMENTS = {
-  "feedback-correct": { seed: null, drive: (page, options) => driveFeedback(page, "correct", options) },
-  "feedback-wrong": { seed: null, drive: (page, options) => driveFeedback(page, "wrong", options) },
-  combo: { seed: null, drive: (page, options) => driveCombo(page, options) },
-  "reward-first": { seed: P2_SEEDS.first, drive: (page, options) => driveReward(page, "first", options) },
-  "reward-streak": { seed: P2_SEEDS.streak, drive: (page, options) => driveReward(page, "streak", options) },
+  "feedback-correct": { seed: null, stored: LESSON_STORED, drive: (page, options) => driveFeedback(page, "correct", options) },
+  "feedback-wrong": { seed: null, stored: LESSON_STORED, drive: (page, options) => driveFeedback(page, "wrong", options) },
+  combo: { seed: null, stored: LESSON_STORED, drive: (page, options) => driveCombo(page, options) },
+  "reward-first": { seed: P2_SEEDS.first, stored: LESSON_STORED, drive: (page, options) => driveReward(page, "first", options) },
+  "reward-streak": { seed: P2_SEEDS.streak, stored: LESSON_STORED, drive: (page, options) => driveReward(page, "streak", options) },
   "hud-rest": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudRest(page, options) },
   "hud-charge": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudCharge(page, options) },
   "hud-streak": { seed: P3_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudStreak(page, options) },
   "hud-lit": { seed: P3_LIT_SEED, stored: P3_STORED, hash: HUD_HASH, drive: (page, options) => driveHudLit(page, options) },
-  "streak-rest": { seed: P4_SEEDS.rest, drive: (page, options) => driveStreak(page, "rest", options) },
-  "streak-milestone": { seed: P4_SEEDS.milestone, drive: (page, options) => driveStreak(page, "milestone", options) },
-  "streak-exam": { seed: P4_SEEDS.exam, drive: (page, options) => driveStreak(page, "exam", options) },
+  "streak-rest": { seed: P4_SEEDS.rest, stored: LESSON_STORED, drive: (page, options) => driveStreak(page, "rest", options) },
+  "streak-milestone": { seed: P4_SEEDS.milestone, stored: LESSON_STORED, drive: (page, options) => driveStreak(page, "milestone", options) },
+  "streak-exam": { seed: P4_SEEDS.exam, stored: LESSON_STORED, drive: (page, options) => driveStreak(page, "exam", options) },
   // `seed` is a GETTER on these four, so every read builds a fresh journal
   // against the wall clock. See P5_SEED_BUILDERS for why Charge cannot use a
   // seed frozen at import the way the other pieces do.
@@ -2164,7 +2196,7 @@ export const MOMENTS = {
   "surface-trainer": { seed: S3_SEED, stored: S3_STORED, hash: TRAINER_HASH, drive: (page, options) => driveSurface(page, "trainer", { ...options, waitFor: "nav.tabbar" }) },
   "surface-cards": { seed: S3_SEED, stored: S3_STORED, hash: CARDS_HASH, drive: (page, options) => driveSurface(page, "cards", { ...options, waitFor: "nav.tabbar" }) },
   "surface-me": { seed: S3_SEED, stored: S3_STORED, hash: ME_HASH, drive: (page, options) => driveSurface(page, "me", { ...options, waitFor: "nav.tabbar" }) },
-  "surface-lesson": { seed: null, drive: (page, options) => driveLessonRest(page, options) },
+  "surface-lesson": { seed: null, stored: LESSON_STORED, drive: (page, options) => driveLessonRest(page, options) },
   // S4, the front door. "boot" is the HELD loader, which is the only way a
   // script that navigates and then measures can stand in front of a surface
   // that removes itself; "boot-open" is the real cold open with no hook at
