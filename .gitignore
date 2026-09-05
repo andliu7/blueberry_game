@@ -92,3 +92,17 @@ docs/reference/competitors/repos/
 # Agent worktrees. A full checkout of this repo inside itself; committing it
 # would nest the tree in its own history.
 .claude/worktrees/
+
+# Throwaway measurement probes and their output.
+#
+# The convention is that an underscore prefix means SCRATCH: a probe written to
+# answer one question in one session (does the header overlap, what does this
+# 404, what is the painted contrast of that chip). They are worth writing and
+# not worth keeping, because the next question wants a different probe and a
+# directory of forty stale ones is worse than none. A probe that earns a second
+# use gets renamed without the underscore and committed, which is how
+# board-capture.mjs got there.
+apps/web/measurements/_*.mjs
+apps/web/measurements/_sheets/
+apps/web/measurements/board/
+apps/web/_*.tmp.mjs
