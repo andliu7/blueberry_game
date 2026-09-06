@@ -1999,12 +1999,41 @@ export async function driveShellBar(page, { onTrigger = null } = {}) {
  * still in the document behind the open dialog.
  */
 export async function driveShellTool(page, { onTrigger = null } = {}) {
-  await page.waitForSelector("header [data-tool='periodic']", { timeout: 10_000 });
+  /*
+    THE RAIL IS A MENU NOW, so the periodic table is one press further in.
+    Two [data-tool] buttons became a single [data-header-tools] control opening
+    dialog.tools-menu, which frees a slot in the row the five-tab ruling made
+    tight. What is being tested is unchanged and is stated in this function's
+    own header: the tool opens a SHEET OVER a page that stays mounted, rather
+    than a tab that unmounts the lesson a student is inside. Reaching it through
+    one press or two does not touch that claim.
+
+    The old rail is still driven where it exists, so this works on both shapes.
+  */
+  await page.waitForSelector("header [data-tool='periodic'], header [data-header-tools]", { timeout: 10_000 });
   await page.waitForSelector("[role='region']", { timeout: 10_000 }).catch(() => {});
   await sleep(500);
+  const direct = await page.evaluate(() => document.querySelector("header [data-tool='periodic']") !== null);
+  if (!direct) {
+    await press(
+      page,
+      await page.evaluate(() => {
+        const node = document.querySelector("header [data-header-tools]");
+        const rect = node.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      }),
+      "the header tools menu",
+    );
+    await page.waitForSelector("dialog.tools-menu[open]", { timeout: 5_000 });
+    await sleep(200);
+  }
   const point = await page.evaluate(() => {
-    const node = document.querySelector("header [data-tool='periodic']");
-    if (node === null) return null;
+    const node =
+      document.querySelector("header [data-tool='periodic']") ??
+      [...document.querySelectorAll("dialog.tools-menu[open] button, dialog.tools-menu[open] a")].find((entry) =>
+        /periodic/i.test(entry.innerText),
+      );
+    if (node === undefined || node === null) return null;
     const rect = node.getBoundingClientRect();
     return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
   });
