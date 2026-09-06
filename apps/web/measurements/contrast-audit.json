@@ -1,12 +1,795 @@
 {
-  "measured": 108,
-  "distinct": 34,
-  "failing": 0,
-  "unresolved": 46,
+  "measured": 34668,
+  "distinct": 249,
+  "failing": 33,
+  "unresolved": 21094,
   "rows": [
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(246,242,231)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 1,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg834",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(23,26,46)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 1,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(35,39,65)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 1,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg834",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(239,233,255)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 1.06,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg8",
+      "count": 10,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(249,243,230)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.06,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(58,33,89)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 1.07,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg41",
+      "count": 1,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "button.chip-press.chip-press--check",
+      "text": "Next",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 1.13,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "feedback-correct@250ms:button.chip-press.chip-press--check",
+        "feedback-correct:button.chip-press.chip-press--check"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "A",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.17,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": "svg19",
+      "count": 12,
+      "where": [
+        "feedback-correct@250ms:text",
+        "feedback-correct:text",
+        "feedback-wrong@250ms:text",
+        "feedback-wrong:text"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.17,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg20",
+      "count": 38,
+      "where": [
+        "feedback-correct@250ms:g",
+        "feedback-correct@250ms:path",
+        "feedback-correct:g",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-wrong@250ms",
+      "kind": "text",
+      "element": "button.chip-press.chip-press--check",
+      "text": "Next",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.17,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "feedback-wrong@250ms:button.chip-press.chip-press--check",
+        "feedback-wrong:button.chip-press.chip-press--check"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(239,233,255)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 1.18,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg19",
+      "count": 1,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "onboarding",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(224,215,195)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.22,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "onboarding:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(27,42,107)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 1.3,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 2,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(0,0,0)",
+      "bg": "rgb(59,64,89)",
+      "ratio": 1.32,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg56",
+      "count": 1880,
+      "where": [
+        "charge-cost:g",
+        "charge-cost:path",
+        "charge-cost:circle",
+        "charge-empty:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "onboarding",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(44,49,81)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 1.36,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "onboarding:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(251,191,36)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.43,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg15",
+      "count": 2,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(0,0,0)",
+      "bg": "rgb(59,63,94)",
+      "ratio": 1.46,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg27",
+      "count": 40,
+      "where": [
+        "charge-cost:g",
+        "charge-cost:path",
+        "charge-empty:g",
+        "charge-empty:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(95,60,18)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 1.49,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg20",
+      "count": 3,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(91,58,134)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 1.67,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg42",
+      "carriedBy": "fill",
+      "count": 2,
+      "where": [
+        "feed:circle"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(58,63,102)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 1.7,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(43,47,176)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 1.75,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg5",
+      "count": 12,
+      "where": [
+        "reward-first:g",
+        "reward-first:path",
+        "reward-streak:g",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(142,149,191)",
+      "ratio": 1.8,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg27",
+      "count": 1920,
+      "where": [
+        "charge-cost:g",
+        "charge-cost:path",
+        "charge-cost:circle",
+        "charge-empty:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "div",
+      "text": "CHECK",
+      "fg": "rgb(85,85,85)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 1.96,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "feedback-correct@250ms:div",
+        "feedback-correct:div",
+        "feedback-wrong@250ms:div",
+        "feedback-wrong:div"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(38,189,182)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 1.99,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 3,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(162,181,250)",
+      "ratio": 2,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 56,
+      "where": [
+        "feedback-correct@250ms:g",
+        "feedback-correct@250ms:path",
+        "feedback-correct:g",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "A",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(162,181,250)",
+      "ratio": 2,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": "svg4",
+      "count": 1,
+      "where": [
+        "charge-spend:text"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(38,189,182)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 2.08,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg16",
+      "count": 1,
+      "where": [
+        "reward-first:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(165,44,76)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 2.13,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg37",
+      "count": 1,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(155,168,245)",
+      "ratio": 2.25,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 56,
+      "where": [
+        "feedback-correct@250ms:g",
+        "feedback-correct@250ms:path",
+        "feedback-correct:g",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-spend",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "A",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(155,168,245)",
+      "ratio": 2.25,
+      "floor": 4.5,
+      "pass": false,
+      "paint": null,
+      "key": "svg4",
+      "count": 1,
+      "where": [
+        "charge-spend:text"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(176,154,109)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 2.33,
+      "floor": 3,
+      "pass": false,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(192,111,31)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 2.95,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 1,
+      "where": [
+        "cards:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(61,99,245)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 2.99,
+      "floor": 3,
+      "pass": false,
+      "paint": "fill",
+      "key": "svg35",
+      "carriedBy": "fill",
+      "count": 1,
+      "where": [
+        "feed:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(159,117,245)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 3.31,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg36",
+      "count": 3,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(192,111,31)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 3.39,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 20,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(2,132,199)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 3.4,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg13",
+      "count": 4,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(156,111,49)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 3.45,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(156,111,49)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 3.45,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(2,132,199)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 3.5,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg31",
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,74,6)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 3.53,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 3,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -16,10 +799,88 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg8",
+      "key": "svg9",
+      "count": 22,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "boot",
+      "kind": "svg-stroke",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(168,164,193)",
+      "bg": "rgb(63,66,134)",
+      "ratio": 3.75,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
       "count": 1,
       "where": [
-        "pathway:path"
+        "boot:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-streak",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,74,6)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 3.81,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg16",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(111,116,163)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 3.84,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(224,80,112)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 3.86,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg38",
+      "carriedBy": "fill",
+      "count": 2,
+      "where": [
+        "feed:circle"
       ]
     },
     {
@@ -28,34 +889,583 @@
       "kind": "svg-stroke",
       "element": "path",
       "text": "",
-      "fg": "rgb(194,65,12)",
+      "fg": "rgb(77,122,73)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 3.9,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 12,
+      "where": [
+        "pathway:path",
+        "courses:path",
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(58,113,176)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 3.92,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 1,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(156,111,49)",
       "bg": "rgb(246,242,231)",
-      "ratio": 4.63,
+      "ratio": 3.97,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(156,111,49)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 3.97,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(106,113,158)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 4.02,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg75",
+      "count": 240,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "line",
+      "text": "",
+      "fg": "rgb(95,109,133)",
+      "bg": "rgb(239,228,208)",
+      "ratio": 4.16,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 1,
+      "where": [
+        "trainer:line"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(95,109,133)",
+      "bg": "rgb(239,228,208)",
+      "ratio": 4.16,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg13",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "trainer:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(217,74,6)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 4.26,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg24",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(217,74,6)",
+      "ratio": 4.26,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 20,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(125,108,76)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 4.36,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(159,117,245)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 4.41,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg36",
+      "count": 3,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(77,122,73)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 4.47,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 9,
+      "where": [
+        "trainer:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(58,113,176)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 4.5,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 20,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(93,99,96)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 4.78,
       "floor": 3,
       "pass": true,
       "paint": "stroke",
       "key": "svg2",
       "count": 1,
       "where": [
-        "pathway:path"
+        "trainer:path"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
-      "fg": "rgb(15,118,110)",
-      "bg": "rgb(246,242,231)",
-      "ratio": 4.89,
+      "fg": "rgb(93,99,96)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 4.78,
       "floor": 3,
       "pass": true,
       "paint": "fill",
       "key": "svg3",
       "count": 1,
       "where": [
-        "pathway:path"
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "text",
+      "element": "h1.title-face.text-scale-lg.font-bold",
+      "text": "Due today",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(92,107,184)",
+      "ratio": 4.94,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "cards:h1.title-face.text-scale-lg.font-bold",
+        "cards:p.text-scale-sm.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "large-text",
+      "element": "p.hero-number.title-face.font-bold",
+      "text": "0",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(92,107,184)",
+      "ratio": 4.94,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:p.hero-number.title-face.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "text",
+      "element": "h1.title-face.text-scale-lg.font-bold",
+      "text": "Due today",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(92,107,184)",
+      "ratio": 4.94,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "cards:h1.title-face.text-scale-lg.font-bold",
+        "cards:p.text-scale-sm.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "large-text",
+      "element": "p.hero-number.title-face.font-bold",
+      "text": "0",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(92,107,184)",
+      "ratio": 4.94,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:p.hero-number.title-face.font-bold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(85,98,143)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 5.09,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 820,
+      "where": [
+        "charge-cost:path",
+        "charge-cost:line",
+        "charge-empty:path",
+        "charge-empty:line"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(85,98,143)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 5.09,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg48",
+      "carriedBy": "stroke",
+      "count": 75,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "text",
+      "element": "span.text-center.text-scale-xs.font-semibold",
+      "text": "Diamonds",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 5.09,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.text-center.text-scale-xs.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 5.09,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 9,
+      "where": [
+        "me:path",
+        "leaderboards:path",
+        "chat:path",
+        "messages:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "M",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 5.1,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 21,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-freeze-text",
+        "streak-milestone:span.streak-day-letter",
+        "streak-milestone:span.streak-freeze-text"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 5.1,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 5,
+      "where": [
+        "streak-rest:g",
+        "streak-milestone:g",
+        "streak-exam:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 5.1,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "carriedBy": "stroke",
+      "count": 5,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "boot",
+      "kind": "svg-stroke",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(138,137,172)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 5.11,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 1,
+      "where": [
+        "boot:circle"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(196,199,222)",
+      "bg": "rgb(38,42,69)",
+      "ratio": 5.12,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 3,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(51,65,85)",
+      "bg": "rgb(239,228,208)",
+      "ratio": 5.19,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 3,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(251,146,60)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 5.26,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 3,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
       ]
     },
     {
@@ -71,14 +1481,157 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 17,
       "where": [
-        "pathway:button.press.inline-flex.min-h-11"
+        "pathway:button.press.inline-flex.min-h-11",
+        "leaderboards:a.press.mt-2.inline-flex",
+        "periodic:button.press.min-h-11.rounded-full",
+        "chat:a.press.mt-2.inline-flex"
       ]
     },
     {
       "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(91,96,200)",
+      "ratio": 5.31,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(209,143,22)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 5.32,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg23",
+      "carriedBy": "fill",
+      "count": 3,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dd.text-muted-foreground",
+      "text": "Hb is a phenol O-H, which sits at about 10 on the ladder.",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(28,56,63)",
+      "ratio": 5.36,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dd.text-muted-foreground",
+        "feedback-correct:dd.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "text",
+      "element": "span.inline-flex.shrink-0.items-center",
+      "text": "Phase 6 data",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(44,49,81)",
+      "ratio": 5.4,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 20,
+      "where": [
+        "feed:span.inline-flex.shrink-0.items-center",
+        "courses:span.flex.h-12.w-12",
+        "periodic:span.inline-flex.shrink-0.items-center",
+        "combo@250ms:li.combo-pip.flex.h-9"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-spend",
+      "kind": "large-text",
+      "element": "span.scheme__unknown",
+      "text": "?",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(44,49,81)",
+      "ratio": 5.4,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "charge-spend:span.scheme__unknown"
+      ]
+    },
+    {
+      "theme": "light",
       "route": "pathway",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(93,99,96)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 5.49,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 20,
+      "where": [
+        "pathway:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "pathway",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(93,99,96)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 5.49,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 20,
+      "where": [
+        "pathway:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "rect",
       "text": "",
@@ -88,54 +1641,161 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg10",
-      "count": 1,
+      "key": "svg11",
+      "count": 21,
       "where": [
-        "pathway:rect"
+        "trainer:rect",
+        "pathway:rect",
+        "cards:rect",
+        "feed:rect"
       ]
     },
     {
-      "theme": "light",
-      "route": "pathway",
-      "kind": "svg-stroke",
-      "element": "path",
-      "text": "",
-      "fg": "rgb(29,78,216)",
-      "bg": "rgb(246,242,231)",
-      "ratio": 5.99,
-      "floor": 3,
-      "pass": true,
-      "paint": "stroke",
-      "key": "svg4",
-      "count": 1,
-      "where": [
-        "pathway:path"
-      ]
-    },
-    {
-      "theme": "light",
-      "route": "pathway",
+      "theme": "dark",
+      "route": "streak-rest",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
-      "fg": "rgb(29,78,216)",
-      "bg": "rgb(246,242,231)",
-      "ratio": 5.99,
+      "fg": "rgb(56,189,248)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 5.56,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg13",
+      "count": 4,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(240,166,89)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 5.83,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 1,
+      "where": [
+        "cards:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-node__counter",
+      "text": "0 / 4",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(85,98,143)",
+      "ratio": 5.95,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 10,
+      "where": [
+        "charge-cost:span.path-node__counter",
+        "charge-empty:span.path-node__counter",
+        "charge-spend@300ms:span.path-node__counter",
+        "shell-bar:span.path-node__counter"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(142,189,241)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.05,
       "floor": 3,
       "pass": true,
       "paint": "fill",
       "key": "svg5",
       "count": 1,
       "where": [
-        "pathway:path"
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "combo@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 6.06,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 12,
+      "where": [
+        "combo@250ms:path",
+        "combo:path",
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "large-text",
+      "element": "span.streak-number.text-streak-ink",
+      "text": "47",
+      "fg": "rgb(154,52,18)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 6.06,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "streak-rest:span.streak-number.text-streak-ink",
+        "streak-rest:span.streak-reveal.streak-unit.mt-2",
+        "streak-milestone:span.streak-number.text-streak-ink",
+        "streak-milestone:span.streak-reveal.streak-unit.mt-2"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(143,147,224)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 6.06,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg75",
+      "count": 240,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "text",
       "element": "span.hidden.md:inline",
-      "text": "Path",
+      "text": "Train",
       "fg": "rgb(179,182,242)",
       "bg": "rgb(47,53,87)",
       "ratio": 6.16,
@@ -143,9 +1803,12 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 23,
       "where": [
-        "pathway:span.hidden.md:inline"
+        "trainer:span.hidden.md:inline",
+        "pathway:span.hidden.md:inline",
+        "cards:span.hidden.md:inline",
+        "feed:span.hidden.md:inline"
       ]
     },
     {
@@ -154,24 +1817,160 @@
       "kind": "svg-stroke",
       "element": "path",
       "text": "",
-      "fg": "rgb(179,182,242)",
+      "fg": "rgb(143,201,138)",
       "bg": "rgb(47,53,87)",
       "ratio": 6.16,
       "floor": 3,
       "pass": true,
       "paint": "stroke",
       "key": "svg1",
-      "count": 1,
+      "count": 12,
       "where": [
-        "pathway:path"
+        "pathway:path",
+        "courses:path",
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "me",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-bold",
+      "text": "0",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.16,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 6.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 1,
+      "where": [
+        "streak-rest:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(183,189,184)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.21,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg2",
+      "count": 1,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(183,189,184)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.21,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg3",
+      "count": 1,
+      "where": [
+        "trainer:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(224,180,120)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.21,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(224,180,120)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 6.21,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 6,
+      "where": [
+        "me:path",
+        "search:path",
+        "leaderboards:path",
+        "periodic:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(146,64,14)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 6.25,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg32",
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "text",
       "element": "span.hidden.md:inline",
-      "text": "Train",
+      "text": "Path",
       "fg": "rgb(168,167,196)",
       "bg": "rgb(35,39,65)",
       "ratio": 6.25,
@@ -179,17 +1978,17 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 7,
+      "count": 222,
       "where": [
-        "pathway:span.hidden.md:inline",
-        "pathway:button.press.inline-flex.min-h-11",
-        "pathway:span.text-scale-sm.font-bold.leading-none",
-        "pathway:span.hud-goal-name"
+        "trainer:span.hidden.md:inline",
+        "trainer:button.press.inline-flex.min-h-11",
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "trainer:span.hud-goal-name"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -199,18 +1998,60 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
+      "key": "svg10",
+      "count": 21,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 6.25,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 12,
+      "where": [
+        "cards:path",
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "Br",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 6.25,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": "svg13",
       "count": 1,
       "where": [
-        "pathway:path"
+        "cards:text"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "text",
       "element": "span.hidden.md:inline",
-      "text": "Path",
+      "text": "Train",
       "fg": "rgb(91,47,192)",
       "bg": "rgb(227,225,244)",
       "ratio": 6.26,
@@ -218,27 +2059,48 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 23,
       "where": [
-        "pathway:span.hidden.md:inline"
+        "trainer:span.hidden.md:inline",
+        "pathway:span.hidden.md:inline",
+        "cards:span.hidden.md:inline",
+        "feed:span.hidden.md:inline"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
-      "kind": "svg-stroke",
-      "element": "path",
-      "text": "",
+      "route": "me",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-bold",
+      "text": "0",
       "fg": "rgb(91,47,192)",
       "bg": "rgb(227,225,244)",
       "ratio": 6.26,
       "floor": 3,
       "pass": true,
-      "paint": "stroke",
-      "key": "svg1",
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "me:span.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(38,189,182)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 6.28,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg16",
       "count": 1,
       "where": [
-        "pathway:path"
+        "reward-first:path"
       ]
     },
     {
@@ -254,32 +2116,134 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 17,
       "where": [
-        "pathway:button.press.inline-flex.min-h-11"
-      ]
-    },
-    {
-      "theme": "dark",
-      "route": "pathway",
-      "kind": "svg-stroke",
-      "element": "path",
-      "text": "",
-      "fg": "rgb(251,146,60)",
-      "bg": "rgb(35,39,65)",
-      "ratio": 6.45,
-      "floor": 3,
-      "pass": true,
-      "paint": "stroke",
-      "key": "svg2",
-      "count": 1,
-      "where": [
-        "pathway:path"
+        "pathway:button.press.inline-flex.min-h-11",
+        "leaderboards:a.press.mt-2.inline-flex",
+        "periodic:button.press.min-h-11.rounded-full",
+        "chat:a.press.mt-2.inline-flex"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(109,63,212)",
+      "ratio": 6.34,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.charge-meter-chip",
+      "text": "-8",
+      "fg": "rgb(38,40,56)",
+      "bg": "rgb(155,168,245)",
+      "ratio": 6.45,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "charge-cost:span.charge-meter-chip"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "line",
+      "text": "",
+      "fg": "rgb(170,176,204)",
+      "bg": "rgb(38,42,69)",
+      "ratio": 6.53,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 1,
+      "where": [
+        "trainer:line"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "div",
+      "text": "CHECK",
+      "fg": "rgb(85,85,85)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 6.66,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "feedback-correct@250ms:div",
+        "feedback-correct:div",
+        "feedback-wrong@250ms:div",
+        "feedback-wrong:div"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 6.67,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 1,
+      "where": [
+        "streak-rest:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-node__counter",
+      "text": "0 / 4",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(74,84,171)",
+      "ratio": 6.67,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 10,
+      "where": [
+        "charge-cost:span.path-node__counter",
+        "charge-empty:span.path-node__counter",
+        "charge-spend@300ms:span.path-node__counter",
+        "shell-bar:span.path-node__counter"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -289,15 +2253,18 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg9",
-      "count": 1,
+      "key": "svg10",
+      "count": 21,
       "where": [
-        "pathway:path"
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "rect",
       "text": "",
@@ -307,15 +2274,18 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg10",
-      "count": 1,
+      "key": "svg11",
+      "count": 21,
       "where": [
-        "pathway:rect"
+        "trainer:rect",
+        "pathway:rect",
+        "cards:rect",
+        "feed:rect"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
@@ -325,46 +2295,698 @@
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg8",
-      "count": 1,
+      "key": "svg9",
+      "count": 22,
       "where": [
-        "pathway:path"
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
       ]
     },
     {
-      "theme": "dark",
-      "route": "pathway",
-      "kind": "large-text",
-      "element": "span.hud-charge-value",
-      "text": "30",
-      "fg": "rgb(110,231,183)",
-      "bg": "rgb(38,67,79)",
-      "ratio": 6.94,
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(165,44,76)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 6.85,
       "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg37",
+      "count": 1,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(165,44,76)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 6.85,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg38",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "feed:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-start",
+      "text": "START",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(239,234,255)",
+      "ratio": 6.85,
+      "floor": 4.5,
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 5,
       "where": [
-        "pathway:span.hud-charge-value"
+        "charge-cost:span.path-start",
+        "charge-empty:span.path-start",
+        "charge-spend@300ms:span.path-start",
+        "shell-bar:span.path-start"
       ]
     },
     {
-      "theme": "dark",
-      "route": "pathway",
+      "theme": "light",
+      "route": "cards",
       "kind": "text",
-      "element": "span.hud-charge-word",
-      "text": "Charge",
-      "fg": "rgb(110,231,183)",
-      "bg": "rgb(38,67,79)",
-      "ratio": 6.94,
+      "element": "button.press.min-h-11.rounded-full",
+      "text": "+ New deck",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 6.87,
       "floor": 4.5,
       "pass": true,
       "paint": null,
       "key": null,
       "count": 1,
       "where": [
-        "pathway:span.hud-charge-word"
+        "cards:button.press.min-h-11.rounded-full"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "combo@250ms",
+      "kind": "large-text",
+      "element": "p.combo-count.title-face.font-semibold",
+      "text": "3",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 6.87,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.combo-count.title-face.font-semibold",
+        "combo:p.combo-count.title-face.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 6.87,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "reward-first:g",
+        "reward-first:path",
+        "reward-streak:g",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(110,231,183)",
+      "bg": "rgb(38,67,79)",
+      "ratio": 6.94,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg835",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "text",
+      "element": "button.chip3d.chip3d--go.press",
+      "text": "All clear",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(209,213,222)",
+      "ratio": 6.95,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:button.chip3d.chip3d--go.press"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "large-text",
+      "element": "span.streak-number.text-streak-ink",
+      "text": "47",
+      "fg": "rgb(253,186,116)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 7.06,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "streak-rest:span.streak-number.text-streak-ink",
+        "streak-rest:span.streak-reveal.streak-unit.mt-2",
+        "streak-milestone:span.streak-number.text-streak-ink",
+        "streak-milestone:span.streak-reveal.streak-unit.mt-2"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "text",
+      "element": "span.inline-flex.shrink-0.items-center",
+      "text": "Phase 6 data",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(224,215,195)",
+      "ratio": 7.14,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 17,
+      "where": [
+        "feed:span.inline-flex.shrink-0.items-center",
+        "courses:span.flex.h-12.w-12",
+        "periodic:span.inline-flex.shrink-0.items-center",
+        "combo@250ms:li.combo-pip.flex.h-9"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "large-text",
+      "element": "span.scheme__unknown",
+      "text": "?",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(224,215,195)",
+      "ratio": 7.14,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "charge-spend:span.scheme__unknown"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "button.press.streak-freeze-buy",
+      "text": "75",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 7.14,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "streak-rest:button.press.streak-freeze-buy",
+        "streak-milestone:button.press.streak-freeze-buy",
+        "streak-exam:button.press.streak-freeze-buy"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 7.14,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 1,
+      "where": [
+        "streak-rest:g"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 7.14,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg10",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "streak-rest:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(240,166,89)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 20,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-exam",
+      "kind": "text",
+      "element": "p.streak-reveal.streak-exam",
+      "text": "Exam in 9 days. Opening the app keeps your streak.",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(60,77,78)",
+      "ratio": 7.17,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "streak-exam:p.streak-reveal.streak-exam"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-exam",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(60,77,78)",
+      "ratio": 7.17,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "me",
+      "kind": "text",
+      "element": "span.shrink-0.text-scale-sm.font-bold",
+      "text": "English",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 7.19,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "me:span.shrink-0.text-scale-sm.font-bold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "h3.path-signpost__tag",
+      "text": "Unit 1 · Conjugation, Resonance & Dienes",
+      "fg": "rgb(91,47,192)",
+      "bg": "rgb(249,243,230)",
+      "ratio": 7.27,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 75,
+      "where": [
+        "charge-cost:h3.path-signpost__tag",
+        "charge-empty:h3.path-signpost__tag",
+        "charge-spend@300ms:h3.path-signpost__tag",
+        "shell-bar:h3.path-signpost__tag"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.charge-meter-chip",
+      "text": "-8",
+      "fg": "rgb(38,40,56)",
+      "bg": "rgb(162,181,250)",
+      "ratio": 7.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "charge-cost:span.charge-meter-chip"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-milestone",
+      "kind": "text",
+      "element": "span.streak-milestone-band",
+      "text": "Milestone",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(154,52,18)",
+      "ratio": 7.31,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "streak-milestone:span.streak-milestone-band"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "p.text-scale-sm.text-muted-foreground",
+      "text": "Hydroxide attacks, bromide leaves. Draw both arrows.",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 7.35,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 107,
+      "where": [
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground",
+        "feed:p.feed-note",
+        "me:p.text-scale-sm.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-spend",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(168,167,196)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 7.35,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 1,
+      "where": [
+        "charge-spend:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(38,189,182)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 7.39,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg4",
+      "count": 3,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(32,29,26)",
+      "bg": "rgb(251,146,60)",
+      "ratio": 7.41,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg2",
+      "count": 20,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-milestone",
+      "kind": "text",
+      "element": "span.streak-milestone-band",
+      "text": "Milestone",
+      "fg": "rgb(32,29,26)",
+      "bg": "rgb(251,146,60)",
+      "ratio": 7.41,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "streak-milestone:span.streak-milestone-band"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(142,189,241)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.44,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg5",
+      "count": 20,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(255,166,14)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.45,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg24",
+      "carriedBy": "fill",
+      "count": 2,
+      "where": [
+        "feed:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "text",
+      "element": "span.path-start",
+      "text": "START",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(42,35,82)",
+      "ratio": 7.46,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "charge-cost:span.path-start",
+        "charge-empty:span.path-start",
+        "charge-spend@300ms:span.path-start",
+        "shell-bar:span.path-start"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(143,201,138)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.57,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 9,
+      "where": [
+        "trainer:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "me",
+      "kind": "text",
+      "element": "span.shrink-0.text-scale-sm.font-bold",
+      "text": "English",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.57,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "me:span.shrink-0.text-scale-sm.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(155,168,245)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 7.61,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg15",
+      "count": 820,
+      "where": [
+        "charge-cost:path",
+        "charge-cost:line",
+        "charge-empty:path",
+        "charge-empty:line"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-cost",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(155,168,245)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 7.61,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg48",
+      "carriedBy": "stroke",
+      "count": 75,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path",
+        "shell-bar:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(224,180,120)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.63,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg6",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(224,180,120)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 7.63,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg7",
+      "count": 15,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
       ]
     },
     {
@@ -373,16 +2995,19 @@
       "kind": "svg-stroke",
       "element": "path",
       "text": "",
-      "fg": "rgb(147,197,253)",
+      "fg": "rgb(183,189,184)",
       "bg": "rgb(35,39,65)",
-      "ratio": 8.1,
+      "ratio": 7.64,
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg4",
-      "count": 1,
+      "key": "svg2",
+      "count": 20,
       "where": [
-        "pathway:path"
+        "pathway:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
       ]
     },
     {
@@ -391,57 +3016,397 @@
       "kind": "svg-fill",
       "element": "path",
       "text": "",
-      "fg": "rgb(147,197,253)",
+      "fg": "rgb(183,189,184)",
       "bg": "rgb(35,39,65)",
-      "ratio": 8.1,
+      "ratio": 7.64,
       "floor": 3,
       "pass": true,
       "paint": "fill",
-      "key": "svg5",
-      "count": 1,
+      "key": "svg3",
+      "count": 20,
       "where": [
-        "pathway:path"
+        "pathway:path",
+        "cards:path",
+        "feed:path",
+        "me:path"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
-      "kind": "large-text",
-      "element": "span.hud-charge-value",
-      "text": "30",
-      "fg": "rgb(6,78,59)",
-      "bg": "rgb(209,250,229)",
-      "ratio": 8.57,
-      "floor": 3,
+      "route": "me",
+      "kind": "text",
+      "element": "span.text-center.text-scale-xs.font-semibold",
+      "text": "Diamonds",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 7.95,
+      "floor": 4.5,
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 3,
       "where": [
-        "pathway:span.hud-charge-value"
+        "me:span.text-center.text-scale-xs.font-semibold"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "me",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 7.95,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg12",
+      "count": 9,
+      "where": [
+        "me:path",
+        "leaderboards:path",
+        "chat:path",
+        "messages:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(242,182,50)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 8.01,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg21",
+      "carriedBy": "fill",
+      "count": 6,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(56,189,248)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 8.01,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg31",
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "boot",
       "kind": "text",
-      "element": "span.hud-charge-word",
-      "text": "Charge",
-      "fg": "rgb(6,78,59)",
-      "bg": "rgb(209,250,229)",
-      "ratio": 8.57,
+      "element": "p#boot-word.boot-word",
+      "text": "Finding your place",
+      "fg": "rgb(251,243,230)",
+      "bg": "rgb(63,66,134)",
+      "ratio": 8.17,
       "floor": 4.5,
       "pass": true,
       "paint": null,
       "key": null,
       "count": 1,
       "where": [
-        "pathway:span.hud-charge-word"
+        "boot:p#boot-word.boot-word"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "cards",
+      "kind": "text",
+      "element": "button.chip3d.chip3d--go.press",
+      "text": "All clear",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(58,64,96)",
+      "ratio": 8.18,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:button.chip3d.chip3d--go.press"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "Claim",
+      "fg": "rgb(22,58,38)",
+      "bg": "rgb(154,225,183)",
+      "ratio": 8.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:button.press.inline-flex.min-h-11",
+        "reward-streak:button.press.inline-flex.min-h-11"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "text",
+      "element": "button.press.inline-flex.min-h-11",
+      "text": "Claim",
+      "fg": "rgb(22,58,38)",
+      "bg": "rgb(154,225,183)",
+      "ratio": 8.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "reward-first:button.press.inline-flex.min-h-11",
+        "reward-streak:button.press.inline-flex.min-h-11"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(43,47,176)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 8.4,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg5",
+      "count": 12,
+      "where": [
+        "reward-first:g",
+        "reward-first:path",
+        "reward-streak:g",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "button.press.streak-freeze-buy",
+      "text": "75",
+      "fg": "rgb(11,69,102)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 8.47,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "streak-rest:button.press.streak-freeze-buy",
+        "streak-milestone:button.press.streak-freeze-buy",
+        "streak-exam:button.press.streak-freeze-buy"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(11,69,102)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 8.47,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 1,
+      "where": [
+        "streak-rest:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "M",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 8.48,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 21,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-freeze-text",
+        "streak-milestone:span.streak-day-letter",
+        "streak-milestone:span.streak-freeze-text"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 8.48,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 5,
+      "where": [
+        "streak-rest:g",
+        "streak-milestone:g",
+        "streak-exam:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-cost",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(6,78,59)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 8.57,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg835",
+      "count": 3,
+      "where": [
+        "charge-cost:path",
+        "charge-empty:path",
+        "charge-spend@300ms:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hud-charge-value",
+      "text": "30",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(38,67,79)",
+      "ratio": 8.58,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 24,
+      "where": [
+        "trainer:span.hud-charge-value",
+        "pathway:span.hud-charge-value",
+        "cards:span.hud-charge-value",
+        "feed:span.hud-charge-value"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(28,56,63)",
+      "ratio": 8.68,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg32",
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "span.lesson-currency",
+      "text": "0",
+      "fg": "rgb(11,69,102)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 8.73,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:span.lesson-currency",
+        "feedback-correct:span.lesson-currency",
+        "feedback-wrong@250ms:span.lesson-currency",
+        "feedback-wrong:span.lesson-currency"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "p.text-scale-sm.text-muted-foreground",
+      "text": "Hydroxide attacks, bromide leaves. Draw both arrows.",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 8.74,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 107,
+      "where": [
+        "trainer:p.text-scale-sm.text-muted-foreground",
+        "trainer:span.text-scale-sm.text-muted-foreground",
+        "feed:p.feed-note",
+        "me:p.text-scale-sm.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 8.74,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg11",
+      "count": 1,
+      "where": [
+        "charge-spend:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "text",
       "element": "span.text-scale-sm.font-bold.leading-none",
       "text": "0",
@@ -452,14 +3417,97 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 21,
       "where": [
-        "pathway:span.text-scale-sm.font-bold.leading-none"
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "cards:span.text-scale-sm.font-bold.leading-none",
+        "feed:span.text-scale-sm.font-bold.leading-none"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "text",
+      "element": "button.press.min-h-11.rounded-full",
+      "text": "+ New deck",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 8.9,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 76,
+      "where": [
+        "cards:button.press.min-h-11.rounded-full",
+        "charge-cost:h3.path-signpost__tag",
+        "charge-empty:h3.path-signpost__tag",
+        "charge-spend@300ms:h3.path-signpost__tag"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "large-text",
+      "element": "p.combo-count.title-face.font-semibold",
+      "text": "3",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 8.9,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "combo@250ms:p.combo-count.title-face.font-semibold",
+        "combo:p.combo-count.title-face.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(179,182,242)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 8.9,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg1",
+      "count": 6,
+      "where": [
+        "reward-first:g",
+        "reward-first:path",
+        "reward-streak:g",
+        "reward-streak:path"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "dd.text-muted-foreground",
+      "text": "Hb is a phenol O-H, which sits at about 10 on the ladder.",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 9.01,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 6,
+      "where": [
+        "feedback-correct@250ms:dd.text-muted-foreground",
+        "feedback-correct:dd.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
       "kind": "text",
       "element": "span.text-scale-sm.font-bold.leading-none",
       "text": "0",
@@ -470,17 +3518,20 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 1,
+      "count": 21,
       "where": [
-        "pathway:span.text-scale-sm.font-bold.leading-none"
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "pathway:span.text-scale-sm.font-bold.leading-none",
+        "cards:span.text-scale-sm.font-bold.leading-none",
+        "feed:span.text-scale-sm.font-bold.leading-none"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "text",
       "element": "span.hidden.md:inline",
-      "text": "Train",
+      "text": "Path",
       "fg": "rgb(57,65,83)",
       "bg": "rgb(246,242,231)",
       "ratio": 9.14,
@@ -488,35 +3539,798 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 7,
+      "count": 218,
       "where": [
-        "pathway:span.hidden.md:inline",
-        "pathway:button.press.inline-flex.min-h-11",
-        "pathway:span.text-scale-sm.font-bold.leading-none",
-        "pathway:span.hud-goal-name"
+        "trainer:span.hidden.md:inline",
+        "trainer:button.press.inline-flex.min-h-11",
+        "trainer:span.text-scale-sm.font-bold.leading-none",
+        "trainer:span.hud-goal-name"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 9.14,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg9",
+      "count": 11,
+      "where": [
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path",
+        "feedback-wrong:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "3",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(254,202,202)",
+      "ratio": 9.62,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 24,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "3",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(254,202,202)",
+      "ratio": 9.62,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 24,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "courses",
+      "kind": "text",
+      "element": "span.flex.h-14.w-14",
+      "text": "O2",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(47,53,87)",
+      "ratio": 9.63,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "courses:span.flex.h-14.w-14",
+        "shell-courses:span.flex.h-14.w-14"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "S",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(61,52,64)",
+      "ratio": 9.66,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-note-text",
+        "streak-rest:span.streak-note-strong",
+        "streak-milestone:span.streak-day-letter"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "1",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 9.8,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 46,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "periodic:span.text-scale-xs",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-semibold",
+      "text": "C",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 9.8,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "periodic:span.title-face.text-scale-2xl.font-semibold",
+        "shell-tool:span.title-face.text-scale-2xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "1",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 9.8,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 46,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "periodic:span.text-scale-xs",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "large-text",
+      "element": "span.title-face.text-scale-2xl.font-semibold",
+      "text": "C",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(191,219,254)",
+      "ratio": 9.8,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "periodic:span.title-face.text-scale-2xl.font-semibold",
+        "shell-tool:span.title-face.text-scale-2xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(95,60,18)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 9.81,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg20",
+      "count": 3,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
       "kind": "svg-fill",
       "element": "path",
       "text": "",
-      "fg": "rgb(94,234,212)",
-      "bg": "rgb(35,39,65)",
+      "fg": "rgb(95,60,18)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 9.81,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg21",
+      "carriedBy": "stroke",
+      "count": 9,
+      "where": [
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "text",
+      "element": "span.text-scale-sm.text-muted-foreground",
+      "text": "0 cards",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(255,251,238)",
+      "ratio": 9.87,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:span.text-scale-sm.text-muted-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(255,251,238)",
       "ratio": 9.87,
       "floor": 3,
       "pass": true,
-      "paint": "fill",
-      "key": "svg3",
+      "paint": "stroke",
+      "key": "svg12",
       "count": 1,
       "where": [
-        "pathway:path"
+        "cards:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "Br",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(255,251,238)",
+      "ratio": 9.87,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": "svg13",
+      "count": 1,
+      "where": [
+        "cards:text"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "text",
+      "element": "span.scheme__caption",
+      "text": "buta-1,3-diene",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(253,251,244)",
+      "ratio": 9.87,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "charge-spend:span.scheme__caption",
+        "charge-spend:span"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "trainer",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(214,217,234)",
+      "bg": "rgb(38,42,69)",
+      "ratio": 9.98,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg13",
+      "carriedBy": "fill",
+      "count": 2,
+      "where": [
+        "trainer:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "2",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(221,214,254)",
+      "ratio": 10.03,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 28,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "2",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(221,214,254)",
+      "ratio": 10.03,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 28,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "57",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(251,207,232)",
+      "ratio": 10.07,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 60,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "57",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(251,207,232)",
+      "ratio": 10.07,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 60,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(34,49,168)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 10.13,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg35",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "feed:circle"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "h3.text-scale-lg.font-semibold.leading-tight",
+      "text": "That is it.",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(28,56,63)",
+      "ratio": 10.15,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 8,
+      "where": [
+        "feedback-correct@250ms:h3.text-scale-lg.font-semibold.leading-tight",
+        "feedback-correct@250ms:dt.font-semibold.text-foreground",
+        "feedback-correct:h3.text-scale-lg.font-semibold.leading-tight",
+        "feedback-correct:dt.font-semibold.text-foreground"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "89",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(245,208,254)",
+      "ratio": 10.17,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 60,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "89",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(245,208,254)",
+      "ratio": 10.17,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 60,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "text",
+      "element": "span.feed-quest-reading",
+      "text": "0 / 20 XP",
+      "fg": "rgb(57,65,83)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 10.22,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "feed:span.feed-quest-reading"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-spend",
+      "kind": "text",
+      "element": "span",
+      "text": "The 1,2 product",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(44,49,81)",
+      "ratio": 10.23,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "charge-spend:span"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "charge-spend",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(44,49,81)",
+      "ratio": 10.23,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg8",
+      "count": 3,
+      "where": [
+        "charge-spend:g",
+        "charge-spend:line"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "4",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(254,215,170)",
+      "ratio": 10.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 24,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "4",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(254,215,170)",
+      "ratio": 10.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 24,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "span.lesson-currency",
+      "text": "0",
+      "fg": "rgb(125,211,252)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 10.29,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 5,
+      "where": [
+        "feedback-correct@250ms:span.lesson-currency",
+        "feedback-correct:span.lesson-currency",
+        "feedback-wrong@250ms:span.lesson-currency",
+        "feedback-wrong:span.lesson-currency"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "courses",
+      "kind": "text",
+      "element": "span.flex.h-14.w-14",
+      "text": "O2",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(227,225,244)",
+      "ratio": 10.84,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "courses:span.flex.h-14.w-14",
+        "shell-courses:span.flex.h-14.w-14"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "5",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(167,243,208)",
+      "ratio": 10.86,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 28,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "5",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(167,243,208)",
+      "ratio": 10.86,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 28,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "21",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(253,230,138)",
+      "ratio": 11.18,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 152,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "21",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(253,230,138)",
+      "ratio": 11.18,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 152,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "reward-first",
+      "kind": "svg-stroke",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(27,42,107)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 11.29,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg14",
+      "count": 2,
+      "where": [
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "13",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(187,247,208)",
+      "ratio": 11.49,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 52,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "periodic",
+      "kind": "text",
+      "element": "span.text-[0.6rem].leading-none.opacity-70",
+      "text": "13",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(187,247,208)",
+      "ratio": 11.49,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 52,
+      "where": [
+        "periodic:span.text-[0.6rem].leading-none.opacity-70",
+        "periodic:span.text-scale-sm.font-bold.leading-tight",
+        "shell-tool:span.text-[0.6rem].leading-none.opacity-70",
+        "shell-tool:span.text-scale-sm.font-bold.leading-tight"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "text",
+      "element": "span.streak-day-letter",
+      "text": "S",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 11.56,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "streak-rest:span.streak-day-letter",
+        "streak-rest:span.streak-note-text",
+        "streak-rest:span.streak-note-strong",
+        "streak-milestone:span.streak-day-letter"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
       "kind": "text",
       "element": "span.title-face.text-scale-lg.font-semibold",
       "text": "Blueberry",
@@ -527,16 +4341,17 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 1051,
       "where": [
-        "pathway:span.title-face.text-scale-lg.font-semibold",
-        "pathway:h1.hidden.truncate.pr-1",
-        "pathway:button.press.inline-flex.min-h-11"
+        "trainer:span.title-face.text-scale-lg.font-semibold",
+        "trainer:h1.hidden.truncate.pr-1",
+        "trainer:button.press.mt-2.inline-flex",
+        "trainer:span"
       ]
     },
     {
       "theme": "dark",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-stroke",
       "element": "path",
       "text": "",
@@ -546,15 +4361,162 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg6",
-      "count": 2,
+      "key": "svg8",
+      "count": 1024,
       "where": [
-        "pathway:path"
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "courses",
+      "kind": "large-text",
+      "element": "h2.title-face.min-w-0.flex-1",
+      "text": "Organic Chemistry II",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 11.84,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "courses:h2.title-face.min-w-0.flex-1",
+        "reward-first:span.reward-chip__number",
+        "reward-first:span.reward-fade-in.reward-chip__number",
+        "reward-streak:span.reward-chip__number"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
+      "kind": "text",
+      "element": "h2.title-face.text-scale-xl.font-semibold",
+      "text": "Sₙ2 at bromomethane",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 11.9,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 22,
+      "where": [
+        "trainer:h2.title-face.text-scale-xl.font-semibold",
+        "leaderboards:h2.title-face.text-scale-xl.font-semibold",
+        "chat:h2.title-face.text-scale-xl.font-semibold",
+        "messages:h2.title-face.text-scale-xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "large-text",
+      "element": "h2.title-face.text-scale-xl.font-bold",
+      "text": "My decks",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(241,237,226)",
+      "ratio": 11.9,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "cards:h2.title-face.text-scale-xl.font-bold",
+        "feed:h2.feed-heading",
+        "me:h1.title-face.text-scale-2xl.font-bold",
+        "courses:h1.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "combo@250ms",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(252,211,77)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 11.9,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 14,
+      "where": [
+        "combo@250ms:path",
+        "combo:path",
+        "reward-first:path",
+        "reward-streak:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
+      "kind": "text",
+      "element": "span.hud-charge-value",
+      "text": "30",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 12.28,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 33,
+      "where": [
+        "trainer:span.hud-charge-value",
+        "pathway:span.hud-charge-value",
+        "cards:span.hud-charge-value",
+        "feed:span.hud-charge-value"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-exam",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(209,250,229)",
+      "ratio": 12.28,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg1",
+      "count": 2,
+      "where": [
+        "streak-exam:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(239,233,255)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 12.36,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg19",
+      "count": 11,
+      "where": [
+        "feed:path",
+        "feedback-correct@250ms:path",
+        "feedback-correct:path",
+        "feedback-wrong@250ms:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "trainer",
       "kind": "text",
       "element": "span.title-face.text-scale-lg.font-semibold",
       "text": "Blueberry",
@@ -565,16 +4527,17 @@
       "pass": true,
       "paint": null,
       "key": null,
-      "count": 8,
+      "count": 1048,
       "where": [
-        "pathway:span.title-face.text-scale-lg.font-semibold",
-        "pathway:h1.hidden.truncate.pr-1",
-        "pathway:button.press.inline-flex.min-h-11"
+        "trainer:span.title-face.text-scale-lg.font-semibold",
+        "trainer:h1.hidden.truncate.pr-1",
+        "trainer:button.press.mt-2.inline-flex",
+        "trainer:span"
       ]
     },
     {
       "theme": "light",
-      "route": "pathway",
+      "route": "trainer",
       "kind": "svg-stroke",
       "element": "path",
       "text": "",
@@ -584,10 +4547,53 @@
       "floor": 3,
       "pass": true,
       "paint": "stroke",
-      "key": "svg6",
+      "key": "svg8",
+      "count": 1023,
+      "where": [
+        "trainer:path",
+        "pathway:path",
+        "cards:path",
+        "feed:path"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "courses",
+      "kind": "large-text",
+      "element": "h2.title-face.min-w-0.flex-1",
+      "text": "Organic Chemistry II",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(246,242,231)",
+      "ratio": 12.45,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "courses:h2.title-face.min-w-0.flex-1",
+        "reward-first:span.reward-chip__number",
+        "reward-first:span.reward-fade-in.reward-chip__number",
+        "reward-streak:span.reward-chip__number"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "text",
+      "element": "button.chip-press.chip-press--check",
+      "text": "Next",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(28,56,63)",
+      "ratio": 12.51,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
       "count": 2,
       "where": [
-        "pathway:path"
+        "feedback-correct@250ms:button.chip-press.chip-press--check",
+        "feedback-correct:button.chip-press.chip-press--check"
       ]
     },
     {
@@ -603,9 +4609,68 @@
       "pass": true,
       "paint": null,
       "key": null,
+      "count": 17,
+      "where": [
+        "pathway:h2.title-face.text-scale-xl.font-semibold",
+        "cards:span.truncate.text-scale-base.font-bold",
+        "periodic:h2.title-face.text-scale-xl.font-semibold",
+        "periodic:dd.font-mono"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "rect",
+      "text": "",
+      "fg": "rgb(246,239,255)",
+      "bg": "rgb(35,39,65)",
+      "ratio": 13.01,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg30",
+      "carriedBy": "fill",
       "count": 1,
       "where": [
-        "pathway:h2.title-face.text-scale-xl.font-semibold"
+        "feed:rect"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "text",
+      "element": "span",
+      "text": "The 1,2 product",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(253,251,244)",
+      "ratio": 13.45,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "charge-spend:span"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "charge-spend",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(253,251,244)",
+      "ratio": 13.45,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg8",
+      "count": 3,
+      "where": [
+        "charge-spend:g",
+        "charge-spend:line"
       ]
     },
     {
@@ -621,9 +4686,246 @@
       "pass": true,
       "paint": null,
       "key": null,
+      "count": 16,
+      "where": [
+        "pathway:h2.title-face.text-scale-xl.font-semibold",
+        "periodic:h2.title-face.text-scale-xl.font-semibold",
+        "periodic:dd.font-mono",
+        "onboarding:p.ob-bubble.ob-welcome__bubble"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(58,33,89)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 13.62,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg41",
       "count": 1,
       "where": [
-        "pathway:h2.title-face.text-scale-xl.font-semibold"
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "circle",
+      "text": "",
+      "fg": "rgb(58,33,89)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 13.62,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg42",
+      "carriedBy": "stroke",
+      "count": 2,
+      "where": [
+        "feed:circle"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "text",
+      "element": "span.feed-quest-label",
+      "text": "Earn 20 XP",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 13.92,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 3,
+      "where": [
+        "feed:span.feed-quest-label"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 13.92,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg29",
+      "count": 1,
+      "where": [
+        "feed:g"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "feed",
+      "kind": "svg-fill",
+      "element": "rect",
+      "text": "",
+      "fg": "rgb(42,42,66)",
+      "bg": "rgb(255,255,255)",
+      "ratio": 13.92,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg30",
+      "carriedBy": "stroke",
+      "count": 1,
+      "where": [
+        "feed:rect"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "trainer",
+      "kind": "text",
+      "element": "h2.title-face.text-scale-xl.font-semibold",
+      "text": "Sₙ2 at bromomethane",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 13.92,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 23,
+      "where": [
+        "trainer:h2.title-face.text-scale-xl.font-semibold",
+        "leaderboards:h2.title-face.text-scale-xl.font-semibold",
+        "chat:h2.title-face.text-scale-xl.font-semibold",
+        "messages:h2.title-face.text-scale-xl.font-semibold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "cards",
+      "kind": "large-text",
+      "element": "h2.title-face.text-scale-xl.font-bold",
+      "text": "My decks",
+      "fg": "rgb(232,230,242)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 13.92,
+      "floor": 3,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 9,
+      "where": [
+        "cards:h2.title-face.text-scale-xl.font-bold",
+        "feed:h2.feed-heading",
+        "me:h1.title-face.text-scale-2xl.font-bold",
+        "courses:h1.title-face.text-scale-2xl.font-bold"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "cards",
+      "kind": "text",
+      "element": "span.truncate.text-scale-base.font-bold",
+      "text": "My mistakes",
+      "fg": "rgb(36,36,60)",
+      "bg": "rgb(255,251,238)",
+      "ratio": 14.57,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 1,
+      "where": [
+        "cards:span.truncate.text-scale-base.font-bold"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-text",
+      "element": "text",
+      "text": "A",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 17.16,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": "svg19",
+      "count": 12,
+      "where": [
+        "feedback-correct@250ms:text",
+        "feedback-correct:text",
+        "feedback-wrong@250ms:text",
+        "feedback-wrong:text"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-correct@250ms",
+      "kind": "svg-stroke",
+      "element": "g",
+      "text": "",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 17.16,
+      "floor": 3,
+      "pass": true,
+      "paint": "stroke",
+      "key": "svg20",
+      "count": 38,
+      "where": [
+        "feedback-correct@250ms:g",
+        "feedback-correct@250ms:path",
+        "feedback-correct:g",
+        "feedback-correct:path"
+      ]
+    },
+    {
+      "theme": "dark",
+      "route": "feedback-wrong@250ms",
+      "kind": "text",
+      "element": "button.chip-press.chip-press--check",
+      "text": "Next",
+      "fg": "rgb(255,255,255)",
+      "bg": "rgb(23,26,46)",
+      "ratio": 17.16,
+      "floor": 4.5,
+      "pass": true,
+      "paint": null,
+      "key": null,
+      "count": 2,
+      "where": [
+        "feedback-wrong@250ms:button.chip-press.chip-press--check",
+        "feedback-wrong:button.chip-press.chip-press--check"
+      ]
+    },
+    {
+      "theme": "light",
+      "route": "streak-rest",
+      "kind": "svg-fill",
+      "element": "path",
+      "text": "",
+      "fg": "rgb(0,0,0)",
+      "bg": "rgb(249,231,214)",
+      "ratio": 17.43,
+      "floor": 3,
+      "pass": true,
+      "paint": "fill",
+      "key": "svg10",
+      "carriedBy": "fill",
+      "count": 6,
+      "where": [
+        "streak-rest:path",
+        "streak-milestone:path",
+        "streak-exam:path"
       ]
     }
   ]
