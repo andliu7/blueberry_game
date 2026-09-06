@@ -1963,7 +1963,7 @@ function barHolds(state, { phone }) {
     amendment says a sixth never joins without removing one, so this stays an
     equality rather than becoming a range.
   */
-  if (state.items !== 5) return false;
+  if (state.items !== NAV_TAB_COUNT) return false;
   if (state.current !== 1) return false;
   if (!state.toolsReachable) return false;
   // 44 by 44 is the floor in CLAUDE.md's Budgets table, and a bar is the one
@@ -2314,6 +2314,16 @@ export const S4_SEED = P3_SEED;
 export const S4_STORED = P3_STORED;
 /** The tab the reveal lands on. The app's own default route. */
 export const BOOT_HASH = "#/pathway";
+/*
+  FIVE TABS. CLAUDE.md, amended 2026-09-01 at the calibration gate: "the bar is
+  FIVE tabs. Feed (daily quests, lab-mates activity) joins the bar: Path, Train,
+  Cards, Feed, Me, in that order." Four drives asserted four and so failed the
+  bar the owner ruled for. It stays a constant rather than a range because the
+  same amendment makes five mobile-ui's hard limit and says a sixth never joins
+  without removing one, so a bar of six must still fail.
+*/
+const NAV_TAB_COUNT = 5;
+
 /** The same tab with the hold hook, for an audit that cannot outrun the reveal. */
 export const BOOT_HOLD_HASH = "?boot=hold#/pathway";
 
@@ -2432,7 +2442,7 @@ export async function driveBoot(page, { onTrigger = null, at = Date.now(), reduc
     probe.words.includes("Ready") &&
     after.bootGone &&
     after.track === 1 &&
-    after.bar === 4;
+    after.bar === NAV_TAB_COUNT;
   return { moment: "boot-open", reached, at, trigger, state };
 }
 
@@ -2487,7 +2497,7 @@ export async function driveBootHold(page, { onTrigger = null } = {}) {
     state.mark === 1 &&
     state.word !== "" &&
     state.progress >= 0.5 &&
-    state.behind === 4;
+    state.behind === NAV_TAB_COUNT;
   return { moment: "boot-hold", reached, at, trigger, state };
 }
 
@@ -2604,7 +2614,7 @@ export async function driveSurface(page, name, { onTrigger = null, waitFor = nul
   const at = Date.now();
   const trigger = onTrigger === null ? null : await onTrigger(at);
   const state = await page.evaluate(readSurface);
-  const reached = turnHolds(state) && (!expectGoal || (state.goalEdge && state.goalNamed !== "" && state.bar === 4));
+  const reached = turnHolds(state) && (!expectGoal || (state.goalEdge && state.goalNamed !== "" && state.bar === NAV_TAB_COUNT));
   return { moment: `surface-${name}`, reached, at, trigger, state };
 }
 
