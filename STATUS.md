@@ -6,7 +6,7 @@ and keep it current.
 
 ## Where things stand right now
 
-- Branch `phase-5`, HEAD `db9ab0f`. **Uncommitted work is in the tree and it is real**:
+- Branch `phase-5`, HEAD `b83bceb`. **Uncommitted work is in the tree and it is real**:
   `src/charge/ChargeMeter.tsx` and its model, `src/mastery/`, `beats/LessonGems.tsx`,
   `app/ui/CourseFlask.tsx`, four new test files, and the integrator's Shell, routes and
   theme edits. It is green and it is not in a commit. Commit it before anything else
@@ -29,21 +29,45 @@ and keep it current.
 - Feature roadmap in `docs/ROADMAP-FEATURES.md`. Every place a student answers something is
   inventoried in `docs/TRAINER-INVENTORY.md`
 
-## Two gates are dark, and neither was weakened
+## The sticker gate runs again, and its recorded cause was wrong
 
-- `npm run sticker:audit` **crashes before it reports**, in `economy-moments.mjs` at
-  `driveFeedback`, waiting for `input[aria-label="Numeric answer"]`. Pre-existing, verified
-  by rebuilding at `db9ab0f` with all other changes stashed. The fill-in-the-blank scratch
-  and the lesson-flow round changed which beat the driven lesson serves, so the driver types
-  into an input that is gone. **The five-tab bar and the new header are UNMEASURED on the
-  sticker rules.** The last honest walk is `sticker-audit.json`, generated 2026-09-02, total
-  34, and it predates every R piece
-- `measurements/contrast-audit.json` on disk is a probe's output, not a full walk: 34 rows
-  and `measured: 108`, all pathway SVG, where the audit reports thousands of composed pairs.
-  Nobody can say from that file what the R surfaces measure
+Both gates had been dark since 2026-09-02. The sticker audit completes as of
+2026-09-05: **30 routes, 94,224 elements, 0 drive retries, 512 violations**, and
+`sticker-audit.json` is this tree rather than one four days old.
 
-Neither was repaired in the round that reports its number, per CLAUDE.md. Both are the next
-session's first job, in a commit of their own.
+**The diagnosis this file carried for two days was wrong.** It said the audit
+crashed because the fill-in-the-blank scratch moved an input the driver types
+into. The input never moved. `LESSON_HASH` read `?serveAll=1#/start/lesson`, and
+`start` is the ONBOARDING head in `app/routes.ts`, so the URL never opened a
+lesson at all: it landed on the welcome screen and the driver waited ten seconds
+for a numeric field that was never coming. Disproving it took one browser and
+four minutes, against a record that had stood since 2026-09-03.
+
+Fourteen assumptions in the instrument had to be corrected, and every one of
+them was TRUE WHEN WRITTEN. A lesson is a composition of beats now, not a run of
+three numerics; a choice beat submits on pick; ordering and matching carry the
+app's own Skip; the combo interstitial fires mid-lesson; the lesson ends itself
+into the reward; the reward's control is CLAIM; the node sheet sits between a
+node and the charge gate; the pip strip is a capsule with three authored label
+forms; the exam band says "Exam window / paused"; the bar is FIVE tabs; the tool
+rail is one menu; and `textContent` doubled the tab labels in a second place.
+The build moved and nothing noticed, because the gate had not run in four days.
+
+**Two findings are owner decisions and are NOT resolved:**
+
+- Of the 196 `3-no-shadows` groups, **52 are zero-blur offsets**: the 3D button
+  lip asked for by name ("make them more 3d and clickable that actually would
+  press down"). The other 144 carry a real blur. Rule 3 now contradicts a
+  standing instruction and cannot tell an extrusion from a shadow:
+  `3-fake-extrusion` scored 0 while 52 extrusions were counted as shadows.
+  Reclassifying them to improve the number is what CLAUDE.md forbids
+- **72 `8-display-floor`**, text under the 16px floor: `path-signpost__tag` at
+  10.9px and `path-node__counter` at 11.2px. Both legitimately use
+  `--font-display` by that token's own definition, so raising them or moving
+  them to the system face changes how the pathway reads
+
+`contrast-audit.json` on disk is still a probe's output rather than a full walk.
+The audit is being re-run on the repaired instrument.
 
 ## Phases
 
