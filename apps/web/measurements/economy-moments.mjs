@@ -1600,18 +1600,41 @@ async function readCharge(page) {
         }
         const track = document.querySelector(".charge-meter-track");
         const label = track === null ? "" : (track.getAttribute("aria-label") ?? "");
-        const of = label.match(/(\d+)\s+of\s+(\d+)\s+charge/);
+        /*
+          THE LABEL HAS THREE AUTHORED FORMS and the cap is in all of them:
+            "14 of 30 charge, 8 leaving"   the ready state, with a cost
+            "Charge full, 30 of 30"        full
+            "No charge left of 30. ..."    empty
+          Parsing only the first reported a cap of 0 on an empty sheet, which
+          is a real number about a real meter and it was wrong. chargeMeterModel
+          is where these strings are built.
+        */
+        const withCost = label.match(/(\d+)\s+of\s+(\d+)\s+charge/);
+        const full = label.match(/Charge full,\s*(\d+)\s+of\s+(\d+)/i);
+        const empty = label.match(/No charge left of\s*(\d+)/i);
         const going = label.match(/(\d+)\s+leaving/);
+        const cap = withCost ? Number(withCost[2]) : full ? Number(full[2]) : empty ? Number(empty[1]) : 0;
+        const current = withCost ? Number(withCost[1]) : full ? Number(full[1]) : empty ? 0 : 0;
         return {
-          pips: of === null ? 0 : Number(of[2]),
-          lit: of === null ? 0 : Number(of[1]),
+          pips: cap,
+          lit: current,
           leaving: going === null ? 0 : Number(going[1]),
-          refilling: document.querySelectorAll(".charge-meter-refill").length,
+          /*
+            THE POINT ON ITS WAY BACK. It was an `is-next` pip; the capsule
+            draws the empty state's returning charge as the clock mark, which
+            ChargeMeter renders only when `model.state === "empty"`. Same fact,
+            same one-or-zero, and docs/ECONOMY.md's reason for it, a limiter
+            drawn coming back rather than going away, is unchanged.
+          */
+          refilling:
+            document.querySelectorAll(".charge-meter-refill").length +
+            document.querySelectorAll(".charge-meter-clock").length,
           meterLabel: label,
         };
       })(),
       band: document.querySelectorAll(".charge-exam-band").length,
       bandWord: text(document.querySelector(".charge-exam-word")),
+      bandStatus: text(document.querySelector(".charge-exam-status")),
       // Every control on the sheet, and whether it clears the 44pt floor in
       // BOTH directions. A sheet that fails this is not judgeable on a phone
       // whatever it looks like.
@@ -1834,7 +1857,16 @@ export async function driveChargeExam(page, { onTrigger = null } = {}) {
     state.headline === "Exam in 9 days. No limits until then." &&
     // The meter's readout, in the meter's slot. Not the headline's sentence
     // repeated: see charge.css's exam band block for why it stopped being one.
-    state.bandWord === "Unlimited" &&
+    /*
+      THE BAND SAYS "Exam window" AND "paused" NOW, not "Unlimited".
+      P5 rebuilt this against blueberry_r7-states-sheet, whose own vocabulary
+      for this state is "exam pause", and the model splits it into a word and a
+      status. This asserts BOTH, so it is a stricter check than the single
+      string it replaces, and the "no limits" promise is still asserted right
+      above through the headline, which is unchanged.
+    */
+    state.bandWord === "Exam window" &&
+    state.bandStatus === "paused" &&
     state.primary === "Start" &&
     targetsHold(state);
   return { moment: "charge-exam", reached, at, trigger, state };
@@ -1879,7 +1911,15 @@ async function readBar(page) {
     return {
       present: true,
       items: items.length,
-      labels: items.map((item) => item.textContent?.trim() ?? ""),
+      /*
+        innerText, NOT textContent. A tab renders BOTH labels, the short one
+        and the full one, and hides one per breakpoint in CSS (Shell.tsx
+        TabLink). textContent concatenates every text node whether or not it
+        is displayed, so this reported "PathPath", "TrainTrain", "CardsCards".
+        The same defect reached a student through the hover chip and was fixed
+        there on 2026-09-05; this is its second home.
+      */
+      labels: items.map((item) => item.innerText?.trim() ?? ""),
       /** The narrowest and shortest target in the bar, against the 44px floor. */
       minWidth: Math.min(...items.map((item) => item.getBoundingClientRect().width)),
       minHeight: Math.min(...items.map((item) => item.getBoundingClientRect().height)),
@@ -1891,15 +1931,41 @@ async function readBar(page) {
       backdropFilter: style.backdropFilter ?? "none",
       /** The two header tools, which are the whole reason four tabs is enough. */
       tools: document.querySelectorAll("header [data-tool]").length,
+      /*
+        BOTH TOOLS REACHABLE FROM THE HEADER, however the header spells it.
+        The rail used to be two buttons; the integrator collapsed it into one
+        control that opens a menu carrying both, which frees a 44px slot in a
+        row that CLAUDE.md's own five-tab amendment made tight. What the
+        placement table requires is that the periodic table and the reaction
+        search are "reachable from every screen", not that they cost two slots,
+        so this reports whether they are reachable rather than how many buttons
+        it took. Verified on the built app: pressing [data-header-tools] opens
+        dialog.tools-menu listing "Periodic table" and "Reaction search".
+      */
+      toolsReachable: (() => {
+        if (document.querySelectorAll("header [data-tool]").length >= 2) return true;
+        const menu = document.querySelector("header [data-header-tools]");
+        if (menu === null) return false;
+        const name = (menu.getAttribute("aria-label") ?? "").toLowerCase();
+        return name.includes("periodic") && name.includes("search");
+      })(),
     };
   });
 }
 
 function barHolds(state, { phone }) {
   if (!state.present) return false;
-  if (state.items !== 4) return false;
+  /*
+    FIVE TABS. CLAUDE.md, amended 2026-09-01 at the calibration gate: "the bar
+    is FIVE tabs. Feed (daily quests, lab-mates activity) joins the bar: Path,
+    Train, Cards, Feed, Me, in that order." This asserted four and so failed
+    the bar the owner ruled for. Five is mobile-ui's hard limit and the
+    amendment says a sixth never joins without removing one, so this stays an
+    equality rather than becoming a range.
+  */
+  if (state.items !== 5) return false;
   if (state.current !== 1) return false;
-  if (state.tools !== 2) return false;
+  if (!state.toolsReachable) return false;
   // 44 by 44 is the floor in CLAUDE.md's Budgets table, and a bar is the one
   // place a miss is guaranteed to be hit by a thumb.
   if (state.minWidth < 44 || state.minHeight < 44) return false;
