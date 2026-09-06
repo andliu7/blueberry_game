@@ -1571,10 +1571,45 @@ async function readCharge(page) {
       primary: text(document.querySelector("[data-charge-primary]")),
       topUp: text(document.querySelector("[data-charge-topup]")),
       note: text(document.querySelector(".charge-note")),
-      pips: pips.length,
-      lit: pips.filter((pip) => pip.classList.contains("is-lit")).length,
-      leaving: pips.filter((pip) => pip.classList.contains("is-leaving")).length,
-      refilling: pips.filter((pip) => pip.classList.contains("is-next")).length,
+      /*
+        THE THIRTY PIPS ARE ONE CAPSULE NOW, and these three numbers come out
+        of its accessible name instead of out of a pip count.
+
+        P5's rebuild replaced the pip strip with a single meter because the
+        committed states sheet draws a capsule, and it is recorded that way in
+        gauntlet-economy/LOG.md. The pip classes went with it, so `pips.length`
+        measured 0 on a sheet that was perfectly correct and the drive failed
+        for wanting 30 of something the design no longer draws.
+
+        NOTHING IS CONCEDED. chargeMeterModel builds the label as
+        "<current> of <cap> charge, <spend> leaving", so the same three facts
+        the pip count asserted are still asserted, exactly, and now read off
+        the string a screen reader is given rather than off a class name. If
+        the meter ever lies about the cost, this still catches it. The pip
+        selectors are kept as a fallback so a surface that still draws them is
+        measured as before.
+      */
+      ...(() => {
+        if (pips.length > 0) {
+          return {
+            pips: pips.length,
+            lit: pips.filter((pip) => pip.classList.contains("is-lit")).length,
+            leaving: pips.filter((pip) => pip.classList.contains("is-leaving")).length,
+            refilling: pips.filter((pip) => pip.classList.contains("is-next")).length,
+          };
+        }
+        const track = document.querySelector(".charge-meter-track");
+        const label = track === null ? "" : (track.getAttribute("aria-label") ?? "");
+        const of = label.match(/(\d+)\s+of\s+(\d+)\s+charge/);
+        const going = label.match(/(\d+)\s+leaving/);
+        return {
+          pips: of === null ? 0 : Number(of[2]),
+          lit: of === null ? 0 : Number(of[1]),
+          leaving: going === null ? 0 : Number(going[1]),
+          refilling: document.querySelectorAll(".charge-meter-refill").length,
+          meterLabel: label,
+        };
+      })(),
       band: document.querySelectorAll(".charge-exam-band").length,
       bandWord: text(document.querySelector(".charge-exam-word")),
       // Every control on the sheet, and whether it clears the 44pt floor in
@@ -1627,6 +1662,34 @@ async function openChargeSheet(page, onTrigger, selector = SPINE_SLAB) {
   await page.waitForSelector(selector, { timeout: 10_000 });
   await sleep(500);
   const at = await press(page, await firstPlayableNode(page, selector), "pathway node");
+  /*
+    THE NODE SHEET SITS BETWEEN THE NODE AND THE GATE NOW.
+    Pressing a slab used to open the charge sheet directly. It opens the node
+    sheet, and the charge gate is behind that sheet's START: measured, a press
+    leaves the hash on #/pathway with dialog.ns-sheet open and its only
+    controls a close and a START. The node sheet arrived after these four
+    drivers were written, so they were pressing the right thing and then
+    reading a dialog that had not been asked for yet.
+
+    Guarded rather than assumed: if the charge sheet is already open, or no
+    node sheet appeared, nothing extra is pressed, so a surface that still
+    goes straight to the gate is driven exactly as before.
+  */
+  // Wait for whichever dialog the press opens before asking which one it is.
+  // Sampling immediately read "neither", because a press is a 40ms hold and a
+  // dialog is a frame behind it.
+  await page
+    .waitForFunction(() => document.querySelector("dialog[open]") !== null, { timeout: 5_000 })
+    .catch(() => {});
+  const needsStart = await page.evaluate(
+    () =>
+      document.querySelector("dialog.charge-sheet[open]") === null &&
+      document.querySelector("dialog.ns-sheet[open]") !== null,
+  );
+  if (needsStart) {
+    await press(page, await buttonByText(page, "START"), "START (node sheet)");
+    await sleep(300);
+  }
   const trigger = onTrigger === null ? null : await onTrigger(at);
   return { at, trigger };
 }
