@@ -1,0 +1,190 @@
+=== DOES ENTERING A MECHANISM NODE RELOAD THE APP? ===
+navigations since: 1
+window.__alive survived: "LOST"
+url now: http://localhost:65014/?hunt=res-allyl-1#/trainer
+boot loader visible right after: see screenshot
+time to a usable trainer: 3370ms (incl. two 600ms waits)
+
+=== TOOLS SHEET vs TAB BAR ===
+{
+ "tabbar": [
+  768,
+  844
+ ],
+ "rows": [
+  {
+   "t": "Periodic table",
+   "y": [
+    714,
+    770
+   ],
+   "overlapsBar": true,
+   "hit": "self"
+  },
+  {
+   "t": "Reaction search",
+   "y": [
+    776,
+    832
+   ],
+   "overlapsBar": true,
+   "hit": "self"
+  }
+ ]
+}
+
+=== PERIODIC TABLE ===
+--- PERIODIC | #/trainer | 191ch | mainH=676 | docW=390
+TEXT: Allyl cationMove only electrons. Find the other contributing structure.🗺Allyl cation· changeOne species on purpose: nothing reacts here, only the electrons move.HHHHHCCC++0 of 1 arrows drawn
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [a] 126x44 @196,126 "Open as a page" .press inline-flex min-h-11 items-center rounded-xl border-2 border-bor #/periodic
+  [button] 44x44 @328,126 "Close" .press inline-flex min-h-11 min-w-11 items-center justify-center rounde 
+  [button] 92x44 @18,198 "Category" .press min-h-11 rounded-full px-4 text-scale-sm font-semibold border bo 
+  [button] 140x44 @118,198 "Electronegativity" .press min-h-11 rounded-full px-4 text-scale-sm font-semibold border bo 
+  [button] 68x44 @266,198 "Block" .press min-h-11 rounded-full px-4 text-scale-sm font-semibold border bo 
+  [button] 115x44 @18,250 "Phase at STP" .press min-h-11 rounded-full px-4 text-scale-sm font-semibold border bo 
+  [a] 44x44 @31,323 "Hydrogen, 1" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/H
+  [a] 44x44 @819,323 "Helium, 2" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/He
+  [a] 44x44 @31,369 "Lithium, 3" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Li
+  [a] 44x44 @77,369 "Beryllium, 4" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Be
+  [a] 44x44 @587,369 "Boron, 5" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/B
+  [a] 44x44 @633,369 "Carbon, 6" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/C
+  [a] 44x44 @680,369 "Nitrogen, 7" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/N
+  [a] 44x44 @726,369 "Oxygen, 8" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/O
+  [a] 44x44 @772,369 "Fluorine, 9" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/F
+  [a] 44x44 @819,369 "Neon, 10" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ne
+  [a] 44x44 @31,415 "Sodium, 11" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Na
+  [a] 44x44 @77,415 "Magnesium, 12" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Mg
+  [a] 44x44 @587,415 "Aluminium, 13" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Al
+  [a] 44x44 @633,415 "Silicon, 14" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Si
+  [a] 44x44 @680,415 "Phosphorus, 15" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/P
+  [a] 44x44 @726,415 "Sulfur, 16" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/S
+  [a] 44x44 @772,415 "Chlorine, 17" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cl
+  [a] 44x44 @819,415 "Argon, 18" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ar
+  [a] 44x44 @31,461 "Potassium, 19" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/K
+  [a] 44x44 @77,461 "Calcium, 20" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ca
+  [a] 44x44 @124,461 "Scandium, 21" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sc
+  [a] 44x44 @170,461 "Titanium, 22" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ti
+  [a] 44x44 @216,461 "Vanadium, 23" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/V
+  [a] 44x44 @263,461 "Chromium, 24" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cr
+  [a] 44x44 @309,461 "Manganese, 25" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Mn
+  [a] 44x44 @355,461 "Iron, 26" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Fe
+  [a] 44x44 @402,461 "Cobalt, 27" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Co
+  [a] 44x44 @448,461 "Nickel, 28" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ni
+  [a] 44x44 @494,461 "Copper, 29" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cu
+  [a] 44x44 @541,461 "Zinc, 30" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Zn
+  [a] 44x44 @587,461 "Gallium, 31" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ga
+  [a] 44x44 @633,461 "Germanium, 32" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ge
+  [a] 44x44 @680,461 "Arsenic, 33" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/As
+  [a] 44x44 @726,461 "Selenium, 34" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Se
+  [a] 44x44 @772,461 "Bromine, 35" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Br
+  [a] 44x44 @819,461 "Krypton, 36" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Kr
+  [a] 44x44 @31,507 "Rubidium, 37" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Rb
+  [a] 44x44 @77,507 "Strontium, 38" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sr
+  [a] 44x44 @124,507 "Yttrium, 39" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Y
+  [a] 44x44 @170,507 "Zirconium, 40" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Zr
+  [a] 44x44 @216,507 "Niobium, 41" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Nb
+  [a] 44x44 @263,507 "Molybdenum, 42" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Mo
+  [a] 44x44 @309,507 "Technetium, 43" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Tc
+  [a] 44x44 @355,507 "Ruthenium, 44" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ru
+  [a] 44x44 @402,507 "Rhodium, 45" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Rh
+  [a] 44x44 @448,507 "Palladium, 46" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pd
+  [a] 44x44 @494,507 "Silver, 47" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ag
+  [a] 44x44 @541,507 "Cadmium, 48" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cd
+  [a] 44x44 @587,507 "Indium, 49" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/In
+  [a] 44x44 @633,507 "Tin, 50" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sn
+  [a] 44x44 @680,507 "Antimony, 51" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sb
+  [a] 44x44 @726,507 "Tellurium, 52" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Te
+  [a] 44x44 @772,507 "Iodine, 53" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/I
+  [a] 44x44 @819,507 "Xenon, 54" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Xe
+  [a] 44x44 @31,553 "Caesium, 55" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cs
+  [a] 44x44 @77,553 "Barium, 56" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ba
+  [a] 44x44 @124,691 "Lanthanum, 57" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/La
+  [a] 44x44 @170,691 "Cerium, 58" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ce
+  [a] 44x44 @216,691 "Praseodymium, 59" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pr
+  [a] 44x44 @263,691 "Neodymium, 60" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Nd
+  [a] 44x44 @309,691 "Promethium, 61" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pm
+  [a] 44x44 @355,691 "Samarium, 62" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sm
+  [a] 44x44 @402,691 "Europium, 63" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Eu
+  [a] 44x44 @448,691 "Gadolinium, 64" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Gd
+  [a] 44x44 @494,691 "Terbium, 65" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Tb
+  [a] 44x44 @541,691 "Dysprosium, 66" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Dy
+  [a] 44x44 @587,691 "Holmium, 67" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ho
+  [a] 44x44 @633,691 "Erbium, 68" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Er
+  [a] 44x44 @680,691 "Thulium, 69" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Tm
+  [a] 44x44 @726,691 "Ytterbium, 70" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Yb
+  [a] 44x44 @124,553 "Lutetium, 71" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Lu
+  [a] 44x44 @170,553 "Hafnium, 72" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Hf
+  [a] 44x44 @216,553 "Tantalum, 73" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ta
+  [a] 44x44 @263,553 "Tungsten, 74" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/W
+  [a] 44x44 @309,553 "Rhenium, 75" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Re
+  [a] 44x44 @355,553 "Osmium, 76" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Os
+  [a] 44x44 @402,553 "Iridium, 77" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ir
+  [a] 44x44 @448,553 "Platinum, 78" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pt
+  [a] 44x44 @494,553 "Gold, 79" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Au
+  [a] 44x44 @541,553 "Mercury, 80" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Hg
+  [a] 44x44 @587,553 "Thallium, 81" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Tl
+  [a] 44x44 @633,553 "Lead, 82" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pb
+  [a] 44x44 @680,553 "Bismuth, 83" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Bi
+  [a] 44x44 @726,553 "Polonium, 84" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Po
+  [a] 44x44 @772,553 "Astatine, 85" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/At
+  [a] 44x44 @819,553 "Radon, 86" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Rn
+  [a] 44x44 @31,599 "Francium, 87" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Fr
+  [a] 44x44 @77,599 "Radium, 88" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ra
+  [a] 44x44 @124,737 "Actinium, 89" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ac
+  [a] 44x44 @170,737 "Thorium, 90" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Th
+  [a] 44x44 @216,737 "Protactinium, 91" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pa
+  [a] 44x44 @263,737 "Uranium, 92" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/U
+  [a] 44x44 @309,737 "Neptunium, 93" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Np
+  [a] 44x44 @355,737 "Plutonium, 94" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Pu
+  [a] 44x44 @402,737 "Americium, 95" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Am
+  [a] 44x44 @448,737 "Curium, 96" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cm
+  [a] 44x44 @494,737 "Berkelium, 97" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Bk
+  [a] 44x44 @541,737 "Californium, 98" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cf
+  [a] 44x44 @587,737 "Einsteinium, 99" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Es
+  [a] 44x44 @633,737 "Fermium, 100" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Fm
+  [a] 44x44 @680,737 "Mendelevium, 101" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Md
+  [a] 44x44 @726,737 "Nobelium, 102" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/No
+  [a] 44x44 @124,599 "Lawrencium, 103" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Lr
+  [a] 44x44 @170,599 "Rutherfordium, 104" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Rf
+  [a] 44x44 @216,599 "Dubnium, 105" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Db
+  [a] 44x44 @263,599 "Seaborgium, 106" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Sg
+  [a] 44x44 @309,599 "Bohrium, 107" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Bh
+  [a] 44x44 @355,599 "Hassium, 108" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Hs
+  [a] 44x44 @402,599 "Meitnerium, 109" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Mt
+  [a] 44x44 @448,599 "Darmstadtium, 110" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ds
+  [a] 44x44 @494,599 "Roentgenium, 111" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Rg
+  [a] 44x44 @541,599 "Copernicium, 112" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Cn
+  [a] 44x44 @587,599 "Nihonium, 113" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Nh
+  [a] 44x44 @633,599 "Flerovium, 114" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Fl
+  [a] 44x44 @680,599 "Moscovium, 115" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Mc
+  [a] 44x44 @726,599 "Livermorium, 116" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Lv
+  [a] 44x44 @772,599 "Tennessine, 117" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Ts
+  [a] 44x44 @819,599 "Oganesson, 118" .press flex min-h-11 min-w-11 flex-col items-center justify-center roun #/periodic/Og
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 22 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 185x44 @16,171 "🗺Allyl cation· change" .press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border 
+  [button] 48x48 @308,525 "Open tools" .press flex min-h-12 min-w-12 items-center justify-center rounded-full  
+errors []
+
+=== REACTION SEARCH ===
+--- SEARCH (empty) | #/search | 181ch | mainH=676 | docW=390
+TEXT: Reagent, reactant, product, or nameType what you know. A reagent you saw on the board, the class of thing you start with, the class of thing you need. The name is what you get back.
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 22 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [input] 358x48 @16,113 "Search reactions" .min-h-12 rounded-xl border border-input bg-card px-4 text-scale-base 

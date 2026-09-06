@@ -1,0 +1,66 @@
+OPTION CARD CONTENT: [
+ {
+  "text": "The 1,2 product",
+  "svgs": 0,
+  "imgs": 0,
+  "html": "<span>The 1,2 product</span>"
+ },
+ {
+  "text": "The 1,4 product",
+  "svgs": 0,
+  "imgs": 0,
+  "html": "<span>The 1,4 product</span>"
+ },
+ {
+  "text": "The same ratio as at minus 80",
+  "svgs": 0,
+  "imgs": 0,
+  "html": "<span>The same ratio as at minus 80</span>"
+ }
+]
+
+--- BEAT 0 | #/lesson/u1-kvt | 337ch
+TEXT: ABQuick questions, you are hereCollect the lesson, coming up0Warm that same flask to 40 degrees and leave it, then pick the major product.Warm means the first product can go back to the cation and choose again.buta-1,3-dieneHBr40 degrees?The 1,2 productThe 1,4 productThe same ratio as at minus 80Something wrong with this question?Check
+  [button] 44x44 @284,8 "Open the periodic table" .press inline-flex min-h-11 min-w-11 
+  [button] 44x44 @334,8 "Open the reaction search" .press inline-flex min-h-11 min-w-11 
+  [button] 44x44 @16,64 "Leave this lesson" .lesson-exit
+  [button] 358x91 @16,398 "The 1,2 product" .option-card text-scale-base font-nor
+  [button] 358x91 @16,501 "The 1,4 product" .option-card text-scale-base font-nor
+  [button] 358x91 @16,604 "The same ratio as at minus 80" .option-card text-scale-base font-nor
+  [button] 260x44 @16,715 "Something wrong with this question?" .lesson-report
+  [button DIS] 358x52 @16,788 "Check" .chip-press chip-press--check w-full
+  picking The 1,4 product ack=true
+  check ack=true 3ms
+  FEEDBACK: ABQuick questions, you are hereCollect the lesson, coming up0Warm that same flask to 40 degrees and leave it, then pick the major product.Warm means the first product can go back to the cation and choose again.buta-1,3-dieneHBr40 degrees?The 1,2 productThe 1,4 productcorrect answerThe same ratio as 
+  continue ack=true
+
+--- BEAT 1 | #/lesson/u1-kvt | 96ch
+TEXT: Quick questions, doneCollect the lesson, you are here0Lesson completeYou cleared 1 of 1.Continue
+  [button] 44x44 @284,8 "Open the periodic table" .press inline-flex min-h-11 min-w-11 
+  [button] 44x44 @334,8 "Open the reaction search" .press inline-flex min-h-11 min-w-11 
+  [button] 44x44 @16,64 "Leave this lesson" .lesson-exit
+  [button] 306x52 @42,547 "Continue" .chip-press chip-press--check mt-2 w-
+  check ack=true 1ms
+  FEEDBACK: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-additi
+
+--- BEAT 2 | #/pathway | 4709ch
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition to dienesUnit 2 · Aromaticity & BenzeneNomenclature reviewHückel 4n+2 classificationAnnulenes and ring sizeHeterocyclesCharged aromaticsRing-current NMR signatureUnit 3 · Electroph
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-fu
+  left the lesson
+
+--- AFTER LESSON | #/pathway | 4709ch
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition to dienesUnit 2 · Aromaticity & BenzeneNomenclature reviewHückel 4n+2 classificationAnnulenes and ring sizeHeterocyclesCharged aromaticsRing-current NMR signatureUnit 3 · Electroph
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-fu
+
+PATH STATE: {"done":0,"review":0,"header":"Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNN"}
+
+CARDS AFTER A LESSON:
+--- CARDS | #/cards | 119ch
+TEXT: Due today00 Everything is holding. Come back when a card starts to fade.All clearMy decks+ New deckBrMy mistakes0 cards
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 
+  [button DIS] 164x44 @113,255 "All clear" .chip3d chip3d--go press title-face m
+  [button] 114x44 @260,347 "+ New deck" .press min-h-11 rounded-full border-2
+  [button] 173x160 @16,403 "BrMy mistakes0 cards" .chip3d chip3d--card press relative f
+errors []

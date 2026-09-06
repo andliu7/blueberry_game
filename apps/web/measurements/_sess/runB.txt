@@ -1,0 +1,5 @@
+=== SEARCH ===
+--- SEARCH empty | #/search | 181ch
+TEXT: Reagent, reactant, product, or nameType what you know. A reagent you saw on the board, the class of thing you start with, the class of thing you need. The name is what you get back.
+  [button] 44x44 "Tools: the periodic table and the reaction search"
+  [input] 358x48 "Search reactions"

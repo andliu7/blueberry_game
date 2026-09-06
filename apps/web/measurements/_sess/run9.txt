@@ -1,0 +1,39 @@
+FACE ACK locked: {"label":"locked","ms":49,"ok":true,"before":"matrix(1, 0, 0, 1, 0, 0)|rgb(142, 149, 191)|none|1","after":"matrix(1, 0, 0, 1, 0, 2.56408)|rgb(142, 149, 191)|none|1"}
+FACE ACK queued: {"label":"queued","ms":5,"ok":true,"before":"matrix(1, 0, 0, 1, 0, 0)|rgb(142, 149, 191)|none|1","after":"matrix(1, 0, 0, 1, 0, 0)|rgb(131, 138, 180)|none|1"}
+queued opened a sheet? YES: 
+
+=== THREE REVIEWS ===
+--- CARDS WITH CARDS | #/cards | 93ch
+TEXT: Due today33 cards ready to reviewReviewMy decks+ New deckNMy cards3 cardsBrMy mistakes0 cards
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 142x44 @124,234 "Review" .chip3d chip3d--go press title-fa
+  [button] 114x44 @260,326 "+ New deck" .press min-h-11 rounded-full bord
+  [button] 173x160 @16,382 "NMy cards3 cards" .chip3d chip3d--card press relati
+  [button] 173x160 @201,382 "BrMy mistakes0 cards" .chip3d chip3d--card press relati
+Review button: enabled
+review ack true
+
+--- REVIEW 0 | #/cards | 119ch
+TEXT: Exit1 of 3Your own cardNewSetupConditionsProductcomposedsubstrate 0Tap Product when you have your answerShow the answer
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 39x44 @16,88 "Exit" .press min-h-11 rounded-xl px-2 t
+  [button] 99x44 @43,218 "Show the setup" .seg-pill__opt press text-scale-s
+  [button] 99x44 @145,218 "Show the conditions" .seg-pill__opt press text-scale-s
+  [button] 99x44 @248,218 "Product, reveals the answer" .seg-pill__opt press text-scale-s
+  [button] 358x56 @16,458 "Show the answer" .chip3d press title-face min-h-14
+  buttons: "Exit"(39x44) "Show the setup"(99x44) "Show the conditions"(99x44) "Product, reveals the answer"(99x44) "Show the answer"(358x56)
+  flipped; now: Exit1 of 3Your own cardNewSetupConditionsProductcomposedproduct 010mAgain10mHard1dGood4dEasy
+  NO GRADE CONTROL
+
+--- AFTER REVIEWS | #/cards | 92ch
+TEXT: Exit1 of 3Your own cardNewSetupConditionsProductcomposedproduct 010mAgain10mHard1dGood4dEasy
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 39x44 @16,88 "Exit" .press min-h-11 rounded-xl px-2 t
+  [button] 99x44 @43,218 "Show the setup" .seg-pill__opt press text-scale-s
+  [button] 99x44 @145,218 "Show the conditions" .seg-pill__opt press text-scale-s
+  [button] 99x44 @248,218 "Show the product" .seg-pill__opt press text-scale-s
+  [button] 84x56 @16,458 "Again, comes back in 10 min" .chip3d chip3d--grade chip3d--qui
+  [button] 84x56 @108,458 "Hard, comes back in 10 min" .chip3d chip3d--grade chip3d--har
+  [button] 84x56 @199,458 "Good, comes back in 1 day" .chip3d chip3d--grade chip3d--go 
+  [button] 84x56 @291,458 "Easy, comes back in 4 days" .chip3d chip3d--grade chip3d--eas
+errors []

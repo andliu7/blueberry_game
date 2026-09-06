@@ -1,0 +1,45 @@
+HUD before lesson: ["0 diamonds","Streak, no days yet","Charge, 30 of 30"]
+LESSON END SCREEN: "Quick questions, doneCollect the lesson, you are here0Lesson completeYou cleared 1 of 1.Continue"
+HUD after lesson: ["0 diamonds","Streak, no days yet","Charge, 30 of 30"]
+hash #/pathway
+progress store: {"blueberry.progress.v2":"{\"course\":\"orgo_2\",\"startTopics\":[\"alcohol_leaving_groups\",\"structure_and_bonding\",\"pka_and_acidity\",\"solutions_and_concentration\"],\"lessons\":{},\"attemptedProblems\":[],\"onboardingDone\":true,\"displayName\":null,\"journal\":[{\"kind\":\"settings\",\"at\":\"2026-09-05T06:38:52.346Z\",\"tz\":\"America/New_York\",\"dail"}
+
+=== FEED after a lesson ===
+--- FEED | #/feed | 339ch
+TEXT: Daily QuestsEarn 10 XP0 / 10 XPKeep the streakToday is openGet 5 right0 / 5Lab matesPhase 6 dataLab mates are other students, and other students live on the friends server, which arrives in Phase 6. Nothing here is made up in the meantime: these rows are the shape this takes, and the tipped flask is how you will toast a lab mate's clear.
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-1
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h
+  [button DIS] 44x44 @239,478 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn
+  [button DIS] 44x44 @271,541 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn
+  [button DIS] 44x44 @223,604 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn
+disabled toast press: {"label":"toast","ok":true,"ms":1,"before":"none|rgba(0, 0, 0, 0)|none|none|0.55|rgb(42, 42, 66)|press feed-toast-btn|none|none","after":"matrix(1, 0, 0, 1, 0, 0)|rgba(0, 0, 0, 0)|none|brightness(0.92)|0.55|rgb(42, 42, 66)|press","size":"44x44"}
+
+=== CARDS: + New deck ===
+disabled 'All clear' press: {"label":"all clear","ok":true,"ms":1,"before":"none|rgb(209, 213, 222)|rgb(187, 191, 200) 0px 3px 0px 0px, rgb(85, 89, 127) 0px 0px 0px 1","after":"matrix(1, 0, 0, 1, 0, 0)|rgb(209, 213, 222)|rgb(187, 191, 200) 0px 3px 0px 0px, rgb(85, 89","size":"164x44"}
+newdeck ack true
+--- AFTER + NEW DECK | #/cards | 171ch
+TEXT: Create cardSetupConditionsProductSetup, conditions, product. Write it across the arrow.BrSetup…ConditionsOH…ProductO…Save to deckAdd a setup so the card can ask something.
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-1
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h
+  [button] 44x44 @16,88 "Back to your decks" .press flex min-h-11 min-w-11 items
+  [button] 44x44 @330,88 "Saving into My cards. Choose a different deck" .deck-chip press shrink-0
+  [button] 114x44 @21,149 "Setup" .seg-pill__opt press text-scale-sm
+  [button] 114x44 @138,149 "Conditions" .seg-pill__opt press text-scale-sm
+  [button] 114x44 @255,149 "Product" .seg-pill__opt press text-scale-sm
+  [textarea] 100x72 @35,370 "Setup" .scheme-cell  scheme-cell--active t
+  [textarea] 104x51 @143,306 "Conditions" .scheme-cell scheme-over  text-scal
+  [textarea] 100x72 @255,370 "Product" .scheme-cell   text-scale-sm font-s
+  [button] 88x106 @63,494 "Edit the setup side" .side-fan__card press flex h-24 w-2
+  [button] 93x106 @149,504 "Edit the conditions side" .side-fan__card press flex h-24 w-2
+  [button] 103x114 @231,500 "Edit the product side" .side-fan__card press flex h-24 w-2
+  [button DIS] 258x56 @66,644 "Save to deck" .chip3d chip3d--primary press title
+errors []
+
+=== CARDS: My mistakes deck (0 cards) ===
+errors []

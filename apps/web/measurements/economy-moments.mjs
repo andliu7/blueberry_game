@@ -324,27 +324,51 @@ export async function driveFeedback(page, outcome, { onTrigger = null } = {}) {
   return { moment: `feedback-${outcome}`, reached, at, trigger };
 }
 
-/** All three questions right, then Finish lesson, which brings the interstitial. */
-export async function driveCombo(page, { onTrigger = null } = {}) {
-  // THREE IN A ROW, whatever shape each one is. The combo fires on three
-  // correct answers and the lesson serves mixed beats, so the count is what
-  // matters and the shape is answerCurrent's problem rather than this loop's.
-  const RUN = 3;
-  for (let i = 0; i < RUN; i += 1) {
+/**
+ * Answer N questions correctly in a row, whatever shape each one is.
+ *
+ * ONE COPY, and the duplication it replaces is not a tidiness point: this loop
+ * existed three times, identically, in driveCombo, driveReward and driveStreak.
+ * A fix aimed at driveReward silently landed on driveCombo because the text
+ * matched there first, and the symptom was a driver that still failed with the
+ * repair apparently applied. Three copies of a loop is three places for a fix
+ * to miss.
+ *
+ * Each beat is asked how it wants to be answered rather than assumed: a
+ * numeric beat needs Check pressed, a choice beat submits on pick, and the
+ * next question is WAITED for rather than slept at, because answerCurrent
+ * reads the question off the page and reading it too early returns the one
+ * just answered.
+ */
+export async function answerRunOf(page, count) {
+  for (let i = 0; i < count; i += 1) {
     const done = await answerCurrent(page);
-    if (!done.answered) throw new Error(`driveReward: could not answer question ${i + 1}: ${done.why}`);
-    // A NUMERIC BEAT NEEDS Check; A CHOICE BEAT DOES NOT. ProblemView wires a
-    // choice option's onPick straight to onSubmit, so picking IS submitting and
-    // there is no Check button on screen to press. Pressing one that is not
-    // there was the failure that stopped this driver at question two.
+    if (!done.answered) throw new Error(`answerRunOf: could not answer question ${i + 1}: ${done.why}`);
     if (!done.submits) await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
     await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-    if (i < RUN - 1) {
+    if (i < count - 1) {
       await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
-      await sleep(250);
+      // The graded strip is on screen for the question just answered and gone
+      // for the one arriving, so its absence means the next question is up.
+      await page.waitForFunction(() => document.querySelector("[data-reaction]") === null, { timeout: 5_000 });
+      await sleep(120);
     }
   }
-  const at = await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
+}
+
+/** All three questions right, then Finish lesson, which brings the interstitial. */
+export async function driveCombo(page, { onTrigger = null } = {}) {
+  /*
+    THE COMBO IS MID-LESSON, so this must catch it rather than walk past it.
+    It used to press "Finish lesson" and wait for the interstitial afterwards,
+    because the gas-laws lesson showed it on the way out. The lesson-flow
+    rebuild fires it the moment three land in a row: measured, after the third
+    correct answer a Next brings it up over the lesson with its own Continue,
+    and the lesson resumes behind it. walkToFinish deliberately clears it, so
+    calling that here would dismiss the very thing being photographed.
+  */
+  await answerRunOf(page, 3);
+  const at = await press(page, await buttonByText(page, "Next"), "Next (into the combo)");
   const trigger = onTrigger === null ? null : await onTrigger(at);
   await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 }).catch(() => {});
   const reached = (await page.$('[data-combo="3"]')) !== null;
@@ -430,7 +454,102 @@ export async function answerCurrent(page, { wrong = false } = {}) {
     await page.mouse.click(box.x, box.y);
     return { answered: true, kind: "multiple_choice", submits: true };
   }
+  /*
+    ORDERING, MATCHING AND STRUCTURE ARE SKIPPED, and that is the app's own
+    contract rather than the driver giving up. ProblemView renders those three
+    with a "Skip this one" control and says why in the copy the student reads:
+    their boards live in the beats runner and are not wired into lessons yet,
+    so the question "is skipped without counting against you". A driver that
+    presses it is doing what the screen offers.
+  */
+  if (answer.kind === "ordering" || answer.kind === "matching" || answer.kind === "structure") {
+    const box = await page.evaluate(() => {
+      const target = [...document.querySelectorAll("button")].find((node) => /skip this one/i.test(node.innerText));
+      if (target === undefined) return null;
+      target.scrollIntoView({ block: "center" });
+      const r = target.getBoundingClientRect();
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
+    });
+    if (box === null) return { answered: false, why: `no skip control for ${answer.kind}` };
+    await page.mouse.click(box.x, box.y);
+    return { answered: true, kind: answer.kind, submits: true, skipped: true };
+  }
   return { answered: false, why: `no driver for answer kind ${answer.kind}` };
+}
+
+/**
+ * Work through whatever is left of the lesson until it can be finished.
+ *
+ * The gas-laws lesson these drivers were written against WAS three questions,
+ * so answering three and pressing Finish was the whole of it. pka_and_acidity
+ * has six, and Finish does not appear until the last one is behind you. This
+ * walks the remainder: answering what it can, pressing the app's own Skip on
+ * the kinds ProblemView does not yet play, and stopping the moment Finish is
+ * on screen. Bounded rather than open ended, so a lesson that never offers
+ * Finish fails loudly instead of spinning.
+ */
+export async function walkToFinish(page, limit = 12) {
+  for (let i = 0; i < limit; i += 1) {
+    /*
+      ARRIVAL IS THE REWARD SCREEN, not a Finish button. The gas-laws lesson
+      ended with an explicit "Finish lesson" press; this one completes itself
+      once the last question is behind you and goes straight to the reward.
+      Measured: the walk ends on "Lesson complete! First clear +10 Flawless +5
+      100% accuracy" with a CLAIM, and the diamond readout moves 0 to 20. Both
+      endings are accepted so a lesson that still offers Finish is not broken
+      by this.
+    */
+    const arrived = await page.evaluate(() => {
+      if (document.querySelector("[data-reward]") !== null) return "reward";
+      if ([...document.querySelectorAll("button")].some((node) => /finish lesson/i.test(node.innerText))) return "finish";
+      return null;
+    });
+    if (arrived === "reward") return { reached: true, steps: i, ending: "reward" };
+    if (arrived === "finish") {
+      await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
+      await sleep(400);
+      return { reached: true, steps: i, ending: "finish" };
+    }
+    /*
+      THE COMBO INTERSTITIAL IS MID-LESSON NOW. It used to come after Finish,
+      which is why these drivers pressed Finish and then waited for it. The
+      lesson-flow rebuild fires it the moment three land in a row, so it
+      appears over the lesson with its own Continue and the lesson resumes
+      behind it. Measured: after the third correct answer and a Next, the
+      position does not move and a Continue joins CHECK and NEXT on screen.
+    */
+    const interstitial = await page.evaluate(() =>
+      [...document.querySelectorAll("button")].some((node) => node.innerText.trim() === "Continue"),
+    );
+    if (interstitial) {
+      await press(page, await buttonByText(page, "Continue"), `Continue (walk ${i + 1})`);
+      await sleep(400);
+      continue;
+    }
+    const graded = await page.evaluate(() => document.querySelector("[data-reaction]") !== null);
+    if (graded) {
+      await press(page, await buttonByText(page, "Next"), `Next (walk ${i + 1})`);
+      /*
+        EITHER the next question arrives, which clears the graded strip, OR the
+        combo interstitial opens over it, which does not. Waiting only for the
+        strip to clear timed out on the third correct answer every time, because
+        that is exactly when the combo fires and the strip stays behind it.
+      */
+      await page.waitForFunction(
+        () =>
+          document.querySelector("[data-reaction]") === null ||
+          [...document.querySelectorAll("button")].some((node) => node.innerText.trim() === "Continue"),
+        { timeout: 5_000 },
+      );
+      await sleep(120);
+      continue;
+    }
+    const done = await answerCurrent(page);
+    if (!done.answered) return { reached: false, steps: i, why: done.why };
+    if (!done.submits) await press(page, await buttonByText(page, "Check"), `Check (walk ${i + 1})`);
+    await sleep(400);
+  }
+  return { reached: false, steps: limit, why: "never offered Finish lesson" };
 }
 
 /**
@@ -443,21 +562,21 @@ export async function answerCurrent(page, { wrong = false } = {}) {
  * whatever is on screen is some other account's evening.
  */
 export async function driveReward(page, seedName, { onTrigger = null } = {}) {
-  for (let i = 0; i < INTRO.length; i += 1) {
-    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
-    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
-    await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-    if (i < INTRO.length - 1) {
-      await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
-      await sleep(250);
-    }
-  }
-  // Three right in a row: Finish lesson shows the combo interstitial first,
-  // and its Continue is the press that opens the reward moment.
-  await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
-  await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 });
-  await sleep(300);
-  const at = await press(page, await buttonByText(page, "Continue"), "Continue (combo)");
+  await answerRunOf(page, 3);
+  // The run of three is what the combo counts; the LESSON may be longer, and
+  // Finish does not appear until it is done. See walkToFinish.
+  /*
+    THE WALK ENDS ON THE REWARD, so there is nothing left to press to open it.
+    This used to press "Finish lesson", wait for the combo, and press its
+    Continue, because the gas-laws lesson ended that way. It does not any more:
+    the combo fires MID lesson the moment three land in a row, walkToFinish
+    clears it, and the lesson completes itself into the reward screen. Pressing
+    a Finish that is not there was the last thing standing between this driver
+    and the moment it exists to photograph.
+  */
+  const walk = await walkToFinish(page);
+  if (!walk.reached) throw new Error(`could not reach the reward: ${walk.why}`);
+  const at = Date.now();
   const trigger = onTrigger === null ? null : await onTrigger(at);
   // The stage settles at 2500 ms. A caller with no onTrigger has not waited for
   // it, so wait here: a drive resolves with the moment on screen, not before.
@@ -478,8 +597,24 @@ export async function driveReward(page, seedName, { onTrigger = null } = {}) {
       diamonds: Number(stage.getAttribute("data-reward-diamonds")),
       rankUp: stage.getAttribute("data-reward-rank-up") ?? "",
       done: stage.getAttribute("data-reward"),
+      /*
+        THE PRIMARY CONTROL IS CLAIM NOW, and this looked only for "Continue".
+        docs/reference/design-goals/blueberry_r6-lesson-complete draws a green
+        CLAIM on the reward screen and the build follows it, so the button this
+        was hunting for no longer exists and the check reported false on a
+        screen that was perfectly correct.
+
+        WHAT IS BEING CHECKED IS UNCHANGED, and it is not cosmetic: the reward
+        moment's primary control must be visible WITHOUT SCROLLING. That came
+        out of a real finding, a Continue the student had to scroll to is not a
+        moment. Only the control's name moved. Both are accepted so a surface
+        that still says Continue is not failed by this.
+      */
       continueOnScreen: (() => {
-        const button = [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Continue");
+        const button = [...document.querySelectorAll("button")].find((b) => {
+          const text = b.textContent?.trim().toUpperCase() ?? "";
+          return text === "CONTINUE" || text === "CLAIM";
+        });
         if (button === undefined) return false;
         const rect = button.getBoundingClientRect();
         return rect.top >= 0 && rect.bottom <= window.innerHeight;
@@ -1167,19 +1302,16 @@ function streakGeometryHolds(state) {
  * measured from it and not from an arbitrary settle.
  */
 export async function driveStreak(page, seedName, { onTrigger = null } = {}) {
-  for (let i = 0; i < INTRO.length; i += 1) {
-    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
-    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
-    await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-    if (i < INTRO.length - 1) {
-      await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
-      await sleep(250);
-    }
-  }
-  await press(page, await buttonByText(page, "Finish lesson"), "Finish lesson");
-  await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 });
-  await sleep(300);
-  await press(page, await buttonByText(page, "Continue"), "Continue (combo)");
+  await answerRunOf(page, 3);
+  // The run of three is what the combo counts; the LESSON may be longer, and
+  // Finish does not appear until it is done. See walkToFinish.
+  /*
+    Same correction as driveReward: the walk ends ON the reward screen, so
+    there is no Finish to press and no combo left to clear, because
+    walkToFinish already handled it mid lesson.
+  */
+  const walk = await walkToFinish(page);
+  if (!walk.reached) throw new Error(`could not reach the reward: ${walk.why}`);
   // The reward moment settles at 2500 ms and its Continue is the press that
   // opens this piece's stage, so the drive waits for the settled frame rather
   // than racing it.

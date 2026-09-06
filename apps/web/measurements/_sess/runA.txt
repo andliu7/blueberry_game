@@ -1,0 +1,61 @@
+=== QUEUED NODE SHEET ===
+{
+ "box": [
+  0,
+  0,
+  0,
+  0
+ ],
+ "text": "",
+ "chars": 0,
+ "kids": 0,
+ "html": ""
+}
+
+=== THREE GRADED REVIEWS ===
+
+--- REVIEW 0 | #/cards | 121ch
+TEXT: Exit1 of 3Your own cardNewSetupConditionsProductcomposedcyclohexene 0Tap Product when you have your answerShow the answer
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 39x44 @16,88 "Exit" .press min-h-11 rounded-xl px-2 t
+  [button] 99x44 @43,218 "Show the setup" .seg-pill__opt press text-scale-s
+  [button] 99x44 @145,218 "Show the conditions" .seg-pill__opt press text-scale-s
+  [button] 99x44 @248,218 "Product, reveals the answer" .seg-pill__opt press text-scale-s
+  [button] 358x56 @16,458 "Show the answer" .chip3d press title-face min-h-14
+  show ack true 3ms
+  grade ack true 0ms
+
+--- REVIEW 1 | #/cards | 121ch
+TEXT: Exit2 of 3Your own cardNewSetupConditionsProductcomposedcyclohexene 1Tap Product when you have your answerShow the answer
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 39x44 @16,88 "Exit" .press min-h-11 rounded-xl px-2 t
+  [button] 99x44 @43,218 "Show the setup" .seg-pill__opt press text-scale-s
+  [button] 99x44 @145,218 "Show the conditions" .seg-pill__opt press text-scale-s
+  [button] 99x44 @248,218 "Product, reveals the answer" .seg-pill__opt press text-scale-s
+  [button] 358x56 @16,458 "Show the answer" .chip3d press title-face min-h-14
+  show ack true 0ms
+  grade ack true 1ms
+
+--- REVIEW 2 | #/cards | 121ch
+TEXT: Exit3 of 3Your own cardNewSetupConditionsProductcomposedcyclohexene 2Tap Product when you have your answerShow the answer
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 39x44 @16,88 "Exit" .press min-h-11 rounded-xl px-2 t
+  [button] 99x44 @43,218 "Show the setup" .seg-pill__opt press text-scale-s
+  [button] 99x44 @145,218 "Show the conditions" .seg-pill__opt press text-scale-s
+  [button] 99x44 @248,218 "Product, reveals the answer" .seg-pill__opt press text-scale-s
+  [button] 358x56 @16,458 "Show the answer" .chip3d press title-face min-h-14
+  show ack true 1ms
+  grade ack true 1ms
+
+--- REVIEW 3 | #/cards | 93ch
+TEXT: 3Straight through, no repeats3 cards reviewed. Those intervals just got longer.3 diamondsDone
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 342x56 @24,376 "Done" .chip3d press title-face min-h-14
+  session over
+
+--- REVIEW SESSION END | #/cards | 93ch
+TEXT: 3Straight through, no repeats3 cards reviewed. Those intervals just got longer.3 diamondsDone
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w
+  [button] 342x56 @24,376 "Done" .chip3d press title-face min-h-14
+
+=== REACTION SEARCH ===

@@ -1,0 +1,435 @@
+=== LESSON: #/lesson/u1-kvt, the recipe strip ===
+
+--- BEAT 0 | #/lesson/u1-kvt | 337ch | docW=390
+TEXT: ABQuick questions, you are hereCollect the lesson, coming up0Warm that same flask to 40 degrees and leave it, then pick the major product.Warm means the first product can go back to the cation and choose again.buta-1,3-dieneHBr40 degrees?The 1,2 productThe 1,4 productThe same ratio as at minus 80Something wrong with this question?Check
+  [button] 44x44 @284,8 "Open the periodic table" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @334,8 "Open the reaction search" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @16,64 "Leave this lesson" .lesson-exit
+  [button] 358x91 @16,398 "The 1,2 product" .option-card text-scale-base font-normal 
+  [button] 358x91 @16,501 "The 1,4 product" .option-card text-scale-base font-normal 
+  [button] 358x91 @16,604 "The same ratio as at minus 80" .option-card text-scale-base font-normal 
+  [button] 260x44 @16,715 "Something wrong with this question?" .lesson-report
+  [button DIS] 358x52 @16,788 "Check" .chip-press chip-press--check w-full
+  VIS {"svgs":9,"imgs":0,"recipe":18,"recipeTxt":"ABQuick questions, you are hereCollect the lesson, coming up","inputs":0,"textInputs":[]}
+  opt ack {"label":"option","ok":true,"ms":1,"before":"none|rgb(253, 251, 244)|color(srgb 0.333333 0.34902 0.498039 / 0.4) 0px 4px 0px 0px|none|1","af
+  check ack {"label":"check","ok":true,"ms":1,"before":"matrix(1, 0, 0, 1, 0, 0)|color(srgb 0.393725 0.449412 0.644706)|color(srgb 0.257451 0.2854","aft
+  continue ack {"label":"continue","ok":true,"ms":0,"before":"matrix(1, 0, 0, 1, 0, 0)|color(srgb 0.393725 0.449412 0.644706)|color(srgb 0.257451 0.2854","
+
+--- BEAT 1 | #/lesson/u1-kvt | 363ch | docW=390
+TEXT: Quick questions, doneThe ones that got away, you are hereCollect the lesson, coming up0Warm that same flask to 40 degrees and leave it, then pick the major product.Warm means the first product can go back to the cation and choose again.buta-1,3-dieneHBr40 degrees?The 1,2 productThe 1,4 productThe same ratio as at minus 80Something wrong with this question?Check
+  [button] 44x44 @284,8 "Open the periodic table" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @334,8 "Open the reaction search" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @16,64 "Leave this lesson" .lesson-exit
+  [button] 358x91 @16,398 "The 1,2 product" .option-card text-scale-base font-normal 
+  [button] 358x91 @16,501 "The 1,4 product" .option-card text-scale-base font-normal 
+  [button] 358x91 @16,604 "The same ratio as at minus 80" .option-card text-scale-base font-normal 
+  [button] 260x44 @16,715 "Something wrong with this question?" .lesson-report
+  [button DIS] 358x52 @16,788 "Check" .chip-press chip-press--check w-full
+  VIS {"svgs":10,"imgs":0,"recipe":22,"recipeTxt":"Quick questions, doneThe ones that got away, you are hereCollect the lesson, coming up","inputs":0,"textInputs":[]}
+  opt ack {"label":"option","ok":true,"ms":0,"before":"none|rgb(253, 251, 244)|color(srgb 0.333333 0.34902 0.498039 / 0.4) 0px 4px 0px 0px|none|1","af
+  check ack {"label":"check","ok":true,"ms":0,"before":"matrix(1, 0, 0, 1, 0, 0)|color(srgb 0.393725 0.449412 0.644706)|color(srgb 0.257451 0.2854","aft
+  continue ack {"label":"continue","ok":true,"ms":2,"before":"matrix(1, 0, 0, 1, 0, 0)|color(srgb 0.393725 0.449412 0.644706)|color(srgb 0.257451 0.2854","
+
+--- BEAT 2 | #/lesson/u1-kvt | 285ch | docW=390
+TEXT: Quick questions, doneThe ones that got away, doneCollect the lesson, you are here0Lesson completeYou cleared 0 of 1, and brought back 0 of the 1 that slipped past the first time.One is still settling. That is what the next visit is for, and this node stays open on the pathway.Continue
+  [button] 44x44 @284,8 "Open the periodic table" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @334,8 "Open the reaction search" .press inline-flex min-h-11 min-w-11 item
+  [button] 44x44 @16,64 "Leave this lesson" .lesson-exit
+  [button] 306x52 @42,586 "Continue" .chip-press chip-press--check mt-2 w-full
+  VIS {"svgs":8,"imgs":0,"recipe":21,"recipeTxt":"Quick questions, doneThe ones that got away, doneCollect the lesson, you are here","inputs":0,"textInputs":[]}
+  check ack {"label":"check","ok":true,"ms":0,"before":"matrix(1, 0, 0, 1, 0, 0)|color(srgb 0.393725 0.449412 0.644706)|color(srgb 0.257451 0.2854","aft
+
+--- BEAT 3 | #/pathway | 4709ch | docW=390
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition to dienesUnit 2 · Aromaticity & BenzeneNomenclature reviewHückel 4n+2 classificationAnnulenes and ri
+  [a] 76x68 @286,211 "Allylic/resonance delocalization. Draw and rank allyl cation" .path-node path-node--current    path-nod
+  [button DIS] 76x68 @117,353 "Allylic halogenation. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @60,443 "Diels–Alder. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @229,534 "Inverse/hetero Diels–Alder. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @286,624 "Radical polymerization of dienes. Authoring queued" .path-node path-node--open  path-node--di
+  [a] 76x68 @173,735 "Kinetic vs thermodynamic control. Hammond postulate, reactio" .path-node path-node--open    path-node--
+  [a] 76x68 @92,888 "1,2- vs 1,4-addition of HX. Kinetic 1,2 cold, thermodynamic " .path-node path-node--open    path-node--
+  [a] 76x68 @255,888 "X₂ addition to dienes. Br₂, Cl₂ → 1,2- and 1,4-dihalides, sa" .path-node path-node--open    path-node--
+  [button DIS] 76x68 @60,1216 "Nomenclature review. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,1334 "Hückel 4n+2 classification. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,1424 "Annulenes and ring size. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,1515 "Heterocycles. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,1605 "Charged aromatics. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,1696 "Ring-current NMR signature. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 82x73 @170,2102 "Arenium (σ-complex) mechanism. Opens when the unit before it" .path-node path-node--locked path-node--h
+  [button DIS] 76x68 @257,1955 "Halogenation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @257,2253 "Nitration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,2253 "Friedel–Crafts acylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,1955 "Sulfonation and desulfonation. Opens when the unit before it" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,2459 "Directing effects. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,2548 "Friedel–Crafts alkylation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,2634 "Benzylic bromination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,2721 "Benzylic oxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,2809 "Blocking-group strategy. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,2899 "Birch reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,2990 "Gattermann–Koch formylation. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,3080 "Gattermann / Houben–Hoesch. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,3171 "Vilsmeier–Haack. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,3261 "Kolbe–Schmitt. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,3351 "Reimer–Tiemann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,3463 "Nitro reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,3615 "Carbonyl → CH₂ after acylation. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,3615 "Multistep sequencing logic. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,3942 "Benzyne elimination–addition. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,4028 "Isotope-labelling proof. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4115 "Dow phenol process. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,4224 "SNAr addition–elimination. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,4377 "Meisenheimer complex. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,4377 "Reversed leaving-group order. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,4705 "Alcohol → alkyl halide. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4794 "Appel reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,4880 "Swern / DMP / TEMPO detail. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4967 "Alkoxymercuration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,5055 "Tosylate / mesylate. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,5145 "Dehydration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,5236 "Oxidation ladder. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,5326 "Williamson ether synthesis. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,5415 "Ether cleavage. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,5501 "Sharpless epoxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,5587 "Oxidative cleavage of diols. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,5676 "Protecting-group logic. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,5766 "Epoxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,5857 "Epoxide opening, acidic. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,5947 "Pinacol rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,6037 "Thiols and sulfides. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,6149 "Syn-dihydroxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,6301 "Epoxide opening, basic. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,6301 "Anti-dihydroxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,6630 "2D NMR. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,6720 "UV-Vis and conjugation. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,6839 "Degrees of unsaturation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,6929 "IR diagnostics. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,7020 "¹H NMR. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,7110 "¹³C and DEPT. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,7200 "Mass spectrometry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,7468 "Carbonyl polarity and the addition mechanism. Opens when the" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,7557 "Cyanohydrin formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,7643 "Bisulfite adduct. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,7729 "Thioacetal. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,7818 "Hydration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,7908 "Hemiacetal and acetal. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,7999 "Acetal as protecting group. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,8089 "Imine formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,8177 "Carbonyl derivative tests. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,8264 "Horner–Wadsworth–Emmons. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,8350 "Baeyer–Villiger. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,8438 "Enamine formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,8529 "Grignard and organolithium addition. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,8619 "Hydride reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,8710 "Aldehyde → carboxylic acid. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,8800 "Cannizzaro. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,8890 "Meerwein–Ponndorf–Verley. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,9002 "Wittig olefination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,9154 "1,2 vs 1,4 selectivity on enones. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,9154 "Reduction to CH₂. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 82x73 @170,9620 "Tetrahedral intermediate mechanism. Opens when the unit befo" .path-node path-node--locked path-node--h
+  [button DIS] 76x68 @257,9473 "Acyl chloride → everything. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @257,9772 "Anhydride → ester/amide/acid. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,9772 "Ester hydrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,9473 "Amide hydrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,9978 "The reactivity ladder. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10066 "Steglich esterification. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,10153 "Diazomethane methylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10239 "Carboxylate alkylation. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,10328 "Acid → acyl chloride. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,10418 "Acid → anhydride. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,10508 "Fischer esterification. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,10599 "Transesterification. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10687 "Weinreb amide. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,10774 "NaBH₄ on derivatives. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10860 "Hell–Volhard–Zelinsky. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,10948 "Nitrile chemistry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,11039 "LiAlH₄ reductions. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,11129 "DIBAL-H partial reduction. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,11219 "Kolbe electrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,11310 "Hunsdiecker. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,11421 "Organometallics on derivatives. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,11574 "Gilman + acyl chloride. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,11574 "Decarboxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,11903 "9a · Keto–enol tautomerism. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,11991 "Haloform reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,12077 "Stork enamine alkylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12164 "Mannich reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,12252 "9a · α-proton pKa hierarchy. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,12342 "9a · Enolate resonance and geometry. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,12433 "9a · Kinetic vs thermodynamic enolate. Opens when the unit b" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,12523 "9a · α-Halogenation, acid. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12612 "Knoevenagel. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,12698 "Reformatsky. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12784 "Directed aldol at low temperature. Opens when the unit befor" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,12873 "9a · α-Halogenation, base. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,12963 "9b · Aldol addition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13054 "9b · Aldol condensation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13144 "9b · Crossed / mixed aldol. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,13234 "9b · Intramolecular aldol. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,13325 "9b · Claisen condensation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13415 "9b · Dieckmann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13506 "9b · Crossed Claisen. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,13596 "9c · Enolate alkylation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,13686 "9c · Malonic ester synthesis. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13777 "9c · Acetoacetic ester synthesis. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13867 "9c · Michael addition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,13978 "9c · Conjugate organocuprate. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,14131 "9c · Robinson annulation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,14131 "9c · Retrosynthetic C–C disconnection. Opens when the unit b" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,14459 "Basicity vs nucleophilicity. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,14547 "Direct alkylation of ammonia. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,14633 "Gabriel synthesis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,14720 "Azide route. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,14808 "Reductive amination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,14899 "Amide reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,14989 "Nitrile reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,15079 "Hofmann rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,15170 "Curtius rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,15260 "Hofmann elimination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,15351 "Cope elimination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,15441 "Azo coupling. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,15552 "Nitro reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,15705 "Diazonium formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,15853 "Diazonium substitution. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,15705 "Amine acylation as protection. Opens when the unit before it" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,16181 "Phenol acidity. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,16269 "EAS on phenol. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,16356 "Kolbe–Schmitt. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,16442 "Reimer–Tiemann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,16530 "Phenoxide as nucleophile. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,16621 "Quinone / hydroquinone redox. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,16711 "Claisen rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,16978 "Diels–Alder [4+2]. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,17068 "[2+2] cycloaddition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17159 "1,3-Dipolar cycloaddition. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17249 "Electrocyclic reactions. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,17340 "Cope rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,17430 "Claisen rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17520 "[1,5]-hydride shifts. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17611 "Woodward–Hoffmann rules. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17878 "Fischer projections and D/L. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17968 "Cyclization and anomers. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18058 "Mutarotation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,18149 "Glycoside formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,18239 "Protecting-group chemistry. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,18330 "Oxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18420 "Reducing-sugar tests. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,18510 "Reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,18601 "Kiliani–Fischer synthesis. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,18691 "Wohl and Ruff degradation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18781 "Osazone formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19049 "Protecting-group orthogonality. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19140 "Zwitterions and pI. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,19230 "Strecker synthesis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,19321 "Gabriel–malonic (Sorensen). Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19411 "Reductive amination of α-keto acids. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19501 "Peptide coupling. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,19592 "Edman degradation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,19682 "Sanger reagent. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19772 "Ninhydrin. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19863 "Peptide-bond geometry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,20130 "Multistep synthesis design. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,20220 "Saponification of fats. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,20310 "Hydrogenation of oils. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,20401 "Fatty-acid structure. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,20491 "Terpene and steroid biosynthesis. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-full b
+  VIS {"svgs":418,"imgs":0,"recipe":0,"recipeTxt":"","inputs":0,"textInputs":[]}
+  !! nothing pressable, stuck
+
+--- END OF LESSON | #/pathway | 4709ch | docW=390
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition to dienesUnit 2 · Aromaticity & BenzeneNomenclature reviewHückel 4n+2 classificationAnnulenes and ri
+  [a] 76x68 @286,211 "Allylic/resonance delocalization. Draw and rank allyl cation" .path-node path-node--current    path-nod
+  [button DIS] 76x68 @117,353 "Allylic halogenation. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @60,443 "Diels–Alder. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @229,534 "Inverse/hetero Diels–Alder. Authoring queued" .path-node path-node--open  path-node--di
+  [button DIS] 76x68 @286,624 "Radical polymerization of dienes. Authoring queued" .path-node path-node--open  path-node--di
+  [a] 76x68 @173,735 "Kinetic vs thermodynamic control. Hammond postulate, reactio" .path-node path-node--open    path-node--
+  [a] 76x68 @92,888 "1,2- vs 1,4-addition of HX. Kinetic 1,2 cold, thermodynamic " .path-node path-node--open    path-node--
+  [a] 76x68 @255,888 "X₂ addition to dienes. Br₂, Cl₂ → 1,2- and 1,4-dihalides, sa" .path-node path-node--open    path-node--
+  [button DIS] 76x68 @60,1216 "Nomenclature review. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,1334 "Hückel 4n+2 classification. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,1424 "Annulenes and ring size. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,1515 "Heterocycles. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,1605 "Charged aromatics. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,1696 "Ring-current NMR signature. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 82x73 @170,2102 "Arenium (σ-complex) mechanism. Opens when the unit before it" .path-node path-node--locked path-node--h
+  [button DIS] 76x68 @257,1955 "Halogenation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @257,2253 "Nitration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,2253 "Friedel–Crafts acylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,1955 "Sulfonation and desulfonation. Opens when the unit before it" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,2459 "Directing effects. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,2548 "Friedel–Crafts alkylation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,2634 "Benzylic bromination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,2721 "Benzylic oxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,2809 "Blocking-group strategy. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,2899 "Birch reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,2990 "Gattermann–Koch formylation. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,3080 "Gattermann / Houben–Hoesch. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,3171 "Vilsmeier–Haack. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,3261 "Kolbe–Schmitt. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,3351 "Reimer–Tiemann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,3463 "Nitro reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,3615 "Carbonyl → CH₂ after acylation. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,3615 "Multistep sequencing logic. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,3942 "Benzyne elimination–addition. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,4028 "Isotope-labelling proof. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4115 "Dow phenol process. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,4224 "SNAr addition–elimination. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,4377 "Meisenheimer complex. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,4377 "Reversed leaving-group order. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,4705 "Alcohol → alkyl halide. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4794 "Appel reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,4880 "Swern / DMP / TEMPO detail. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,4967 "Alkoxymercuration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,5055 "Tosylate / mesylate. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,5145 "Dehydration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,5236 "Oxidation ladder. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,5326 "Williamson ether synthesis. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,5415 "Ether cleavage. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,5501 "Sharpless epoxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,5587 "Oxidative cleavage of diols. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,5676 "Protecting-group logic. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,5766 "Epoxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,5857 "Epoxide opening, acidic. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,5947 "Pinacol rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,6037 "Thiols and sulfides. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,6149 "Syn-dihydroxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,6301 "Epoxide opening, basic. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,6301 "Anti-dihydroxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,6630 "2D NMR. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,6720 "UV-Vis and conjugation. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,6839 "Degrees of unsaturation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,6929 "IR diagnostics. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,7020 "¹H NMR. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,7110 "¹³C and DEPT. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,7200 "Mass spectrometry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,7468 "Carbonyl polarity and the addition mechanism. Opens when the" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,7557 "Cyanohydrin formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,7643 "Bisulfite adduct. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,7729 "Thioacetal. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,7818 "Hydration. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,7908 "Hemiacetal and acetal. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,7999 "Acetal as protecting group. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,8089 "Imine formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,8177 "Carbonyl derivative tests. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,8264 "Horner–Wadsworth–Emmons. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,8350 "Baeyer–Villiger. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,8438 "Enamine formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,8529 "Grignard and organolithium addition. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,8619 "Hydride reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,8710 "Aldehyde → carboxylic acid. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,8800 "Cannizzaro. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,8890 "Meerwein–Ponndorf–Verley. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,9002 "Wittig olefination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,9154 "1,2 vs 1,4 selectivity on enones. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,9154 "Reduction to CH₂. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 82x73 @170,9620 "Tetrahedral intermediate mechanism. Opens when the unit befo" .path-node path-node--locked path-node--h
+  [button DIS] 76x68 @257,9473 "Acyl chloride → everything. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @257,9772 "Anhydride → ester/amide/acid. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,9772 "Ester hydrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @89,9473 "Amide hydrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,9978 "The reactivity ladder. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10066 "Steglich esterification. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,10153 "Diazomethane methylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10239 "Carboxylate alkylation. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,10328 "Acid → acyl chloride. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,10418 "Acid → anhydride. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,10508 "Fischer esterification. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,10599 "Transesterification. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10687 "Weinreb amide. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,10774 "NaBH₄ on derivatives. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,10860 "Hell–Volhard–Zelinsky. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,10948 "Nitrile chemistry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,11039 "LiAlH₄ reductions. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,11129 "DIBAL-H partial reduction. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,11219 "Kolbe electrolysis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,11310 "Hunsdiecker. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,11421 "Organometallics on derivatives. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,11574 "Gilman + acyl chloride. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,11574 "Decarboxylation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,11903 "9a · Keto–enol tautomerism. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,11991 "Haloform reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,12077 "Stork enamine alkylation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12164 "Mannich reaction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,12252 "9a · α-proton pKa hierarchy. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,12342 "9a · Enolate resonance and geometry. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,12433 "9a · Kinetic vs thermodynamic enolate. Opens when the unit b" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,12523 "9a · α-Halogenation, acid. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12612 "Knoevenagel. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,12698 "Reformatsky. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,12784 "Directed aldol at low temperature. Opens when the unit befor" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,12873 "9a · α-Halogenation, base. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,12963 "9b · Aldol addition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13054 "9b · Aldol condensation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13144 "9b · Crossed / mixed aldol. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,13234 "9b · Intramolecular aldol. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,13325 "9b · Claisen condensation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13415 "9b · Dieckmann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13506 "9b · Crossed Claisen. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,13596 "9c · Enolate alkylation. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,13686 "9c · Malonic ester synthesis. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,13777 "9c · Acetoacetic ester synthesis. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,13867 "9c · Michael addition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,13978 "9c · Conjugate organocuprate. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,14131 "9c · Robinson annulation. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,14131 "9c · Retrosynthetic C–C disconnection. Opens when the unit b" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,14459 "Basicity vs nucleophilicity. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,14547 "Direct alkylation of ammonia. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @312,14633 "Gabriel synthesis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @293,14720 "Azide route. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,14808 "Reductive amination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,14899 "Amide reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,14989 "Nitrile reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,15079 "Hofmann rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,15170 "Curtius rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,15260 "Hofmann elimination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,15351 "Cope elimination. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,15441 "Azo coupling. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @173,15552 "Nitro reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,15705 "Diazonium formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @92,15853 "Diazonium substitution. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @255,15705 "Amine acylation as protection. Opens when the unit before it" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,16181 "Phenol acidity. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,16269 "EAS on phenol. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @34,16356 "Kolbe–Schmitt. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @53,16442 "Reimer–Tiemann. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,16530 "Phenoxide as nucleophile. Opens when the unit before it is d" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,16621 "Quinone / hydroquinone redox. Opens when the unit before it " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,16711 "Claisen rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,16978 "Diels–Alder [4+2]. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,17068 "[2+2] cycloaddition. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17159 "1,3-Dipolar cycloaddition. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17249 "Electrocyclic reactions. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,17340 "Cope rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,17430 "Claisen rearrangement. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17520 "[1,5]-hydride shifts. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17611 "Woodward–Hoffmann rules. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,17878 "Fischer projections and D/L. Opens when the unit before it i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,17968 "Cyclization and anomers. Opens when the unit before it is do" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18058 "Mutarotation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,18149 "Glycoside formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,18239 "Protecting-group chemistry. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,18330 "Oxidation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18420 "Reducing-sugar tests. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,18510 "Reduction. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,18601 "Kiliani–Fischer synthesis. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,18691 "Wohl and Ruff degradation. Opens when the unit before it is " .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,18781 "Osazone formation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19049 "Protecting-group orthogonality. Opens when the unit before i" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19140 "Zwitterions and pI. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,19230 "Strecker synthesis. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,19321 "Gabriel–malonic (Sorensen). Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19411 "Reductive amination of α-keto acids. Opens when the unit bef" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19501 "Peptide coupling. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,19592 "Edman degradation. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,19682 "Sanger reagent. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,19772 "Ninhydrin. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,19863 "Peptide-bond geometry. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,20130 "Multistep synthesis design. Opens when the unit before it is" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @117,20220 "Saponification of fats. Opens when the unit before it is don" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @60,20310 "Hydrogenation of oils. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @229,20401 "Fatty-acid structure. Opens when the unit before it is done" .path-node path-node--locked     path-nod
+  [button DIS] 76x68 @286,20491 "Terpene and steroid biosynthesis. Opens when the unit before" .path-node path-node--locked     path-nod
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-full b
+errors []

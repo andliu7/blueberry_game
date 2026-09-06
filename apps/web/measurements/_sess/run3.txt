@@ -1,0 +1,126 @@
+loader selector present: ["DIV.","DIV.flex min-h-dvh flex-col bg-background md","DIV."]
+
+=== TAB SWITCH TIMING (loader replay?) ===
+#/trainer: ready in 52ms  "Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw b"
+#/cards: ready in 24ms  "Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw b"
+#/feed: ready in 21ms  "Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw b"
+#/me: ready in 28ms  "Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw b"
+#/pathway: ready in 17ms  "Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw b"
+
+=== CARDS ===
+--- CARDS | #/cards | 119ch | mainH=676 | docW=390
+TEXT: Due today00 Everything is holding. Come back when a card starts to fade.All clearMy decks+ New deckBrMy mistakes0 cards
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button DISABLED] 164x44 @113,255 "All clear" .chip3d chip3d--go press title-face mt-3 min-h-11 rounded-full px-10 te 
+  [button] 114x44 @260,347 "+ New deck" .press min-h-11 rounded-full border-2 border-[color:var(--primary-edge) 
+  [button] 173x160 @16,403 "BrMy mistakes0 cards" .chip3d chip3d--card press relative flex w-full flex-col items-center g 
+
+=== FEED ===
+--- FEED | #/feed | 339ch | mainH=718 | docW=390
+TEXT: Daily QuestsEarn 10 XP0 / 10 XPKeep the streakToday is openGet 5 right0 / 5Lab matesPhase 6 dataLab mates are other students, and other students live on the friends server, which arrives in Phase 6. Nothing here is made up in the meantime: these rows are the shape this takes, and the tipped flask is how you will toast 
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button DISABLED] 44x44 @239,478 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn 
+  [button DISABLED] 44x44 @271,541 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn 
+  [button DISABLED] 44x44 @223,604 "Toast this clear. Opens when the friends server arrives in P" .press feed-toast-btn 
+
+=== ME ===
+--- ME | #/me | 1045ch | mainH=1070 | docW=390
+TEXT: Studying soloOn Organic Chemistry II. 0 lessons closed so far.0Diamonds0Day streak1Active daysYour studyingCoursesOrganic Chemistry II is open. The other five are on their way.1 openPeriodic tableAlso in the header, on every screen and inside a lesson.Reaction searchLook a reaction up by its reagents when you forget th
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [a] 358x88 @16,320 "CoursesOrganic Chemistry II is open. The other five are on t" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/courses
+  [a] 358x88 @16,416 "Periodic tableAlso in the header, on every screen and inside" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/periodic
+  [a] 358x88 @16,512 "Reaction searchLook a reaction up by its reagents when you f" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/search
+  [button] 175x44 @16,646 "☀Light" .press inline-flex min-h-11 flex-1 items-center justify-center gap-2 ro 
+  [button] 175x44 @199,646 "☾Dark" .press inline-flex min-h-11 flex-1 items-center justify-center gap-2 ro 
+  [button] 358x88 @16,698 "LanguageThe interface only. Chemistry notation is the same i" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor 
+  [a] 358x70 @16,876 "LeaderboardsWaiting on the server that ranks attemptsSoon" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/leaderboards
+  [a] 358x70 @16,954 "Ask BlueberryWaiting on its per student token meterSoon" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/chat
+  [a] 358x70 @16,1032 "Tutor messagesWaiting on moderation and a tutor rosterSoon" .press flex min-h-14 items-center gap-3 rounded-2xl border-2 border-bor #/messages
+
+=== TRAIN ===
+--- TRAIN | #/trainer | 129ch | mainH=676 | docW=390
+TEXT: Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw both arrows.🗺Sₙ2 at bromomethane· changeHHHO−HCBr+0 of 2 arrows drawn
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 253x44 @16,171 "🗺Sₙ2 at bromomethane· change" .press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border 
+  [button] 48x48 @308,485 "Open tools" .press flex min-h-12 min-w-12 items-center justify-center rounded-full  
+
+=== HEADER TOOL: tools button ===
+  {"label":"tools","ok":true,"ms":0,"before":"none|rgb(246, 242, 231)|none|none|1|rgb(85, 89, 127)|press inline-flex min-h-11 min-w-11 s","after":"matrix(1, 0, 0, 1, 0, 0)|rgb(246, 242, 231)|none|brightness(0.92)|1|rgb(85, 89, 127)|press","size":"44x44"}
+--- TOOLS SHEET | #/trainer | 129ch | mainH=676 | docW=390
+TEXT: Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw both arrows.🗺Sₙ2 at bromomethane· changeHHHO−HCBr+0 of 2 arrows drawn
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 366x56 @12,714 "Periodic table" .press tools-menu__row 
+  [button] 366x56 @12,776 "Reaction search" .press tools-menu__row 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 253x44 @16,171 "🗺Sₙ2 at bromomethane· change" .press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border 
+  [button] 48x48 @308,485 "Open tools" .press flex min-h-12 min-w-12 items-center justify-center rounded-full  
+
+=== HEADER: course chip ===
+  {"label":"course chip","ok":true,"ms":4,"before":"none|rgba(0, 0, 0, 0)|none|none|1|rgba(0, 0, 0, 0)|course-chip press|none|none","after":"matrix(1, 0, 0, 1, 0, 0)|rgba(0, 0, 0, 0)|none|brightness(0.92)|1|rgba(0, 0, 0, 0)|course-","size":"94x44"}
+--- COURSE PICKER | #/trainer | 129ch | mainH=676 | docW=390
+TEXT: Sₙ2 at bromomethaneHydroxide attacks, bromide leaves. Draw both arrows.🗺Sₙ2 at bromomethane· changeHHHO−HCBr+0 of 2 arrows drawn
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [input] 323x21 @45,159 "Search courses" . 
+  [button] 366x63 @12,237 "O2Organic Chemistry IIOpen✓" .course-row press course-row--current 
+  [button DISABLED] 366x79 @12,308 "O1Organic Chemistry INext in line. Its mechanisms are alread" .course-row press 
+  [button DISABLED] 366x96 @12,395 "G1General Chemistry IScoped and not authored yet. Its stoich" .course-row press 
+  [button DISABLED] 366x79 @12,499 "G2General Chemistry IIScoped and not authored yet. Kinetics " .course-row press 
+  [button DISABLED] 366x79 @12,586 "DATDAT preparationA review track over the four content cours" .course-row press 
+  [button DISABLED] 366x79 @12,674 "MCATMCAT preparationSame as the DAT track: it is a weighting" .course-row press 
+  [button] 366x48 @12,784 "Done" .course-sheet__done press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 253x44 @16,171 "🗺Sₙ2 at bromomethane· change" .press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border 
+  [button] 48x48 @308,485 "Open tools" .press flex min-h-12 min-w-12 items-center justify-center rounded-full  
+errors []

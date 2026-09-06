@@ -1,0 +1,19 @@
+--- COURSE orgo_2 | #/courses/orgo_2 | 1889ch
+TEXT: ← All coursesOrganic Chemistry IISpectroscopy first, then aromatics, the acyl ladder, enolates. The flagship.1pKa, acidity, and equilibrium positionProblems not yet authored2Structure determination from spectraProblems not yet authored3Alcohols as leaving groups2 problems4The oxidation and reduction ladder1 problem5Ethers: formation and cleavage1 problem6Epoxides: formation and ring opening1 problem7Allylic and benzy
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min
+  [a] 358x44 @16,88 "← All courses" .press inline-flex min-h-11 ite
+  [a] 358x60 @16,388 "3Alcohols as leaving groups2 problems" .press flex min-h-14 items-cent
+  [a] 358x60 @16,456 "4The oxidation and reduction ladder1 problem" .press flex min-h-14 items-cent
+  [a] 358x60 @16,524 "5Ethers: formation and cleavage1 problem" .press flex min-h-14 items-cent
+  [a] 358x60 @16,592 "6Epoxides: formation and ring opening1 problem" .press flex min-h-14 items-cent
+  [a] 358x84 @16,796 "9Electrophilic addition to conjugated dienes1 problem" .press flex min-h-14 items-cent
+  [a] 358x60 @16,1208 "14Electrophilic aromatic substitution1 problem" .press flex min-h-14 items-cent
+  [a] 358x84 @16,1276 "15Directing effects and aromatic synthesis order1 problem" .press flex min-h-14 items-cent
+  [a] 358x60 @16,1552 "18Alkyne chemistry1 problem" .press flex min-h-14 items-cent
+starting: 3Alcohols as leaving groups2 problems href=#/courses/orgo_2/alcohol_leaving_groups
+--- AFTER START | #/courses/orgo_2/alcohol_leaving_groups | 413ch
+TEXT: Supply the reagents, you are herePredict the product, coming upCollect the lesson, coming up0A secondary alcohol has to be turned into a good leaving group in one step, with the bond between that carbon and its oxygen left intact so the configuration at the carbon is untouched. Give the reagents.RR'OHa secondary alcohol?RR'OTsthe sulfonate, configuration untouchedSeparate reagents in one step with commas.Check
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min
+  [button] 44x44 @16,84 "Leave this lesson" .lesson-exit
+  [input] 358x48 @16,516 "Reagents" .min-h-12 flex-1 rounded-xl bor
+  [button DIS] 358x52 @16,680 "Check" .chip-press chip-press--check w

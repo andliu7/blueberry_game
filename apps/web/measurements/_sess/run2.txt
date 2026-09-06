@@ -1,0 +1,67 @@
+=== GUIDEBOOK CONTENT ===
+  press guidebook: ack 13ms size=44x44
+{
+ "box": [
+  0,
+  0,
+  390,
+  844
+ ],
+ "chars": 561,
+ "text": "Allylic/resonance delocalizationReactionDraft copy, headed to the human gateAllylic/resonance delocalization, on one page: what it is, where it shows up, and the pattern to look for. A short read before you press START.Key ideaDraw and rank allyl cation, radical, anion resonance forms.Worked example1.Follow one problem of this shape, end to end.12233445+ by-productBefore you startRead the prompt, name the site it points at, and move one small step at a time. A first attempt that does not land is how this gets learned, and every step tells you what it saw.",
+ "imgs": 0,
+ "svgs": 13,
+ "scrollable": true,
+ "sections": [
+  "H1:Allylic/resonance delocalization",
+  "H2:Worked example",
+  "SECTION:1.Follow one problem of this shape, end to end.122",
+  "H2:Before you start"
+ ]
+}
+  press guidebook back: ack 5ms size=44x44
+
+=== CHARGE GATE ===
+  press START: ack 14ms size=112x48
+{
+ "panelText": "Reaction nodeAllylic/resonance delocalization8 charge to startYou will have 22 left, and it refills on its own.Wrong answers cost nothing. Take as many tries as you need.StartNot now",
+ "cta": [
+  29,
+  713,
+  332,
+  48
+ ],
+ "ctaHit": "self",
+ "dismiss": [
+  149,
+  771,
+  91,
+  44
+ ],
+ "dismissHit": "self",
+ "tabbar": [
+  0,
+  768,
+  390,
+  76
+ ],
+ "vh": 844
+}
+
+=== INTO THE LESSON ===
+  press charge Start: ack 11ms size=332x48
+--- LESSON | #/trainer | 191ch | mainH=676 | docW=390
+TEXT: Allyl cationMove only electrons. Find the other contributing structure.🗺Allyl cation· changeOne species on purpose: nothing reacts here, only the electrons move.HHHHHCCC++0 of 1 arrows drawn
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 22 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 185x44 @16,171 "🗺Allyl cation· change" .press mt-2 inline-flex min-h-11 items-center gap-2 rounded-full border 
+  [button] 48x48 @308,525 "Open tools" .press flex min-h-12 min-w-12 items-center justify-center rounded-full  
+errors []

@@ -1,0 +1,81 @@
+=== PATHWAY: open the node sheet ===
+sheet: {
+ "box": [
+  0,
+  431,
+  390,
+  337
+ ],
+ "role": null,
+ "modal": null,
+ "label": "Allylic/resonance delocalization. Reaction lesson.",
+ "focus": "BODY",
+ "text": "Allylic/resonance delocalizationPracticeSTARTChallenge",
+ "controls": [
+  {
+   "t": "Open the guidebook for Allylic/resonance",
+   "cls": "ns-menu press",
+   "box": [
+    44,
+    44
+   ]
+  },
+  {
+   "t": "START",
+   "cls": "ns-chip ns-start",
+   "box": [
+    112,
+    48
+   ]
+  }
+ ],
+ "pips": 4,
+ "filled": 2,
+ "berryPeek": true
+}
+
+=== GUIDEBOOK ===
+  press guidebook hamburger: ack 9ms
+--- GUIDEBOOK | #/pathway | 5270ch | mainH=20749 | docW=390
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition 
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [a] 76x68 @286,211 "Allylic/resonance delocalization. Draw and rank allyl cation" .path-node path-node--current    path-node--press ?hunt=res-allyl-1#/trainer
+  [a] 76x68 @173,735 "Kinetic vs thermodynamic control. Hammond postulate, reactio" .path-node path-node--open    path-node--press #/lesson/u1-kvt
+  [a] 76x68 @92,888 "1,2- vs 1,4-addition of HX. Kinetic 1,2 cold, thermodynamic " .path-node path-node--open    path-node--press ?sequence=seq-diene#/trainer
+  [a] 76x68 @255,888 "X₂ addition to dienes. Br₂, Cl₂ → 1,2- and 1,4-dihalides, sa" .path-node path-node--open    path-node--press ?sequence=seq-diene-br2#/trainer
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-full border-2 border-border px-4 tex 
+  [button] 44x44 @8,88 "Back" .gb-back press 
+errors []
+after guidebook back, hash=#/pathway gb=false
+
+=== START THE LESSON ===
+  press START: ack 4ms
+--- AFTER START | #/pathway | 4891ch | mainH=20749 | docW=390
+TEXT: Organic Chemistry II, 0 of 86 lessons doneNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNUnit 1 · Conjugation, Resonance & DienesSTARTAllylic/​resonance delocalizationAllylic halogenationDiels–AlderInverse/​hetero Diels–AlderRadical polymerization of dienesKinetic vs thermodynamic control1,2- vs 1,4-addition of HXX₂ addition 
+  [a] 72x62 @8,776 "PathPath" .press tabbar-item #/pathway
+  [a] 72x62 @84,776 "TrainTrain" .press tabbar-item #/trainer
+  [a] 72x62 @159,776 "CardsCards" .press tabbar-item #/cards
+  [a] 72x62 @235,776 "FeedFeed" .press tabbar-item #/feed
+  [a] 72x62 @310,776 "MeMe" .press tabbar-item #/me
+  [button] 94x44 @6,8 "Course: Organic Chemistry II. Change course" .course-chip press 
+  [button] 44x44 @106,8 "Tools: the periodic table and the reaction search" .press inline-flex min-h-11 min-w-11 shrink-0 items-center justify-cent 
+  [button] 44x44 @236,8 "0 diamonds" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 44x44 @284,8 "Streak, no days yet" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [button] 52x44 @332,8 "Charge, 30 of 30" .press hud-item relative flex min-h-11 min-w-11 items-center justify-ce 
+  [a] 76x68 @286,211 "Allylic/resonance delocalization. Draw and rank allyl cation" .path-node path-node--current    path-node--press ?hunt=res-allyl-1#/trainer
+  [a] 76x68 @173,735 "Kinetic vs thermodynamic control. Hammond postulate, reactio" .path-node path-node--open    path-node--press #/lesson/u1-kvt
+  [a] 76x68 @92,888 "1,2- vs 1,4-addition of HX. Kinetic 1,2 cold, thermodynamic " .path-node path-node--open    path-node--press ?sequence=seq-diene#/trainer
+  [a] 76x68 @255,888 "X₂ addition to dienes. Br₂, Cl₂ → 1,2- and 1,4-dihalides, sa" .path-node path-node--open    path-node--press ?sequence=seq-diene-br2#/trainer
+  [button] 167x44 @16,20713 "Change track in Courses" .press min-h-11 self-start rounded-full border-2 border-border px-4 tex 
+  [button] 332x48 @29,713 "Start" .press charge-cta 
+  [button] 91x44 @149,771 "Not now" .press charge-dismiss 
+errors []

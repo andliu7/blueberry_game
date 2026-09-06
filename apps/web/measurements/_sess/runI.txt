@@ -1,0 +1,8 @@
+
+--- STEP 0 | #/courses/orgo_2/alcohol_leaving_groups | 413ch
+TEXT: Supply the reagents, you are herePredict the product, coming upCollect the lesson, coming up0A secondary alcohol has to be turned into a good leaving group in one step, with the bond between that carbon and its oxygen left intact so the configuration at the carbon is untouched. Give the reagents.RR'OHa secondary alcohol?RR'OTsthe sulfonate, configuration untouchedSeparate reagents in one step with commas.Check
+  [button] 44x44 "Tools: the periodic table and the reaction search"
+  [button] 44x44 "Leave this lesson"
+  [input] 358x48 "Reagents"
+  [button DIS] 358x52 "Check"
+  after check: Supply the reagents, you are herePredict the product, coming upCollect the lesson, coming up0A secondary alcohol has to be turned into a good leaving group in one step, with the bond between that carbon and its oxygen left intact so the configuration at the ca

@@ -216,24 +216,15 @@ const ECONOMY_ROUTES = [
   "feedback-correct",
   "feedback-wrong",
   /*
-    "combo" IS EXCLUDED, and it is excluded HERE, by name, rather than by
-    softening the not-reached guard below.
-
-    The combo interstitial fires on three correct answers in a row. The driver
-    reaches a lesson through the one open course, and no topic in that course
-    carries three numeric problems: pka_and_acidity has two. Counted across the
-    whole corpus, the only file with three is gasLaws.ts, and gas_laws lives in
-    gen_chem_1, which isCourseOpen reports closed and which therefore renders
-    its coming treatment rather than a lesson. So the moment is not reachable
-    on today's CONTENT. It is not an instrument fault and there is no version
-    of this script that can photograph it.
-
-    The guard below stays exactly as strict as it was, on purpose. Its job is
-    to refuse to audit a screen that is not the surface, and softening it would
-    turn every future unreachable moment into a silent gap instead of a loud
-    stop. A named exclusion is auditable; a loosened guard is not. Delete this
-    line the day a served topic carries three numeric problems.
+    RESTORED 2026-09-05, having been excluded earlier the same day. The
+    exclusion said the combo could not be reached because no open topic
+    carries three numeric problems. That was true of a driver that could only
+    answer NUMERIC questions. answerCurrent reads each question and answers it
+    by its own kind, so a run of three is three correct answers of any shape,
+    which pka_and_acidity has. The content was never the obstacle; the
+    driver's assumption was.
   */
+  "combo",
   "reward-first",
   "reward-streak",
   "hud-rest",
