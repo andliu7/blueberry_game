@@ -58,3 +58,26 @@ time. Twelve screens per sheet is one image read instead of twelve.
 | Reaction search | 18-21 |
 | Onboarding | 51, 52, 9 |
 | Tab bar | 53, 17 |
+
+## Duolingo iOS, January 2026 (owner, 2026-09-06)
+
+547 screens in `Duolingo ios Jan 2026/`, extracted from the zip beside it. Read them with
+the contact sheets in `apps/web/measurements/_sheets/duo/`, 40 per sheet.
+
+Catalogued so far, by ID:
+
+| IDs | What |
+|---|---|
+| 440-462 | Avatar builder, every option group |
+| 463 | **The profile.** Courses / Following / Followers, an Overview of streak, league and XP, and a card advertising "Add your Duolingo Score to LinkedIn" |
+| 464-471 | Another user's profile: weekly progress chart, achievements row, follow, block, report, the QR share card |
+| 472-476 | **Monthly badges and the achievements wall.** Personal Records, Awards, locked states drawn grey with their thresholds. The closest thing here to our mastery card |
+| 477-478 | An achievement unlocking, and its claim |
+| 480-489 | Video call, review, skill practice, collections |
+| 490-519 | Settings, account, password, delete-account, notifications, courses |
+
+**NO DUOLINGO SCORE SCREEN IS IN THIS SET**, which is what P6 was blocked on. The profile
+advertises the Score and never shows it. P6's bar is `docs/SCORE.md` instead: the owner
+supplied the mechanism in writing on 2026-09-06, and a specification naming IRT, the band
+mapping and the subscore matrix is a better reference for a critic than a screenshot of a
+number.
