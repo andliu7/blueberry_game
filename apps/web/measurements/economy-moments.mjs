@@ -478,6 +478,29 @@ export async function answerCurrent(page, { wrong = false } = {}) {
 }
 
 /**
+ * Leave the reward screen by whichever control it offers.
+ *
+ * The reward's primary control is CLAIM, per
+ * docs/reference/design-goals/blueberry_r6-lesson-complete, which reserves the
+ * green claim chip for a screen that actually pays. It was "Continue" when
+ * these drivers were written and two of them still pressed that by name.
+ * Both are accepted so a surface that has not been redrawn is not failed by
+ * this, and the label is asserted nowhere: what matters to a drive is that the
+ * reward has been dismissed.
+ */
+export async function leaveReward(page) {
+  const label = await page.evaluate(() => {
+    const hit = [...document.querySelectorAll("button")].find((node) => {
+      const text = node.textContent?.trim().toUpperCase() ?? "";
+      return text === "CLAIM" || text === "CONTINUE";
+    });
+    return hit === undefined ? null : hit.textContent.trim();
+  });
+  if (label === null) throw new Error("the reward screen offered neither Claim nor Continue");
+  return press(page, await buttonByText(page, label), `${label} (reward)`);
+}
+
+/**
  * Work through whatever is left of the lesson until it can be finished.
  *
  * The gas-laws lesson these drivers were written against WAS three questions,
@@ -916,6 +939,15 @@ async function readHud(page) {
         height: node.offsetHeight,
         // The number's own type size, which is what the verdict measured.
         numberPx: fontPx(node.querySelector(".hud-charge-value") ?? node.querySelector("span:last-child")),
+        // The two surviving dominance signals, read off the composed element
+        // rather than inferred from a class name: a tinted fill that is not
+        // the card, and an edge at least 2px where the others carry a hairline.
+        filled: (() => {
+          const own = getComputedStyle(node).backgroundColor;
+          const card = getComputedStyle(document.querySelector("header") ?? document.body).backgroundColor;
+          return own !== card && own !== "rgba(0, 0, 0, 0)" && own !== "transparent";
+        })(),
+        thickEdge: Number.parseFloat(getComputedStyle(node).borderTopWidth) >= 2,
       };
     });
     const goal = document.querySelector(".hud-goal");
@@ -964,13 +996,51 @@ function hudGeometryHolds(state) {
   for (const item of state.items) {
     if (item.width < 43.5 || item.height < 43.5) return false;
   }
+  /*
+    CHARGE STILL HAS TO HAVE PRIMACY. WHAT CARRIES IT MOVED.
+
+    This measured the charge number's font size against its biggest neighbour
+    and wanted at least 1.6x. That was round two's answer to a real finding,
+    that a pacing resource with no primacy reads as one of seven equal chips.
+    Round three of 2026-09-05 answered the same finding differently and said so
+    at length in Hud.tsx: the committed goal images are the specification for
+    this row, "none of them draws a charge pill", so the 2xl number, the word
+    and the inset meter went and the two signals that cost the row no width
+    stayed. Charge is the only item with a tinted fill and the only one with a
+    2px coloured edge; the other two carry a hairline.
+
+    So the check follows the design rather than the design being held to a
+    superseded round. THE BAR IS NOT LOWERED: it still asserts that charge is
+    visibly distinct from both neighbours and that the distinction is exclusive
+    to it, which is what the finding was ever about. It is now testing the
+    property the build actually claims instead of one it deliberately dropped,
+    and it would still fail the row this was written to catch, seven chips at
+    one weight, because none of them would be filled or outlined alone.
+
+    Found because the audit ran for the first time since 2026-09-02 and
+    measured 14px against 14px. The measurement was right and its subject was
+    out of date.
+  */
   const charge = state.items.find((item) => item.id === "charge");
   const others = state.items.filter((item) => item.id !== "charge");
   if (charge === undefined || others.length === 0) return false;
-  const biggestNeighbour = Math.max(...others.map((item) => item.numberPx));
-  if (biggestNeighbour <= 0) return false;
-  if (charge.numberPx / biggestNeighbour < HUD_DOMINANT_MIN_RATIO) return false;
-  if (state.meterClearancePx < 4) return false;
+  if (!charge.filled || !charge.thickEdge) return false;
+  if (others.some((item) => item.filled || item.thickEdge)) return false;
+  /*
+    THE INSET METER IS GONE, and -1 means absent rather than colliding.
+
+    This guarded a real defect: round one drew an 8px progress sliver inside
+    the charge pill that collided with the header's bottom divider. Round three
+    removed the pill and the sliver with it, for the reason Hud.tsx records,
+    that the committed goal images draw no charge pill at all. readHud reports
+    -1 when it cannot find `.hud-meter`, so the old comparison failed a header
+    for not clearing an element it deliberately no longer has.
+
+    The clearance is still enforced wherever a meter EXISTS. Nothing about the
+    original defect stops being caught; the check simply cannot be failed by
+    the absence of the thing it measures.
+  */
+  if (state.meterClearancePx !== -1 && state.meterClearancePx < 4) return false;
   return state.headerScrollWidth <= state.headerClientWidth + 1;
 }
 
@@ -1317,7 +1387,7 @@ export async function driveStreak(page, seedName, { onTrigger = null } = {}) {
   // than racing it.
   await page.waitForSelector('[data-reward="done"]', { timeout: 8_000 });
   await sleep(200);
-  const at = await press(page, await buttonByText(page, "Continue"), "Continue (reward)");
+  const at = await leaveReward(page);
   const trigger = onTrigger === null ? null : await onTrigger(at);
   await page.waitForSelector('[data-streak="done"]', { timeout: 8_000 }).catch(() => {});
   const state = await readStreak(page);
