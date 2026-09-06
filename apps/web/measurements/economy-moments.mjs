@@ -326,11 +326,20 @@ export async function driveFeedback(page, outcome, { onTrigger = null } = {}) {
 
 /** All three questions right, then Finish lesson, which brings the interstitial. */
 export async function driveCombo(page, { onTrigger = null } = {}) {
-  for (let i = 0; i < INTRO.length; i += 1) {
-    await typeAnswer(page, INTRO[i].value, INTRO[i].unit);
-    await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
+  // THREE IN A ROW, whatever shape each one is. The combo fires on three
+  // correct answers and the lesson serves mixed beats, so the count is what
+  // matters and the shape is answerCurrent's problem rather than this loop's.
+  const RUN = 3;
+  for (let i = 0; i < RUN; i += 1) {
+    const done = await answerCurrent(page);
+    if (!done.answered) throw new Error(`driveReward: could not answer question ${i + 1}: ${done.why}`);
+    // A NUMERIC BEAT NEEDS Check; A CHOICE BEAT DOES NOT. ProblemView wires a
+    // choice option's onPick straight to onSubmit, so picking IS submitting and
+    // there is no Check button on screen to press. Pressing one that is not
+    // there was the failure that stopped this driver at question two.
+    if (!done.submits) await press(page, await buttonByText(page, "Check"), `Check ${i + 1}`);
     await page.waitForSelector('[data-reaction="correct"]', { timeout: 5_000 });
-    if (i < INTRO.length - 1) {
+    if (i < RUN - 1) {
       await press(page, await buttonByText(page, "Next"), `Next ${i + 1}`);
       await sleep(250);
     }
@@ -340,6 +349,88 @@ export async function driveCombo(page, { onTrigger = null } = {}) {
   await page.waitForSelector('[data-combo="3"]', { timeout: 5_000 }).catch(() => {});
   const reached = (await page.$('[data-combo="3"]')) !== null;
   return { moment: "combo", reached, at, trigger };
+}
+
+/**
+ * Answer whatever question is on screen, whichever SHAPE it is.
+ *
+ * WHY THIS EXISTS, and it is the durable half of the 2026-09-05 repair. Every
+ * driver here used to assume a lesson was a run of NUMERIC questions, because
+ * the one it was written against was: the gas-laws intro lesson served three in
+ * a row. Lessons are not that any more. The lesson-flow rebuild composes a
+ * lesson out of beats, so pka_and_acidity alternates "Work the number" with
+ * "Quick questions" and the served order is numeric, choice, numeric, choice,
+ * choice, ordering. A driver that types into a numeric field on question two
+ * waits ten seconds for a field that is not there, which is what every dead
+ * moment was doing.
+ *
+ * So the driver stops assuming and READS. The authored corpus is a real
+ * package with a build, so this script imports SEED_CORPUS and looks the
+ * question up by its prompt, then answers it the way its own answer kind says
+ * to. Nothing about grading changes: the answer still goes in through the real
+ * controls and the real checker decides. It only stops the instrument from
+ * being wrong about the shape of a lesson it did not author.
+ *
+ * `wrong: true` submits an authored distractor instead, so a wrong answer
+ * still lands on a Tier 2 explanation rather than the Tier 3 tail.
+ */
+export async function answerCurrent(page, { wrong = false } = {}) {
+  const { SEED_CORPUS } = await import("@blueberry/curriculum");
+  const prompt = await page.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
+  /*
+    THE QUESTION THAT APPEARS LAST WINS, not the longest one.
+
+    A lesson keeps the questions already answered in the document, so the body
+    contains several authored prompts at once and "the first that matches" is
+    whichever the sort happened to put first: measured, it returned question
+    one's numeric prompt while question two was on screen, and the driver then
+    waited for a numeric field the choice beat does not have. The live question
+    is the one rendered furthest down, so the highest match index is the
+    current one no matter how many are behind it.
+  */
+  let problem;
+  let best = -1;
+  for (const entry of SEED_CORPUS) {
+    if (typeof entry.prompt !== "string" || entry.prompt.length <= 30) continue;
+    const at = prompt.lastIndexOf(entry.prompt.slice(0, 60).replace(/\s+/g, " "));
+    if (at > best) {
+      best = at;
+      problem = entry;
+    }
+  }
+  if (best === -1) problem = undefined;
+  if (problem === undefined) return { answered: false, why: "no authored problem matches the prompt on screen" };
+
+  const answer = problem.answer;
+  if (answer.kind === "numeric") {
+    const value = wrong ? String(Number(answer.text) * 2 || "0") : answer.text;
+    await typeAnswer(page, value, answer.unit ?? "");
+    // Typing is not submitting: the caller still has to press Check.
+    return { answered: true, kind: "numeric", submits: false };
+  }
+  if (answer.kind === "multiple_choice") {
+    const pick = wrong
+      ? answer.options.find((option) => option.id !== answer.correctOptionId)
+      : answer.options.find((option) => option.id === answer.correctOptionId);
+    // A REAL MOUSE CLICK, not a dispatched one. The option is a button whose
+    // onPick submits the answer outright, and a synthesised click on it left
+    // the question unanswered: measured, the options were still on screen and
+    // no reaction strip had rendered. page.mouse goes through the same input
+    // pipeline a finger does, which is what the control is built for.
+    const box = await page.evaluate((text) => {
+      const wanted = text.replace(/\s+/g, " ").trim();
+      const nodes = [...document.querySelectorAll("button, [role=radio], li")];
+      const target = nodes.find((node) => node.innerText.replace(/\s+/g, " ").trim().includes(wanted));
+      if (target === undefined) return null;
+      target.scrollIntoView({ block: "center" });
+      const r = target.getBoundingClientRect();
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
+    }, pick.text);
+    if (box === null) return { answered: false, why: `no option on screen reading "${pick.text}"` };
+    await page.mouse.click(box.x, box.y);
+    return { answered: true, kind: "multiple_choice", submits: true };
+  }
+  return { answered: false, why: `no driver for answer kind ${answer.kind}` };
 }
 
 /**
