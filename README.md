@@ -1,5 +1,29 @@
 # Blueberry Mechanisms
 
+> ## The app code has moved. 2026-09-08.
+>
+> `apps/web` now lives inside the sibling repository, at `src/game` in
+> [Blueberry](https://github.com/andliu7/blueberry), together with all five
+> engine packages and the app's 77 tests. That repository is where the game is
+> built, run and deployed from, because it is where the game is now reachable:
+> the home page's hero tile and "Start the first lesson" open it at `#/app`.
+>
+> **Edit the game there, not here.** The two copies are not linked, and they have
+> already diverged on purpose: the copy over there carries the `#/app` route
+> prefix and about 1,600 `bb-` colour renames, both of which exist so the game
+> and the site can share one document without repainting each other. Copying a
+> file from here to there re-introduces the collisions those renames removed.
+>
+> **What this repository is still for.** `docs/reference/` stays here: 833MB
+> across 2,022 files of Alchemie captures, competitor screenshots and Mobbin
+> sets. So does `apps/web/measurements/`, the gauntlet harness. Critics and
+> authors read their reference material from here. The authored specs were
+> copied over to `documentation/` so they sit beside the code they describe;
+> where the two ever disagree, the copy beside the code is the live one.
+>
+> `packages/` is still here and still passing, and is the reference copy.
+
+
 An organic chemistry mechanism engine, plus a game-mode web app and a standalone Expo app built over
 it. Sibling to [Blueberry](https://github.com/andliu7/blueberry), deliberately a separate repository.
 
