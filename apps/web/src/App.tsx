@@ -35,6 +35,21 @@ const BeatRunner = lazy(() => import("./beats/BeatRunner").then((m) => ({ defaul
  */
 const BerryGallery = lazy(() => import("./mascot/BerryGallery"));
 
+/**
+ * The pilot arrow workbench, at #/gallery/pilot-arrow. Same reasoning as the
+ * mascot gallery above: a development surface, lazy so it never lands in a
+ * student's payload.
+ */
+const PilotArrowGallery = lazy(() => import("./pilot/PilotGallery"));
+
+/**
+ * The pilot gameplay screen's workbench, at #/gallery/pilot-trainer. The
+ * screen itself is a self-contained { problem, onExit } component, so this
+ * route is a mount point and nothing else; re-homing "#/trainer" or a lesson
+ * onto it later is another mount point. See pilot/screen/PilotScreen.tsx.
+ */
+const PilotTrainerGallery = lazy(() => import("./pilot/screen/PilotTrainerGallery"));
+
 const params = new URLSearchParams(window.location.search);
 /** The measurement scripts need the canvas with no onboarding in front of it. */
 const MEASURING = params.get("auto") === "1" || params.get("stats") === "1" || params.get("targets") === "1";
@@ -79,6 +94,25 @@ function Body({
   readonly needsOnboarding: boolean;
 }) {
   if (route.kind === "gallery") {
+    // The gallery route already carries a name (routes.ts parses it); until now
+    // every name landed on the mascot. Branching on it here is the whole wiring
+    // the pilot needs, and it touches no trainer file.
+    if (route.name === "pilot-arrow") {
+      return (
+        <Suspense fallback={<TabSkeleton label="the arrow workbench" />}>
+          <BootReady />
+          <PilotArrowGallery />
+        </Suspense>
+      );
+    }
+    if (route.name === "pilot-trainer") {
+      return (
+        <Suspense fallback={<TabSkeleton label="the pilot trainer" />}>
+          <BootReady />
+          <PilotTrainerGallery />
+        </Suspense>
+      );
+    }
     return (
       <Suspense fallback={<TabSkeleton label="the mascot gallery" />}>
         <BootReady />

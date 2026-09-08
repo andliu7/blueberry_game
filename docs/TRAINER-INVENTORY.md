@@ -11,6 +11,9 @@ ledger, or the server. It is an inventory, not a verdict.
 Written 2026-09-04 on branch `phase-5`, at commit `5b4f10b`. Every path and every `file:line` below
 was opened on disk during this audit and checked to contain what the sentence says it contains.
 Where a fact could not be established it says `UNVERIFIED` and names what would settle it.
+Amended 2026-09-07: instance 17, the pilot trainer screen, was added after the pilot gauntlet built
+it; section 17 states what it is. Only that section and the counts around it were re-verified on
+that date; everything else stands at its original verification.
 
 **The honest qualifier on that promise, because a concurrent session is editing this tree.** Line
 numbers were checked against `5b4f10b` plus the working tree at the time of writing. Files that were
@@ -30,7 +33,7 @@ omits it. Both verified with `ls apps` and `ls packages`.
 ## Part 1 - The instance table
 
 An instance is any place a student manipulates or answers a chemistry question interactively,
-whether or not it draws arrows. Rows 1 to 4 are TRUE ARROW-PUSHING. Rows 5 to 16 are ADJACENT
+whether or not it draws arrows. Rows 1 to 4 and 17 are TRUE ARROW-PUSHING. Rows 5 to 16 are ADJACENT
 SURFACES. Detail for every cell is in Part 2, one section per row, in this order.
 
 | # | Instance | Entry file | Route | Reached from | Question kind | Undo | Step replay | Redraw | Curved arrows | Graded by |
@@ -51,8 +54,11 @@ SURFACES. Detail for every cell is in Part 2, one section per row, in this order
 | 14 | Trainer scratchpaper (ADJACENT SURFACE, ungraded) | `apps/web/src/tabs/trainer/TrainerTools.tsx` | None, a modal over `#/trainer` | The trainer's plus-menu | Free ink, no question | Yes, its own Undo and Clear | No | Yes, Clear | No | Nothing, it is a napkin |
 | 15 | Flashcard composer (ADJACENT SURFACE, ungraded) | `apps/web/src/cards/ui/CardComposer.tsx` | `#/cards` | The Cards landing's compose control | Write a three-sided reaction card | No | No | Yes, per side, until Save | No | Nothing, the student authors it |
 | 16 | pKa settings editor (ADJACENT SURFACE, UNREACHABLE) | `apps/web/src/settings/PkaSettings.tsx` | None | Nothing, the component has zero importers | Edit the pKa ladder to match a professor | No, but a Clear my changes reset | No | Yes, per value | No | Nothing itself, but it FEEDS `judgeSort` |
+| 17 | Pilot trainer screen (TRUE ARROW-PUSHING, DEV ROUTE) | `apps/web/src/pilot/screen/PilotScreen.tsx` | `#/gallery/pilot-trainer`, dev only | Typed by hand, nothing links to it, per the gallery-route rule | Resonance with tapered arrows, reaction with the arrowless electron gesture | Yes, an UNDO chip wired to the machine | Yes, a scrubber over the student's own recorded steps | Yes, a REDRAW chip, absent on the won screen | Yes on resonance only, tapered filled outline | `gradeDrawing`, `apps/web/src/tabs/trainer/grade.ts:72`, unchanged |
 
-Sixteen instances. Four true arrow-pushing, and all four are the same React component file under
+Seventeen instances (sixteen as originally audited, plus the pilot added 2026-09-07 after the pilot
+gauntlet; see section 17 for what it is and is not). Four of the original sixteen are true
+arrow-pushing, and all four are the same React component file under
 three `Selection` branches plus two dead props, `tutorial` and `onSolved`. THREE of the sixteen are
 built and UNREACHABLE, rows 9, 10 and 16, and they sit in two unrelated subsystems rather than one:
 that is a pattern, and it is D18. Two more are ungraded by design, rows 14 and 15.
@@ -896,6 +902,54 @@ surface on the other side of it was never given a route.
 - CURVED ARROWS: **no.**
 - GRADING: **none on this surface.** It changes what `judgeSort` grades elsewhere. See instance 7 and
   Part 4.
+
+### 17. Pilot trainer screen
+
+Added 2026-09-07, after the pilot gauntlet, and NOT part of the original sixteen-instance audit: it
+is the reference screen the other trainer instances are intended to be rebuilt from, built new and
+judged blind against the Alchemie bar piece by piece until every piece won. It deliberately does not
+replace anything yet.
+
+Entry file:
+
+- `apps/web/src/pilot/screen/PilotScreen.tsx`, a self-contained full-viewport component taking
+  `{ problem, onExit }` props, so re-homing `#/trainer` or `#/lesson` onto it later is a mount-point
+  change. The integration note lives in its header.
+
+Supporting files, all under `apps/web/src/pilot/`:
+
+- `screen/screenModel.ts`, the pure state machine (phases, recorded steps, `availableControls()`)
+- `screen/pilotLayout.ts`, layout constants
+- `screen/PilotCanvas.tsx`, the canvas over the interaction store
+- `screen/PilotTrainerGallery.tsx`, the dev wrapper with the Resonance / Reaction switcher
+- `arrow/taperedArrow.ts` and `arrow/TaperedArrowSvg.tsx`, the tapered curved arrow as a closed
+  filled outline (an SVG stroke cannot vary width, so this is a different construction), chord floor
+  34 px with rim swing
+- `drag/smoothing.ts`, the pointer smoother with settle guarantees and bow-side hysteresis
+- `annotations/placement.ts`, lone pairs and hydrogens allocated together into the bond-free arc,
+  rotation invariant; its header records the one-line edits that would carry the fix into
+  `MoleculeSvg.tsx` and `hitLayout.ts`, which still fan lone pairs from `openAngle + PI`
+
+Route: `#/gallery/pilot-trainer`, dev only, handled by the gallery branch in `apps/web/src/App.tsx`.
+Typed by hand; nothing in the shell links to it, which is the documented gallery-route rule.
+
+Two rulings this screen carries, decided during the gauntlet and binding on later trainer work:
+curved arrows appear ONLY on resonance problems (a reaction shows the arrowless electron gesture
+with a dashed guide, matching the bar), and the win is a quiet in-canvas acknowledgement with the
+chemistry left on screen, the full-bleed celebration staying at the lesson level.
+
+- UNDO: **yes**, a chip wired to the interaction machine's `undoDocument`, pinned by
+  `apps/web/test/pilotScreenWiring.test.ts` (jsdom, proven able to fail).
+- STEP REPLAY: **yes**, a slider scrubbing back and forth over the student's own recorded steps,
+  keyboard steps included; it cannot mutate the draft.
+- REDRAW: **yes**, and deliberately absent from the won layout so a stray press cannot destroy a
+  correct solve; `availableControls()` in `screenModel.ts` rules the chip set.
+- CURVED ARROWS: **yes on resonance only**, the tapered outline; a reaction draws none at any point.
+- GRADING: `gradeDrawing`, `apps/web/src/tabs/trainer/grade.ts:72`, deliberately unchanged.
+
+Tests: `apps/web/test/pilotTaperedArrow.test.ts`, `pilotSmoothing.test.ts`, `pilotPlacement.test.ts`,
+`pilotScreen.test.ts`, `pilotScreenWiring.test.ts`. The suites are mutation-pinned: the judged
+rounds repeatedly deleted each feature and verified a test went red.
 
 ---
 

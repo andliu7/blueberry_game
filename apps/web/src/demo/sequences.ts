@@ -2,7 +2,7 @@
  * Multi-step problems: an ordered chain of MechanismSteps played as one
  * exercise, each step's own from/to states authored whole, exactly the
  * beat model in docs/DATA-MODEL.md. Owner spec, 2026-08-26: "build a version
- * without the arrows for a multi step problem" — sequences run ARROWLESS:
+ * without the arrows for a multi step problem"; sequences run ARROWLESS:
  * the electron primitive carries the gesture and no committed arrow glyphs
  * accumulate; each solved step plays its animation and the runner advances.
  *
@@ -5007,7 +5007,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
   {
     id: "seq-hydration",
     title: "Hydration of formaldehyde · 2 steps",
-    brief: "Two steps to the gem-diol: attack, then protonate. No arrows drawn — you move the electrons themselves.",
+    brief: "Two steps to the gem-diol: attack, then protonate. No arrows drawn, you move the electrons themselves.",
     successLine: "The whole path: hydroxide built the tetrahedral alkoxide, and the alkoxide took a proton from hydronium. That is base-catalysed hydration, start to finish.",
     steps: [
       {
@@ -5030,7 +5030,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-tautomer",
     title: "Keto–enol tautomerism · 2 steps",
     brief: "Base takes the α-proton, then the enolate protonates on OXYGEN: same atoms, new tautomer.",
-    successLine: "Tautomerism whole: deprotonate at carbon, reprotonate at oxygen. The enolate in the middle is an ambident nucleophile, and which end takes the proton decides which tautomer you get — the equilibrium favours the ketone, but the enol is how half of Unit 9 happens.",
+    successLine: "Tautomerism whole: deprotonate at carbon, reprotonate at oxygen. The enolate in the middle is an ambident nucleophile, and which end takes the proton decides which tautomer you get: the equilibrium favours the ketone, but the enol is how half of Unit 9 happens.",
     steps: [
       {
         step: TAU_DEPROTONATE,
@@ -5082,7 +5082,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-condensation",
     title: "Aldol condensation · 2 steps",
     brief: "The aldol product loses water the E1cb way: enolate first, then the hydroxide is pushed out.",
-    successLine: "The condensation whole: deprotonate alpha to the carbonyl, then the enolate's π swings over and expels hydroxide — the enone is conjugated, and that conjugation is the thermodynamic paycheck that drives the dehydration.",
+    successLine: "The condensation whole: deprotonate alpha to the carbonyl, then the enolate's π swings over and expels hydroxide: the enone is conjugated, and that conjugation is the thermodynamic paycheck that drives the dehydration.",
     steps: [
       {
         step: COND_DEPROTONATE,
@@ -5140,7 +5140,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-snar",
     title: "SNAr · 2 steps",
     brief: "Aromatic reactivity inverts: the ring takes a nucleophile, and the nitro group holds the charge while it happens.",
-    successLine: "SNAr whole: addition into the Meisenheimer complex, the negative charge parked on the nitro oxygen, then the relay runs backwards and fluoride leaves — the reversed leaving-group order makes sense the moment you see that addition, not C–F cleavage, is the hard step.",
+    successLine: "SNAr whole: addition into the Meisenheimer complex, the negative charge parked on the nitro oxygen, then the relay runs backwards and fluoride leaves: the reversed leaving-group order makes sense the moment you see that addition, not C–F cleavage, is the hard step.",
     steps: [
       {
         step: SNAR_ADDITION,
@@ -5212,7 +5212,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-claisen",
     title: "Claisen condensation · 2 steps",
     brief: "The ester enolate attacks another ester; the tetrahedral intermediate throws methoxide out.",
-    successLine: "The Claisen whole: enolate carbon onto the ester carbonyl, then the alkoxide reforms the π and expels methoxide — a β-ketoester, and the doubly-activated proton it carries is what pulls the whole equilibrium over.",
+    successLine: "The Claisen whole: enolate carbon onto the ester carbonyl, then the alkoxide reforms the π and expels methoxide: a β-ketoester, and the doubly-activated proton it carries is what pulls the whole equilibrium over.",
     steps: [
       {
         step: CLAISEN_ATTACK,
@@ -5336,7 +5336,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-diene",
     title: "HBr + butadiene, 1,4 · 2 steps",
     brief: "Protonate the diene, then the bromide arrives at the FAR end through the allyl system.",
-    successLine: "1,4-addition whole: the proton makes the allyl cation, and bromide captures the far end as the π slides over — the thermodynamic product, and Unit 1's whole argument about control.",
+    successLine: "1,4-addition whole: the proton makes the allyl cation, and bromide captures the far end as the π slides over: the thermodynamic product, and Unit 1's whole argument about control.",
     steps: [
       {
         step: DIENE_PROTONATION,
@@ -5384,7 +5384,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-eas",
     title: "EAS nitration · 2 steps",
     brief: "The ring attacks, then gives the proton back: substitution that keeps aromaticity.",
-    successLine: "Electrophilic aromatic substitution whole: the π attacks the nitronium, the arenium holds its breath, and losing the sp³ proton buys aromaticity back. Attack, then rearomatize — the same two beats under every reaction in this unit.",
+    successLine: "Electrophilic aromatic substitution whole: the π attacks the nitronium, the arenium holds its breath, and losing the sp³ proton buys aromaticity back. Attack, then rearomatize: the same two beats under every reaction in this unit.",
     steps: [
       {
         step: EAS_ATTACK,
@@ -5453,7 +5453,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-sn1",
     title: "SN1 solvolysis · 2 steps",
     brief: "The bromide leaves on its own, then water captures the cation.",
-    successLine: "That is SN1 whole: ionisation makes the flat tertiary cation, and water arrives on either face — which is why SN1 scrambles stereochemistry where SN2 inverts it.",
+    successLine: "That is SN1 whole: ionisation makes the flat tertiary cation, and water arrives on either face, which is why SN1 scrambles stereochemistry where SN2 inverts it.",
     steps: [
       {
         step: IONISATION,
@@ -5549,7 +5549,7 @@ export const TRAINER_SEQUENCES: readonly TrainerSequence[] = [
     id: "seq-aldol",
     title: "Aldol addition · 2 steps",
     brief: "Make the enolate, then let its carbon attack the other carbonyl.",
-    successLine: "The aldol, start to finish: base pulls the α-proton to make the enolate, and the enolate's CARBON attacks the second carbonyl — one new C–C bond, the skeleton grown.",
+    successLine: "The aldol, start to finish: base pulls the α-proton to make the enolate, and the enolate's CARBON attacks the second carbonyl: one new C–C bond, the skeleton grown.",
     steps: [
       {
         step: ENOLATE_FORMATION,

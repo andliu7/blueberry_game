@@ -2008,7 +2008,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
   {
     id: "alkene-protonation",
     title: "Propene + HBr",
-    brief: "The π bond grabs the proton — but which carbon takes the H? Draw both arrows.",
+    brief: "The π bond grabs the proton, but which carbon takes the H? Draw both arrows.",
     successLine: "Markovnikov: the H lands on the CH₂ end, so the positive charge sits on the more substituted carbon, where it is most stable.",
     step: ALKENE_PROTONATION,
     fromHints: {
@@ -2032,7 +2032,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     id: "e2",
     title: "E2 elimination",
     brief: "Three arrows, one moment: the base pulls, the π forms, the bromide leaves.",
-    successLine: "One concerted step: the base takes the β-hydrogen as its electrons become the π bond and bromide departs — anti-periplanar, all at once.",
+    successLine: "One concerted step: the base takes the β-hydrogen as its electrons become the π bond and bromide departs: anti-periplanar, all at once.",
     step: E2_ELIMINATION,
     fromHints: {
       o1: { x: -2.6, y: 1.15 },
@@ -2099,7 +2099,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     id: "epoxide-basic",
     title: "Epoxide, basic opening",
     brief: "Strong nucleophile, no acid: which carbon does it hit?",
-    successLine: "Under basic conditions the nucleophile attacks the LESS hindered carbon — clean SN2, backside, and the ring strain does the leaving group's job.",
+    successLine: "Under basic conditions the nucleophile attacks the LESS hindered carbon: clean SN2, backside, and the ring strain does the leaving group's job.",
     step: EPOXIDE_BASIC,
     fromHints: {
       om: { x: -1.85, y: -0.35 },
@@ -2214,7 +2214,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     id: "alpha-bromination",
     title: "α-Bromination",
     brief: "The enolate meets Br₂: three arrows.",
-    successLine: "The enolate's carbon attacks bromine, the carbonyl reforms behind it, and bromide leaves: the α-carbon is functionalised, and under base this would run again — which is the haloform story.",
+    successLine: "The enolate's carbon attacks bromine, the carbonyl reforms behind it, and bromide leaves: the α-carbon is functionalised, and under base this would run again, which is the haloform story.",
     step: ALPHA_BROMINATION,
     fromHints: {
       c1: { x: -1.0, y: 0.15 },
@@ -2264,7 +2264,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     id: "enamine-attack",
     title: "Enamine, first bond",
     brief: "A 2° amine this time: no N–H left to lose at the end, which is the whole difference.",
-    successLine: "The dimethylamine's lone pair takes the carbonyl carbon: the zwitterion forms, and because the nitrogen came in with only one H, the road ends at an enamine, not an imine — Stork chemistry starts here.",
+    successLine: "The dimethylamine's lone pair takes the carbonyl carbon: the zwitterion forms, and because the nitrogen came in with only one H, the road ends at an enamine, not an imine: Stork chemistry starts here.",
     step: ENAMINE_ATTACK,
     fromHints: {
       nm: { x: -1.55, y: -0.3 },
@@ -2289,7 +2289,7 @@ export const TRAINER_REACTIONS: readonly TrainerReaction[] = [
     id: "enolate-alkylation",
     title: "Enolate alkylation",
     brief: "The enolate's carbon does an SN2 on the methyl halide. Three arrows.",
-    successLine: "C-alkylation: the enolate attacks through carbon, the carbonyl reforms behind it, bromide leaves — one new C–C bond, and the regiochemistry was decided back when you chose which enolate to make.",
+    successLine: "C-alkylation: the enolate attacks through carbon, the carbonyl reforms behind it, bromide leaves: one new C–C bond, and the regiochemistry was decided back when you chose which enolate to make.",
     step: ENOLATE_ALKYLATION,
     fromHints: {
       c1: { x: -1.0, y: 0.15 },

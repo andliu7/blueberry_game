@@ -104,6 +104,14 @@
      That is sticker rule 3 arriving by arithmetic rather than by taste. */
   --card: #f6f2e7;
   --card-foreground: #24243c;
+  /* THE WORKBENCH. The pilot canvas card is pure white, per the locked shell
+     reference (blueberry_r9-lesson-mechanism_1788289491): a white bench
+     stepping off the cream page, where --card at 1.05:1 against the ground
+     reads as an outline on the same paper. Inks re-checked on white:
+     --foreground 13.9:1, --border 6.73:1, --muted-foreground 10.22:1, and
+     --scene-faint composites to about rgb(88,99,116) at 6.0:1, all clear of
+     their AA floors. */
+  --workbench: #ffffff;
   /* THE IDENTITY VIOLET, per DESIGN-GOALS: "violet says this is Blueberry".
      Not #7c3aed (the mascot's cape, sticker rule 9) and not #5b21b6 (the
      fold). White on it is 6.34:1, and it clears 5.76:1 as a shape sitting on
@@ -506,6 +514,10 @@
   --foreground: #e8e6f2;
   --card: #232741;
   --card-foreground: #f2f0f8;
+  /* The reference locking the white workbench is a light-theme capture; at
+     night the bench is the card, so every dark ink keeps the surface it was
+     derived against. */
+  --workbench: #232741;
   /* TWO ROLES, and one value cannot serve both. As a SURFACE white sits on it,
      and #5b60c8 gives white 5.31:1, over the 4.5 body floor. As INK it sits on
      the night page, and fixing the surface by darkening makes the ink worse:
